@@ -138,7 +138,6 @@ Stack Médias de Production — 1.6 To de données, 9 conteneurs interdépendant
 **`du` additionne la taille de chaque fichier à chaque fois qu'il le rencontre — y compris pour des hardlinks — donc il sur-compte. `df` seul reflète l'espace disque réel.**
 
 Toujours valider une migration avec hardlinks via `df`, jamais `du` seul.
-</Warning>
 
 ## Le grand troubleshooting qBittorrent — 401 puis 403
 
