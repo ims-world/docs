@@ -108,7 +108,7 @@
             "group": "Traçabilité",
             "icon": "clock-rotate-left",
             "pages": [
-              "changelog",
+              "meta/changelog",
               "meta/comment-fonctionne-cette-doc"
             ]
           }
