@@ -9,9 +9,69 @@ description: "Cartographie centralisée des zones de confiance, de l'exposition 
 L'infrastructure IMS-WORLD applique le principe de **moindre privilège** et de **sécurité en profondeur** : aucun service n'est exposé publiquement s'il n'en a pas le besoin strict. Le trafic d'administration est systématiquement restreint au réseau privé Tailscale ou au LAN local.
 </Info>
 
----
+## 🛡️ Matrice d'Exposition par Zone de Confiance
 
-## 🛡️ Schéma des 3 Zones de Confiance Réseau
+<Tabs>
+  <Tab title="🌐 Zone 1 — Services Publics (WAN)">
+    <CardGroup cols={2}>
+      <Card title="Authentik SSO" icon="key" href="/services/authentik">
+        **Domaine** : `auth.ims-world.fr`
+        **Auth** : SSO OIDC + WebAuthn 2FA
+        **Protection** : Let's Encrypt DNS-01, TLS 1.3
+      </Card>
+      <Card title="Vaultwarden" icon="shield-halved" href="/services/vaultwarden">
+        **Domaine** : `vault.ims-world.fr`
+        **Auth** : SSO Authentik + Mot de passe fort
+        **Protection** : TLS 1.3, Config `email_verified: true`
+      </Card>
+      <Card title="Jellyfin" icon="play" href="/services/homeflix">
+        **Domaine** : `homeflix.ims-world.fr`
+        **Auth** : Authentification native Jellyfin
+        **Protection** : DNS-01 TLS, Transcodage isolé
+      </Card>
+      <Card title="Jellyseerr" icon="film" href="/services/homeflix">
+        **Domaine** : `videoclub.ims-world.fr`
+        **Auth** : SSO / Auth Jellyfin
+        **Protection** : DNS-01 TLS
+      </Card>
+      <Card title="Headscale VPN Server" icon="network-wired" href="/services/headscale-headplane">
+        **Domaine** : `vpn.ims-world.fr`
+        **Auth** : Noise Key Protocol + OIDC SSO
+        **Protection** : Port-forwarding dédié 443
+      </Card>
+    </CardGroup>
+  </Tab>
+  <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">
+    <CardGroup cols={2}>
+      <Card title="Headplane Admin" icon="sliders" href="/services/headscale-headplane">
+        **URL** : `vpn.ims-world.fr/admin`
+        **Protection** : Middleware Traefik `vpn-only` (`100.64.0.0/10`)
+      </Card>
+      <Card title="qBittorrent" icon="download" href="/services/homeflix">
+        **Domaine** : `qbit.ims-world.fr`
+        **Protection** : Middleware `vpn-only` + Kill-switch VPN Gluetun
+      </Card>
+      <Card title="Radarr & Sonarr" icon="tv" href="/services/homeflix">
+        **Domaines** : `radarr.ims-world.fr` / `sonarr.ims-world.fr`
+        **Protection** : Middleware `vpn-only` + Auth Formulaire
+      </Card>
+      <Card title="Prowlarr" icon="magnifying-glass" href="/services/homeflix">
+        **Domaine** : `prowlarr.ims-world.fr`
+        **Protection** : Middleware `vpn-only` + API Keys
+      </Card>
+    </CardGroup>
+  </Tab>
+  <Tab title="🏠 Zone 3 — Administration LAN & NFS Isolé">
+    | Service / Nœud | Adresse / Port | Exposition | Méthode d'Authentification |
+    |---|---|---|---|
+    | **Proxmox VE GUI** | `192.168.1.41:8006` | 🏠 LAN / Tailnet | PAM / Compte `cmolotkoff` |
+    | **PBS Web GUI** | `192.168.1.51:8007` | 🏠 LAN / Tailnet | Auth PBS `cmolotkoff@pbs` |
+    | **NAS SMB** | `192.168.1.50:445` | 🏠 LAN Only | Auth SMB `cmolotkoff` |
+    | **NAS NFS** | `10.10.10.1:2049` | 🔒 `vmbr1` Isolé | Subnet IP `10.10.10.0/24` |
+  </Tab>
+</Tabs>
+
+## 🔒 Schéma Réseau des 3 Zones de Confiance
 
 ```mermaid
 graph TB
@@ -46,38 +106,13 @@ graph TB
     ADMIN_NODES <--> NFS_ISO
 
     classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
-    classDef vpn fill:#0F6E56,stroke:#16A085,color:#fff;
-    classDef lan fill:#1a2b3c,stroke:#0F6E56,color:#fff;
+    classDef vpn fill:#F97316,stroke:#FB923C,color:#fff;
+    classDef lan fill:#1a2b3c,stroke:#F97316,color:#fff;
     class PUBLIC_USERS,HTTPS_443 wan;
     class VPN_USERS,MIDDLEWARE_VPN vpn;
     class ADMIN_LAN,NFS_ISO lan;
     class PUB_APPS,PRIV_APPS,ADMIN_NODES services;
 ```
-
----
-
-## 📊 Matrice d'Exposition et d'Authentification des Services
-
-| Service | Domaine / Adresse | Exposition | Méthode d'Authentification | Protections & Middlewares |
-|---|---|---|---|---|
-| **Authentik** | `auth.ims-world.fr` | 🌐 Public WAN | SSO OIDC + WebAuthn 2FA | Let's Encrypt DNS-01, TLS 1.3 |
-| **Vaultwarden** | `vault.ims-world.fr` | 🌐 Public WAN | SSO Authentik + Mdp fort | Config `email_verified: true`, TLS 1.3 |
-| **Jellyfin** | `homeflix.ims-world.fr` | 🌐 Public WAN | Auth native Jellyfin | DNS-01 TLS, Transcodage isolé |
-| **Jellyseerr** | `videoclub.ims-world.fr` | 🌐 Public WAN | SSO / Auth Jellyfin | DNS-01 TLS |
-| **Headscale** | `vpn.ims-world.fr` | 🌐 Public WAN | OIDC Authentik SSO + Noise Key | Protocol Noise encryption |
-| **Headplane** | `vpn.ims-world.fr/admin` | 🔐 Tailnet-only | OIDC Authentik SSO | Middleware `vpn-only` |
-| **qBittorrent** | `qbit.ims-world.fr` | 🔐 Tailnet-only | Auth native (`HostHeaderValidation=false`) | Middleware `vpn-only`, Gluetun VPN Tunnel |
-| **Prowlarr** | `prowlarr.ims-world.fr` | 🔐 Tailnet-only | Auth native / API Key | Middleware `vpn-only` |
-| **Radarr** | `radarr.ims-world.fr` | 🔐 Tailnet-only | Auth native / Formulaire | Middleware `vpn-only` |
-| **Sonarr** | `sonarr.ims-world.fr` | 🔐 Tailnet-only | Auth native / Formulaire | Middleware `vpn-only` |
-| **IT-Tools** | `it.ims-world.fr` | 🔐 Tailnet-only | Aucune (Outil stateless) | Middleware `vpn-only` |
-| **Cap** | `cap.ims-world.fr` | ⏸️ En Pause | NextAuth / MySQL Keys | Chiffrement `DATABASE_ENCRYPTION_KEY` |
-| **Proxmox VE GUI** | `192.168.1.41:8006` | 🏠 LAN / Tailnet | PAM / Compte nominatif `cmolotkoff` | HTTPS Auto-signé, Port restreint |
-| **PBS Web GUI** | `192.168.1.51:8007` | 🏠 LAN / Tailnet | Auth PBS `cmolotkoff@pbs` | HTTPS Auto-signé |
-| **NAS SMB** | `192.168.1.50:445` | 🏠 LAN-only | Auth SMB `cmolotkoff` | Bloqué hors du LAN |
-| **NAS NFS** | `10.10.10.1:2049` | 🔒 `vmbr1` Isolé | Restriction IP Subnet `10.10.10.0/24` | `no_root_squash` restreint aux guests |
-
----
 
 ## 🔒 Règles de Sécurité Impératives
 

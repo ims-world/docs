@@ -37,6 +37,48 @@ flowchart TD
 Cette page recense chaque problème réellement rencontré pendant le projet, avec sa cause exacte et sa solution — pas de théorie, uniquement du vécu.
 </Info>
 
+## ⚡ Commandes CLI de Diagnostic Rapide
+
+<CodeGroup>
+```bash Proxmox PVE CLI
+# Lister les conteneurs LXC et VM
+pct list
+qm list
+
+# Entrer dans un conteneur LXC (ex: NAS LXC 100)
+pct enter 100
+
+# Vérifier l'état d'une VM (ex: VM Coolify 104)
+qm status 104
+
+# Inspecter le journal système Proxmox en direct
+journalctl -fu pveproxy
+```
+
+```bash Docker & Coolify CLI
+# Lister l'état des conteneurs applicatifs
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# Inspecter les logs d'un service spécifique (ex: Authentik / HomeFlix)
+cd /data/coolify/services/<uuid>/
+docker compose logs -f --tail=100
+
+# Tester la résolution des montages FUSE/NFS dans un conteneur
+docker exec -it <container_id> df -h
+```
+
+```bash Network & Tailscale CLI
+# Statut des nœuds du Tailnet
+tailscale status
+
+# Tester la connectivité vers la VM Coolify (100.64.0.10)
+tailscale ping 100.64.0.10
+
+# Tester le filtrage middleware vpn-only (doit retourner 403 Forbidden depuis le WAN)
+curl -Iv https://qbit.ims-world.fr
+```
+</CodeGroup>
+
 ## Réseau et connectivité
 
 ### `ERR_ADDRESS_UNREACHABLE` dans Chrome, mais le service répond
