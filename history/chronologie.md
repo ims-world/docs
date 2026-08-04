@@ -3,6 +3,23 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 04/08/2026 — Résilience matérielle & monitoring hors-bande
+
+### 🆕 Nouveautés
+
+- **Mac Mini basculé en hôte de secours (Standby chaud)** — L'ancien serveur de production reste sous tension dans le rack, prêt à reprendre la charge en cas de panne majeure du MS-01. Une procédure de bascule d'urgence (Bbox port-forward + relance des conteneurs archivés) est documentée. Voir [Mac Mini 2014 (Hôte Standby)](/infrastructure/mac-mini).
+- **Sonde de monitoring Raspberry Pi 3B+** — Un Raspberry Pi indépendant surveille désormais l'hyperviseur, le NAS et la VM Coolify via healthchecks ICMP/HTTP, avec alertes Ntfy en cas de panne. Le monitoring continue de fonctionner même si Proxmox est éteint ou en reboot. Voir [Raspberry Pi 3B+ & Écrans](/infrastructure/rpi-monitor).
+- **Écran de statut en façade du rack** — Un afficheur LCD/OLED intégré au panneau supérieur du rack Labrax montre en temps réel le logo IMS, la température et la charge du cluster, piloté par le Raspberry Pi.
+
+### 🔧 Améliorations
+
+- **Tarpit SSH sur le Mac Mini** — Le port 22 du Mac Mini pointe désormais vers Endlessh (tarpit anti-bot) pour piéger les scans automatisés. L'accès SSH légitime passe par le port `4242`.
+- **Résolution DNS de l'ancien Coolify** — L'ancienne instance Coolify du Mac Mini reste joignable via `coolify-old.ims-world.fr` grâce à un enregistrement DNS dans Headscale, le temps de la phase de validation post-cutover.
+
+<Info>
+Prochaine étape planifiée : mise en service de [Cap](/services/cap) (enregistrement et partage d'écran self-hosted), toujours en attente de déploiement.
+</Info>
+
 ## Semaine du 03/08/2026 — Stabilisation post-cutover
 
 ### 🆕 Nouveautés
