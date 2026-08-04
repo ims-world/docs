@@ -10,8 +10,6 @@ description: "Chronologie du projet de migration Mac Mini → MS-01"
 - **Mac Mini basculé en hôte de secours (Standby chaud)** — L'ancien serveur de production reste sous tension dans le rack, prêt à reprendre la charge en cas de panne majeure du MS-01. Une procédure de bascule d'urgence (Bbox port-forward + relance des conteneurs archivés) est documentée. Voir [Mac Mini 2014 (Hôte Standby)](/infrastructure/mac-mini).
 - **Sonde de monitoring Raspberry Pi 3B+** — Un Raspberry Pi indépendant surveille désormais l'hyperviseur, le NAS et la VM Coolify via healthchecks ICMP/HTTP, avec alertes Ntfy en cas de panne. Le monitoring continue de fonctionner même si Proxmox est éteint ou en reboot. Voir [Raspberry Pi 3B+ & Écrans](/infrastructure/rpi-monitor).
 - **Écran de statut en façade du rack** — Un afficheur LCD/OLED intégré au panneau supérieur du rack Labrax montre en temps réel le logo IMS, la température et la charge du cluster, piloté par le Raspberry Pi.
-- **Feuille de Route 2026 — Immich** — Nouvelle fiche prévisionnelle pour la future galerie photos/vidéos self-hosted (`photos.ims-world.fr`), avec reconnaissance faciale et recherche vectorielle, SSO Authentik et stockage NAS. Voir [Immich (Feuille de Route)](/services/roadmap/immich).
-- **Feuille de Route 2026 — Beszel** — Nouvelle fiche prévisionnelle pour le monitoring multi-hôtes léger (`status.ims-world.fr`), accessible uniquement via le tailnet, avec agents sur MS-01, VM Coolify, Mac Mini et Raspberry Pi. Voir [Beszel (Feuille de Route)](/services/roadmap/beszel).
 
 ### 🔧 Améliorations
 
