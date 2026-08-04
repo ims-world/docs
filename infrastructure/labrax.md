@@ -3,11 +3,32 @@ title: "Labrax — Rack Physique"
 description: "Index matériel du rack serveur physique IMS-WORLD, alimentation et câblage"
 ---
 
-## Rôle et Vue d'ensemble
-
 <Info>
-**LABRAX** est le rack serveur physique (modèle 3D-printé MakerWorld) qui héberge l'ensemble des équipements et nœuds informatiques IMS-WORLD. Cette page sert d'**index physique** : elle documente l'emplacement, l'alimentation électrique et le câblage réel des machines.
+**LABRAX** (Révision Core IMS-01) est le rack serveur physique 3D-printé qui héberge l'ensemble du matériel informatique IMS-WORLD. Cette page sert d'**index physique** : elle documente l'emplacement des machines, leur refroidissement, l'alimentation électrique et le câblage réel.
 </Info>
+
+## Vues 3D & Conception du Rack Labrax
+
+<Tabs>
+  <Tab title="🖼️ Face Principale & Écran Status">
+    ![Rack Physique Labrax — Face](/assets/labrax-main.png)
+  </Tab>
+  <Tab title="🔌 Vue Arrière & Câblage">
+    ![Rack Physique Labrax — Vue Arrière & Alimentation](/assets/labrax-rear.png)
+  </Tab>
+</Tabs>
+
+## Fiche Technique & Matériaux du Chassis
+
+| Élément | Spécification & Détails |
+|---|---|
+| **Structure du rack** | Modèle 3D-printé MakerWorld (Châssis gris renforcé avec poignées supérieures) |
+| **Panneau Latéral** | Acrylique teinté noir profond (encastré dans les fentes intérieures du plastique) |
+| **Refroidissement Supérieur** | Ventilateur Noctua Industrial PPC Noir (extraction d'air chaud par le haut) |
+| **Plaque de Marque Frontale** | Panneau "INTERNATIONAL MOLOTKOFF SERVICES IMS" avec logo imprimé |
+| **Switch & Patch Panel** | Switch NETGEAR GS308EV4 encastré + Patch Panel RJ45 12 ports |
+| **Emplacements Stockage** | 4 Caddies 3.5" Dell PowerEdge (Gen 11-14G: `058CWC` / `0KG1CH`) |
+| **Distribution Électrique** | PicoPSU-160-XT (Entrée 12V DC) + Brique externe LEICKE 150W 12V |
 
 ## Schéma d'Architecture & Câblage Physique
 
@@ -43,34 +64,25 @@ graph TB
     MS01 <-->|SATA / Passthrough| HDD_DISKS
 
     classDef pwr fill:#2c3e50,stroke:#34495e,color:#fff;
-    classDef net fill:#0F6E56,stroke:#16A085,color:#fff;
-    classDef node fill:#1a2b3c,stroke:#0F6E56,color:#fff;
+    classDef net fill:#F97316,stroke:#FB923C,color:#fff;
+    classDef node fill:#1a2b3c,stroke:#F97316,color:#fff;
     class SECTEUR,LEICKE,PICO pwr;
     class NETGEAR,BBOX,SFP net;
     class MS01,MAC_MINI,RPI,HDD_DISKS node;
 ```
 
-## Fiche technique & Alimentation
+## Topologie Réseau Physique
 
-| Élément | Spécification |
-|---|---|
-| **Structure du rack** | Modèle 3D-printé MakerWorld |
-| **Caddies disques** | Dell PowerEdge Gen 11-14G (058CWC / 0KG1CH) |
-| **Alimentation disques** | PicoPSU-160-XT + Brique LEICKE 150W 12V |
-| **Hot-swap** | Esthétique / mécanique uniquement (pas de backplane active) |
-
-## Topologie réseau physique
-
-| Élément / Port | Équipement connecté | Type de câble / Vitesse |
+| Port / Connectique | Équipement connecté | Spécification câble / Vitesse |
 |---|---|---|
-| **Switch principal** | Switch **NETGEAR GS308EV4** | Ethernet Gigabit RJ45 |
-| **Port Uplink** | BBox (Routeur WAN) | RJ45 Cat 6 |
-| **Port Hôte Principal** | Minisforum MS-01 | RJ45 Cat 6 (2.5G) |
-| **Port Standby** | Mac Mini 2014 | RJ45 Cat 6 (1G) |
-| **Port Monitoring** | Raspberry Pi 3B+ | RJ45 Cat 6 (100M) |
-| **Port Réservé** | Port SFP+ 10G | Réservé pour évolution NAS 10G |
+| **Switch principal** | Switch **NETGEAR GS308EV4** | 8 ports Gigabit RJ45 |
+| **Port Uplink (Port 1)** | BBox (Routeur WAN) | RJ45 Cat 6 |
+| **Port Hôte Principal (Port 2)** | Minisforum MS-01 | RJ45 Cat 6 (2.5G) |
+| **Port Standby (Port 3)** | Mac Mini 2014 | RJ45 Cat 6 (1G) |
+| **Port Monitoring (Port 4)** | Raspberry Pi 3B+ | RJ45 Cat 6 (100M) |
+| **Port Extension (SFP+)** | Port SFP+ 10G | Réservé pour évolution NAS 10G |
 
-## Nœuds hébergés dans le rack
+## Nœuds Hébergés dans le Rack
 
 | Nœud | Rôle | Statut Physique | Page associée |
 |---|---|---|---|
