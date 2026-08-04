@@ -15,11 +15,20 @@ iconType: "duotone"
 Le **Raspberry Pi 3B+** est une sonde de surveillance autonome intégrée au rack [Labrax](/infrastructure/labrax). Son rôle est d'assurer un **monitoring matériel hors-bande** et de piloter le module d'écran de statut LCD encastré en façade du rack.
 </Info>
 
-## Conception 3D du Module d'Écran
+## Rendu 3D du Module d'Écran 2U (MakerWorld)
 
-<Card title="Module 3D MakerWorld — Raspberry Pi 2U" icon="cube" href="https://makerworld.com/fr/models/2233953-screen-module-for-10-inch-rack-raspberry-pi-2u#profileId-2521672">
-  Module d'intégration 2U personnalisé pour rack 10 pouces (**Screen module for 10-inch rack - Raspberry Pi 2U**). Héberge l’écran LCD de contrôle et le Raspberry Pi 3B+ directement dans la structure du rack [Labrax](/infrastructure/labrax).
+<Card title="Modèle 3D MakerWorld — Raspberry Pi 2U" icon="cube" href="https://makerworld.com/fr/models/2233953-screen-module-for-10-inch-rack-raspberry-pi-2u#profileId-2521672">
+  Module d'intégration 2U personnalisé pour rack 10 pouces (**Screen module for 10-inch rack - Raspberry Pi 2U**). Héberge l’écran LCD de contrôle, le bouton de mise sous tension, 2 ports RJ45 LAN et le Raspberry Pi 3B+ directement dans la structure du rack [Labrax](/infrastructure/labrax).
 </Card>
+
+<Tabs>
+  <Tab title="🖼️ Face Principale (Façade 2U & Vitre)">
+    ![Module 2U Raspberry Pi & Écran — Façade](/assets/rpi-module-front.png)
+  </Tab>
+  <Tab title="📐 Vue Isométrique 3D & Intérieur Tray">
+    ![Module 2U Raspberry Pi & Écran — Vue 3D Intérieure](/assets/rpi-module-iso.png)
+  </Tab>
+</Tabs>
 
 ## Fiche Technique
 
@@ -31,7 +40,8 @@ Le **Raspberry Pi 3B+** est une sonde de surveillance autonome intégrée au rac
 | **Mémoire RAM** | 1 Go LPDDR2 |
 | **OS** | Raspberry Pi OS Lite (64-bit) |
 | **Réseau LAN** | Ethernet RJ45 `192.168.1.x` (100Mbps) |
-| **Affichage** | Écran LCD de statut frontal encastré |
+| **Affichage** | Écran LCD / OLED 128x32 de statut frontal encastré |
+| **Connectique Façade** | 2x Keystones RJ45 LAN + Bouton poussoir d'alimentation avec LED |
 | **Alimentation** | Micro-USB via le bus 5V interne / PicoPSU |
 | **Statut** | 🟢 Production (Actif) |
 
