@@ -111,7 +111,7 @@
             "group": "Traçabilité",
             "icon": "clock-rotate-left",
             "pages": [
-              "history/changelog"
+              "history/chronologie"
             ]
           }
         ]

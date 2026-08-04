@@ -189,7 +189,7 @@ flowchart TB
   <Card title="J'ajoute un disque au NAS" icon="hard-drive" href="/procedures/ajout-nouveau-disque">
     Extension MergerFS ou bascule storage-hot.
   </Card>
-  <Card title="Historique du projet" icon="clock-rotate-left" href="/history/changelog">
+  <Card title="Historique du projet" icon="clock-rotate-left" href="/history/chronologie">
     Chronologie complète, décisions et déviations par rapport au plan initial.
   </Card>
 </CardGroup>
