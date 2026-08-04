@@ -3,7 +3,89 @@ title: "Vue d'ensemble"
 description: "Infrastructure self-hosted IMS-WORLD — architecture, principes et état actuel"
 ---
 
-![Architecture Homelab IMS-WORLD](/assets/hero-banner.png)
+## Schéma d'Architecture Macro Globale
+
+```mermaid
+flowchart TB
+    subgraph INGRESS ["🌐 Accès Externe Public WAN & DNS"]
+        USERS["Utilisateurs External Publics"]
+        DNS_OVH["DNS Public OVH (*.ims-world.fr)"]
+        LE_ACME["Let's Encrypt (DNS-01 Challenge ACME)"]
+    end
+
+    subgraph ROUTING ["📡 Bbox WAN & Ingress Proxy"]
+        BBOX["Routeur Bbox (NAT Ports 80/443 -> 192.168.1.52)"]
+    end
+
+    subgraph TAILNET ["🔐 Zone Tailnet VPN Overlay (Headscale 100.64.0.0/10)"]
+        VPN_CLIENTS["Appareils Authentifiés Tailnet (Mobiles / PC)"]
+        HEADPLANE["Headplane Admin GUI (vpn.ims-world.fr/admin)"]
+        MIDDLEWARE_VPN["Traefik Middleware: vpn-only (ipAllowList)"]
+    end
+
+    subgraph PVE ["🖥️ Hyperviseur Principal — Minisforum MS-01 (Proxmox VE 9.2.3)"]
+        PVE_HOST["Proxmox PVE Host (192.168.1.41)"]
+
+        subgraph LXC_NODES ["📦 Conteneurs LXC (Debian 12 Privilégiés)"]
+            NAS_LXC["IMS-NAS (LXC 100)\nIP LAN: 192.168.1.50\nMergerFS + NFS + SMB"]
+            PBS_LXC["IMS-PBS (LXC 103)\nIP LAN: 192.168.1.51\nProxmox Backup Server"]
+        end
+
+        subgraph VM_NODE ["💻 Machine Virtuelle QEMU/KVM (VM 104 — IMS-Coolify)"]
+            TRAEFIK["Traefik Reverse Proxy v3.7\n(Certificats Wildcard DNS-01)"]
+            AUTH["Authentik SSO\n(auth.ims-world.fr)"]
+            VAULT["Vaultwarden\n(vault.ims-world.fr)"]
+            HOMEFLIX["HomeFlix Stack\n(Jellyfin / Jellyseerr / *arr / qBit)"]
+            HEADSCALE_SRV["Headscale Control Plane\n(vpn.ims-world.fr)"]
+        end
+
+        subgraph VMBR1 ["🔒 Bridge Réseau Isolé NFS (vmbr1: 10.10.10.0/24)"]
+            NFS_NAS["Export NAS NFS (10.10.10.1)"]
+            NFS_PBS["PBS Datastore (10.10.10.3)"]
+            NFS_VM["Montage VM Coolify (10.10.10.2)"]
+        end
+    end
+
+    subgraph STANDBY ["🗄️ Nœuds Satellites & Rack Labrax 3D"]
+        MAC_MINI["Mac Mini 2014 (Hôte Standby)\nIP Tailnet: 100.64.0.7 | Port SSH: 4242"]
+        RPI_MON["Raspberry Pi 3B+ (Sonde Monitoring 2U)\nÉcran status LCD & Alertes Ntfy"]
+    end
+
+    %% Trafic Ingress Public
+    USERS -->|HTTPS| DNS_OVH
+    DNS_OVH -->|IPv4 Public| BBOX
+    BBOX -->|Ports 80/443| TRAEFIK
+    TRAEFIK <-->|Renouvellement Auto| LE_ACME
+
+    %% Routage Proxy Interne
+    TRAEFIK -->|OIDC / SSO| AUTH
+    TRAEFIK -->|Mots de Passe| VAULT
+    TRAEFIK -->|Media Streaming| HOMEFLIX
+    TRAEFIK -->|Noise Protocol| HEADSCALE_SRV
+
+    %% VPN & Middleware
+    VPN_CLIENTS <-->|Tunnels Tailscale| HEADSCALE_SRV
+    HEADSCALE_SRV <--> HEADPLANE
+    VPN_CLIENTS -->|Accès Filtré| MIDDLEWARE_VPN
+    MIDDLEWARE_VPN -->|Services Restreints| HOMEFLIX
+
+    %% Trafic Isolé NFS vmbr1
+    NFS_VM <-->|Lecture / Écriture Data| NFS_NAS
+    NFS_PBS <-->|Sauvegardes NFSv3 vers=3| NFS_NAS
+    PVE_HOST -.->|vzdump Backups| PBS_LXC
+
+    %% Monitoring & Standby
+    RPI_MON -.->|Healthchecks ICMP/HTTP| PVE_HOST
+    RPI_MON -.->|Healthchecks| VM_NODE
+    MAC_MINI -.->|Fallback Secours Chaud| BBOX
+
+    classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
+    classDef vpn fill:#F97316,stroke:#FB923C,color:#fff;
+    classDef host fill:#1a2b3c,stroke:#F97316,color:#fff;
+    class USERS,DNS_OVH,BBOX wan;
+    class VPN_CLIENTS,HEADSCALE_SRV,HEADPLANE vpn;
+    class PVE_HOST,NAS_LXC,PBS_LXC,TRAEFIK host;
+```
 
 <CardGroup cols={4}>
   <Card title="1 Hôte Proxmox" icon="server" href="/infrastructure/proxmox-host">
@@ -77,80 +159,6 @@ L'infrastructure IMS-WORLD repose sur trois principes non négociables :
     Raspberry Pi 3B+ sur module 2U dédié, pilotant l'écran de statut LCD/OLED frontal et assurant le monitoring hors-bande du cluster.
   </Card>
 </CardGroup>
-
-## Schéma d'Architecture Globale
-
-```mermaid
-flowchart TB
-    subgraph WAN ["🌐 Internet / WAN"]
-        USERS["Utilisateurs / Clients Distants"]
-        DNS["DNS Public OVH (*.ims-world.fr)"]
-        ACME["Let's Encrypt (DNS-01 ACME)"]
-    end
-
-    subgraph ROUTER ["📡 Routeur / Bbox"]
-        PF["Port Forward (80/443 NAT)"]
-    end
-
-    subgraph PROXMOX ["🖥️ Hyperviseur Principal — Minisforum MS-01 (Proxmox VE 9.2.3)"]
-        subgraph VMBR0 ["Bridge LAN (vmbr0: 192.168.1.0/24)"]
-            PVE_HOST["Proxmox Host (192.168.1.41)"]
-        end
-
-        subgraph VMBR1 ["Bridge Isolé NFS (vmbr1: 10.10.10.0/24)"]
-            direction LR
-            NAS_ISO["NAS FUSE (10.10.10.1)"]
-            PBS_ISO["PBS (10.10.10.3)"]
-            COOL_ISO["Coolify VM (10.10.10.2)"]
-        end
-
-        subgraph GUESTS ["Guests de Production"]
-            LXC_NAS["IMS-NAS (LXC 100)\n192.168.1.50\nMergerFS + NFS + SMB"]
-            LXC_PBS["IMS-PBS (LXC 103)\n192.168.1.51\nProxmox Backup Server"]
-            VM_COOLIFY["IMS-Coolify (VM 104)\n192.168.1.52\nDocker + Traefik v3.7"]
-        end
-
-        subgraph DOCKER_STACK ["Stack Applicative Docker (VM 104)"]
-            TRAEFIK["Traefik Reverse Proxy\n(DNS-01 OVH)"]
-            AUTH["Authentik SSO\n(auth.ims-world.fr)"]
-            VAULT["Vaultwarden\n(vault.ims-world.fr)"]
-            HOMEFLIX["HomeFlix Stack\n(Jellyfin + *arr + qBit)"]
-            HEADSCALE["Headscale / Headplane\n(vpn.ims-world.fr)"]
-        end
-    end
-
-    subgraph TAILNET ["🔐 Tailnet VPN (Headscale 100.64.0.0/10)"]
-        CLIENTS["Appareils Distants (100.64.0.x)"]
-    end
-
-    subgraph STANDBY ["🟡 Infrastructure Historique / Standby"]
-        MAC_MINI["Mac Mini 2014\n(100.64.0.7 — standby)"]
-        RPI["Raspberry Pi 3B+\n(Monitoring)"]
-    end
-
-    USERS -->|HTTPS| DNS
-    DNS -->|IP Publique| PF
-    PF -->|80/443| TRAEFIK
-    TRAEFIK <-->|ACME DNS-01| ACME
-
-    TRAEFIK --> AUTH
-    TRAEFIK --> VAULT
-    TRAEFIK --> HOMEFLIX
-    TRAEFIK --> HEADSCALE
-
-    COOL_ISO <-->|Montage NFS Datastores| NAS_ISO
-    PBS_ISO <-->|Sauvegardes NFSv3| NAS_ISO
-
-    CLIENTS <--> HEADSCALE
-    HEADSCALE --> LXC_PBS
-    HEADSCALE --> VM_COOLIFY
-
-    classDef host fill:#F97316,stroke:#FB923C,color:#fff;
-    classDef guest fill:#1a2b3c,stroke:#F97316,color:#fff;
-    classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
-    class PVE_HOST,LXC_NAS,LXC_PBS,VM_COOLIFY host;
-    class TRAEFIK,AUTH,VAULT,HOMEFLIX,HEADSCALE guest;
-```
 
 ## État Actuel des Composants
 
