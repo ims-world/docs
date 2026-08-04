@@ -33,4 +33,4 @@ Cette documentation regroupe la vérité terrain opérationnelle du homelab IMS-
 
 ### 3. Règle : Traçabilité du Vécu et des Pièges
 - Chaque problème complexe résolu doit être consigné dans [Dépannage courant](/procedures/depannage-courant) avec son symptôme, sa cause exacte et sa résolution éprouvée.
-- Toute évolution majeure d'architecture est consignée dans le [CHANGELOG](/CHANGELOG).
+- Toute évolution majeure d'architecture est consignée dans le [Changelog](/historique/changelog).

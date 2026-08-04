@@ -83,7 +83,7 @@ Objectif visé pour le SSD 4To : migrer `storage-hot/` (Immich, Forgejo) d'un si
     ```bash
     rsync -aH --info=progress2 /mnt/disk1/hot/ /mnt/ssd-hot/
     ```
-    <Warning>Vérifier hardlinks/cohérence comme pour toute migration de données volumineuse — voir [Migration d'un service](/procedures/migration-service).</Warning>
+    <Warning>Vérifier hardlinks/cohérence comme pour toute migration de données volumineuse — voir [Déploiement d'un service](/procedures/deploiement-service).</Warning>
   </Step>
   <Step title="Bascule du point de montage">
     Remplacer le bind-mount `/mnt/storage-hot` pour pointer vers `/mnt/ssd-hot` au lieu de `/mnt/disk1/hot`.

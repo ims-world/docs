@@ -76,7 +76,7 @@ graph TB
 |---|---|---|---|
 | **Minisforum MS-01** | Hyperviseur Proxmox VE principal | 🟢 Actif (Prod) | [Host Proxmox](/infrastructure/proxmox-host) |
 | **Mac Mini 2014** | Ancien hôte de production | 🟡 Standby | [Architecture réseau](/reseau/architecture-reseau) |
-| **Raspberry Pi 3B+** | Monitoring indépendant | 🟢 Actif | [README](/README#matériel) |
+| **Raspberry Pi 3B+** | Monitoring indépendant | 🟢 Actif | [Vue d'ensemble](/index) |
 | **IMS-NAS (LXC 100)** | Stockage logique (MergerFS) | 🟢 Actif (sur MS-01) | [IMS-NAS](/infrastructure/ims-nas) |
 | **Disques Physiques** | HDD 3To + SSD 4To (Phase 4) | 🟢 Actif | [Ajout d'un disque](/procedures/ajout-nouveau-disque) |
 

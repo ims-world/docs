@@ -183,13 +183,13 @@ flowchart TB
   <Card title="Matrice de Sécurité" icon="shield-halved" href="/reseau/matrice-securite-exposition">
     Cartographie complète des accès, de l'exposition publique et du filtrage Tailnet.
   </Card>
-  <Card title="Je migre un nouveau service" icon="arrow-right-arrow-left" href="/procedures/migration-service">
+  <Card title="Je déploie un nouveau service" icon="arrow-right-arrow-left" href="/procedures/deploiement-service">
     Le protocole standard affiné sur 4 migrations réelles.
   </Card>
   <Card title="J'ajoute un disque au NAS" icon="hard-drive" href="/procedures/ajout-nouveau-disque">
     Extension MergerFS ou bascule storage-hot.
   </Card>
-  <Card title="Historique du projet" icon="clock-rotate-left" href="/CHANGELOG">
+  <Card title="Historique du projet" icon="clock-rotate-left" href="/historique/changelog">
     Chronologie complète, décisions et déviations par rapport au plan initial.
   </Card>
 </CardGroup>
