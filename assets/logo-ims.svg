@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 60" fill="none">
+  <rect width="40" height="40" x="10" y="10" rx="8" fill="url(#grad)" />
+  <path d="M22 20L30 35L38 20M30 35V40" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="60" y="36" fill="#0F6E56" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="22" letter-spacing="0.5">IMS-WORLD</text>
+  <text x="185" y="36" fill="#16A085" font-family="system-ui, -apple-system, sans-serif" font-weight="500" font-size="16">INFRA</text>
+  <defs>
+    <linearGradient id="grad" x1="10" y1="10" x2="50" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F6E56"/>
+      <stop offset="1" stop-color="#16A085"/>
+    </linearGradient>
+  </defs>
+</svg>

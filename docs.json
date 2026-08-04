@@ -1,24 +1,61 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "IMS-WORLD Infrastructure",
+  "name": "IMS-WORLD Documentation homelab",
   "description": "Documentation technique de l'infrastructure self-hosted IMS-WORLD (ims-world.fr)",
+  "logo": {
+    "light": "/assets/logo-ims.png",
+    "dark": "/assets/logo-ims.png"
+  },
+  "favicon": "/assets/favicon.svg",
   "colors": {
-    "primary": "#0F6E56",
-    "light": "#16A085",
-    "dark": "#0A4F3D"
+    "primary": "#F97316",
+    "light": "#FB923C",
+    "dark": "#C2410C"
+  },
+  "topbarLinks": [
+    {
+      "name": "Proxmox VE",
+      "url": "https://192.168.1.41:8006"
+    },
+    {
+      "name": "Coolify Admin",
+      "url": "https://coolify.ims-world.fr"
+    },
+    {
+      "name": "Authentik SSO",
+      "url": "https://auth.ims-world.fr"
+    },
+    {
+      "name": "Repo GitHub",
+      "url": "https://github.com/ims-world/ims-infra"
+    }
+  ],
+  "topbarCta": {
+    "name": "Accès Homelab",
+    "url": "https://coolify.ims-world.fr"
+  },
+  "footerSocials": {
+    "github": "https://github.com/ims-world/ims-infra",
+    "website": "https://ims-world.fr"
+  },
+  "feedback": {
+    "thumbs": true,
+    "suggestEdit": true
   },
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Infrastructure & Services",
         "groups": [
           {
             "group": "Accueil",
+            "icon": "house",
             "pages": ["index"]
           },
           {
             "group": "Infrastructure",
+            "icon": "server",
             "pages": [
               "infrastructure/proxmox-host",
               "infrastructure/labrax",
@@ -29,6 +66,7 @@
           },
           {
             "group": "Réseau",
+            "icon": "network-wired",
             "pages": [
               "reseau/architecture-reseau",
               "reseau/traefik-proxy",
@@ -37,6 +75,7 @@
           },
           {
             "group": "Services",
+            "icon": "cubes",
             "pages": [
               "services/authentik",
               "services/vaultwarden",
@@ -44,20 +83,32 @@
               "services/headscale-headplane",
               "services/cap"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Procédures & PRA",
+        "groups": [
           {
-            "group": "Procédures",
+            "group": "Guides Opérationnels",
+            "icon": "wrench",
             "pages": [
-              "procedures/migration-service",
+              "procedures/deploiement-service",
               "procedures/depannage-courant",
               "procedures/ajout-nouveau-disque",
               "procedures/plan-reprise-activite-pra"
             ]
-          },
+          }
+        ]
+      },
+      {
+        "tab": "Historique & Méta",
+        "groups": [
           {
-            "group": "Historique & Méta",
+            "group": "Traçabilité",
+            "icon": "clock-rotate-left",
             "pages": [
-              "CHANGELOG",
+              "changelog",
               "meta/comment-fonctionne-cette-doc"
             ]
           }

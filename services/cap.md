@@ -1,11 +1,13 @@
 ---
 title: "Cap"
-description: "Enregistrement et partage d'écran self-hosted — migration en pause"
+description: "Enregistrement et partage d'écran self-hosted"
+icon: "video"
+iconType: "duotone"
 ---
 
-<Warning>
-**Migration en pause** — dump MySQL et données MinIO récupérés, restore jamais finalisé. Reprendre avant de considérer ce service migré.
-</Warning>
+<Info>
+**Statut: En attente de déploiement** — Stack technique et dumps préparés (base MySQL 202 Mo + données MinIO 28 Mo).
+</Info>
 
 ## Fiche service
 

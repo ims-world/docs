@@ -1,6 +1,8 @@
 ---
 title: "Headscale + Headplane"
 description: "Control plane Tailscale self-hosted, avec interface d'administration"
+icon: "network-wired"
+iconType: "duotone"
 ---
 
 ## Fiche service
@@ -12,7 +14,7 @@ description: "Control plane Tailscale self-hosted, avec interface d'administrati
 | **Base de données** | SQLite |
 | **UUID Coolify** | `i136ix2bmrrbeovnyrh1o72w` |
 | **Chemin** | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` |
-| **Statut** | 🟢 Production (basculé le 02/08/2026) |
+| **Statut** | 🟢 Production |
 
 ## Architecture Headscale & Mesh VPN (WireGuard Overlay)
 
@@ -36,18 +38,15 @@ graph TB
     subgraph TAILNET_NODES ["📱 Nœuds du Tailnet WireGuard (100.64.0.0/10)"]
         MAC["Mac Mini Standby (100.64.0.7)"]
         PVE["Proxmox Host MS-01 (100.64.0.9)"]
-        PBS["IMS-PBS (100.64.0.2)"]
-        COOL["IMS-Coolify (100.64.0.4)"]
-        MOBILE["Clients Distants (Smartphones, Laptops)"]
+        PBS["PBS Storage (100.64.0.8)"]
+        COOL["Coolify VM (100.64.0.10)"]
+        MOBILE["Clients Mobiles & Laptops"]
     end
 
     TRAEFIK --> HEADSCALE
     TRAEFIK --> HEADPLANE
-    HEADPLANE <-->|API Key| HEADSCALE
-    HEADSCALE <--> DB_SQLITE
-    HEADSCALE <--> NOISE_KEY
-
-    HEADSCALE <-->|OAuth2 / OIDC| AUTH_SRV
+    HEADPLANE --> AUTH_SRV
+    HEADSCALE --> AUTH_SRV
 
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| MAC
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| PVE
@@ -68,13 +67,13 @@ graph TB
 ```
 
 <Warning>
-Nom trompeur assumé — Headscale est un control plane qui coordonne des connexions WireGuard peer-to-peer, pas un VPN classique. Renommage envisagé mais volontairement reporté (voir [Architecture réseau](/reseau/architecture-reseau)).
+Headscale est un control plane qui coordonne des connexions WireGuard peer-to-peer (Mesh VPN), et non un VPN centralisé classique.
 </Warning>
 
-## Particularité vs les autres migrations
+## Identité Cryptographique & Clés Critiques
 
 <Warning>
-Le `server_url` (`vpn.ims-world.fr`) est **l'identité même du serveur**, gravée dans le protocole Noise et attendue par tous les clients déjà enregistrés — pas juste un routage comme pour Authentik/Vaultwarden. Impossible de faire tourner deux instances avec le même `server_url` en parallèle. **Stratégie de test `-ng` abandonnée pour ce service** : préparation isolée sans routage public, bascule directe.
+Le `server_url` (`vpn.ims-world.fr`) est **l'identité même du serveur**, gravée dans le protocole Noise et attendue par tous les clients du tailnet.
 </Warning>
 
 ## Éléments critiques à préserver à l'identique
@@ -85,9 +84,9 @@ Le `server_url` (`vpn.ims-world.fr`) est **l'identité même du serveur**, grav�
 | `db.sqlite` | Nœuds, utilisateurs, clés | Perte de tous les appareils enregistrés |
 
 <Info>
-La clé API Headplane (communication interne Headplane↔Headscale) est en revanche **régénérée à chaque migration** — sans lien avec l'authentification des vrais appareils :
+La clé API Headplane (communication interne Headplane↔Headscale) peut être régénérée si nécessaire :
 ```bash
-docker exec headscale-<uuid> headscale apikeys create --expiration 999d
+docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale apikeys create --expiration 999d
 ```
 </Info>
 

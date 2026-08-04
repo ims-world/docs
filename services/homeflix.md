@@ -1,6 +1,8 @@
 ---
 title: "HomeFlix"
 description: "Stack médias — Jellyfin, Sonarr, Radarr, Prowlarr, qBittorrent, Gluetun"
+icon: "clapperboard"
+iconType: "duotone"
 ---
 
 ![HomeFlix Stack Médias](/assets/homeflix-banner.png)
@@ -75,7 +77,7 @@ graph TB
 ## Vue d'ensemble
 
 <Info>
-Migration la plus critique du projet — 1.6 To de données, hardlinks à préserver impérativement, 9 containers interdépendants. Réussie sans perte de données.
+Stack Médias de Production — 1.6 To de données, 9 conteneurs interdépendants, hardlinks optimisés sur le NAS sans duplication physique.
 - **UUID Coolify** : `w39uebmcnse7yctsft8hzed8`
 - **Chemin d'accès sur la VM** : `/data/coolify/services/w39uebmcnse7yctsft8hzed8/`
 </Info>
@@ -95,7 +97,7 @@ Migration la plus critique du projet — 1.6 To de données, hardlinks à prése
 ## Architecture stockage — répartition SSD/NAS
 
 <Warning>
-Décision prise en session, absente du plan initial : `config/`+`cache/` sur SSD local (petits fichiers, accès fréquent), `movies/`+`series/`+`downloads/` groupés sur le NAS.
+`config/`+`cache/` sur SSD local (petits fichiers, accès fréquent), `movies/`+`series/`+`downloads/` groupés sur le NAS.
 
 **Contrainte technique impérative** : les hardlinks ne traversent pas deux filesystems différents — `downloads/` DOIT rester sur le même volume que `movies/`/`series/`, sinon Radarr/Sonarr ne peuvent plus faire de hardlink à l'import (copie complète à la place, double l'espace utilisé).
 </Warning>
@@ -108,19 +110,17 @@ Décision prise en session, absente du plan initial : `config/`+`cache/` sur SSD
 /mnt/nas-storage/homeflix/downloads   NAS
 ```
 
-## Vérification pré-migration — hardlinks et doublons
+## Audit & Gestion des Hardlinks
 
 <Steps>
-  <Step title="Audit rdfind (rapport uniquement, rien n'est modifié)">
+  <Step title="Audit des doublons réels (rdfind)">
     ```bash
     rdfind -dryrun true -makehardlinks false -makeresultsfile true movies series downloads
     ```
-    Résultat réel : 1 seul vrai doublon (1 Go, fichier hors médias), 426 hardlinks confirmés cohérents après ménage utilisateur.
   </Step>
-  <Step title="Comptage de référence AVANT transfert">
+  <Step title="Comptage des fichiers en hardlink">
     ```bash
-    du -sh /chemin/homeflix/
-    find /chemin/homeflix/ -type f -links +1 | wc -l   # nombre de fichiers hardlinkés
+    find /mnt/nas-storage/homeflix/ -type f -links +1 | wc -l   # nombre de fichiers hardlinkés
     ```
   </Step>
 </Steps>
@@ -129,22 +129,11 @@ Décision prise en session, absente du plan initial : `config/`+`cache/` sur SSD
 **Ménage à faire via Radarr/Sonarr, jamais en supprimant les fichiers à la main** — ces outils gèrent proprement le nettoyage DB + fichiers + torrents associés. Une suppression manuelle désynchronise la base de l'appli.
 </Warning>
 
-## Transfert — un seul `rsync -aH`
-
-```bash
-rsync -aH --info=progress2 -e "ssh -p 4242" \
-  cmolotkoff@<mac-mini>:/chemin/source/ \
-  /mnt/nas-storage/homeflix/
-```
+## Métrologie Disque — Piège `du` vs `df`
 
 <Warning>
-**Règles absolues** : un seul `rsync -aH`, jamais deux passes séparées (movies/ puis downloads/) — sinon duplication physique des hardlinks. Lancer sous `screen` ou `tmux` pour un transfert de plusieurs heures (vérifier que le détachement fonctionne AVANT de lancer le vrai transfert dessus).
+`du -sh` sur le dossier homeflix peut afficher artificiellement un volume supérieur (ex: 2.7 To) en surcomptant les hardlinks. Toujours croiser avec **`df -h`** pour connaître l'occupation réelle au niveau bloc (1.6 To réels).
 </Warning>
-
-## Validation post-transfert — piège `du` vs `df`
-
-<Warning>
-`du -sh` a affiché **2.7 To** au lieu des 1.6 To attendus après le transfert — panique évitée en croisant avec `df -h` (1.6 To réels, confirmés au niveau bloc).
 
 **`du` additionne la taille de chaque fichier à chaque fois qu'il le rencontre — y compris pour des hardlinks — donc il sur-compte. `df` seul reflète l'espace disque réel.**
 

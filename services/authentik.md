@@ -1,7 +1,13 @@
 ---
 title: "Authentik"
 description: "SSO / OIDC — provider d'identité central"
+icon: "key"
+iconType: "duotone"
 ---
+
+<Card title="Authentik SSO" icon="key" href="https://auth.ims-world.fr">
+  Provider d'identité centralisé (OAuth2 / OIDC + WebAuthn 2FA). Accessible sur `auth.ims-world.fr`.
+</Card>
 
 ## Fiche service
 
@@ -12,7 +18,7 @@ description: "SSO / OIDC — provider d'identité central"
 | **Base de données** | PostgreSQL |
 | **UUID Coolify** | `k5mxvc2r6c4zlb6j3d443h7b` |
 | **Chemin** | `/data/coolify/services/k5mxvc2r6c4zlb6j3d443h7b/` |
-| **Statut** | 🟢 Production (migré et basculé le 02/08/2026) |
+| **Statut** | 🟢 Production |
 
 ## Séquence d'Authentification OIDC Centralisée
 
@@ -37,27 +43,22 @@ sequenceDiagram
 ```
 
 <Check>
-Premier service stateful migré du projet — le protocole de migration standard (voir [Migration d'un service](/procedures/migration-service)) a été affiné à partir de cette expérience.
+Service d'identité centralisé actif. La clé `SECRET_KEY` doit rester strictement identique entre redéploiements pour préserver les sessions utilisateurs.
 </Check>
 
-## Migration — résumé
+## Sauvegarde & Restauration PostgreSQL
 
 <Steps>
-  <Step title="Préparation">
-    Compose repris à l'identique (chemins relatifs, variables magiques Coolify). `SECRET_KEY` copié tel quel — critique pour préserver les sessions existantes.
-  </Step>
-  <Step title="Dump et restore">
+  <Step title="Sauvegarde de la base de données">
     ```bash
-    # Sur l'ancien serveur — dump à chaud, sans coupure
-    docker exec postgresql-<uuid> pg_dump -U <user> -d authentik -F c -f /tmp/dump.sql
+    docker exec postgresql-k5mxvc2r6c4zlb6j3d443h7b pg_dump -U <user> -d authentik -F c -f /tmp/dump.sql
     ```
+  </Step>
+  <Step title="Restauration de la base">
     ```bash
-    # Sur le nouveau — restore après arrêt des 2 containers applicatifs (pas postgresql)
+    # Arrêter les conteneurs applicatifs (authentik-server / worker)
     pg_restore -U <user> -d authentik --clean --if-exists /tmp/dump.sql
     ```
-  </Step>
-  <Step title="Validation">
-    Testé via un sous-domaine `-ng` temporaire, avant bascule réelle du domaine.
   </Step>
 </Steps>
 

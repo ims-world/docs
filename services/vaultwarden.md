@@ -1,7 +1,13 @@
 ---
 title: "Vaultwarden"
 description: "Gestionnaire de mots de passe (implémentation Bitwarden compatible)"
+icon: "shield-halved"
+iconType: "duotone"
 ---
+
+<Card title="Vaultwarden" icon="shield-halved" href="https://vault.ims-world.fr">
+  Coffre-fort de mots de passe compatible Bitwarden. Accessible sur `vault.ims-world.fr`.
+</Card>
 
 ## Fiche service
 
@@ -11,7 +17,7 @@ description: "Gestionnaire de mots de passe (implémentation Bitwarden compatibl
 | **Base de données** | SQLite (mode WAL) |
 | **UUID Coolify** | `i5ae953riutbot9afjcboptb` |
 | **Chemin** | `/data/coolify/services/i5ae953riutbot9afjcboptb/` |
-| **Statut** | 🟢 Production (migré et basculé le 02/08/2026) |
+| **Statut** | 🟢 Production |
 
 ## Topologie Vaultwarden & Stockage WAL
 
@@ -59,13 +65,13 @@ graph TD
 ```
 
 <Warning>
-Mapping Authentik custom requis pour `email_verified: true` — sans lui, le SSO OIDC casse silencieusement. À vérifier maintenant qu'Authentik et Vaultwarden sont tous deux sur le vrai domaine.
+Mapping Authentik custom requis pour `email_verified: true` — sans lui, le SSO OIDC casse silencieusement.
 </Warning>
 
-## Migration — spécificités SQLite
+## Sauvegarde & Consistance SQLite WAL
 
 <Warning>
-Contrairement à Postgres (dump à chaud sans souci), une base SQLite en mode WAL (`db.sqlite3-shm`/`-wal` présents) nécessite un **arrêt bref du service source** le temps de la copie complète — sinon risque de base incohérente.
+Contrairement à Postgres (dump à chaud sans souci), une base SQLite en mode WAL (`db.sqlite3-shm`/`-wal` présents) nécessite un **arrêt bref du service** le temps de l'archivage/sauvegarde — sinon risque de base incohérente.
 </Warning>
 
 ```bash

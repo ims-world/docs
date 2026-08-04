@@ -102,7 +102,7 @@ flowchart TB
 ## État actuel de l'infrastructure
 
 <Info>
-**Cutover complet réalisé le 02/08/2026.** Le Minisforum MS-01 (Proxmox) est le point d'entrée de production réel d'IMS-WORLD. Le Mac Mini historique est en standby (période de validation), avant décommissionnement définitif.
+**Infrastructure de Production IMS-WORLD.** Le Minisforum MS-01 (Proxmox VE 9) est le cœur de production. Le Mac Mini assure la fonction de standby / secours.
 </Info>
 
 ### Matériel
@@ -111,7 +111,7 @@ flowchart TB
 |---|---|---|
 | [**Labrax**](/infrastructure/labrax) | Rack serveur physique 3D, switch NETGEAR GS308EV4, alim PicoPSU | 🟢 Production |
 | **Minisforum MS-01** | Hyperviseur Proxmox VE — hôte principal | 🟢 Production |
-| **Mac Mini 2014** | Ancien hôte de production | 🟡 Standby (validation) |
+| **Mac Mini 2014** | Hôte de secours | 🟡 Standby |
 | **Raspberry Pi 3B+** | Monitoring | 🟢 Actif |
 
 ### Guests Proxmox (MS-01)
@@ -135,13 +135,35 @@ flowchart TB
 | [HomeFlix](/services/homeflix) | `homeflix.ims-world.fr` + 5 sous-domaines | Stack médias (Jellyfin, *arr, qBittorrent) |
 | [Headscale + Headplane](/services/headscale-headplane) | `vpn.ims-world.fr` | Control plane Tailscale self-hosted |
 
-### Services en cours de migration
+### Services additionnels (Feuille de route)
 
 | Service | Statut |
 |---|---|
-| [Cap](/services/cap) | Dump de données récupéré, restore en attente |
-| Stirling PDF | Non commencé |
-| Beszel, Zipline, Forgejo, Photoprism, Immich, Ntfy, Home Assistant, Patrimo, Sentryx | Encore sur Mac Mini — migration à froid post-validation |
+| [Cap](/services/cap) | En attente de déploiement |
+| Beszel, Zipline, Forgejo, Photoprism, Immich, Ntfy, Home Assistant, Patrimo, Sentryx | En attente de déploiement |
+
+## ⚡ Accès Rapides — Interfaces Homelab
+
+<CardGroup cols={3}>
+  <Card title="Proxmox VE GUI" icon="server" href="https://192.168.1.41:8006">
+    Hyperviseur PVE MS-01 (`192.168.1.41:8006`)
+  </Card>
+  <Card title="Coolify Admin" icon="rocket" href="https://coolify.ims-world.fr">
+    Orchestration Docker (`coolify.ims-world.fr`)
+  </Card>
+  <Card title="Authentik SSO" icon="key" href="https://auth.ims-world.fr">
+    Provider OIDC & SSO (`auth.ims-world.fr`)
+  </Card>
+  <Card title="Vaultwarden" icon="shield-halved" href="https://vault.ims-world.fr">
+    Coffre Mots de Passe (`vault.ims-world.fr`)
+  </Card>
+  <Card title="HomeFlix" icon="clapperboard" href="https://homeflix.ims-world.fr">
+    Jellyfin Streaming (`homeflix.ims-world.fr`)
+  </Card>
+  <Card title="Headplane Admin" icon="network-wired" href="https://vpn.ims-world.fr/admin">
+    Tailnet GUI (`vpn.ims-world.fr/admin`)
+  </Card>
+</CardGroup>
 
 ## Réseau en un coup d'œil
 
