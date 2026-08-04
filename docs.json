@@ -53,7 +53,7 @@
             "icon": "house",
             "pages": [
               "index",
-              "meta/comment-fonctionne-cette-doc"
+              "history/comment-fonctionne-cette-doc"
             ]
           },
           {
@@ -111,7 +111,7 @@
             "group": "Traçabilité",
             "icon": "clock-rotate-left",
             "pages": [
-              "meta/changelog"
+              "history/changelog"
             ]
           }
         ]
