@@ -3,6 +3,29 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 03/08/2026 — Stabilisation post-cutover
+
+### 🆕 Nouveautés
+
+- **VPN self-hosted disponible** — L'accès distant au tailnet passe désormais par notre propre control plane, avec une interface d'administration web pour gérer utilisateurs, clés et appareils. Voir [Headscale + Headplane](/services/headscale-headplane).
+- **Portail de demandes HomeFlix** — Jellyseerr est en ligne sur `videoclub.ims-world.fr` pour demander films et séries directement, en complément du streaming sur `homeflix.ims-world.fr`. Voir [HomeFlix](/services/homeflix).
+
+### 🔧 Améliorations
+
+- **Traefik mis à jour en v3.7** — Le reverse proxy public a été passé de la v3.6.23 à la v3.7 pendant le cutover, sans interruption perceptible côté utilisateur.
+- **Certificats renouvelés automatiquement** — Le renouvellement des certificats HTTPS est de nouveau fonctionnel sur tous les domaines publics après la mise en place du challenge DNS-01. Plus d'avertissements de certificats expirés.
+- **SSO Authentik consolidé** — L'identité centrale (`auth.ims-world.fr`) est désormais servie depuis la nouvelle infrastructure, avec le branding par domaine préservé pour chaque service.
+
+### 🐛 Corrections
+
+- **HomeFlix : téléchargements qBittorrent** — Les erreurs d'accès à l'interface qBittorrent derrière le proxy sont corrigées ; le WebUI est de nouveau accessible normalement.
+- **Headscale : reconnexion des appareils** — La boucle de reconnexion OIDC constatée en début de bascule est résolue ; tous les appareils du tailnet se reconnectent sans intervention.
+- **Coolify : warning cosmétique** — Le message d'avertissement affiché dans l'admin Coolify après le cutover a été corrigé.
+
+<Info>
+Prochaine étape planifiée : mise en service de [Cap](/services/cap) (enregistrement et partage d'écran self-hosted), actuellement en attente de déploiement.
+</Info>
+
 ## 🎉 02/08/2026 — Cutover complet
 
 Les 4 services essentiels (Authentik, Vaultwarden, HomeFlix, Headscale/Headplane) sont basculés en production sur le MS-01. Port-forward Bbox corrigé et basculé. Découverte structurelle majeure : le port-forward route tout le trafic public d'un coup, pas de bascule partielle possible (voir [Traefik Proxy](/reseau/traefik-proxy)).
