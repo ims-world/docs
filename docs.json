@@ -1,0 +1,68 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "IMS-WORLD Infrastructure",
+  "description": "Documentation technique de l'infrastructure self-hosted IMS-WORLD (ims-world.fr)",
+  "colors": {
+    "primary": "#0F6E56",
+    "light": "#16A085",
+    "dark": "#0A4F3D"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Accueil",
+            "pages": ["index"]
+          },
+          {
+            "group": "Infrastructure",
+            "pages": [
+              "infrastructure/proxmox-host",
+              "infrastructure/labrax",
+              "infrastructure/ims-nas",
+              "infrastructure/ims-pbs",
+              "infrastructure/vm-coolify"
+            ]
+          },
+          {
+            "group": "Réseau",
+            "pages": [
+              "reseau/architecture-reseau",
+              "reseau/traefik-proxy",
+              "reseau/matrice-securite-exposition"
+            ]
+          },
+          {
+            "group": "Services",
+            "pages": [
+              "services/authentik",
+              "services/vaultwarden",
+              "services/homeflix",
+              "services/headscale-headplane",
+              "services/cap"
+            ]
+          },
+          {
+            "group": "Procédures",
+            "pages": [
+              "procedures/migration-service",
+              "procedures/depannage-courant",
+              "procedures/ajout-nouveau-disque",
+              "procedures/plan-reprise-activite-pra"
+            ]
+          },
+          {
+            "group": "Historique & Méta",
+            "pages": [
+              "CHANGELOG",
+              "meta/comment-fonctionne-cette-doc"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
