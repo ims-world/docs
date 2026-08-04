@@ -110,6 +110,7 @@
             "group": "Guides Opérationnels",
             "icon": "wrench",
             "pages": [
+              "procedures/commandes-urgence",
               "procedures/deploiement-service",
               "procedures/depannage-courant",
               "procedures/ajout-nouveau-disque",
@@ -125,7 +126,8 @@
             "group": "Traçabilité",
             "icon": "clock-rotate-left",
             "pages": [
-              "history/chronologie"
+              "history/chronologie",
+              "history/glossaire"
             ]
           }
         ]
