@@ -51,7 +51,10 @@
           {
             "group": "Accueil",
             "icon": "house",
-            "pages": ["index"]
+            "pages": [
+              "index",
+              "meta/comment-fonctionne-cette-doc"
+            ]
           },
           {
             "group": "Infrastructure",
@@ -102,14 +105,13 @@
         ]
       },
       {
-        "tab": "Historique & Méta",
+        "tab": "Historique",
         "groups": [
           {
             "group": "Traçabilité",
             "icon": "clock-rotate-left",
             "pages": [
-              "meta/changelog",
-              "meta/comment-fonctionne-cette-doc"
+              "meta/changelog"
             ]
           }
         ]
