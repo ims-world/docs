@@ -3,6 +3,10 @@ title: "IMS-PBS (LXC 103)"
 description: "Proxmox Backup Server — sauvegarde des VM/LXC applicatifs"
 ---
 
+<Note>
+📦 **Type d'Instance** : **Conteneur LXC 103** (Debian 12 Privilégié) — Partage le noyau Linux directement avec l'hôte Proxmox VE.
+</Note>
+
 ## Rôle
 
 Datastore de sauvegarde déduplicée pour les VM/LXC applicatifs (VM Coolify en premier lieu). Stocke les backups sur le HDD du NAS via NFS.

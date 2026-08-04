@@ -57,13 +57,25 @@
             ]
           },
           {
-            "group": "Infrastructure",
+            "group": "Hôte & Physique",
             "icon": "server",
             "pages": [
               "infrastructure/proxmox-host",
-              "infrastructure/labrax",
+              "infrastructure/labrax"
+            ]
+          },
+          {
+            "group": "Conteneurs LXC",
+            "icon": "box",
+            "pages": [
               "infrastructure/ims-nas",
-              "infrastructure/ims-pbs",
+              "infrastructure/ims-pbs"
+            ]
+          },
+          {
+            "group": "Machines Virtuelles (VM)",
+            "icon": "desktop",
+            "pages": [
               "infrastructure/vm-coolify"
             ]
           },

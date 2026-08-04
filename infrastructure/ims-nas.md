@@ -3,6 +3,10 @@ title: "IMS-NAS (LXC 100)"
 description: "Serveur de stockage — NFS + SMB, MergerFS, HDD 3To"
 ---
 
+<Note>
+📦 **Type d'Instance** : **Conteneur LXC 100** (Debian 12 Privilégié) — Partage le noyau Linux directement avec l'hôte Proxmox VE.
+</Note>
+
 ## Rôle
 
 Centralise le stockage de l'infrastructure : documents, photos, backups, et médias HomeFlix (hardlinks). Sert en NFS aux guests internes (réseau isolé) et en SMB au LAN.

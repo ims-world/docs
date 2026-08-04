@@ -3,6 +3,10 @@ title: "VM IMS-Coolify (VM 104)"
 description: "Orchestration Docker — héberge tous les services applicatifs"
 ---
 
+<Note>
+🖥️ **Type d'Instance** : **Machine Virtuelle QEMU/KVM 104** (Ubuntu 24.04 LTS) — Isolation complète du noyau avec hyperviseur dédié et kernel propre.
+</Note>
+
 ## Rôle
 
 Héberge Coolify et l'ensemble de la stack applicative (Authentik, Vaultwarden, HomeFlix, Headscale, etc). Point d'entrée de production réel depuis le cutover du 02/08/2026.
