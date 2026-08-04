@@ -3,7 +3,7 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
-## Semaine du 04/08/2026 — Résilience matérielle, monitoring hors-bande & Feuille de Route 2026
+## Semaine du 04/08/2026 — Résilience matérielle & monitoring hors-bande
 
 ### 🆕 Nouveautés
 
@@ -18,6 +18,7 @@ description: "Chronologie du projet de migration Mac Mini → MS-01"
 - **Résolution DNS de l'ancien Coolify** — L'ancienne instance Coolify du Mac Mini reste joignable via `coolify-old.ims-world.fr` grâce à un enregistrement DNS dans Headscale, le temps de la phase de validation post-cutover.
 - **Matrice de sécurité interactive** — La cartographie des zones de confiance (WAN public, LAN, tailnet, admin) est désormais présentée sous forme d'onglets navigables avec cartes cliquables vers chaque service et sa politique d'exposition. Voir [Matrice de Sécurité & d'Exposition](/reseau/matrice-securite-exposition).
 - **Arbre de décision de dépannage** — La page de dépannage inclut désormais un diagramme interactif qui guide symptôme par symptôme vers la cause probable et sa solution (pièges Chrome/Tailscale, dossier fantôme Coolify, NFS stale handle, hardlinks, etc.). Voir [Dépannage courant](/procedures/depannage-courant).
+- **Recentrage sur les services en production** — La section « Feuille de Route 2026 » (fiches prévisionnelles Immich et Beszel) a été retirée pour concentrer la documentation sur les services réellement déployés. Les projets futurs seront ajoutés à la documentation au moment de leur mise en service.
 
 <Info>
 Prochaine étape planifiée : mise en service de [Cap](/services/cap) (enregistrement et partage d'écran self-hosted), toujours en attente de déploiement.
