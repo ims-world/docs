@@ -5,7 +5,40 @@ icon: "network-wired"
 iconType: "duotone"
 ---
 
-## Fiche service
+## Accès & Administration VPN
+
+<Tabs>
+  <Tab title="🌐 WebUI Admin (Headplane)">
+    <Card title="Headplane Admin" icon="network-wired" href="https://vpn.ims-world.fr">
+      Interface de gestion des utilisateurs, clés d'authentification et appareils du réseau Tailnet.
+    </Card>
+  </Tab>
+  <Tab title="🔑 Commandes CLI Headscale">
+    ```bash
+    # Se connecter à la VM Coolify
+    ssh root@100.64.0.5
+
+    # Lister les utilisateurs du Tailnet
+    docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale users list
+
+    # Lister les appareils enregistrés
+    docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale nodes list
+
+    # Créer une clé API pour Headplane
+    docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale apikeys create --expiration 999d
+    ```
+  </Tab>
+  <Tab title="🗺️ IP des Nœuds du Tailnet (100.64.0.0/10)">
+    | Nœud | IP Tailscale | Rôle |
+    |---|---|---|
+    | **MS-01 Host** | `100.64.0.9` | Hôte Proxmox VE principal |
+    | **Coolify VM** | `100.64.0.10` | VM d'orchestration Docker |
+    | **PBS LXC** | `100.64.0.8` | Proxmox Backup Server |
+    | **Mac Mini** | `100.64.0.7` | Ancien hôte de production (Standby) |
+  </Tab>
+</Tabs>
+
+## Fiche Service
 
 | Propriété | Valeur |
 |---|---|
@@ -13,7 +46,7 @@ iconType: "duotone"
 | **Versions** | `headscale/headscale:v0.28.0` + `ghcr.io/tale/headplane:0.6.2` |
 | **Base de données** | SQLite |
 | **UUID Coolify** | `i136ix2bmrrbeovnyrh1o72w` |
-| **Chemin** | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` |
+| **Chemin sur la VM** | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` |
 | **Statut** | 🟢 Production |
 
 ## Architecture Headscale & Mesh VPN (WireGuard Overlay)
@@ -58,9 +91,9 @@ graph TB
     PVE <==>|Tunnels Directs Peer-to-Peer WireGuard| COOL
     MOBILE <==>|Tunnels Directs Peer-to-Peer WireGuard| PBS
 
-    classDef srv fill:#0F6E56,stroke:#16A085,color:#fff;
+    classDef srv fill:#F97316,stroke:#FB923C,color:#fff;
     classDef key fill:#2c3e50,stroke:#34495e,color:#fff;
-    classDef node fill:#1a2b3c,stroke:#0F6E56,color:#fff;
+    classDef node fill:#1a2b3c,stroke:#F97316,color:#fff;
     class HEADSCALE,HEADPLANE,AUTH_SRV srv;
     class NOISE_KEY,DB_SQLITE key;
     class MAC,PVE,PBS,COOL,MOBILE node;
@@ -72,63 +105,53 @@ Headscale est un control plane qui coordonne des connexions WireGuard peer-to-pe
 
 ## Identité Cryptographique & Clés Critiques
 
-<Warning>
-Le `server_url` (`vpn.ims-world.fr`) est **l'identité même du serveur**, gravée dans le protocole Noise et attendue par tous les clients du tailnet.
-</Warning>
-
-## Éléments critiques à préserver à l'identique
-
 | Fichier | Rôle | Conséquence si changé |
 |---|---|---|
 | `noise_private.key` | Identité cryptographique du serveur | Tous les clients verraient un "nouveau serveur" non reconnu |
 | `db.sqlite` | Nœuds, utilisateurs, clés | Perte de tous les appareils enregistrés |
 
-<Info>
-La clé API Headplane (communication interne Headplane↔Headscale) peut être régénérée si nécessaire :
-```bash
-docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale apikeys create --expiration 999d
-```
-</Info>
+## Retours d'Expérience & Particularités Techniques
 
-## Piège récurrent — dossier fantôme (3ème occurrence)
+<AccordionGroup>
+  <Accordion title="Piège récurrent — dossier fantôme (3ème occurrence)">
+    <Warning>
+    Coolify pré-crée un dossier vide à l'emplacement attendu d'un fichier de config avant toute copie. Ici plus retors qu'avec Authentik/Vaultwarden : `cp` vers un dossier existant a copié le fichier **dedans** au lieu de remplacer (erreur silencieuse). Pire — une fois qu'un **container a démarré** avec le mauvais mapping dossier↔fichier, un simple `docker restart` ne suffit PAS à corriger : le montage reste figé. Il faut une vraie recréation du container.
 
-<Warning>
-Coolify pré-crée un dossier vide à l'emplacement attendu d'un fichier de config avant toute copie. Ici plus retors qu'avec Authentik/Vaultwarden : `cp` vers un dossier existant a copié le fichier **dedans** au lieu de remplacer (erreur silencieuse). Pire — une fois qu'un **container a démarré** avec le mauvais mapping dossier↔fichier, un simple `docker restart` ne suffit PAS à corriger : le montage reste figé. Il faut une vraie recréation du container.
-
-```bash
-# Vérification systématique AVANT tout premier démarrage
-file <chemin_config_attendu>   # doit dire "ASCII text", pas "directory"
-```
-</Warning>
-
-## Cascade de blocages lors du cutover (02/08/2026)
-
-<Steps>
-  <Step title="502 Bad Gateway">
-    Label `traefik.docker.network=coolify` manquant sur Headscale — même piège que sur Gluetun (HomeFlix), corrigé.
-  </Step>
-  <Step title="Port-forward pointait vers le mauvais hôte">
-    La règle Bbox ciblait l'IP du **host Proxmox** (192.168.1.41, qui n'écoute que sur 8006) au lieu de la VM Coolify (192.168.1.52). Jamais remarqué avant puisque rien n'était encore basculé publiquement.
-  </Step>
-  <Step title="Crash-loop perpétuel">
-    `only_start_if_oidc_is_available: true` bloque le démarrage tant qu'Authentik n'est pas joignable AVEC un certificat valide. Cascade visible : timeout d'abord, puis erreur de certificat TLS (`certificate valid for *.traefik.default, not auth.ims-world.fr`) — le port-forward corrigé route tout le trafic public vers le MS-01, y compris pour des domaines sans router configuré, qui reçoivent le certificat par défaut de Traefik.
-
-    ```yaml
-    only_start_if_oidc_is_available: false
+    ```bash
+    # Vérification systématique AVANT tout premier démarrage
+    file <chemin_config_attendu>   # doit dire "ASCII text", pas "directory"
     ```
-  </Step>
-</Steps>
+    </Warning>
+  </Accordion>
 
-<Warning>
-`only_start_if_oidc_is_available` reste actuellement à `false` — **à repasser en `true`** maintenant que `auth.ims-world.fr` est stable sur le MS-01, pour retrouver le comportement de sécurité d'origine.
-</Warning>
+  <Accordion title="Cascade de blocages lors du cutover (02/08/2026)">
+    <Steps>
+      <Step title="502 Bad Gateway">
+        Label `traefik.docker.network=coolify` manquant sur Headscale — même piège que sur Gluetun (HomeFlix), corrigé.
+      </Step>
+      <Step title="Port-forward pointait vers le mauvais hôte">
+        La règle Bbox ciblait l'IP du **host Proxmox** (192.168.1.41, qui n'écoute que sur 8006) au lieu de la VM Coolify (192.168.1.52).
+      </Step>
+      <Step title="Crash-loop perpétuel">
+        `only_start_if_oidc_is_available: true` bloque le démarrage tant qu'Authentik n'est pas joignable AVEC un certificat valide.
 
-## Accès de secours au Mac Mini pendant la validation
+        ```yaml
+        only_start_if_oidc_is_available: false
+        ```
+      </Step>
+    </Steps>
 
-```yaml
-extra_records:
-  - name: "coolify-old.ims-world.fr"
-    value: "100.64.0.7"
-```
+    <Warning>
+    `only_start_if_oidc_is_available` reste actuellement à `false` — **à repasser en `true`** maintenant que `auth.ims-world.fr` est stable sur le MS-01, pour retrouver le comportement de sécurité d'origine.
+    </Warning>
+  </Accordion>
 
-À retirer une fois la période de validation terminée et le Mac Mini décommissionné.
+  <Accordion title="Accès de secours au Mac Mini pendant la validation">
+    ```yaml
+    extra_records:
+      - name: "coolify-old.ims-world.fr"
+        value: "100.64.0.7"
+    ```
+    À retirer une fois la période de validation terminée et le Mac Mini décommissionné.
+  </Accordion>
+</AccordionGroup>

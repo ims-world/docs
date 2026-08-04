@@ -5,19 +5,42 @@ description: "Infrastructure self-hosted IMS-WORLD — architecture, principes e
 
 ![Architecture Homelab IMS-WORLD](/assets/hero-banner.png)
 
-## Principes
+## Principes Directeurs
 
 L'infrastructure IMS-WORLD repose sur trois principes non négociables :
 
 <CardGroup cols={3}>
-  <Card title="100% local" icon="house">
-    Aucune dépendance à un cloud tiers pour les services critiques. Auto-hébergement complet.
+  <Card title="100% Local" icon="house">
+    Aucune dépendance à un cloud tiers pour les services critiques. Auto-hébergement complet sur le cluster physique.
   </Card>
-  <Card title="0€ récurrent" icon="euro-sign">
-    Uniquement du matériel possédé et des logiciels open-source. Pas d'abonnement SaaS.
+  <Card title="0€ Récurrent" icon="euro-sign">
+    Uniquement du matériel possédé et des logiciels open-source. Aucun abonnement SaaS.
   </Card>
-  <Card title="Lean" icon="feather">
+  <Card title="Lean & Efficient" icon="feather">
     Complexité activement challengée. Pas de sur-ingénierie — chaque brique ajoutée doit se justifier.
+  </Card>
+</CardGroup>
+
+## ⚡ Accès Rapides — Interfaces Homelab
+
+<CardGroup cols={3}>
+  <Card title="Proxmox VE GUI" icon="server" href="https://192.168.1.41:8006">
+    Hyperviseur PVE MS-01 (`192.168.1.41:8006`)
+  </Card>
+  <Card title="Coolify Admin" icon="rocket" href="https://coolify.ims-world.fr">
+    Orchestration Docker (`coolify.ims-world.fr`)
+  </Card>
+  <Card title="Authentik SSO" icon="key" href="https://auth.ims-world.fr">
+    Provider OIDC & SSO (`auth.ims-world.fr`)
+  </Card>
+  <Card title="Vaultwarden" icon="shield-halved" href="https://vault.ims-world.fr">
+    Coffre Mots de Passe (`vault.ims-world.fr`)
+  </Card>
+  <Card title="HomeFlix" icon="clapperboard" href="https://homeflix.ims-world.fr">
+    Jellyfin Streaming (`homeflix.ims-world.fr`)
+  </Card>
+  <Card title="Headplane Admin" icon="network-wired" href="https://vpn.ims-world.fr/admin">
+    Tailnet GUI (`vpn.ims-world.fr/admin`)
   </Card>
 </CardGroup>
 
@@ -71,114 +94,67 @@ flowchart TB
         RPI["Raspberry Pi 3B+\n(Monitoring)"]
     end
 
-    %% Connexions WAN et Réseau
     USERS -->|HTTPS| DNS
     DNS -->|IP Publique| PF
     PF -->|80/443| TRAEFIK
     TRAEFIK <-->|ACME DNS-01| ACME
 
-    %% Routage Interne Traefik
     TRAEFIK --> AUTH
     TRAEFIK --> VAULT
     TRAEFIK --> HOMEFLIX
     TRAEFIK --> HEADSCALE
 
-    %% Liaisons NFS Interne vmbr1
     COOL_ISO <-->|Montage NFS Datastores| NAS_ISO
     PBS_ISO <-->|Sauvegardes NFSv3| NAS_ISO
 
-    %% Liaisons Tailscale
     CLIENTS <--> HEADSCALE
     HEADSCALE --> LXC_PBS
     HEADSCALE --> VM_COOLIFY
 
-    classDef host fill:#0F6E56,stroke:#16A085,color:#fff;
-    classDef guest fill:#1a2b3c,stroke:#0F6E56,color:#fff;
+    classDef host fill:#F97316,stroke:#FB923C,color:#fff;
+    classDef guest fill:#1a2b3c,stroke:#F97316,color:#fff;
     classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
     class PVE_HOST,LXC_NAS,LXC_PBS,VM_COOLIFY host;
     class TRAEFIK,AUTH,VAULT,HOMEFLIX,HEADSCALE guest;
 ```
 
-## État actuel de l'infrastructure
+## État Actuel des Composants
 
-<Info>
-**Infrastructure de Production IMS-WORLD.** Le Minisforum MS-01 (Proxmox VE 9) est le cœur de production. Le Mac Mini assure la fonction de standby / secours.
-</Info>
+<Tabs>
+  <Tab title="🟢 Services en Production">
+    | Service | Domaine | Description |
+    |---|---|---|
+    | [Authentik](/services/authentik) | `auth.ims-world.fr` | Provider d'identité centralisé (SSO / OIDC + 2FA) |
+    | [Vaultwarden](/services/vaultwarden) | `vault.ims-world.fr` | Coffre-fort de mots de passe compatible Bitwarden |
+    | [HomeFlix](/services/homeflix) | `homeflix.ims-world.fr` + 5 sous-domaines | Stack médias complète (Jellyfin, *arr, qBittorrent, Gluetun) |
+    | [Headscale + Headplane](/services/headscale-headplane) | `vpn.ims-world.fr` | Control plane VPN Tailscale self-hosted |
+  </Tab>
+  <Tab title="🖥️ Infrastructure Physique & Hyperviseur">
+    | Composant | Rôle | Statut |
+    |---|---|---|
+    | [**Labrax**](/infrastructure/labrax) | Rack serveur physique 3D, switch NETGEAR, alim PicoPSU | 🟢 Production |
+    | [**Minisforum MS-01**](/infrastructure/proxmox-host) | Hyperviseur Proxmox VE 9.2.3 —  hôte principal | 🟢 Production |
+    | **Mac Mini 2014** | Hôte de secours | 🟡 Standby |
+    | **IMS-NAS (LXC 100)** | Stockage NFS + SMB (MergerFS) | 🟢 Production |
+    | **IMS-PBS (LXC 103)** | Sauvegardes Proxmox Backup Server | 🟢 Production |
+    | **IMS-Coolify (VM 104)** | Orchestration Docker (Traefik v3.7) | 🟢 Production |
+  </Tab>
+  <Tab title="⏳ Feuille de Route & Attente">
+    | Service | Domaine Visé | Statut |
+    |---|---|---|
+    | [Cap](/services/cap) | `cap.ims-world.fr` | ⏸️ Dump préparé (202 Mo DB + 28 Mo S3) |
+    | Beszel, Zipline, Forgejo, Photoprism, Immich, Ntfy, Home Assistant | Divers | ⏳ Feuille de route post-cutover |
+  </Tab>
+</Tabs>
 
-### Matériel
-
-| Nœud | Rôle | Statut |
-|---|---|---|
-| [**Labrax**](/infrastructure/labrax) | Rack serveur physique 3D, switch NETGEAR GS308EV4, alim PicoPSU | 🟢 Production |
-| **Minisforum MS-01** | Hyperviseur Proxmox VE — hôte principal | 🟢 Production |
-| **Mac Mini 2014** | Hôte de secours | 🟡 Standby |
-| **Raspberry Pi 3B+** | Monitoring | 🟢 Actif |
-
-### Guests Proxmox (MS-01)
-
-| Guest | VMID | Rôle | Réseau |
-|---|---|---|---|
-| **IMS-NAS** | LXC 100 | Stockage (NFS + SMB) | `vmbr0` + `vmbr1` |
-| **IMS-PBS** | LXC 103 | Sauvegardes (Proxmox Backup Server) | `vmbr0` + `vmbr1` + Tailscale |
-| **IMS-Coolify** | VM 104 | Orchestration Docker — héberge tous les services applicatifs | `vmbr0` + `vmbr1` + Tailscale |
-
-<Card title="Détail de chaque nœud" icon="server" href="/infrastructure/proxmox-host">
-  Voir la section Infrastructure pour les spécifications complètes.
-</Card>
-
-### Services applicatifs en production
-
-| Service | Domaine | Rôle |
-|---|---|---|
-| [Authentik](/services/authentik) | `auth.ims-world.fr` | SSO / OIDC |
-| [Vaultwarden](/services/vaultwarden) | `vault.ims-world.fr` | Gestionnaire de mots de passe |
-| [HomeFlix](/services/homeflix) | `homeflix.ims-world.fr` + 5 sous-domaines | Stack médias (Jellyfin, *arr, qBittorrent) |
-| [Headscale + Headplane](/services/headscale-headplane) | `vpn.ims-world.fr` | Control plane Tailscale self-hosted |
-
-### Services additionnels (Feuille de route)
-
-| Service | Statut |
-|---|---|
-| [Cap](/services/cap) | En attente de déploiement |
-| Beszel, Zipline, Forgejo, Photoprism, Immich, Ntfy, Home Assistant, Patrimo, Sentryx | En attente de déploiement |
-
-## ⚡ Accès Rapides — Interfaces Homelab
-
-<CardGroup cols={3}>
-  <Card title="Proxmox VE GUI" icon="server" href="https://192.168.1.41:8006">
-    Hyperviseur PVE MS-01 (`192.168.1.41:8006`)
-  </Card>
-  <Card title="Coolify Admin" icon="rocket" href="https://coolify.ims-world.fr">
-    Orchestration Docker (`coolify.ims-world.fr`)
-  </Card>
-  <Card title="Authentik SSO" icon="key" href="https://auth.ims-world.fr">
-    Provider OIDC & SSO (`auth.ims-world.fr`)
-  </Card>
-  <Card title="Vaultwarden" icon="shield-halved" href="https://vault.ims-world.fr">
-    Coffre Mots de Passe (`vault.ims-world.fr`)
-  </Card>
-  <Card title="HomeFlix" icon="clapperboard" href="https://homeflix.ims-world.fr">
-    Jellyfin Streaming (`homeflix.ims-world.fr`)
-  </Card>
-  <Card title="Headplane Admin" icon="network-wired" href="https://vpn.ims-world.fr/admin">
-    Tailnet GUI (`vpn.ims-world.fr/admin`)
-  </Card>
-</CardGroup>
-
-## Réseau en un coup d'œil
-
-<Card title="Architecture réseau complète" icon="network-wired" href="/reseau/architecture-reseau">
-  Bridges Proxmox (`vmbr0`/`vmbr1`), Tailscale/Headscale, DNS, port-forward — tout le détail réseau.
-</Card>
-
-## Navigation rapide
+## Guides Opérationnels & Procédures
 
 <CardGroup cols={2}>
   <Card title="Je dépanne un problème" icon="wrench" href="/procedures/depannage-courant">
     Tous les pièges récurrents déjà rencontrés et leur solution.
   </Card>
-  <Card title="Plan de Reprise (PRA)" icon="shield-alert" href="/procedures/plan-reprise-activite-pra">
-    Procédure de reconstruction complète en cas de crash du serveur MS-01.
+  <Card title="Plan de Reprise (PRA / DRP)" icon="shield-alert" href="/procedures/plan-reprise-activite-pra">
+    Procédure d'urgence et reconstruction intégrale en cas de sinistre.
   </Card>
   <Card title="Matrice de Sécurité" icon="shield-halved" href="/reseau/matrice-securite-exposition">
     Cartographie complète des accès, de l'exposition publique et du filtrage Tailnet.
