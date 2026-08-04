@@ -12,18 +12,26 @@ iconType: "duotone"
 ## Rôle & Emplacement
 
 <Info>
-Le **Raspberry Pi 3B+** est une sonde de surveillance autonome intégrée au rack [Labrax](/infrastructure/labrax). Son rôle est d'assurer un **monitoring matériel hors-bande** et de piloter le petit écran de statut LCD/OLED encastré en façade du rack.
+Le **Raspberry Pi 3B+** est une sonde de surveillance autonome intégrée au rack [Labrax](/infrastructure/labrax). Son rôle est d'assurer un **monitoring matériel hors-bande** et de piloter le module d'écran de statut LCD encastré en façade du rack.
 </Info>
+
+## Conception 3D du Module d'Écran
+
+<Card title="Module 3D MakerWorld — Raspberry Pi 2U" icon="cube" href="https://makerworld.com/fr/models/2233953-screen-module-for-10-inch-rack-raspberry-pi-2u#profileId-2521672">
+  Module d'intégration 2U personnalisé pour rack 10 pouces (**Screen module for 10-inch rack - Raspberry Pi 2U**). Héberge l’écran LCD de contrôle et le Raspberry Pi 3B+ directement dans la structure du rack [Labrax](/infrastructure/labrax).
+</Card>
 
 ## Fiche Technique
 
 | Propriété | Valeur |
 |---|---|
 | **Matériel** | Raspberry Pi 3B+ (Broadcom BCM2837B0 quad-core 1.4GHz) |
+| **Module 3D** | [Screen module for 10-inch rack 2U (MakerWorld #2233953)](https://makerworld.com/fr/models/2233953-screen-module-for-10-inch-rack-raspberry-pi-2u#profileId-2521672) |
+| **Format Rack** | 2U (Rack 10 pouces) |
 | **Mémoire RAM** | 1 Go LPDDR2 |
 | **OS** | Raspberry Pi OS Lite (64-bit) |
 | **Réseau LAN** | Ethernet RJ45 `192.168.1.x` (100Mbps) |
-| **Affichage** | Écran LCD de statut frontel du rack [Labrax](/infrastructure/labrax) |
+| **Affichage** | Écran LCD de statut frontal encastré |
 | **Alimentation** | Micro-USB via le bus 5V interne / PicoPSU |
 | **Statut** | 🟢 Production (Actif) |
 
@@ -33,8 +41,8 @@ Le **Raspberry Pi 3B+** est une sonde de surveillance autonome intégrée au rac
   <Card title="Monitoring Hors-Bande" icon="heart-pulse">
     Fonctionne de façon 100% indépendante du serveur principal MS-01. Continue de surveiller le réseau et d'alerter même si Proxmox ou le NAS est éteint/en reboot.
   </Card>
-  <Card title="Pilote d'Écran Frontal" icon="display">
-    Pilote l'affichage physique du logo **IMS** et les télémétries de température / charge du rack [Labrax](/infrastructure/labrax).
+  <Card title="Pilote d'Écran Frontal 2U" icon="display">
+    Pilote l'affichage physique du logo **IMS** et les télémétries de température / charge intégrées au module 2U du rack [Labrax](/infrastructure/labrax).
   </Card>
 </CardGroup>
 
@@ -42,9 +50,9 @@ Le **Raspberry Pi 3B+** est une sonde de surveillance autonome intégrée au rac
 
 ```mermaid
 graph TD
-    subgraph SENSOR ["🍓 Raspberry Pi 3B+ (Sonde Hors-Bande)"]
+    subgraph SENSOR ["🍓 Raspberry Pi 3B+ (Module 2U MakerWorld)"]
         MON["Agent Monitoring & Ping Probe"]
-        DISP["Contrôleur Écran Status (Façade Labrax)"]
+        DISP["Contrôleur Écran Status (Façade 2U Labrax)"]
     end
 
     subgraph PROXMOX_HOST ["🖥️ Cluster MS-01 (Sous Surveillance)"]
@@ -73,5 +81,5 @@ graph TD
 ## Intégration dans le Rack Labrax
 
 <Tip>
-L'écran piloté par le Raspberry Pi est directement intégré au panneau supérieur du rack [Labrax](/infrastructure/labrax), sous le ventilateur Noctua Industrial PPC, et affiche l'état d'activité du cluster en temps réel.
+Le module d'écran 2U est directement vissé sur les rails du rack [Labrax](/infrastructure/labrax), sous le ventilateur Noctua Industrial PPC, et affiche l'état d'activité du cluster en temps réel.
 </Tip>

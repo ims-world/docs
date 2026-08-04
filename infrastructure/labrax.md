@@ -25,7 +25,7 @@ description: "Index matériel du rack serveur physique IMS-WORLD, alimentation e
 | **Structure du rack** | Modèle 3D-printé MakerWorld (Châssis gris renforcé avec poignées supérieures) |
 | **Panneau Latéral** | Acrylique teinté noir profond (encastré dans les fentes intérieures du plastique) |
 | **Refroidissement Supérieur** | Ventilateur Noctua Industrial PPC Noir (extraction d'air chaud par le haut) |
-| **Plaque de Marque Frontale** | Panneau "INTERNATIONAL MOLOTKOFF SERVICES IMS" avec logo imprimé |
+| **Plaque de Marque Frontale** | Panneau "INTERNATIONAL MOLOTKOFF SERVICES IMS" + [Screen module for 10-inch rack - Raspberry Pi 2U (MakerWorld)](https://makerworld.com/fr/models/2233953-screen-module-for-10-inch-rack-raspberry-pi-2u#profileId-2521672) |
 | **Switch & Patch Panel** | Switch NETGEAR GS308EV4 encastré + Patch Panel RJ45 12 ports |
 | **Emplacements Stockage** | 4 Caddies 3.5" Dell PowerEdge (Gen 11-14G: `058CWC` / `0KG1CH`) |
 | **Distribution Électrique** | PicoPSU-160-XT (Entrée 12V DC) + Brique externe LEICKE 150W 12V |
