@@ -13,6 +13,7 @@ description: "Chronologie du projet de migration Mac Mini → MS-01"
 
 ### 🔧 Améliorations
 
+- **Module 3D imprimable pour le Raspberry Pi de monitoring** — La fiche du Raspberry Pi 3B+ référence désormais le modèle MakerWorld « Screen module for 10-inch rack — Raspberry Pi 2U », qui permet d'intégrer proprement le Pi et son écran de statut en façade du rack Labrax. Voir [Raspberry Pi 3B+ & Écrans](/infrastructure/rpi-monitor).
 - **Tarpit SSH sur le Mac Mini** — Le port 22 du Mac Mini pointe désormais vers Endlessh (tarpit anti-bot) pour piéger les scans automatisés. L'accès SSH légitime passe par le port `4242`.
 - **Résolution DNS de l'ancien Coolify** — L'ancienne instance Coolify du Mac Mini reste joignable via `coolify-old.ims-world.fr` grâce à un enregistrement DNS dans Headscale, le temps de la phase de validation post-cutover.
 
