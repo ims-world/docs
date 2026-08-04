@@ -61,7 +61,9 @@
             "icon": "server",
             "pages": [
               "infrastructure/proxmox-host",
-              "infrastructure/labrax"
+              "infrastructure/labrax",
+              "infrastructure/mac-mini",
+              "infrastructure/rpi-monitor"
             ]
           },
           {
