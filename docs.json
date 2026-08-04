@@ -100,14 +100,6 @@
               "services/headscale-headplane",
               "services/cap"
             ]
-          },
-          {
-            "group": "Feuille de Route 2026",
-            "icon": "compass",
-            "pages": [
-              "services/roadmap/immich",
-              "services/roadmap/beszel"
-            ]
           }
         ]
       },

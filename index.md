@@ -139,12 +139,6 @@ flowchart TB
     | **IMS-PBS (LXC 103)** | Sauvegardes Proxmox Backup Server | 🟢 Production |
     | **IMS-Coolify (VM 104)** | Orchestration Docker (Traefik v3.7) | 🟢 Production |
   </Tab>
-  <Tab title="⏳ Feuille de Route & Attente">
-    | Service | Domaine Visé | Statut |
-    |---|---|---|
-    | [Cap](/services/cap) | `cap.ims-world.fr` | ⏸️ Dump préparé (202 Mo DB + 28 Mo S3) |
-    | Beszel, Zipline, Forgejo, Photoprism, Immich, Ntfy, Home Assistant | Divers | ⏳ Feuille de route post-cutover |
-  </Tab>
 </Tabs>
 
 ## Guides Opérationnels & Procédures
