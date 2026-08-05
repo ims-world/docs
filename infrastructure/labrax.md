@@ -6,31 +6,33 @@ iconType: "duotone"
 ---
 
 <Info>
-**LABRAX** (Révision Core IMS-01) est le rack serveur physique 3D-printé qui héberge l'ensemble du matériel informatique IMS-WORLD. Cette page documente la structure **étage par étage**, la distribution électrique et le câblage physique.
+**LABRAX** (Révision Core IMS-01) est le rack serveur physique 3D-printé qui héberge l'ensemble du matériel informatique IMS-WORLD. Cette page documente la vue générale du châssis, puis le détail **étage par étage**, la distribution électrique et le câblage physique.
 </Info>
 
-## 🗄️ Navigation par Étage / Module Physique
+## 📐 Vue Globale & Conception du Châssis 3D
 
 <Tabs>
-  <Tab title="📐 Vue Globale & Châssis">
-    <CardGroup cols={2}>
-      <Card title="Face Principale 3D" icon="cube">
-        ![Rack Physique Labrax — Face](/assets/labrax-main.png)
-      </Card>
-      <Card title="Vue Arrière & Alimentation" icon="plug">
-        ![Rack Physique Labrax — Vue Arrière & Alimentation](/assets/labrax-rear.png)
-      </Card>
-    </CardGroup>
-
-    ### Spécifications du Châssis 3D & Alimentation
-    | Élément | Spécification & Détails |
-    |---|---|
-    | **Structure** | Châssis 3D-printé MakerWorld (gris renforcé avec poignées supérieures) |
-    | **Panneaux Latéraux** | Acrylique teinté noir profond (encastré dans les fentes intérieures du plastique) |
-    | **Refroidissement Supérieur** | Ventilateur Noctua NF-A12x25 G2 PWM chromax.black (extraction d'air chaud par le haut) |
-    | **Distribution Électrique** | PicoPSU-160-XT (Entrée 12V DC) + Brique externe LEICKE 150W 12V |
+  <Tab title="🖼️ Face Principale 3D">
+    ![Rack Physique Labrax — Face](/assets/labrax-main.png)
   </Tab>
+  <Tab title="🔌 Vue Arrière & Alimentation">
+    ![Rack Physique Labrax — Vue Arrière & Alimentation](/assets/labrax-rear.png)
+  </Tab>
+</Tabs>
 
+### Spécifications du Châssis 3D & Alimentation
+| Élément | Spécification & Détails |
+|---|---|
+| **Structure** | Châssis 3D-printé MakerWorld (gris renforcé avec poignées supérieures) |
+| **Panneaux Latéraux** | Acrylique teinté noir profond (encastré dans les fentes intérieures du plastique) |
+| **Refroidissement Supérieur** | Ventilateur Noctua NF-A12x25 G2 PWM chromax.black (extraction d'air chaud par le haut) |
+| **Distribution Électrique** | PicoPSU-160-XT (Entrée 12V DC) + Brique externe LEICKE 150W 12V |
+
+---
+
+## 🗄️ Détail par Étage & Module du Rack
+
+<Tabs>
   <Tab title="📺 Étage 1 — Module Écran 2U & RPi">
     <Card title="Documentation Complète Kiosk" icon="display" href="/infrastructure/rpi-monitor">
       Voir la fiche dédiée pour le script de rotation Chromium headless, le contrôle par bouton poussoir GPIO et le paramétrage.
@@ -108,6 +110,8 @@ iconType: "duotone"
     | **Évolution (Phase 4)** | Emplacement prêt pour intégration du SSD 4To |
   </Tab>
 </Tabs>
+
+---
 
 ## Schéma d'Architecture & Câblage Électrique / Réseau
 
