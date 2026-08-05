@@ -22,56 +22,31 @@
     "links": [
       {
         "type": "external",
-        "label": "Coolify Admin",
-        "href": "https://coolify.ims-world.fr"
-      },
-      {
-        "type": "external",
-        "label": "Authentik SSO",
+        "label": "SSO",
         "href": "https://auth.ims-world.fr"
       },
       {
         "type": "external",
-        "label": "Proxmox VE",
+        "label": "PVE",
         "href": "https://192.168.1.41:8006"
       },
       {
         "type": "external",
-        "label": "Repo GitHub",
+        "label": "GitHub",
         "href": "https://github.com/ims-world/ims-infra"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "🚀 Accès Coolify",
+      "label": "🚀 Coolify",
       "href": "https://coolify.ims-world.fr"
     }
   },
-  "topbarLinks": [
-    {
-      "name": "Coolify Admin",
-      "url": "https://coolify.ims-world.fr"
-    },
-    {
-      "name": "Authentik SSO",
-      "url": "https://auth.ims-world.fr"
-    },
-    {
-      "name": "Proxmox VE",
-      "url": "https://192.168.1.41:8006"
-    },
-    {
-      "name": "Repo GitHub",
-      "url": "https://github.com/ims-world/ims-infra"
+  "footer": {
+    "socials": {
+      "github": "https://github.com/ims-world/ims-infra",
+      "website": "https://ims-world.fr"
     }
-  ],
-  "topbarCta": {
-    "name": "🚀 Accès Coolify",
-    "url": "https://coolify.ims-world.fr"
-  },
-  "footerSocials": {
-    "github": "https://github.com/ims-world/ims-infra",
-    "website": "https://ims-world.fr"
   },
   "feedback": {
     "thumbs": true,
