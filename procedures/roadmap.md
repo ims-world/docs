@@ -23,9 +23,8 @@ Cette page recense l'ensemble des **chantiers techniques restants et tâches d'a
 - **Constat** : Le pare-feu natif de Proxmox VE (niveau Nœud → Datacenter → Guest) n'est pas encore activé.
 - **Tâche** : Définir les règles de filtrage au niveau de l'hôte MS-01, tester la ré-ouverture SSH/GUI Proxmox immédiate et valider l'étanchéité avant toute nouvelle exposition.
 
-### 4. 🎬 Passthrough GPU (iGPU Intel Iris Xe)
-- **Constat** : Jellyfin transcode actuellement sur CPU (6 vCPU de la VM 104).
-- **Tâche** : Activer IOMMU (`intel_iommu=on`) dans le GRUB de l'hôte MS-01, mapper le périphérique `/dev/dri/renderD128` dans la VM 104 et activer le transcodage matériel QuickSync (H.264/HEVC/AV1) dans Jellyfin.
+### 4. 🎬 Passthrough GPU (iGPU Intel Iris Xe) — 🟢 Effectué
+- **Statut** : iGPU Intel Iris Xe attribuée en passthrough PCIe (`hostpci0`) à la VM Coolify (VM 104) pour le transcodage matériel QuickSync (H.264/HEVC/AV1) de Jellyfin. Voir [Proxmox Host](/infrastructure/proxmox-host#gpu-igpu-iris-xe-passthrough-vm-coolify).
 
 ### 5. ⚡ Intégration du SSD 4To (Phase 4 Stockage)
 - **Tâche** : Installer le SSD SATA 4To dans l'emplacement dédié du rack [Labrax](/infrastructure/labrax) et faire basculer le pool `/mnt/storage-hot` (bases de données Immich, Forgejo, Authentik) du HDD Seagate vers le SSD.

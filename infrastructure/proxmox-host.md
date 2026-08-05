@@ -119,13 +119,6 @@ smartctl -H /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ
 hdparm -C /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ   # doit passer "standby" après 30min d'inactivité
 ```
 
-## GPU (iGPU Iris Xe) — non exploité
+## GPU (iGPU Iris Xe) — Passthrough VM Coolify
 
-Passthrough prévu pour le transcodage matériel Jellyfin (HomeFlix), volontairement différé. Nécessite :
-1. Activation IOMMU (BIOS + kernel cmdline `intel_iommu=on`) — **reboot host requis**
-2. Ajout `hostpci0` dans la config de la VM cible
-3. Installation des drivers i965/intel media dans le guest
-
-<Card title="Suivi de cette tâche" icon="microchip" href="/services/homeflix#gpu-passthrough">
-  Voir HomeFlix pour le contexte d'usage.
-</Card>
+L'iGPU Intel Iris Xe du processeur i5-12600H est attribuée en passthrough PCIe (`hostpci0`) à la VM IMS-Coolify (VM 104) pour assurer le transcodage matériel QuickSync (H.264/HEVC/AV1) du serveur média [HomeFlix](/services/homeflix) (Jellyfin).

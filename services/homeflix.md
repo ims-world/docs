@@ -210,6 +210,6 @@ Stack Médias de Production — 1.6 To de données, 9 conteneurs interdépendant
   </Accordion>
 
   <Accordion title="Passthrough GPU (Iris Xe)">
-    Volontairement différé — section `devices:` retirée du compose Jellyfin. Nécessite IOMMU + reboot host. Voir [Host Proxmox](/infrastructure/proxmox-host#gpu-iris-xe-non-exploite).
+    L'iGPU Intel Iris Xe du MS-01 est attribuée en passthrough à la VM Coolify (VM 104) pour le transcodage matériel QuickSync de Jellyfin. Voir [Host Proxmox](/infrastructure/proxmox-host#gpu-igpu-iris-xe-passthrough-vm-coolify).
   </Accordion>
 </AccordionGroup>
