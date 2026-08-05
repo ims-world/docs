@@ -1,5 +1,5 @@
 ---
-title: "Host Proxmox (MS-01)"
+title: "Minisforum MS-01 (Proxmox VE)"
 description: "Hyperviseur principal — Minisforum MS-01, Proxmox VE 9.2.3"
 ---
 
