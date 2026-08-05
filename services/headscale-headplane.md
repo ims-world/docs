@@ -16,7 +16,7 @@ iconType: "duotone"
   <Tab title="🔑 Commandes CLI Headscale">
     ```bash
     # Se connecter à la VM Coolify
-    ssh root@100.64.0.5
+    ssh cmolotkoff@100.64.0.4
 
     # Lister les utilisateurs du Tailnet
     docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale users list
@@ -31,10 +31,11 @@ iconType: "duotone"
   <Tab title="🗺️ IP des Nœuds du Tailnet (100.64.0.0/10)">
     | Nœud | IP Tailscale | Rôle |
     |---|---|---|
-    | **MS-01 Host** | `100.64.0.9` | Hôte Proxmox VE principal |
-    | **Coolify VM** | `100.64.0.10` | VM d'orchestration Docker |
-    | **PBS LXC** | `100.64.0.8` | Proxmox Backup Server |
-    | **Mac Mini** | `100.64.0.7` | Ancien hôte de production (Standby) |
+    | **ims-ms01-pve** | `100.64.0.9` | Hôte Proxmox VE principal |
+    | **ims-pve-104-coolify** | `100.64.0.4` | VM d'orchestration Docker |
+    | **ims-pve-103-pbs** | `100.64.0.2` | Proxmox Backup Server |
+    | **ims-macmini** | `100.64.0.7` | Hôte Standby de secours |
+    | **ims-rpi-monitor** | `100.64.0.12` | Affichage Kiosk & Module 2U |
   </Tab>
 </Tabs>
 
@@ -71,8 +72,9 @@ graph TB
     subgraph TAILNET_NODES ["📱 Nœuds du Tailnet WireGuard (100.64.0.0/10)"]
         MAC["Mac Mini Standby (100.64.0.7)"]
         PVE["Proxmox Host MS-01 (100.64.0.9)"]
-        PBS["PBS Storage (100.64.0.8)"]
-        COOL["Coolify VM (100.64.0.10)"]
+        PBS["PBS Storage (100.64.0.2)"]
+        COOL["Coolify VM (100.64.0.4)"]
+        RPI["Raspberry Pi Kiosk (100.64.0.12)"]
         MOBILE["Clients Mobiles & Laptops"]
     end
 
@@ -85,6 +87,7 @@ graph TB
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| PVE
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| PBS
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| COOL
+    HEADSCALE -.->|MagicDNS & Coordination WireGuard| RPI
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| MOBILE
 
     MAC <==>|Tunnels Directs Peer-to-Peer WireGuard| COOL
@@ -96,7 +99,7 @@ graph TB
     classDef node fill:#1a2b3c,stroke:#F97316,color:#fff;
     class HEADSCALE,HEADPLANE,AUTH_SRV srv;
     class NOISE_KEY,DB_SQLITE key;
-    class MAC,PVE,PBS,COOL,MOBILE node;
+    class MAC,PVE,PBS,COOL,RPI,MOBILE node;
 ```
 
 <Warning>
@@ -142,7 +145,7 @@ Headscale est un control plane qui coordonne des connexions WireGuard peer-to-pe
     </Steps>
 
     <Warning>
-    `only_start_if_oidc_is_available` reste actuellement à `false` — **à repasser en `true`** maintenant que `auth.ims-world.fr` est stable sur le MS-01, pour retrouver le comportement de sécurité d'origine.
+    `only_start_if_oidc_is_available` reste actuellement à `false` — **à repasser en `true`** (voir [Roadmap](/procedures/roadmap)) maintenant que `auth.ims-world.fr` est stable sur le MS-01.
     </Warning>
   </Accordion>
 

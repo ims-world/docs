@@ -71,8 +71,8 @@ docker exec -it <container_id> df -h
 # Statut des nœuds du Tailnet
 tailscale status
 
-# Tester la connectivité vers la VM Coolify (100.64.0.10)
-tailscale ping 100.64.0.10
+# Tester la connectivité vers la VM Coolify (100.64.0.4)
+tailscale ping 100.64.0.4
 
 # Tester le filtrage middleware vpn-only (doit retourner 403 Forbidden depuis le WAN)
 curl -Iv https://qbit.ims-world.fr

@@ -1,13 +1,20 @@
 ---
 title: "Plan de Reprise d'Activité (PRA / DRP)"
-description: "Procédure d'urgence et reconstruction intégrale de l'infrastructure IMS-WORLD en cas de sinistre matériel"
+description: "Procédure d'urgence et état réel de restauration du homelab IMS-WORLD en cas de sinistre"
+icon: "shield-alert"
+iconType: "duotone"
 ---
 
-## Objectif & Scénarios de Sinistre
-
 <Warning>
-**Document critique d'urgence** — à conserver également sous forme de copie imprimée ou accessible hors-ligne (ex: sur un ordinateur portable ou clé USB de secours).
+**État Réel de la Couverture Sauvegardes (Audit Aout 2026)** :
+- 🟢 **VM 104 (IMS-Coolify)** : **Sauvegardée & Restaurable** — Backup quotidien automatisé à 02:00 dans PBS via NFSv3 (`vers=3`).
+- 🔴 **LXC 100 (IMS-NAS)** : **Aucun backup actif** (SPOF) — Reconstruction manuelle obligatoire en cas de sinistre.
+- 🔴 **LXC 103 (IMS-PBS)** : **Aucun backup actif** (SPOF) — Reconstruction manuelle obligatoire en cas de sinistre.
+
+*Voir la [Roadmap](/procedures/roadmap) pour le chantier prioritaire "Mise en place de sauvegardes vzdump locales pour les LXC 100 et 103".*
 </Warning>
+
+## Objectif & Scénarios de Sinistre
 
 Ce plan définit les étapes exactes pour reconstruire l'infrastructure en cas de :
 1. **Sinistre Majeur Host (MS-01 HS)** : Panne carte mère, CPU ou NVMe principal de l'hyperviseur Minisforum MS-01.
@@ -16,32 +23,30 @@ Ce plan définit les étapes exactes pour reconstruire l'infrastructure en cas d
 
 ---
 
-## 🗺️ Schéma de Restauration PRA (Workflow de Secours)
+## 🗺️ Schéma de Restauration PRA (Workflow Réel)
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Admin as 👨‍💻 Administrateur
-    participant Hardware as 🖥️ Nouvel Hôte / Mac Mini Standby
+    participant Hardware as 🖥️ Nouvel Hôte MS-01 / Mac Mini Standby
     participant PBS as 💾 Proxmox Backup Server (Datastore NFS)
     participant NAS as 📁 Stockage Physique NAS
-    participant Router as 📡 Routeur Bbox
 
     Note over Admin,Hardware: STEP 1: Préparation du nœud de remplacement
-    Admin->>Hardware: Installation Proxmox VE 9 vierge (ou boot Mac Mini)
+    Admin->>Hardware: Installation Proxmox VE 9 vierge (ou boot Mac Mini 100.64.0.7)
     Admin->>Hardware: Config IP LAN 192.168.1.x + Bridge vmbr0
 
-    Note over Admin,PBS: STEP 2: Connexion au Datastore de Sauvegarde
-    Admin->>PBS: Montage NFS du datastore pve-backups (10.10.10.1 / 192.168.1.50)
-    PBS-->>Hardware: Index des sauvegardes disponible (VM 104, LXC 100, LXC 103)
+    Note over Admin,Hardware: STEP 2: Reconstruction Manuelle des LXC (SPOF)
+    Admin->>Hardware: Création LXC 100 (Debian 12 Privilégié) + Config MergerFS / NFS
+    Admin->>Hardware: Création LXC 103 (Debian 12 Privilégié) + Re-connexion Datastore
 
-    Note over Admin,Hardware: STEP 3: Restauration des Guests de Production
-    Admin->>Hardware: Restauration VM 104 (IMS-Coolify) via qmrestore
-    Admin->>Hardware: Restauration LXC 100 (IMS-NAS) via pct restore
-    Admin->>Hardware: Restauration LXC 103 (IMS-PBS) via pct restore
+    Note over Admin,PBS: STEP 3: Restauration Automatisée de la VM 104
+    Admin->>PBS: Récupération du snapshot VM 104 dans /mnt/pbs-datastore
+    PBS-->>Hardware: Import de la VM Coolify via qmrestore (VMID 104)
 
-    Note over Admin,Router: STEP 4: Ré-aiguillage du Trafic & Cutover
-    Admin->>Router: Vérification du Port-Forward 80/443 -> IP VM Coolify (192.168.1.52)
+    Note over Admin,Hardware: STEP 4: Relance & Validation
+    Admin->>Hardware: Démarrage VM 104 (Traefik, Authentik, Vaultwarden, HomeFlix, Headscale)
     Hardware-->>Admin: Services applicatifs & Tailnet opérationnels !
 ```
 
@@ -57,40 +62,23 @@ sequenceDiagram
    - S'assurer que le bridge `vmbr0` est rattaché à la carte réseau physique principale.
 
 2. **Si bascule temporaire d'urgence sur le Mac Mini 2014 (Standby)** :
-   - Démarrer le Mac Mini.
+   - Démarrer le Mac Mini dans le rack [Labrax](/infrastructure/labrax).
    - Vérifier la connectivité réseau et l'accès SSH sur le port `4242` (`ssh -p 4242 cmolotkoff@100.64.0.7`).
 
 ---
 
-### Phase 2 — Montage des sauvegardes PBS
+### Phase 2 — Restauration de la VM 104 (IMS-Coolify) depuis PBS
 
-Si le conteneur PBS (LXC 103) est indisponible, les fichiers de sauvegarde `.vma.zst` et les chunks déduplicatifs vivent physiquement sur le disque du NAS (`/mnt/storage/backups`).
+La VM Coolify est le seul guest bénéficiant d'un snapshot quotidien automatisé dans PBS.
 
 ```bash
-# Sur le nouvel hyperviseur Proxmox :
+# Se connecter au nouvel hôte Proxmox (192.168.1.41)
 mkdir -p /mnt/recovery-pbs
 
-# Monter le dossier de backup du NAS en NFSv3
+# Monter le stockage du datastore en NFSv3 (vers=3 obligatoire)
 mount -t nfs -o vers=3 192.168.1.50:/mnt/storage/backups /mnt/recovery-pbs
-```
 
----
-
-### Phase 3 — Restauration des VMs et LXCs
-
-#### 1. Restauration du NAS (IMS-NAS — LXC 100)
-```bash
-# Identifier le dernier backup de la VM 100
-ls -la /mnt/recovery-pbs/dump/
-
-# Restaurer le LXC NAS
-pct restore 100 /mnt/recovery-pbs/dump/vzdump-lxc-100-*.tar.zst --storage local-lvm
-pct start 100
-```
-
-#### 2. Restauration de la VM Coolify (IMS-Coolify — VM 104)
-```bash
-# Restaurer la VM applicative Coolify (héberge Traefik, Authentik, Vaultwarden, HomeFlix, Headscale)
+# Restaurer la VM Coolify (104)
 qmrestore /mnt/recovery-pbs/dump/vzdump-qemu-104-*.vma.zst 104 --storage local-lvm
 qm start 104
 ```
@@ -101,6 +89,25 @@ La VM Coolify redémarre automatiquement avec son IP statique (`192.168.1.52`). 
 
 ---
 
+### Phase 3 — Reconstruction Manuelle des Conteneurs LXC (NAS & PBS)
+
+<Warning>
+Les conteneurs LXC 100 et LXC 103 n'ayant pas de sauvegarde PBS/vzdump active, leur restauration nécessite une réinstallation à partir des procédures documentées.
+</Warning>
+
+1. **LXC 100 (IMS-NAS)** :
+   - Créer un LXC Debian 12 Privilégié (2 vCPU / 1024 Mo RAM).
+   - Réinstaller `mergerfs`, `nfs-kernel-server` et `samba`.
+   - Re-créer le passthrough `mp0` du disque physique Seagate 3To dans `/etc/pve/lxc/100.conf`.
+   - Remonter le pool `/mnt/storage` avec l'option `inodecalc=path-hash`. Voir [Fiche IMS-NAS](/infrastructure/ims-nas).
+
+2. **LXC 103 (IMS-PBS)** :
+   - Créer un LXC Debian 12 Privilégié (2 vCPU / 1024 Mo RAM) avec la feature `mount=nfs`.
+   - Installer Proxmox Backup Server (`proxmox-backup-server`).
+   - Remonter le partage NFS `/mnt/storage/backups` en `vers=3`. Voir [Fiche IMS-PBS](/infrastructure/ims-pbs).
+
+---
+
 ### Phase 4 — Clés critiques à vérifier après restauration
 
 | Composant | Fichier sensible à contrôler | Risque si perdu |
@@ -108,14 +115,13 @@ La VM Coolify redémarre automatiquement avec son IP statique (`192.168.1.52`). 
 | **Headscale** | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/noise_private.key` | Reconnexion manuelle obligatoire de tous les appareils du tailnet |
 | **Authentik** | Variable `SECRET_KEY` dans le compose | Invalidation de toutes les sessions utilisateurs et tokens JWT |
 | **Vaultwarden** | `/data/coolify/services/i5ae953riutbot9afjcboptb/data/rsa_key.pem` | Incapacité à déchiffrer les pièces jointes du coffre |
-| **Cap** | `DATABASE_ENCRYPTION_KEY` & `NEXTAUTH_SECRET` | Perte du déchiffrement des enregistrements vidéo |
 
 ---
 
 ## 🧪 Tests de Simulation PRA (Exercices réguliers)
 
 <Tip>
-Il est recommandé d'effectuer un test de restauration à blanc (dry-run) tous les 6 mois en restaurant une VM dans un VMID de test (ex: VM 101) pour valider l'intégrité des backups PBS.
+Il est recommandé d'effectuer un test de restauration à blanc (dry-run) tous les 6 mois en restaurant la VM Coolify dans un VMID de test (ex: VM 101) pour valider l'intégrité des snapshots PBS.
 </Tip>
 
 ```bash

@@ -7,7 +7,7 @@ description: "Infrastructure self-hosted IMS-WORLD — architecture, principes e
 
 <CardGroup cols={4}>
   <Card title="1 Hôte Proxmox" icon="server" href="/infrastructure/proxmox-host">
-    Minisforum MS-01 (14 vCPU / 32 Go RAM)
+    Minisforum MS-01 (12 Cores / 16 Threads / 32 Go RAM)
   </Card>
   <Card title="2 LXC & 1 VM" icon="box" href="/infrastructure/vm-coolify">
     IMS-NAS (100), IMS-PBS (103), VM Coolify (104)
@@ -71,10 +71,10 @@ L'infrastructure IMS-WORLD repose sur trois principes non négociables :
 
 <CardGroup cols={2}>
   <Card title="Rack Serveur Physique Labrax" icon="cubes" href="/infrastructure/labrax">
-    Châssis 3D-printé MakerWorld (Core IMS-01), ventilateur supérieur Noctua Industrial PPC, switch NETGEAR GS308EV4, 4 caddies Dell PowerEdge 3.5" et alimentation PicoPSU 160W.
+    Châssis 3D-printé MakerWorld (Core IMS-01), ventilateur supérieur Noctua NF-A12x25 G2 PWM chromax.black, switch NETGEAR GS308EV4, 4-Pack Caddies Dell 3.5" et alimentation PicoPSU 160W.
   </Card>
-  <Card title="Sonde de Monitoring & Écran 2U" icon="display" href="/infrastructure/rpi-monitor">
-    Raspberry Pi 3B+ sur module 2U dédié, pilotant l'écran de statut LCD/OLED frontal et assurant le monitoring hors-bande du cluster.
+  <Card title="Afficheur Kiosk & Écran 2U" icon="display" href="/infrastructure/rpi-monitor">
+    Raspberry Pi 3B+ sur module 2U dédié, pilotant l'affichage Kiosk LCD/OLED frontal (bannière IMS, mode lisibilité, contrôle par bouton GPIO).
   </Card>
 </CardGroup>
 
@@ -123,7 +123,7 @@ flowchart TB
 
     subgraph STANDBY ["🗄️ Nœuds Satellites & Rack Labrax 3D"]
         MAC_MINI["Mac Mini 2014 (Hôte Standby)\nIP Tailnet: 100.64.0.7 | Port SSH: 4242"]
-        RPI_MON["Raspberry Pi 3B+ (Sonde Monitoring 2U)\nÉcran status LCD & Alertes Ntfy"]
+        RPI_MON["Raspberry Pi 3B+ (Kiosk Affichage 2U)\nÉcrans Wisecoco 7.84 LCD + OLED 0.91"]
     end
 
     %% Trafic Ingress Public
@@ -150,8 +150,8 @@ flowchart TB
     PVE_HOST -.->|vzdump Backups| PBS_LXC
 
     %% Monitoring & Standby
-    RPI_MON -.->|Healthchecks ICMP/HTTP| PVE_HOST
-    RPI_MON -.->|Healthchecks| VM_NODE
+    RPI_MON -.->|Affichage Kiosk (Web Headless)| PVE_HOST
+    RPI_MON -.->|Rotation Bannière & Sites| VM_NODE
     MAC_MINI -.->|Fallback Secours Chaud| BBOX
 
     classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
@@ -179,7 +179,7 @@ flowchart TB
     | **Labrax** | Rack serveur physique 3D, switch NETGEAR, alim PicoPSU | 🟢 Production | [Rack Labrax](/infrastructure/labrax) |
     | **Minisforum MS-01** | Hyperviseur Proxmox VE 9.2.3 —  hôte principal | 🟢 Production | [Proxmox Host](/infrastructure/proxmox-host) |
     | **Mac Mini 2014** | Hôte de secours | 🟡 Standby | [Mac Mini](/infrastructure/mac-mini) |
-    | **Raspberry Pi 3B+** | Sonde de monitoring & écran 2U | 🟢 Production | [RPi Monitor](/infrastructure/rpi-monitor) |
+    | **Raspberry Pi 3B+** | Affichage Kiosk & Module 2U | 🟢 Production | [RPi Monitor](/infrastructure/rpi-monitor) |
     | **IMS-NAS (LXC 100)** | Stockage NFS + SMB (MergerFS) | 🟢 Production | [IMS-NAS](/infrastructure/ims-nas) |
     | **IMS-PBS (LXC 103)** | Sauvegardes Proxmox Backup Server | 🟢 Production | [IMS-PBS](/infrastructure/ims-pbs) |
     | **IMS-Coolify (VM 104)** | Orchestration Docker (Traefik v3.7) | 🟢 Production | [VM Coolify](/infrastructure/vm-coolify) |

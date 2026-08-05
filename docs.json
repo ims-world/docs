@@ -119,7 +119,8 @@
               "procedures/deploiement-service",
               "procedures/depannage-courant",
               "procedures/ajout-nouveau-disque",
-              "procedures/plan-reprise-activite-pra"
+              "procedures/plan-reprise-activite-pra",
+              "procedures/roadmap"
             ]
           }
         ]

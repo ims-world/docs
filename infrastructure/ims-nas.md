@@ -17,12 +17,18 @@ Mono-disque, **aucune redondance en Phase 1**. Le HDD 3To est l'unique copie phy
 
 ## Fiche technique
 
+<Info>
+**Architecture "Fait Maison"** : Ce NAS n'est pas un boîtier commercial (Synology/QNAP), mais une solution sur-mesure combinant un conteneur LXC Debian 12 et MergerFS. Le disque physique est logé dans le **4-Pack Hard Drive Tray Caddy 3,5" pour DELL** du rack [Labrax](/infrastructure/labrax) et raccordé au MS-01 via une carte d'extension **SATA PCIe Tbest ASM1166 (6 ports, PCIe SATA 3.0 Gen3)**.
+</Info>
+
 | Propriété | Valeur |
 |---|---|
 | **VMID** | 100 |
 | **Type** | LXC Debian 12, **privilégié** (requis pour NFS + passthrough disque) |
 | **CPU / RAM** | 2 cores / 1024 MB |
 | **Réseau** | `vmbr0` (192.168.1.50/24, LAN) + `vmbr1` (10.10.10.1/24, isolé, sans gateway) |
+| **Carte SATA** | Tbest ASM1166 (6 ports SATA 3.0, PCIe Gen3) |
+| **Emplacement disques** | 4-Pack Hard Drive Tray Caddy 3.5" pour DELL (avec 1 adaptateur 2.5" pour le SSD) |
 | **Accès distant** | Aucun — LAN uniquement à ce jour |
 
 <Note>

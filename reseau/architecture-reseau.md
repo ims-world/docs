@@ -85,6 +85,7 @@ graph TB
 | IMS-Coolify | 192.168.1.52 | 10.10.10.2 | 100.64.0.4 |
 | Mac Mini | — | — | 100.64.0.7 |
 | Host MS-01 (pve) | 192.168.1.41 | — | 100.64.0.9 |
+| ims-rpi-monitor | — | — | 100.64.0.12 |
 
 <Warning>
 Le NAS n'a aucun accès distant Tailscale à ce jour — SMB/NFS accessibles en LAN uniquement. Décision à trancher : subnet router généraliste vs client dédié (comme PBS/Coolify).

@@ -7,22 +7,16 @@ description: "Chronologie du projet de migration Mac Mini → MS-01"
 
 ### 🆕 Nouveautés
 
-- **Mac Mini basculé en hôte de secours (Standby chaud)** — L'ancien serveur de production reste sous tension dans le rack, prêt à reprendre la charge en cas de panne majeure du MS-01. Une procédure de bascule d'urgence (Bbox port-forward + relance des conteneurs archivés) est documentée. Voir [Mac Mini 2014 (Hôte Standby)](/infrastructure/mac-mini).
-- **Sonde de monitoring Raspberry Pi 3B+** — Un Raspberry Pi indépendant surveille désormais l'hyperviseur, le NAS et la VM Coolify via healthchecks ICMP/HTTP, avec alertes Ntfy en cas de panne. Le monitoring continue de fonctionner même si Proxmox est éteint ou en reboot. Voir [Raspberry Pi 3B+ & Écrans](/infrastructure/rpi-monitor).
-- **Écran de statut en façade du rack** — Un afficheur LCD/OLED intégré au panneau supérieur du rack Labrax montre en temps réel le logo IMS, la température et la charge du cluster, piloté par le Raspberry Pi.
+- **Afficheur Kiosk Raspberry Pi 3B+** — Un Raspberry Pi 3B+ dédié pilote l'affichage physique du rack Labrax via un écran principal Wisecoco 7.84" (1280x400) et un second écran OLED 0.91" (128x32) encastrés dans un module 2U 3D. Un navigateur headless fait tourner en boucle la bannière IMS et des pages web en mode lisibilité, contrôlé par un bouton poussoir GPIO (appui court = change source, long 3s = éteint). Voir [Raspberry Pi 3B+ & Écrans](/infrastructure/rpi-monitor).
+- **Désinstallation définitive de Cap** — Abandon de l'expérimentation du service d'enregistrement d'écran Cap, retiré du homelab. Voir [Cap (Service Supprimé)](/services/cap).
 
 ### 🔧 Améliorations
 
-- **Module 3D imprimable pour le Raspberry Pi de monitoring** — La fiche du Raspberry Pi 3B+ référence désormais le modèle MakerWorld « Screen module for 10-inch rack — Raspberry Pi 2U », qui permet d'intégrer proprement le Pi et son écran de statut en façade du rack Labrax. Les rendus CAD 3D (vue de façade et vue isométrique intérieure) sont désormais disponibles directement sur la fiche pour visualiser l'intégration avant impression. Voir [Raspberry Pi 3B+ & Écrans](/infrastructure/rpi-monitor).
+- **Module 3D imprimable pour le Raspberry Pi** — La fiche du Raspberry Pi 3B+ référence le modèle MakerWorld « Screen module for 10-inch rack — Raspberry Pi 2U », avec ses rendus CAD 3D (vue de façade et vue isométrique intérieure). Voir [Raspberry Pi 3B+ & Écrans](/infrastructure/rpi-monitor).
 - **Tarpit SSH sur le Mac Mini** — Le port 22 du Mac Mini pointe désormais vers Endlessh (tarpit anti-bot) pour piéger les scans automatisés. L'accès SSH légitime passe par le port `4242`.
 - **Résolution DNS de l'ancien Coolify** — L'ancienne instance Coolify du Mac Mini reste joignable via `coolify-old.ims-world.fr` grâce à un enregistrement DNS dans Headscale, le temps de la phase de validation post-cutover.
 - **Matrice de sécurité interactive** — La cartographie des zones de confiance (WAN public, LAN, tailnet, admin) est désormais présentée sous forme d'onglets navigables avec cartes cliquables vers chaque service et sa politique d'exposition. Voir [Matrice de Sécurité & d'Exposition](/reseau/matrice-securite-exposition).
-- **Arbre de décision de dépannage** — La page de dépannage inclut désormais un diagramme interactif qui guide symptôme par symptôme vers la cause probable et sa solution (pièges Chrome/Tailscale, dossier fantôme Coolify, NFS stale handle, hardlinks, etc.). Voir [Dépannage courant](/procedures/depannage-courant).
-- **Recentrage sur les services en production** — La section « Feuille de Route 2026 » (fiches prévisionnelles Immich et Beszel) a été retirée pour concentrer la documentation sur les services réellement déployés. Les projets futurs seront ajoutés à la documentation au moment de leur mise en service.
-
-<Info>
-Prochaine étape planifiée : mise en service de [Cap](/services/cap) (enregistrement et partage d'écran self-hosted), toujours en attente de déploiement.
-</Info>
+- **Arbre de décision de dépannage** — La page de dépannage inclut désormais un diagramme interactif qui guide symptôme par symptôme vers la cause probable et sa solution. Voir [Dépannage courant](/procedures/depannage-courant).
 
 ## Semaine du 03/08/2026 — Stabilisation post-cutover
 

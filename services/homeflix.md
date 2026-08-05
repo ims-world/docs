@@ -39,7 +39,7 @@ iconType: "duotone"
   <Tab title="💻 Administration CLI">
     ```bash
     # Se connecter à la VM Coolify
-    ssh root@100.64.0.5
+    ssh cmolotkoff@100.64.0.4
     
     # Accéder au dossier du service HomeFlix
     cd /data/coolify/services/w39uebmcnse7yctsft8hzed8/
