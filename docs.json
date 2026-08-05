@@ -5,19 +5,20 @@
   "description": "Documentation technique de l'infrastructure self-hosted IMS-WORLD (ims-world.fr)",
   "logo": {
     "light": "/assets/logo-ims.png",
-    "dark": "/assets/logo-ims.png"
+    "dark": "/assets/logo-ims.png",
+    "href": "https://ims-world.fr"
   },
   "favicon": "/assets/favicon.svg",
+  "banner": {
+    "content": "🟢 Infrastructure self-hosted IMS-WORLD opérationnelle en production",
+    "dismissable": true
+  },
   "colors": {
     "primary": "#F97316",
     "light": "#FB923C",
     "dark": "#C2410C"
   },
   "topbarLinks": [
-    {
-      "name": "Proxmox VE",
-      "url": "https://192.168.1.41:8006"
-    },
     {
       "name": "Coolify Admin",
       "url": "https://coolify.ims-world.fr"
@@ -27,12 +28,16 @@
       "url": "https://auth.ims-world.fr"
     },
     {
+      "name": "Proxmox VE",
+      "url": "https://192.168.1.41:8006"
+    },
+    {
       "name": "Repo GitHub",
       "url": "https://github.com/ims-world/ims-infra"
     }
   ],
   "topbarCta": {
-    "name": "Accès Homelab",
+    "name": "🚀 Accès Coolify",
     "url": "https://coolify.ims-world.fr"
   },
   "footerSocials": {
