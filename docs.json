@@ -62,27 +62,27 @@
             ]
           },
           {
-            "group": "Hôte & Physique",
+            "group": "Rack 10\" & Physique",
+            "icon": "cubes",
+            "pages": [
+              "infrastructure/labrax"
+            ]
+          },
+          {
+            "group": "Hôtes Physiques (Compute)",
             "icon": "server",
             "pages": [
               "infrastructure/proxmox-host",
-              "infrastructure/labrax",
               "infrastructure/mac-mini",
               "infrastructure/rpi-monitor"
             ]
           },
           {
-            "group": "Conteneurs LXC",
+            "group": "Virtualisation (LXC & VM)",
             "icon": "box",
             "pages": [
               "infrastructure/ims-nas",
-              "infrastructure/ims-pbs"
-            ]
-          },
-          {
-            "group": "Machines Virtuelles (VM)",
-            "icon": "desktop",
-            "pages": [
+              "infrastructure/ims-pbs",
               "infrastructure/vm-coolify"
             ]
           },
