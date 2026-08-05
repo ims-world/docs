@@ -10,13 +10,42 @@
   },
   "favicon": "/assets/favicon.svg",
   "banner": {
-    "content": "🟢 Infrastructure self-hosted IMS-WORLD opérationnelle en production",
-    "dismissable": true
+    "content": "📝 Documentation en cours de rédaction",
+    "dismissable": false
   },
   "colors": {
     "primary": "#F97316",
     "light": "#FB923C",
     "dark": "#C2410C"
+  },
+  "navbar": {
+    "links": [
+      {
+        "type": "external",
+        "label": "Coolify Admin",
+        "href": "https://coolify.ims-world.fr"
+      },
+      {
+        "type": "external",
+        "label": "Authentik SSO",
+        "href": "https://auth.ims-world.fr"
+      },
+      {
+        "type": "external",
+        "label": "Proxmox VE",
+        "href": "https://192.168.1.41:8006"
+      },
+      {
+        "type": "external",
+        "label": "Repo GitHub",
+        "href": "https://github.com/ims-world/ims-infra"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "🚀 Accès Coolify",
+      "href": "https://coolify.ims-world.fr"
+    }
   },
   "topbarLinks": [
     {
