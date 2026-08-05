@@ -1,6 +1,8 @@
 ---
 title: "Minisforum MS-01 (Proxmox VE)"
 description: "Hyperviseur principal — Minisforum MS-01, Proxmox VE 9.2.3"
+icon: "server"
+iconType: "duotone"
 ---
 
 ## Fiche matériel
