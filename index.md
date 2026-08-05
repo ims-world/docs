@@ -36,130 +36,77 @@ L'infrastructure IMS-WORLD repose sur trois principes non négociables :
   </Card>
 </CardGroup>
 
-## ⚡ Accès Rapides — Cockpit Homelab
-
-<Tabs>
-  <Tab title="🛠️ Administration & Ops">
-    <CardGroup cols={3}>
-      <Card title="Proxmox VE GUI" icon="server" href="https://192.168.1.41:8006">
-        Hyperviseur PVE MS-01 (`192.168.1.41:8006`)
-      </Card>
-      <Card title="Coolify Admin" icon="rocket" href="https://coolify.ims-world.fr">
-        Orchestration Docker (`coolify.ims-world.fr`)
-      </Card>
-      <Card title="Headplane Admin" icon="network-wired" href="https://vpn.ims-world.fr/admin">
-        Tailnet VPN GUI (`vpn.ims-world.fr/admin`)
-      </Card>
-    </CardGroup>
-  </Tab>
-  <Tab title="🌐 Services Web Applicatifs">
-    <CardGroup cols={3}>
-      <Card title="Authentik SSO" icon="key" href="https://auth.ims-world.fr">
-        Provider OIDC & SSO (`auth.ims-world.fr`)
-      </Card>
-      <Card title="Vaultwarden" icon="shield-halved" href="https://vault.ims-world.fr">
-        Coffre Mots de Passe (`vault.ims-world.fr`)
-      </Card>
-      <Card title="HomeFlix Streaming" icon="clapperboard" href="https://homeflix.ims-world.fr">
-        Jellyfin Streaming (`homeflix.ims-world.fr`)
-      </Card>
-    </CardGroup>
-  </Tab>
-</Tabs>
-
-## 🗄️ Rack Physique & Châssis Labrax
+## 🗄️ Infrastructure Physique & Rack 3D
 
 <CardGroup cols={2}>
-  <Card title="Rack Serveur Physique Labrax" icon="cubes" href="/infrastructure/labrax">
-    Châssis 3D-printé MakerWorld (Core IMS-01), ventilateur supérieur Noctua NF-A12x25 G2 PWM chromax.black, switch NETGEAR GS308EV4, 4-Pack Caddies Dell 3.5" et alimentation PicoPSU 160W.
+  <Card title="Châssis & Rack Labrax 3D" icon="cubes" href="/infrastructure/labrax">
+    Châssis 3D-printé, ventilateur Noctua G2, switch NETGEAR et caddies 3.5" Dell.
   </Card>
-  <Card title="Afficheur Kiosk & Écran 2U" icon="display" href="/infrastructure/rpi-monitor">
-    Raspberry Pi 3B+ sur module 2U dédié, pilotant l'affichage Kiosk LCD/OLED frontal (bannière IMS, mode lisibilité, contrôle par bouton GPIO).
+  <Card title="Afficheur Kiosk & Module 2U" icon="display" href="/infrastructure/rpi-monitor">
+    Raspberry Pi 3B+, écrans Wisecoco 7.84" LCD + OLED 0.91" et bouton poussoir GPIO.
   </Card>
 </CardGroup>
 
 ## Schéma d'Architecture Macro Globale
 
 ```mermaid
-flowchart TB
-    subgraph INGRESS ["🌐 Accès Externe Public WAN & DNS"]
-        USERS["Utilisateurs External Publics"]
+graph TB
+    subgraph INGRESS ["🌐 Accès Externe & DNS"]
+        USERS["Clients Internet"]
         DNS_OVH["DNS Public OVH (*.ims-world.fr)"]
-        LE_ACME["Let's Encrypt (DNS-01 Challenge ACME)"]
+        LE_ACME["Let's Encrypt (DNS-01 ACME)"]
     end
 
-    subgraph ROUTING ["📡 Bbox WAN & Ingress Proxy"]
-        BBOX["Routeur Bbox (NAT Ports 80/443 -> 192.168.1.52)"]
+    subgraph BBOX_NET ["📡 Bbox Routeur WAN"]
+        BBOX["Port-Forward 80/443 (192.168.1.52)"]
     end
 
-    subgraph TAILNET ["🔐 Zone Tailnet VPN Overlay (Headscale 100.64.0.0/10)"]
-        VPN_CLIENTS["Appareils Authentifiés Tailnet (Mobiles / PC)"]
-        HEADPLANE["Headplane Admin GUI (vpn.ims-world.fr/admin)"]
-        MIDDLEWARE_VPN["Traefik Middleware: vpn-only (ipAllowList)"]
+    subgraph TAILNET_ZONE ["🔐 Network Overlay (Tailscale 100.64.0.0/10)"]
+        VPN_CLIENTS["Appareils Authentifiés Tailnet"]
+        HEADPLANE["Headplane GUI (vpn.ims-world.fr/admin)"]
+        MIDDLEWARE_VPN["Traefik Middleware vpn-only"]
     end
 
-    subgraph PVE ["🖥️ Hyperviseur Principal — Minisforum MS-01 (Proxmox VE 9.2.3)"]
-        PVE_HOST["Proxmox PVE Host (192.168.1.41)"]
-
-        subgraph LXC_NODES ["📦 Conteneurs LXC (Debian 12 Privilégiés)"]
-            NAS_LXC["IMS-NAS (LXC 100)\nIP LAN: 192.168.1.50\nMergerFS + NFS + SMB"]
-            PBS_LXC["IMS-PBS (LXC 103)\nIP LAN: 192.168.1.51\nProxmox Backup Server"]
-        end
-
-        subgraph VM_NODE ["💻 Machine Virtuelle QEMU/KVM (VM 104 — IMS-Coolify)"]
-            TRAEFIK["Traefik Reverse Proxy v3.7\n(Certificats Wildcard DNS-01)"]
-            AUTH["Authentik SSO\n(auth.ims-world.fr)"]
-            VAULT["Vaultwarden\n(vault.ims-world.fr)"]
-            HOMEFLIX["HomeFlix Stack\n(Jellyfin / Jellyseerr / *arr / qBit)"]
-            HEADSCALE_SRV["Headscale Control Plane\n(vpn.ims-world.fr)"]
-        end
-
-        subgraph VMBR1 ["🔒 Bridge Réseau Isolé NFS (vmbr1: 10.10.10.0/24)"]
-            NFS_NAS["Export NAS NFS (10.10.10.1)"]
-            NFS_PBS["PBS Datastore (10.10.10.3)"]
-            NFS_VM["Montage VM Coolify (10.10.10.2)"]
-        end
+    subgraph PVE_CLUSTER ["🖥️ Hyperviseur Proxmox MS-01 (192.168.1.41)"]
+        PVE_HOST["Proxmox VE 9.2.3 Host (192.168.1.41)"]
+        NAS_LXC["IMS-NAS (LXC 100 — 192.168.1.50)"]
+        PBS_LXC["IMS-PBS (LXC 103 — 192.168.1.51)"]
+        VM_COOLIFY["IMS-Coolify (VM 104 — 192.168.1.52)"]
     end
 
-    subgraph STANDBY ["🗄️ Nœuds Satellites & Rack Labrax 3D"]
-        MAC_MINI["Mac Mini 2014 (Hôte Standby)\nIP Tailnet: 100.64.0.7 | Port SSH: 4242"]
-        RPI_MON["Raspberry Pi 3B+ (Kiosk Affichage 2U)\nÉcrans Wisecoco 7.84 LCD + OLED 0.91"]
+    subgraph ISO_NET ["🔒 Bridge NFS Isolé (vmbr1: 10.10.10.0/24)"]
+        NFS_NAS["Export NAS NFS (10.10.10.1)"]
+        NFS_PBS["PBS Datastore (10.10.10.3)"]
+        NFS_VM["Montage VM Coolify (10.10.10.2)"]
     end
 
-    %% Trafic Ingress Public
-    USERS -->|HTTPS| DNS_OVH
-    DNS_OVH -->|IPv4 Public| BBOX
-    BBOX -->|Ports 80/443| TRAEFIK
-    TRAEFIK <-->|Renouvellement Auto| LE_ACME
+    subgraph SATELLITES ["🗄️ Nœuds Satellites & Display"]
+        MAC_MINI["Mac Mini Standby (100.64.0.7)"]
+        RPI_MON["Raspberry Pi Kiosk (100.64.0.12)"]
+    end
 
-    %% Routage Proxy Interne
-    TRAEFIK -->|OIDC / SSO| AUTH
-    TRAEFIK -->|Mots de Passe| VAULT
-    TRAEFIK -->|Media Streaming| HOMEFLIX
-    TRAEFIK -->|Noise Protocol| HEADSCALE_SRV
+    USERS --> DNS_OVH
+    DNS_OVH --> BBOX
+    BBOX --> VM_COOLIFY
+    LE_ACME --- VM_COOLIFY
 
-    %% VPN & Middleware
-    VPN_CLIENTS <-->|Tunnels Tailscale| HEADSCALE_SRV
-    HEADSCALE_SRV <--> HEADPLANE
-    VPN_CLIENTS -->|Accès Filtré| MIDDLEWARE_VPN
-    MIDDLEWARE_VPN -->|Services Restreints| HOMEFLIX
+    VPN_CLIENTS --> HEADPLANE
+    VPN_CLIENTS --> MIDDLEWARE_VPN
+    MIDDLEWARE_VPN --> VM_COOLIFY
 
-    %% Trafic Isolé NFS vmbr1
-    NFS_VM <-->|Lecture / Écriture Data| NFS_NAS
-    NFS_PBS <-->|Sauvegardes NFSv3 vers=3| NFS_NAS
-    PVE_HOST -.->|vzdump Backups| PBS_LXC
+    NFS_VM <--> NFS_NAS
+    NFS_PBS <--> NFS_NAS
+    PVE_HOST -.-> PBS_LXC
 
-    %% Monitoring & Standby
-    RPI_MON -.->|Affichage Kiosk (Web Headless)| PVE_HOST
-    RPI_MON -.->|Rotation Bannière & Sites| VM_NODE
-    MAC_MINI -.->|Fallback Secours Chaud| BBOX
+    RPI_MON -.-> PVE_HOST
+    MAC_MINI -.-> BBOX
 
     classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
     classDef vpn fill:#F97316,stroke:#FB923C,color:#fff;
     classDef host fill:#1a2b3c,stroke:#F97316,color:#fff;
     class USERS,DNS_OVH,BBOX wan;
-    class VPN_CLIENTS,HEADSCALE_SRV,HEADPLANE vpn;
-    class PVE_HOST,NAS_LXC,PBS_LXC,TRAEFIK host;
+    class VPN_CLIENTS,HEADPLANE vpn;
+    class PVE_HOST,NAS_LXC,PBS_LXC,VM_COOLIFY host;
 ```
 
 ## État Actuel des Composants
@@ -203,6 +150,9 @@ flowchart TB
   </Card>
   <Card title="J'ajoute un disque au NAS" icon="hard-drive" href="/procedures/ajout-nouveau-disque">
     Extension MergerFS ou bascule storage-hot.
+  </Card>
+  <Card title="Feuille de Route & TODOs" icon="list-check" href="/procedures/roadmap">
+    Liste des chantiers techniques et optimisations à venir.
   </Card>
   <Card title="Historique du projet" icon="clock-rotate-left" href="/history/chronologie">
     Chronologie complète, décisions et déviations par rapport au plan initial.

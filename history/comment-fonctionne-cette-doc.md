@@ -9,7 +9,7 @@ description: "Principes d'organisation, règles de contribution et structure de 
 Cette documentation regroupe la vérité terrain opérationnelle du homelab IMS-WORLD. Elle documente le **quoi, pourquoi et comment opérer**, en complément du code versionné.
 </Info>
 
-## Structure du projet `docs 2`
+## Structure du projet `IMS-HOMELAB`
 
 | Section | Rôle | Emplacement |
 |---|---|---|
