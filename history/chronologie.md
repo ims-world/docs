@@ -3,6 +3,16 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 05/08/2026 — Transcodage matériel HomeFlix
+
+### 🆕 Nouveautés
+
+- **Transcodage matériel Jellyfin (QuickSync)** — L'iGPU Intel Iris Xe du MS-01 est désormais attribuée en passthrough PCIe à la VM Coolify. HomeFlix (Jellyfin) accélère le transcodage H.264, HEVC et AV1 en matériel, ce qui réduit fortement la charge CPU pendant la lecture et permet plus de flux simultanés. Voir [Host Proxmox](/infrastructure/proxmox-host#gpu-igpu-iris-xe-passthrough-vm-coolify) et [HomeFlix](/services/homeflix).
+
+### 🔧 Améliorations
+
+- **Roadmap mise à jour** — L'étape « Passthrough GPU » est marquée comme effectuée sur la roadmap du projet. Voir [Roadmap](/procedures/roadmap).
+
 ## Semaine du 04/08/2026 — Résilience matérielle & monitoring hors-bande
 
 ### 🆕 Nouveautés
