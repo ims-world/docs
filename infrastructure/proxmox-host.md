@@ -8,9 +8,9 @@ description: "Hyperviseur principal — Minisforum MS-01, Proxmox VE 9.2.3"
 | Propriété | Valeur |
 |---|---|
 | **Modèle** | Minisforum MS-01 |
-| **CPU** | Intel i5-12600H (iGPU Iris Xe intégrée, non exploitée actuellement) |
-| **RAM** | 32 Go nominal (DDR5 5600MHz CL46 SODIMM 262 broches — 31 GiB visibles OS) |
-| **Stockage NVMe** | 1 To NVMe nominal (~930 Go binaire, LVM-Thin `local-lvm` ~793 Go utilisables) |
+| **CPU** | Intel i5-12600H (iGPU Iris Xe intégrée) |
+| **RAM** | 32 Go nominal (1 barette de 32 gb DDR5 5600MHz CL46 SODIMM ) |
+| **Stockage NVMe** | 1 To NVMe nominal (~930 Go binaire, LVM-Thin `local-lvm`) |
 | **OS** | Proxmox VE 9.2.3 |
 | **Accès admin** | `cmolotkoff@pam` (compte nominatif), `root@pam` en break-glass local uniquement |
 
