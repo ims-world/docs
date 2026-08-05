@@ -27,7 +27,7 @@ iconType: "duotone"
 | **Structure** | Châssis modulable 10" 3D-printé (PETG/PLA+ gris renforcé avec poignées supérieures) |
 | **Panneaux Latéraux** | Acrylique teinté noir profond (encastré dans les fentes intérieures du plastique) |
 | **Refroidissement Supérieur** | Ventilateur Noctua NF-A12x25 G2 PWM chromax.black (extraction d'air chaud par le haut) |
-| **Distribution Électrique** | PicoPSU-160-XT (Entrée 12V DC) + Brique externe LEICKE 150W 12V |
+| **Distribution Électrique** | Multiprise rackée à l'arrière (PDU 230V) alimentant : (1) PicoPSU-160-XT + LEICKE 150W 12V (disques & ventilateur Noctua G2), (2) bloc d'alimentation Switch NETGEAR, (3) bloc d'alimentation MS-01, (4) alim secteur Mac Mini |
 
 ---
 
@@ -59,18 +59,34 @@ iconType: "duotone"
 
 ```mermaid
 graph TB
-    subgraph POWER ["⚡ Distribution Électrique (DC 12V)"]
+    subgraph POWER_DIST ["⚡ Distribution Électrique (Rack PDU 230V Arrière)"]
         SECTEUR["Prise Secteur 230V"]
-        LEICKE["Brique LEICKE 150W 12V"]
-        PICO["PicoPSU-160-XT (Disques & Satellites)"]
-        SECTEUR --> LEICKE
+        PDU["Multiprise Rackée Arrière (PDU 230V)"]
+        
+        LEICKE["Brique LEICKE 150W (12V DC)"]
+        PICO["PicoPSU-160-XT"]
+        FAN["Ventilateur Top Noctua G2"]
+        
+        ALIM_SWITCH["Bloc Alim Switch NETGEAR"]
+        ALIM_MS01["Bloc Alim MS-01 (19V DC)"]
+        ALIM_MAC["Cordon Secteur Mac Mini"]
+
+        SECTEUR --> PDU
+        PDU --> LEICKE
         LEICKE --> PICO
+        PICO --> FAN
+        PICO --> HDD_DISKS
+
+        PDU --> ALIM_SWITCH
+        PDU --> ALIM_MS01
+        PDU --> ALIM_MAC
     end
 
     subgraph SWITCH ["🌐 Étage 3 — Switch NETGEAR GS308EV4 (1U)"]
         NETGEAR["Switch NETGEAR 8 Ports"]
         BBOX["Uplink Routeur BBox (Port 1)"]
         BBOX <--> NETGEAR
+        ALIM_SWITCH --> NETGEAR
     end
 
     subgraph SLOTS ["🗄️ Rack LABRAX 10'' (Inventaire Étage par Étage)"]
@@ -80,17 +96,18 @@ graph TB
         HDD_DISKS["Étage 5 (2x1U): Caddies 3.5'' Dell (HDD 3To Seagate)"]
     end
 
+    ALIM_MS01 --> MS01
+    ALIM_MAC --> MAC_MINI
+
     NETGEAR <--> MS01
     NETGEAR <--> MAC_MINI
     NETGEAR <--> RPI
-
-    PICO --> HDD_DISKS
     MS01 <-->|Carte PCIe SATA ASM1166| HDD_DISKS
 
     classDef pwr fill:#2c3e50,stroke:#34495e,color:#fff;
     classDef net fill:#F97316,stroke:#FB923C,color:#fff;
     classDef node fill:#1a2b3c,stroke:#F97316,color:#fff;
-    class SECTEUR,LEICKE,PICO pwr;
+    class SECTEUR,PDU,LEICKE,PICO,FAN,ALIM_SWITCH,ALIM_MS01,ALIM_MAC pwr;
     class NETGEAR,BBOX net;
     class MS01,MAC_MINI,RPI,HDD_DISKS node;
 ```
