@@ -11,7 +11,7 @@
   "favicon": "/assets/favicon.svg",
   "banner": {
     "content": "📝 Documentation en cours de rédaction",
-    "dismissable": false
+    "dismissible": true
   },
   "colors": {
     "primary": "#F97316",
@@ -47,10 +47,6 @@
       "github": "https://github.com/ims-world/ims-infra",
       "website": "https://ims-world.fr"
     }
-  },
-  "feedback": {
-    "thumbs": true,
-    "suggestEdit": true
   },
   "navigation": {
     "tabs": [
