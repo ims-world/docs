@@ -3,7 +3,12 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
-## Semaine du 06/08/2026 — Audit sécurité `vpn-only` validé
+## Semaine du 06/08/2026 — Audit sécurité `vpn-only` validé & RBAC Authentik
+
+### 🆕 Nouveautés
+
+- **Groupes & rôles RBAC sur Authentik** — Trois groupes officiels encadrent désormais l'accès aux applications : `admins` (superuser système), `membres` (famille & amis, accès complet à Vaultwarden, HomeFlix, etc.) et `invites` (accès restreint aux outils de divertissement). Chaque nouveau compte est automatiquement rattaché au groupe `membres` à la création. Voir [Authentik — Groupes & Rôles RBAC](/services/authentik#-groupes--rôles-rbac).
+- **Procédure d'invitation utilisateur pas-à-pas** — Un parcours documenté permet de générer un lien d'invitation unique depuis Authentik, de l'envoyer par email via Resend (`no-reply@ims-world.fr`) et de laisser l'invité créer son compte lui-même, avec affectation automatique des droits. Voir [Authentik — Inviter un nouvel utilisateur](/services/authentik#-procédure--inviter-un-nouvel-utilisateur).
 
 ### 🔧 Améliorations
 
