@@ -1,18 +1,24 @@
 ---
 title: "Traefik (Coolify Proxy)"
 description: "Reverse proxy, certificats DNS-01, middlewares"
+icon: "traffic-light"
+iconType: "duotone"
 ---
 
-## Version
+import { ips, domains } from "/snippets/variables.mdx";
+
+<Badge color="green">🟢 Production Active (Traefik v3.7)</Badge>
+
+## Version & Environnement
 
 | Propriété | Valeur |
 |---|---|
-| **Image** | `traefik:v3.7` |
-| **Mis à jour depuis** | `v3.6.23`, sans incident réel |
+| **Image Docker** | `traefik:v3.7` |
+| **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
+| **Réseau Docker** | `coolify` |
+| **Challenge SSL** | Let's Encrypt DNS-01 (API OVH) |
 
-<Note>
-Une fausse alerte post-upgrade a fait croire à un vrai problème (503 sur tous les domaines de test) — en réalité un artefact de test "hairpin" (curl lancé depuis la VM elle-même via son IP Tailscale). Toujours tester la disponibilité d'un service Tailscale depuis un point **externe**, jamais depuis la machine qui l'héberge.
-</Note>
+---
 
 ## Séquence du Challenge ACME DNS-01 (OVH)
 
@@ -33,6 +39,8 @@ sequenceDiagram
     DNS-->>ACME: Token Validé
     ACME-->>Traefik: Délivrance du certificat Wildcard (stoké dans acme.json)
 ```
+
+---
 
 ## Pipeline de Routage & Middleware Traefik
 
@@ -101,10 +109,12 @@ Le résolveur DNS recommandé par OVH (`213.251.128.1:53`) est tombé en panne, 
 </Warning>
 
 <Warning>
-Contrairement aux autres services (Environment Variables Coolify avec option "Is Secret"), les credentials OVH du proxy sont actuellement **en clair** dans le `docker-compose.yml` — limitation propre à cette partie de Coolify. À sécuriser via un `.env` séparé, non urgent.
+Contrairement aux autres services (Environment Variables Coolify avec option "Is Secret"), les credentials OVH du proxy sont actuellement **en clair** dans le `docker-compose.yml` — limitation propre à cette partie de Coolify. À sécuriser via un `.env` séparé (voir [Roadmap](/procedures/roadmap)).
 </Warning>
 
-## Pièges de mise en route rencontrés
+---
+
+## Points d'Attention de Mise en Route
 
 <Steps>
   <Step title="Resolver jamais initialisé">
@@ -123,7 +133,9 @@ Contrairement aux autres services (Environment Variables Coolify avec option "Is
   </Step>
 </Steps>
 
-## Middleware `vpn-only` — services restreints à Tailscale
+---
+
+## Middleware `vpn-only` — Services Restreints à Tailscale
 
 Fichier dynamique séparé (pas géré par les labels Docker), à recréer manuellement sur toute nouvelle install :
 
@@ -140,17 +152,13 @@ http:
 Appliqué sur : qBittorrent, Prowlarr, Radarr, Sonarr (label `traefik.http.routers.<x>.middlewares=vpn-only@file`).
 
 <Warning>
-**Audit de sécurité en attente** : `vpn-only` confirmé fonctionnel sur qBittorrent et Radarr (test explicite), mais **jamais re-testé sur Sonarr et Prowlarr** après tous les changements de la stack. Vérifier l'absence de router Traefik fantôme auto-généré par Coolify qui contournerait ce middleware (pattern déjà rencontré une fois sur Gluetun, corrigé).
+**Audit de sécurité en attente** : `vpn-only` confirmé fonctionnel sur qBittorrent et Radarr (test explicite), mais **jamais re-testé sur Sonarr et Prowlarr** après tous les changements de la stack. Voir [Roadmap](/procedures/roadmap).
 </Warning>
 
-## Piège récurrent — `traefik.docker.network` manquant
+---
+
+## Règle Réseau Multi-Interfaces — `traefik.docker.network`
 
 <Warning>
-Pour tout service attaché à **plusieurs réseaux Docker**, le label `traefik.docker.network=coolify` est indispensable — sans lui, Traefik ne sait pas quelle IP utiliser malgré un port explicitement défini. Symptôme : `service error: port is missing` dans les logs `coolify-proxy`. Rencontré sur Gluetun (HomeFlix) et Headscale, à vérifier systématiquement sur tout nouveau service multi-réseaux.
-</Warning>
-
-## Découverte structurelle — port-forward et cutover
-
-<Warning>
-Basculer le port-forward Bbox route **tout le trafic public d'un coup**, pas seulement le service qu'on cherche à basculer. Voir [Architecture réseau](/reseau/architecture-reseau) pour le détail de cette découverte lors du cutover du 02/08/2026.
+Pour tout service attaché à **plusieurs réseaux Docker**, le label `traefik.docker.network=coolify` est indispensable — sans lui, Traefik ne sait pas quelle IP utiliser malgré un port explicitement défini. Symptôme : `service error: port is missing` dans les logs `coolify-proxy`.
 </Warning>
