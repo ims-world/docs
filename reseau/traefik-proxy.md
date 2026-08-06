@@ -114,27 +114,6 @@ Contrairement aux autres services (Environment Variables Coolify avec option "Is
 
 ---
 
-## Points d'Attention de Mise en Route
-
-<Steps>
-  <Step title="Resolver jamais initialisé">
-    `nonexistent certificate resolver` sur tous les routers — cause : ligne `acme.email` manquante. Sans email de contact ACME, le resolver entier échoue silencieusement.
-  </Step>
-  <Step title="Permissions acme.json trop ouvertes">
-    ```
-    error="unable to get ACME account: permissions 660 for /traefik/acme.json are too open, please use 600"
-    ```
-    ```bash
-    chmod 600 /data/coolify/proxy/acme.json
-    ```
-  </Step>
-  <Step title="Panne du résolveur DNS OVH">
-    Voir ci-dessus — basculé sur `8.8.8.8` seul.
-  </Step>
-</Steps>
-
----
-
 ## Middleware `vpn-only` — Services Restreints à Tailscale
 
 Fichier dynamique séparé (pas géré par les labels Docker), à recréer manuellement sur toute nouvelle install :
