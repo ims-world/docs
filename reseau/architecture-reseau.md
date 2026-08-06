@@ -7,6 +7,10 @@ iconType: "duotone"
 
 import { ips, domains } from "/snippets/variables.mdx";
 
+<Frame caption="Illustration 3D conceptuelle de la topologie réseau (Rack 10'', hôtes physiques, VLANs isolés et overlay Tailnet)">
+  ![Architecture Réseau IMS-WORLD](/assets/network-banner.png)
+</Frame>
+
 ## Diagramme Réseau Global
 
 ```mermaid
