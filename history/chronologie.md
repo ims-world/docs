@@ -49,12 +49,6 @@ Aucun changement fonctionnel n'a été livré côté services cette semaine. L'i
 
 - **HomeFlix : téléchargements qBittorrent** — Les erreurs d'accès à l'interface qBittorrent derrière le proxy sont corrigées ; le WebUI est de nouveau accessible normalement.
 - **Headscale : reconnexion des appareils** — La boucle de reconnexion OIDC constatée en début de bascule est résolue ; tous les appareils du tailnet se reconnectent sans intervention.
-- **Coolify : warning cosmétique** — Le message d'avertissement affiché dans l'admin Coolify après le cutover a été corrigé.
-
-<Info>
-Prochaine étape planifiée : mise en service de [Cap](/services/cap) (enregistrement et partage d'écran self-hosted), actuellement en attente de déploiement.
-</Info>
-
 ## 🎉 02/08/2026 — Cutover complet
 
 Les 4 services essentiels (Authentik, Vaultwarden, HomeFlix, Headscale/Headplane) sont basculés en production sur le MS-01. Port-forward Bbox corrigé et basculé. Découverte structurelle majeure : le port-forward route tout le trafic public d'un coup, pas de bascule partielle possible (voir [Traefik Proxy](/reseau/traefik-proxy)).
@@ -67,7 +61,7 @@ Mise à jour Traefik v3.6.23 → v3.7 effectuée en avance sur le planning, sans
 
 Migration de données complète (config, `noise_private.key`, base SQLite) — tous les utilisateurs et appareils confirmés présents. Décision actée de ne pas tester via sous-domaine `-ng` (le `server_url` de Headscale est une identité, pas un routage). Piège du dossier fantôme rencontré une 3ème fois, avec complication inédite (nécessité de recréer le container).
 
-Migration Cap commencée en parallèle (dump MySQL + données MinIO récupérés), mise en pause avant le premier démarrage.
+Expérimentation du service Cap testée puis abandonnée définitivement (service retiré du homelab).
 
 ## 31/07/2026 — DNS-01 et mise à jour Traefik
 

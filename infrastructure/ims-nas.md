@@ -109,7 +109,7 @@ graph TB
 | Montage NFS (VM Coolify) | Point de Montage NAS (LXC 100) | Usage & Types de Données | Objectif & Comportement Matériel |
 |---|---|---|---|
 | **`/mnt/nas-storage`** | `/mnt/storage` | **Stockage Capacitif / Froid** : Médias HomeFlix (films, séries), archives photo, documents personnels et sauvegardes PBS (`/mnt/storage/backups`). | Optimisé pour le **stockage de masse** et la lecture séquentielle sur HDD. |
-| **`/mnt/nas-hot`** | `/mnt/storage-hot` | **Données Chaudes / I/O Intensif** : Bases de données applicatives, métadonnées Immich (`immich-data`), dépôts Git Forgejo (`forgejo-data`), Authentik. | Optimisé pour la **latence et les IOPS**. Actuellement sur `/mnt/disk1/hot`, prêt à être basculé vers un SSD dédié. |
+| **`/mnt/nas-hot`** | `/mnt/storage-hot` | **Données Chaudes / I/O Intensif** : Bases de données applicatives, métadonnées Immich (`immich-data`), dépôts Git Forgejo (`forgejo-data`). | Optimisé pour la **latence et les IOPS**. Actuellement sur `/mnt/disk1/hot`, prêt à être basculé vers un SSD dédié. |
 
 <Info>
 **Avantage Majeur d'Architecture** : En isolant le réseau NFS dès le départ (`/mnt/nas-hot` vs `/mnt/nas-storage`), le futur basculement du dossier physique `/mnt/storage-hot` vers un SSD haute performance s'effectuera sur le NAS **sans aucune reconfiguration ni modification des volumes Docker** dans la VM Coolify.

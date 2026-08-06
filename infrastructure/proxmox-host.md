@@ -113,17 +113,28 @@ pct set 103 -onboot 1 -startup order=2,up=10
 qm set 104 --onboot 1 --startup order=3,up=20
 ```
 
-## Monitoring bas niveau — contrainte importante
+## Monitoring bas niveau & Mise en veille HDD (hd-idle)
 
 <Warning>
 **Tout outil nécessitant un accès device bloc direct (ioctl ATA/SCSI) doit tourner sur le host, jamais dans un LXC avec passthrough mountpoint.** Le passthrough (`mp0`) donne accès au filesystem monté, pas au device brut. Concerne `smartd` et `hd-idle` — voir [Dépannage courant](/procedures/depannage-courant) pour le détail complet de cette découverte.
 </Warning>
 
+### Configuration hd-idle (Timeout 30 minutes)
+
+Le daemon **`hd-idle`** s'exécute directement sur l'hyperviseur MS-01 afin de placer le disque dur Seagate 3To du NAS en veille mécanique (spin-down) après **30 minutes d'inactivité** I/O.
+
+- Fichier de configuration sur le host : `/etc/default/hd-idle`
+- Option activée : `HD_IDLE_OPTS="-i 1800 -a /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ"`
+
 ```bash
-# smartd et hd-idle tournent tous les deux sur le HOST, ciblant le disque NAS
-systemctl status smartd hd-idle --no-pager
+# Vérifier l'état d'exécution des services hd-idle et smartd sur le host
+systemctl status hd-idle smartd --no-pager
+
+# Contrôler l'état de veille en temps réel (doit afficher "drive state is: standby" après 30min d'inactivité)
+hdparm -C /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ
+
+# Vérifier le bilan de santé SMART
 smartctl -H /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ
-hdparm -C /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ   # doit passer "standby" après 30min d'inactivité
 ```
 
 ## GPU (iGPU Iris Xe) — Passthrough VM Coolify

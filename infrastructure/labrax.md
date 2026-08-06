@@ -39,7 +39,7 @@ iconType: "duotone"
 | **Étage 2** | **1U** | Mac Mini 2014 (Slot Standby chaud) | Port Switch #3 (1G) • IP `100.64.0.7` | 🍎 [Mac Mini 2014](/infrastructure/mac-mini) |
 | **Étage 3** | **1U** | Switch NETGEAR GS308EV4 (8p Gérés) + Patch Panel RJ45 12p | Ports 1 à 4 câblés • Uplink Bbox | 🔌 *(Voir câblage ci-dessous)* |
 | **Étage 4** | **2U** | Minisforum MS-01 (Carte SATA PCIe Tbest ASM1166 6 ports) | Port Switch #2 (2.5G) • IP `100.64.0.9` | 💻 [Host Proxmox (MS-01)](/infrastructure/proxmox-host) |
-| **Étage 5** | **2 x 1U** | 4-Pack Hard Drive Tray Caddy 3.5" Dell (HDD Seagate 3To) | Nappe SATA via carte PCIe MS-01 | 🗄️ [IMS-NAS (LXC 100)](/infrastructure/ims-nas) |
+| **Étage 5** | **2 x 1U** | 4-Pack Hard Drive Tray Caddy 3.5" Dell (HDD 3To Seagate + adaptateur 2.5" SSD) | Nappe SATA via carte PCIe MS-01 | 🗄️ [IMS-NAS (LXC 100)](/infrastructure/ims-nas) |
 
 ---
 
