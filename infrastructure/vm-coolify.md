@@ -1,7 +1,13 @@
 ---
 title: "VM IMS-Coolify (VM 104)"
 description: "Orchestration Docker — héberge tous les services applicatifs"
+icon: "cube"
+iconType: "duotone"
 ---
+
+import { ips, domains } from "/snippets/variables.mdx";
+
+<Badge color="green">🟢 Production Active (VM 104)</Badge>
 
 <Note>
 🖥️ **Type d'Instance** : **Machine Virtuelle QEMU/KVM 104** (Ubuntu 24.04 LTS) — Isolation complète du noyau avec hyperviseur dédié et kernel propre.
@@ -18,9 +24,10 @@ Héberge Coolify et l'ensemble de la stack applicative (Authentik, Vaultwarden, 
 | **VMID** | 104 |
 | **OS** | Ubuntu 24.04 LTS (clonée depuis template `9000`) |
 | **CPU / RAM** | 6 cores / 12 Go RAM (ajusté depuis une demande initiale de 10/20, refusée — dépassait la RAM physique du host) |
-| **Disque** | 128 Go |
-| **Réseau** | `vmbr0` (192.168.1.52/24) + `vmbr1` (10.10.10.2/24) + client Tailscale dédié |
-| **Tailscale** | `100.64.0.4`, hostname `ims-pve-104-coolify` |
+| **Disque** | 128 Go NVMe |
+| **Réseau** | `vmbr0` ({ips.coolifyLan}/24) + `vmbr1` (10.10.10.2/24) + client Tailscale dédié |
+| **Tailscale** | `{ips.coolify}`, hostname `ims-pve-104-coolify` |
+| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 <Info>
 Le template source (Tailscale, Fail2ban, Crowdsec préconfigurés) a un vendor-data cloud-init avec un placeholder de clé Headscale jamais substitué — Tailscale et QEMU Guest Agent ont dû être installés manuellement post-clonage.
@@ -28,6 +35,7 @@ Le template source (Tailscale, Fail2ban, Crowdsec préconfigurés) a un vendor-d
 
 ## Coolify & Architecture Docker
 
+<Frame caption="Architecture logicielle Docker sur la VM 104 et montages NFS vers IMS-NAS">
 ```mermaid
 graph TD
     subgraph VM ["🚀 VM 104 (IMS-Coolify — 6 vCPU / 12 Go RAM)"]
@@ -66,22 +74,23 @@ graph TD
     class TRAEFIK,AUTH,VAULT,HOMEFLIX,HEADSCALE docker;
     class MNT_STOR,MNT_HOT nfs;
 ```
+</Frame>
 
 | Propriété | Valeur |
 |---|---|
 | **Version** | 4.1.2 |
-| **URL** | `https://coolify.ims-world.fr` |
+| **URL** | `https://{domains.coolify}` |
 | **Accès legacy Mac Mini** | `http://coolify-old.ims-world.fr:8000` (temporaire, période de validation) |
 
 ## Cartographie des services Coolify (UUIDs & Chemins)
 
-| Service | UUID Coolify | Chemin d'accès sur la VM |
-|---|---|---|
-| **Authentik** | `k5mxvc2r6c4zlb6j3d443h7b` | `/data/coolify/services/k5mxvc2r6c4zlb6j3d443h7b/` |
-| **Vaultwarden** | `i5ae953riutbot9afjcboptb` | `/data/coolify/services/i5ae953riutbot9afjcboptb/` |
-| **HomeFlix** (Jellyfin/Sonarr/Radarr/Prowlarr/qBit/Gluetun) | `w39uebmcnse7yctsft8hzed8` | `/data/coolify/services/w39uebmcnse7yctsft8hzed8/` |
-| **Headscale + Headplane** | `i136ix2bmrrbeovnyrh1o72w` | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` |
-| **IT-Tools** (smoke test) | `yefujwl3pxvum45edpsbsru7` | `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` |
+| Service | UUID Coolify | Chemin d'accès sur la VM | Statut |
+|---|---|---|---|
+| **Authentik** | `k5mxvc2r6c4zlb6j3d443h7b` | `/data/coolify/services/k5mxvc2r6c4zlb6j3d443h7b/` | <Badge color="green">🟢 Production</Badge> |
+| **Vaultwarden** | `i5ae953riutbot9afjcboptb` | `/data/coolify/services/i5ae953riutbot9afjcboptb/` | <Badge color="green">🟢 Production</Badge> |
+| **HomeFlix** (Jellyfin/Sonarr/Radarr/Prowlarr/qBit/Gluetun) | `w39uebmcnse7yctsft8hzed8` | `/data/coolify/services/w39uebmcnse7yctsft8hzed8/` | <Badge color="green">🟢 Production</Badge> |
+| **Headscale + Headplane** | `i136ix2bmrrbeovnyrh1o72w` | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` | <Badge color="green">🟢 Production</Badge> |
+| **IT-Tools** (smoke test) | `yefujwl3pxvum45edpsbsru7` | `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` | <Badge color="gray">⚪ Actif</Badge> |
 
 ## Stockage NFS
 

@@ -5,6 +5,8 @@ icon: "video"
 iconType: "duotone"
 ---
 
+<Badge color="red">❌ Supprimé / Archivé</Badge>
+
 <Warning>
 ❌ **Service Supprimé / Non Poursuivi** : Le service Cap a été entièrement désinstallé et retiré de l'infrastructure homelab par décision du propriétaire (raison non documentée). Cette page est conservée uniquement à titre d'archive historique (principe de traçabilité).
 </Warning>
@@ -19,4 +21,4 @@ Cap devait être déployé comme service d'enregistrement et de partage d'écran
 |---|---|
 | **Domaine initialement prévu** | `cap.ims-world.fr` |
 | **Technologie** | NextAuth + MySQL + MinIO S3 Storage |
-| **Statut Actuel** | ❌ **Supprimé / Non poursuivi** |
+| **Statut Actuel** | <Badge color="red">❌ Supprimé / Non poursuivi</Badge> |

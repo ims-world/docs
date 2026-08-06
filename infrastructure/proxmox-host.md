@@ -5,19 +5,25 @@ icon: "server"
 iconType: "duotone"
 ---
 
+import { ips, hardware } from "/snippets/variables.mdx";
+
+<Badge color="green">🟢 Production Active (Hyperviseur Principal)</Badge>
+
 ## Fiche matériel
 
 | Propriété | Valeur |
 |---|---|
 | **Modèle** | Minisforum MS-01 |
-| **CPU** | Intel i5-12600H (iGPU Iris Xe intégrée) |
-| **RAM** | 32 Go nominal (1 barette de 32 gb DDR5 5600MHz CL46 SODIMM ) |
-| **Stockage NVMe** | 1 To NVMe nominal (~930 Go binaire, LVM-Thin `local-lvm`) |
+| **CPU** | {hardware.ms01Cpu} (iGPU Iris Xe intégrée) |
+| **RAM** | {hardware.ms01Ram} |
+| **Stockage NVMe** | {hardware.ms01Storage} (LVM-Thin `local-lvm`) |
 | **OS** | Proxmox VE 9.2.3 |
-| **Accès admin** | `cmolotkoff@pam` (compte nominatif), `root@pam` en break-glass local uniquement |
+| **Accès Admin GUI** | `https://{ips.pveLan}:8006` |
+| **Comptes** | `cmolotkoff@pam` (nominatif), `root@pam` en break-glass local |
 
 ## Topologie Matérielle & Allocation
 
+<Frame caption="Architecture matérielle et répartition des ressources du Minisforum MS-01">
 ```mermaid
 graph TD
     subgraph HW ["💻 Hardware MS-01 (Intel i5-12600H, 31 GiB RAM)"]
@@ -49,6 +55,7 @@ graph TD
     class CPU,RAM,NVME,HDD hw;
     class LXC100,LXC103,VM104 vm;
 ```
+</Frame>
 
 <Warning>
 Le firewall Proxmox 3 niveaux (node → datacenter → VM) n'est **pas encore configuré**. À faire avant toute exposition publique supplémentaire. Ordre impératif : règles niveau nœud d'abord, vérifier l'accès GUI+SSH immédiatement après activation, garder la console web ouverte pendant l'opération.
@@ -65,17 +72,18 @@ Le format `deb822` (`.sources`) est utilisé sur PVE9, pas l'ancien `pve-enterpr
 
 ## Guests hébergés
 
-| VMID | Nom | Type | Rôle |
-|---|---|---|---|
-| 100 | ims-nas | LXC privilégié | Stockage NFS/SMB |
-| 103 | ims-pbs | LXC privilégié | Sauvegardes |
-| 104 | ims-coolify | VM | Orchestration Docker |
-| 101 | vm-test | VM | Test, non utilisé en prod |
-| 102 | ims-windows | VM | Environnement Windows |
-| 9000 | ubuntu-2404-template | Template | Base pour clonage de VM Ubuntu |
+| VMID | Nom | Type | Statut | Rôle |
+|---|---|---|---|---|
+| **100** | ims-nas | LXC privilégié | <Badge color="green">🟢 Actif</Badge> | Stockage NFS/SMB |
+| **103** | ims-pbs | LXC privilégié | <Badge color="green">🟢 Actif</Badge> | Sauvegardes |
+| **104** | ims-coolify | VM | <Badge color="green">🟢 Actif</Badge> | Orchestration Docker |
+| **101** | vm-test | VM | <Badge color="gray">⚪ Non utilisé</Badge> | Test, non utilisé en prod |
+| **102** | ims-windows | VM | <Badge color="gray">⚪ Inactif</Badge> | Environnement Windows |
+| **9000** | ubuntu-2404-template | Template | <Badge color="blue">🔵 Template</Badge> | Base pour clonage de VM Ubuntu |
 
 ## Autostart et ordre de boot
 
+<Frame caption="Séquence d'initialisation automatique au démarrage de l'hyperviseur">
 ```mermaid
 sequenceDiagram
     autonumber
@@ -92,6 +100,7 @@ sequenceDiagram
     Host->>Coolify: Startup Order 3 (up=20s)
     Note over Coolify: Montages NFS + Démarrage Stack Docker (Traefik, Authentik...)
 ```
+</Frame>
 
 <Check>
 Validé par un reboot complet réel du host — les trois guests de production redémarrent automatiquement dans le bon ordre.

@@ -5,9 +5,9 @@ icon: "apple"
 iconType: "duotone"
 ---
 
-<Note>
-🖥️ **Type d'Instance** : **Hôte Physique Standby** (Mac Mini 2014 — Intel Core i5 / SSD) — Conservé comme filet de sécurité et secours post-cutover.
-</Note>
+import { ips } from "/snippets/variables.mdx";
+
+<Badge color="amber">🟡 Standby Chaud (Secours Post-Cutover)</Badge>
 
 ## Rôle & Emplacement
 
@@ -23,10 +23,10 @@ Le **Mac Mini 2014** a hébergé l'intégralité de la production IMS-WORLD pend
 | **Processeur** | Intel Core i5 Dual-Core |
 | **Stockage** | SSD SATA 500 Go |
 | **Réseau LAN** | Ethernet Gigabit `192.168.1.x` |
-| **Tailscale IP** | `100.64.0.7` |
+| **Tailscale IP** | `{ips.macmini}` |
 | **Hostname Tailnet** | `macmini-standby` / `coolify-old.ims-world.fr` |
 | **Port SSH Réel** | **`4242`** (port `22` occupé par Endlessh tarpit) |
-| **Statut** | 🟡 Standby (Secours / Secours Data) |
+| **Statut** | <Badge color="amber">🟡 Standby Chaud</Badge> |
 
 ## Particularités & Piège SSH (Endlessh)
 
@@ -35,7 +35,7 @@ Le **Mac Mini 2014** a hébergé l'intégralité de la production IMS-WORLD pend
 
 Pour vous connecter en SSH au Mac Mini, spécifier impérativement le port **`4242`** :
 ```bash
-ssh -p 4242 cmolotkoff@100.64.0.7
+ssh -p 4242 cmolotkoff@{ips.macmini}
 ```
 </Warning>
 
@@ -46,7 +46,7 @@ Pendant la phase de validation post-cutover, l'accès à l'ancienne instance Coo
 ```yaml
 extra_records:
   - name: "coolify-old.ims-world.fr"
-    value: "100.64.0.7"
+    value: "{ips.macmini}"
 ```
 
 ## Procédure de Bascule d'Urgence (Fallback)

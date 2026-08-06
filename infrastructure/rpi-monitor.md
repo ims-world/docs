@@ -5,9 +5,9 @@ icon: "desktop"
 iconType: "duotone"
 ---
 
-<Note>
-🍓 **Type d'Instance** : **Afficheur Kiosk Physique** (Raspberry Pi 3B+ ARMv8 — IP Tailscale `100.64.0.12`) — Module d'affichage passif 2U intégré au rack [Labrax](/infrastructure/labrax).
-</Note>
+import { ips } from "/snippets/variables.mdx";
+
+<Badge color="green">🟢 Production Active (Afficheur Kiosk 2U)</Badge>
 
 ## Rôle & Fonctionnement Réel
 
@@ -30,10 +30,14 @@ Un bouton poussoir raccordé aux GPIOs du Raspberry Pi permet d'interagir direct
 
 <Tabs>
   <Tab title="🖼️ Face Principale (Façade 2U & Vitre)">
-    ![Module 2U Raspberry Pi & Écran — Façade](/assets/rpi-module-front.png)
+    <Frame caption="Façade 2U avec vitre encastrée, écran Wisecoco 7.84 et OLED 0.91">
+      ![Module 2U Raspberry Pi & Écran — Façade](/assets/rpi-module-front.png)
+    </Frame>
   </Tab>
   <Tab title="📐 Vue Isométrique 3D & Intérieur Tray">
-    ![Module 2U Raspberry Pi & Écran — Vue 3D Intérieure](/assets/rpi-module-iso.png)
+    <Frame caption="Vue isométrique 3D montrant l'intégration du Raspberry Pi 3B+ et du câblage interne">
+      ![Module 2U Raspberry Pi & Écran — Vue 3D Intérieure](/assets/rpi-module-iso.png)
+    </Frame>
   </Tab>
 </Tabs>
 
@@ -45,13 +49,14 @@ Un bouton poussoir raccordé aux GPIOs du Raspberry Pi permet d'interagir direct
 | **Écran Secondaire** | **Module OLED 0.91 pouces** (`128x32`, affichage blanc/bleu) | Affichage direct des métriques de statut et uptime. |
 | **Carte Mère** | Raspberry Pi 3B+ (Broadcom BCM2837B0 quad-core 1.4GHz, 1 Go RAM) | Exécute le script de rotation et le navigateur Chromium headless. |
 | **Bouton de Contrôle** | Bouton poussoir GPIO avec LED | Appui court = Change source / Appui long 3s = Éteint l'écran. |
-| **Réseau & Tailnet** | Ethernet RJ45 + Client Tailscale (`100.64.0.12`) | Hostname Tailnet: `ims-rpi-monitor` |
-| **Statut** | 🟢 Production (Affichage Kiosk) | |
+| **Réseau & Tailnet** | Ethernet RJ45 + Client Tailscale (`{ips.rpi}`) | Hostname Tailnet: `ims-rpi-monitor` |
+| **Statut** | <Badge color="green">🟢 Production</Badge> | Affichage Kiosk |
 
 ---
 
 ## Schéma d'Architecture d'Affichage Kiosk
 
+<Frame caption="Architecture logicielle de rotation et contrôle GPIO du Raspberry Pi Kiosk">
 ```mermaid
 graph TD
     subgraph SENSOR ["🍓 Raspberry Pi 3B+ (Module 2U MakerWorld — 100.64.0.12)"]
@@ -82,3 +87,4 @@ graph TD
     class SCRIPT,BROWSER,GPIO rpi;
     class MAIN_DISP,OLED_DISP disp;
 ```
+</Frame>

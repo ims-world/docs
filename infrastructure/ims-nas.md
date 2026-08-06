@@ -1,7 +1,13 @@
 ---
 title: "IMS-NAS (LXC 100)"
 description: "Serveur de stockage — NFS + SMB, MergerFS, HDD 3To"
+icon: "box"
+iconType: "duotone"
 ---
+
+import { ips, hardware } from "/snippets/variables.mdx";
+
+<Badge color="green">🟢 Production Active (LXC 100)</Badge>
 
 <Note>
 📦 **Type d'Instance** : **Conteneur LXC 100** (Debian 12 Privilégié) — Partage le noyau Linux directement avec l'hôte Proxmox VE.
@@ -18,7 +24,7 @@ Mono-disque, **aucune redondance en Phase 1**. Le HDD 3To est l'unique copie phy
 ## Fiche technique
 
 <Info>
-**Architecture "Fait Maison"** : Ce NAS n'est pas un boîtier commercial (Synology/QNAP), mais une solution sur-mesure combinant un conteneur LXC Debian 12 et MergerFS. Le disque physique est logé dans le **4-Pack Hard Drive Tray Caddy 3,5" pour DELL** du rack [Labrax](/infrastructure/labrax) et raccordé au MS-01 via une carte d'extension **SATA PCIe Tbest ASM1166 (6 ports, PCIe SATA 3.0 Gen3)**.
+**Architecture "Fait Maison"** : Ce NAS n'est pas un boîtier commercial (Synology/QNAP), mais une solution sur-mesure combinant un conteneur LXC Debian 12 et MergerFS. Le disque physique est logé dans le **4-Pack Hard Drive Tray Caddy 3,5" pour DELL** du rack [Labrax](/infrastructure/labrax) et raccordé au MS-01 via la carte {hardware.sataCard}.
 </Info>
 
 | Propriété | Valeur |
@@ -26,10 +32,11 @@ Mono-disque, **aucune redondance en Phase 1**. Le HDD 3To est l'unique copie phy
 | **VMID** | 100 |
 | **Type** | LXC Debian 12, **privilégié** (requis pour NFS + passthrough disque) |
 | **CPU / RAM** | 2 cores / 1024 MB |
-| **Réseau** | `vmbr0` (192.168.1.50/24, LAN) + `vmbr1` (10.10.10.1/24, isolé, sans gateway) |
-| **Carte SATA** | Tbest ASM1166 (6 ports SATA 3.0, PCIe Gen3) |
+| **Réseau** | `vmbr0` ({ips.nasLan}/24, LAN) + `vmbr1` (10.10.10.1/24, isolé, sans gateway) |
+| **Carte SATA** | {hardware.sataCard} |
 | **Emplacement disques** | 4-Pack Hard Drive Tray Caddy 3.5" pour DELL (avec 1 adaptateur 2.5" pour le SSD) |
 | **Accès distant** | Aucun — LAN uniquement à ce jour |
+| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 <Note>
 `vmbr1` est un bridge isolé sans port physique ni gateway, dédié au trafic NFS interne entre guests (NAS ↔ PBS ↔ VM Coolify). Le LAN (`vmbr0`) sert le SMB et l'accès humain.
@@ -50,6 +57,7 @@ Modèle statistiquement plus sujet aux pannes (études Backblaze), malgré son e
 
 ## Stockage — architecture MergerFS
 
+<Frame caption="Architecture de stockage FUSE MergerFS, points de montage passthrough mp0 et exportations NFS/SMB">
 ```mermaid
 graph TB
     subgraph DISK ["💾 Support Physique (Pass-through mp0)"]
@@ -84,6 +92,7 @@ graph TB
     class MPOOL,HOT fuse;
     class NFS_RW,NFS_RO,SMB_SHARE export;
 ```
+</Frame>
 
 ```
 /mnt/disk1        ext4, passthrough mp0 — membre unique du pool
@@ -113,7 +122,7 @@ graph TB
 
 | Propriété | Valeur |
 |---|---|
-| **Partage** | `smb://192.168.1.50/storage` |
+| **Partage** | `smb://{ips.nasLan}/storage` |
 | **Utilisateur** | `cmolotkoff` |
 
 <Warning>
