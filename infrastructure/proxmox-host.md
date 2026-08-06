@@ -23,7 +23,6 @@ import { ips, hardware } from "/snippets/variables.mdx";
 
 ## Topologie Matérielle & Allocation
 
-<Frame caption="Architecture matérielle et répartition des ressources du Minisforum MS-01">
 ```mermaid
 graph TD
     subgraph HW ["💻 Hardware MS-01 (Intel i5-12600H, 31 GiB RAM)"]
@@ -55,7 +54,6 @@ graph TD
     class CPU,RAM,NVME,HDD hw;
     class LXC100,LXC103,VM104 vm;
 ```
-</Frame>
 
 <Warning>
 Le firewall Proxmox 3 niveaux (node → datacenter → VM) n'est **pas encore configuré**. À faire avant toute exposition publique supplémentaire. Ordre impératif : règles niveau nœud d'abord, vérifier l'accès GUI+SSH immédiatement après activation, garder la console web ouverte pendant l'opération.
@@ -83,7 +81,6 @@ Le format `deb822` (`.sources`) est utilisé sur PVE9, pas l'ancien `pve-enterpr
 
 ## Autostart et ordre de boot
 
-<Frame caption="Séquence d'initialisation automatique au démarrage de l'hyperviseur">
 ```mermaid
 sequenceDiagram
     autonumber
@@ -100,7 +97,6 @@ sequenceDiagram
     Host->>Coolify: Startup Order 3 (up=20s)
     Note over Coolify: Montages NFS + Démarrage Stack Docker (Traefik, Authentik...)
 ```
-</Frame>
 
 <Check>
 Validé par un reboot complet réel du host — les trois guests de production redémarrent automatiquement dans le bon ordre.

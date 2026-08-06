@@ -56,7 +56,6 @@ Un bouton poussoir raccordé aux GPIOs du Raspberry Pi permet d'interagir direct
 
 ## Schéma d'Architecture d'Affichage Kiosk
 
-<Frame caption="Architecture logicielle de rotation et contrôle GPIO du Raspberry Pi Kiosk">
 ```mermaid
 graph TD
     subgraph SENSOR ["🍓 Raspberry Pi 3B+ (Module 2U MakerWorld — 100.64.0.12)"]
@@ -87,4 +86,3 @@ graph TD
     class SCRIPT,BROWSER,GPIO rpi;
     class MAIN_DISP,OLED_DISP disp;
 ```
-</Frame>

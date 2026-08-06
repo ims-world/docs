@@ -9,7 +9,6 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 ## Arbre de Décision de Dépannage Rapide
 
-<Frame caption="Arbre de décision interactif pour diagnostiquer les pannes fréquentes du homelab">
 ```mermaid
 flowchart TD
     START(["🔍 Début du Diagnostic"]) --> SYMPTOM{"Quel est le symptôme principal ?"}
@@ -37,7 +36,6 @@ flowchart TD
     class START,SYMPTOM start;
     class C_FIX,PF_FIX,HAIRPIN,DOCKER_NET,FOLDER_BUG,DOMAIN_HARD,NFS_VERS,HARDLINK,UNPRIV,SMART_HOST fix;
 ```
-</Frame>
 
 <Info>
 Cette page recense chaque problème réellement rencontré pendant le projet, avec sa cause exacte et sa solution — pas de théorie, uniquement du vécu.

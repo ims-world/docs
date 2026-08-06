@@ -35,7 +35,6 @@ Le template source (Tailscale, Fail2ban, Crowdsec préconfigurés) a un vendor-d
 
 ## Coolify & Architecture Docker
 
-<Frame caption="Architecture logicielle Docker sur la VM 104 et montages NFS vers IMS-NAS">
 ```mermaid
 graph TD
     subgraph VM ["🚀 VM 104 (IMS-Coolify — 6 vCPU / 12 Go RAM)"]
@@ -74,7 +73,6 @@ graph TD
     class TRAEFIK,AUTH,VAULT,HOMEFLIX,HEADSCALE docker;
     class MNT_STOR,MNT_HOT nfs;
 ```
-</Frame>
 
 | Propriété | Valeur |
 |---|---|

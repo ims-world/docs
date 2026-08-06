@@ -27,7 +27,6 @@ Ce plan définit les étapes exactes pour reconstruire l'infrastructure en cas d
 
 ## 🗺️ Schéma de Restauration PRA (Workflow Réel)
 
-<Frame caption="Workflow de restauration PRA pas-à-pas en cas de sinistre majeur">
 ```mermaid
 sequenceDiagram
     autonumber
@@ -52,7 +51,6 @@ sequenceDiagram
     Admin->>Hardware: Démarrage VM 104 (Traefik, Authentik, Vaultwarden, HomeFlix, Headscale)
     Hardware-->>Admin: Services applicatifs & Tailnet opérationnels !
 ```
-</Frame>
 
 ---
 

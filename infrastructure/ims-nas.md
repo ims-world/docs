@@ -57,7 +57,6 @@ Modèle statistiquement plus sujet aux pannes (études Backblaze), malgré son e
 
 ## Stockage — architecture MergerFS
 
-<Frame caption="Architecture de stockage FUSE MergerFS, points de montage passthrough mp0 et exportations NFS/SMB">
 ```mermaid
 graph TB
     subgraph DISK ["💾 Support Physique (Pass-through mp0)"]
@@ -92,7 +91,6 @@ graph TB
     class MPOOL,HOT fuse;
     class NFS_RW,NFS_RO,SMB_SHARE export;
 ```
-</Frame>
 
 ```
 /mnt/disk1        ext4, passthrough mp0 — membre unique du pool
