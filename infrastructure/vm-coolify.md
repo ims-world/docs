@@ -5,8 +5,6 @@ icon: "cube"
 iconType: "duotone"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
-
 <Badge color="green">🟢 Production Active (VM 104)</Badge>
 
 <Note>
@@ -23,21 +21,17 @@ Héberge Coolify et l'ensemble de la stack applicative (Authentik, Vaultwarden, 
 |---|---|
 | **VMID** | 104 |
 | **OS** | Ubuntu 24.04 LTS (clonée depuis template `9000`) |
-| **CPU / RAM** | 6 cores / 12 Go RAM (ajusté depuis une demande initiale de 10/20, refusée — dépassait la RAM physique du host) |
+| **CPU / RAM** | 6 cores / 18 Go RAM |
 | **Disque** | 128 Go NVMe |
-| **Réseau** | `vmbr0` ({ips.coolifyLan}/24) + `vmbr1` (10.10.10.2/24) + client Tailscale dédié |
-| **Tailscale** | `{ips.coolify}`, hostname `ims-pve-104-coolify` |
+| **Réseau** | `vmbr0` (192.168.1.52/24) + `vmbr1` (10.10.10.2/24) + client Tailscale dédié |
+| **Tailscale** | `100.64.0.4`, hostname `ims-pve-104-coolify` |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
-
-<Info>
-Le template source (Tailscale, Fail2ban, Crowdsec préconfigurés) a un vendor-data cloud-init avec un placeholder de clé Headscale jamais substitué — Tailscale et QEMU Guest Agent ont dû être installés manuellement post-clonage.
-</Info>
 
 ## Coolify & Architecture Docker
 
 ```mermaid
 graph TD
-    subgraph VM ["🚀 VM 104 (IMS-Coolify — 6 vCPU / 12 Go RAM)"]
+    subgraph VM ["🚀 VM 104 (IMS-Coolify — 6 vCPU / 18 Go RAM)"]
         subgraph FS ["Filesystem Local & ACL"]
             DATA["/data/coolify/services (ACL cmolotkoff:rwX)"]
             PROXY_CFG["/data/coolify/proxy (Traefik Dynamic Config)"]
@@ -77,7 +71,7 @@ graph TD
 | Propriété | Valeur |
 |---|---|
 | **Version** | 4.1.2 |
-| **URL** | `https://{domains.coolify}` |
+| **URL** | `https://coolify.ims-world.fr` |
 | **Accès legacy Mac Mini** | `http://coolify-old.ims-world.fr:8000` (temporaire, période de validation) |
 
 ## Cartographie des services Coolify (UUIDs & Chemins)
