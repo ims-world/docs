@@ -2,8 +2,9 @@
 title: "Headscale + Headplane"
 description: "Control plane Tailscale self-hosted, avec interface d'administration"
 icon: "network-wired"
-iconType: "duotone"
 ---
+
+import TailscaleTable from "/snippets/tailscale-table.mdx";
 
 ## Accès & Administration VPN
 
@@ -13,15 +14,9 @@ iconType: "duotone"
       Interface de gestion des utilisateurs, clés d'authentification et appareils du réseau Tailnet.
     </Card>
   </Tab>
-  <Tab title="🔑 Commandes CLI Headscale">
+  <Tab title="⚡ CLI Headscale & Actions">
     ```bash
-    # Se connecter à la VM Coolify
-    ssh cmolotkoff@100.64.0.4
-
-    # Lister les utilisateurs du Tailnet
-    docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale users list
-
-    # Lister les appareils enregistrés
+    # Lister les nœuds enregistrés
     docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale nodes list
 
     # Créer une clé API pour Headplane
@@ -29,13 +24,7 @@ iconType: "duotone"
     ```
   </Tab>
   <Tab title="🗺️ IP des Nœuds du Tailnet (100.64.0.0/10)">
-    | Nœud | IP Tailscale | Rôle |
-    |---|---|---|
-    | **ims-ms01-pve** | `100.64.0.9` | Hôte Proxmox VE principal |
-    | **ims-pve-104-coolify** | `100.64.0.4` | VM d'orchestration Docker |
-    | **ims-pve-103-pbs** | `100.64.0.2` | Proxmox Backup Server |
-    | **ims-macmini** | `100.64.0.7` | Hôte Standby de secours |
-    | **ims-rpi-monitor** | `100.64.0.12` | Affichage Kiosk & Module 2U |
+    <TailscaleTable />
   </Tab>
 </Tabs>
 
