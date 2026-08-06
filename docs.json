@@ -9,12 +9,8 @@
     "href": "https://ims-world.fr"
   },
   "favicon": "/assets/favicon.svg",
-  "versions": [
-    "v2.0",
-    "v1.0"
-  ],
   "banner": {
-    "content": "📝 Documentation en cours de rédaction (v2.0)",
+    "content": "📝 Documentation en cours de rédaction",
     "dismissible": true
   },
   "colors": {
@@ -53,91 +49,123 @@
     }
   },
   "navigation": {
-    "tabs": [
+    "versions": [
       {
-        "tab": "Infrastructure & Services",
-        "groups": [
+        "version": "2.0.0",
+        "tag": "Prod MS-01",
+        "default": true,
+        "tabs": [
           {
-            "group": "Accueil",
-            "icon": "house",
-            "pages": [
-              "index",
-              "history/comment-fonctionne-cette-doc"
+            "tab": "Infrastructure & Services",
+            "groups": [
+              {
+                "group": "Accueil",
+                "icon": "house",
+                "pages": [
+                  "index",
+                  "history/comment-fonctionne-cette-doc"
+                ]
+              },
+              {
+                "group": "Rack 10\" & Physique",
+                "icon": "cubes",
+                "pages": [
+                  "infrastructure/labrax"
+                ]
+              },
+              {
+                "group": "Hôtes Physiques (Compute)",
+                "icon": "server",
+                "pages": [
+                  "infrastructure/proxmox-host",
+                  "infrastructure/mac-mini",
+                  "infrastructure/rpi-monitor"
+                ]
+              },
+              {
+                "group": "Virtualisation (LXC & VM)",
+                "icon": "box",
+                "pages": [
+                  "infrastructure/ims-nas",
+                  "infrastructure/ims-pbs",
+                  "infrastructure/vm-coolify"
+                ]
+              },
+              {
+                "group": "Réseau",
+                "icon": "network-wired",
+                "pages": [
+                  "reseau/architecture-reseau",
+                  "reseau/traefik-proxy",
+                  "reseau/matrice-securite-exposition"
+                ]
+              },
+              {
+                "group": "Services",
+                "icon": "cubes",
+                "pages": [
+                  "services/authentik",
+                  "services/vaultwarden",
+                  "services/homeflix",
+                  "services/headscale-headplane",
+                  "services/cap"
+                ]
+              }
             ]
           },
           {
-            "group": "Rack 10\" & Physique",
-            "icon": "cubes",
-            "pages": [
-              "infrastructure/labrax"
+            "tab": "Procédures & PRA",
+            "groups": [
+              {
+                "group": "Guides Opérationnels",
+                "icon": "wrench",
+                "pages": [
+                  "procedures/commandes-urgence",
+                  "procedures/deploiement-service",
+                  "procedures/depannage-courant",
+                  "procedures/ajout-nouveau-disque",
+                  "procedures/plan-reprise-activite-pra",
+                  "procedures/roadmap"
+                ]
+              }
             ]
           },
           {
-            "group": "Hôtes Physiques (Compute)",
-            "icon": "server",
-            "pages": [
-              "infrastructure/proxmox-host",
-              "infrastructure/mac-mini",
-              "infrastructure/rpi-monitor"
-            ]
-          },
-          {
-            "group": "Virtualisation (LXC & VM)",
-            "icon": "box",
-            "pages": [
-              "infrastructure/ims-nas",
-              "infrastructure/ims-pbs",
-              "infrastructure/vm-coolify"
-            ]
-          },
-          {
-            "group": "Réseau",
-            "icon": "network-wired",
-            "pages": [
-              "reseau/architecture-reseau",
-              "reseau/traefik-proxy",
-              "reseau/matrice-securite-exposition"
-            ]
-          },
-          {
-            "group": "Services",
-            "icon": "cubes",
-            "pages": [
-              "services/authentik",
-              "services/vaultwarden",
-              "services/homeflix",
-              "services/headscale-headplane",
-              "services/cap"
+            "tab": "Historique",
+            "groups": [
+              {
+                "group": "Traçabilité",
+                "icon": "clock-rotate-left",
+                "pages": [
+                  "history/chronologie",
+                  "history/glossaire"
+                ]
+              }
             ]
           }
         ]
       },
       {
-        "tab": "Procédures & PRA",
-        "groups": [
+        "version": "1.0.0",
+        "tag": "Mac Mini Legacy",
+        "tabs": [
           {
-            "group": "Guides Opérationnels",
-            "icon": "wrench",
-            "pages": [
-              "procedures/commandes-urgence",
-              "procedures/deploiement-service",
-              "procedures/depannage-courant",
-              "procedures/ajout-nouveau-disque",
-              "procedures/plan-reprise-activite-pra",
-              "procedures/roadmap"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Historique",
-        "groups": [
-          {
-            "group": "Traçabilité",
-            "icon": "clock-rotate-left",
-            "pages": [
-              "history/chronologie",
-              "history/glossaire"
+            "tab": "Legacy Architecture",
+            "groups": [
+              {
+                "group": "Hôte Historique",
+                "icon": "apple",
+                "pages": [
+                  "infrastructure/mac-mini"
+                ]
+              },
+              {
+                "group": "Historique & Contexte",
+                "icon": "clock-rotate-left",
+                "pages": [
+                  "history/chronologie"
+                ]
+              }
             ]
           }
         ]
