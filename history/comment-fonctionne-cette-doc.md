@@ -34,3 +34,7 @@ Cette documentation regroupe la vérité terrain opérationnelle du homelab IMS-
 ### 3. Règle : Traçabilité du Vécu et des Pièges
 - Chaque problème complexe résolu doit être consigné dans [Dépannage courant](/procedures/depannage-courant) avec son symptôme, sa cause exacte et sa résolution éprouvée.
 - Toute évolution majeure d'architecture est consignée dans la [Chronologie du projet](/history/chronologie).
+
+### 4. Stratégie de Versionnement de la Documentation (Git & Mintlify)
+- **Version Actuelle (`v1.0`)** : La branche `main` héberge la documentation de référence officielle v1.0 (cutover réussi sur Proxmox MS-01, Coolify, Tailscale et Labrax 10").
+- **Évolutions Futures (`v1.2`, `v2.0`)** : Lors d'évolutions d'infrastructure majeures (ex: cluster HA multi-nœuds, migration SAN 10G), créer une branche Git dédiée `v1.2` ou `v2.0` (ou un tag Release) liée au déploiement Mintlify pour maintenir les versions de doc en parallèle.

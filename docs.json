@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "IMS-WORLD Documentation homelab",
-  "description": "Documentation technique de l'infrastructure self-hosted IMS-WORLD (ims-world.fr)",
+  "description": "Documentation technique de l'infrastructure self-hosted IMS-WORLD (v1.0)",
   "logo": {
     "light": "/assets/logo-ims.png",
     "dark": "/assets/logo-ims.png",
@@ -10,7 +10,7 @@
   },
   "favicon": "/assets/favicon.svg",
   "banner": {
-    "content": "📝 Documentation en cours de rédaction",
+    "content": "📝 Documentation en cours de rédaction (v1.0)",
     "dismissible": true
   },
   "colors": {
@@ -49,123 +49,91 @@
     }
   },
   "navigation": {
-    "versions": [
+    "tabs": [
       {
-        "version": "2.0.0",
-        "tag": "Prod MS-01",
-        "default": true,
-        "tabs": [
+        "tab": "Infrastructure & Services",
+        "groups": [
           {
-            "tab": "Infrastructure & Services",
-            "groups": [
-              {
-                "group": "Accueil",
-                "icon": "house",
-                "pages": [
-                  "index",
-                  "history/comment-fonctionne-cette-doc"
-                ]
-              },
-              {
-                "group": "Rack 10\" & Physique",
-                "icon": "cubes",
-                "pages": [
-                  "infrastructure/labrax"
-                ]
-              },
-              {
-                "group": "Hôtes Physiques (Compute)",
-                "icon": "server",
-                "pages": [
-                  "infrastructure/proxmox-host",
-                  "infrastructure/mac-mini",
-                  "infrastructure/rpi-monitor"
-                ]
-              },
-              {
-                "group": "Virtualisation (LXC & VM)",
-                "icon": "box",
-                "pages": [
-                  "infrastructure/ims-nas",
-                  "infrastructure/ims-pbs",
-                  "infrastructure/vm-coolify"
-                ]
-              },
-              {
-                "group": "Réseau",
-                "icon": "network-wired",
-                "pages": [
-                  "reseau/architecture-reseau",
-                  "reseau/traefik-proxy",
-                  "reseau/matrice-securite-exposition"
-                ]
-              },
-              {
-                "group": "Services",
-                "icon": "cubes",
-                "pages": [
-                  "services/authentik",
-                  "services/vaultwarden",
-                  "services/homeflix",
-                  "services/headscale-headplane",
-                  "services/cap"
-                ]
-              }
+            "group": "Accueil",
+            "icon": "house",
+            "pages": [
+              "index",
+              "history/comment-fonctionne-cette-doc"
             ]
           },
           {
-            "tab": "Procédures & PRA",
-            "groups": [
-              {
-                "group": "Guides Opérationnels",
-                "icon": "wrench",
-                "pages": [
-                  "procedures/commandes-urgence",
-                  "procedures/deploiement-service",
-                  "procedures/depannage-courant",
-                  "procedures/ajout-nouveau-disque",
-                  "procedures/plan-reprise-activite-pra",
-                  "procedures/roadmap"
-                ]
-              }
+            "group": "Rack 10\" & Physique",
+            "icon": "cubes",
+            "pages": [
+              "infrastructure/labrax"
             ]
           },
           {
-            "tab": "Historique",
-            "groups": [
-              {
-                "group": "Traçabilité",
-                "icon": "clock-rotate-left",
-                "pages": [
-                  "history/chronologie",
-                  "history/glossaire"
-                ]
-              }
+            "group": "Hôtes Physiques (Compute)",
+            "icon": "server",
+            "pages": [
+              "infrastructure/proxmox-host",
+              "infrastructure/mac-mini",
+              "infrastructure/rpi-monitor"
+            ]
+          },
+          {
+            "group": "Virtualisation (LXC & VM)",
+            "icon": "box",
+            "pages": [
+              "infrastructure/ims-nas",
+              "infrastructure/ims-pbs",
+              "infrastructure/vm-coolify"
+            ]
+          },
+          {
+            "group": "Réseau",
+            "icon": "network-wired",
+            "pages": [
+              "reseau/architecture-reseau",
+              "reseau/traefik-proxy",
+              "reseau/matrice-securite-exposition"
+            ]
+          },
+          {
+            "group": "Services",
+            "icon": "cubes",
+            "pages": [
+              "services/authentik",
+              "services/vaultwarden",
+              "services/homeflix",
+              "services/headscale-headplane",
+              "services/cap"
             ]
           }
         ]
       },
       {
-        "version": "1.0.0",
-        "tag": "Mac Mini Legacy",
-        "tabs": [
+        "tab": "Procédures & PRA",
+        "groups": [
           {
-            "tab": "Legacy Architecture",
-            "groups": [
-              {
-                "group": "Hôte Historique",
-                "icon": "apple",
-                "pages": [
-                  "infrastructure/mac-mini"
-                ]
-              },
-              {
-                "group": "Historique & Contexte",
-                "icon": "clock-rotate-left",
-                "pages": [
-                  "history/chronologie"
-                ]
-              }
+            "group": "Guides Opérationnels",
+            "icon": "wrench",
+            "pages": [
+              "procedures/commandes-urgence",
+              "procedures/deploiement-service",
+              "procedures/depannage-courant",
+              "procedures/ajout-nouveau-disque",
+              "procedures/plan-reprise-activite-pra",
+              "procedures/roadmap"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Historique",
+        "groups": [
+          {
+            "group": "Traçabilité",
+            "icon": "clock-rotate-left",
+            "pages": [
+              "history/chronologie",
+              "history/glossaire"
             ]
           }
         ]
