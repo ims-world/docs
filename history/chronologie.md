@@ -3,6 +3,10 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 06/08/2026 — Semaine calme côté production
+
+Aucun changement fonctionnel n'a été livré côté services cette semaine. L'infrastructure et les services publics (Authentik, Vaultwarden, HomeFlix, Headscale/Headplane) tournent en état stable depuis les livraisons de la semaine précédente. Voir la [Roadmap](/procedures/roadmap) pour les prochaines étapes planifiées.
+
 ## Semaine du 05/08/2026 — Transcodage matériel HomeFlix
 
 ### 🆕 Nouveautés
