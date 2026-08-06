@@ -3,9 +3,14 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
-## Semaine du 06/08/2026 — Semaine calme côté production
+## Semaine du 06/08/2026 — Audit sécurité `vpn-only` validé
 
-Aucun changement fonctionnel n'a été livré côté services cette semaine. L'infrastructure et les services publics (Authentik, Vaultwarden, HomeFlix, Headscale/Headplane) tournent en état stable depuis les livraisons de la semaine précédente. Voir la [Roadmap](/procedures/roadmap) pour les prochaines étapes planifiées.
+### 🔧 Améliorations
+
+- **Étanchéité `vpn-only` confirmée sur la stack HomeFlix** — L'audit du middleware `vpn-only` est terminé : qBittorrent, Radarr, Sonarr et Prowlarr sont accessibles uniquement depuis le tailnet (`100.64.0.0/10`) et renvoient `403 Forbidden` depuis le WAN public. Concrètement, ces interfaces d'administration restent joignables via le VPN sans risque d'exposition publique. Voir [Traefik Proxy](/reseau/traefik-proxy) et [Matrice de Sécurité](/reseau/matrice-securite-exposition).
+- **Roadmap mise à jour** — L'étape « Audit de Sécurité Middleware `vpn-only` » est marquée comme effectuée. Voir [Roadmap](/procedures/roadmap).
+
+Le reste de l'infrastructure et des services publics (Authentik, Vaultwarden, HomeFlix, Headscale/Headplane) tourne en état stable depuis les livraisons de la semaine précédente.
 
 ## Semaine du 05/08/2026 — Transcodage matériel HomeFlix
 
