@@ -130,10 +130,6 @@ http:
 
 Appliqué sur : qBittorrent, Prowlarr, Radarr, Sonarr (label `traefik.http.routers.<x>.middlewares=vpn-only@file`).
 
-<Warning>
-**Audit de sécurité en attente** : `vpn-only` confirmé fonctionnel sur qBittorrent et Radarr (test explicite), mais **jamais re-testé sur Sonarr et Prowlarr** après tous les changements de la stack. Voir [Roadmap](/procedures/roadmap).
-</Warning>
-
 ---
 
 ## Règle Réseau Multi-Interfaces — `traefik.docker.network`
