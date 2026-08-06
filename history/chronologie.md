@@ -8,7 +8,8 @@ description: "Chronologie du projet de migration Mac Mini → MS-01"
 ### 🔧 Améliorations
 
 - **Étanchéité `vpn-only` confirmée sur la stack HomeFlix** — L'audit du middleware `vpn-only` est terminé : qBittorrent, Radarr, Sonarr et Prowlarr sont accessibles uniquement depuis le tailnet (`100.64.0.0/10`) et renvoient `403 Forbidden` depuis le WAN public. Concrètement, ces interfaces d'administration restent joignables via le VPN sans risque d'exposition publique. Voir [Traefik Proxy](/reseau/traefik-proxy) et [Matrice de Sécurité](/reseau/matrice-securite-exposition).
-- **Roadmap mise à jour** — L'étape « Audit de Sécurité Middleware `vpn-only` » est marquée comme effectuée. Voir [Roadmap](/procedures/roadmap).
+- **Double verrouillage confirmé sur les services privés** — La protection combine un masquage DNS OVH (les sous-domaines privés pointent vers `127.0.0.1`, donc l'IP publique Bbox n'est pas révélée par une résolution DNS) et un filtrage applicatif Traefik (`ipAllowList` restreint à `100.64.0.0/10`). Une requête WAN qui contournerait le DNS est tout de même rejetée en `403 Forbidden` par le proxy. Voir [Traefik Proxy](/reseau/traefik-proxy#double-verrouillage--limites-de-sécurité-réelle).
+- **Roadmap mise à jour** — L'étape « Audit de Sécurité Middleware `vpn-only` » est marquée comme effectuée. Une piste de durcissement Layer 4 (bind Tailscale ou règles pare-feu Proxmox) est identifiée pour rendre les services privés totalement injoignables depuis le WAN, même au niveau TCP. Voir [Roadmap](/procedures/roadmap).
 
 Le reste de l'infrastructure et des services publics (Authentik, Vaultwarden, HomeFlix, Headscale/Headplane) tourne en état stable depuis les livraisons de la semaine précédente.
 
