@@ -36,7 +36,7 @@ Datastore de sauvegarde déduplicée pour les VM/LXC applicatifs (VM Coolify en 
 **Contrainte Technique LXC** : Le conteneur LXC 103 est configuré en mode **privilégié** avec la feature `mount=nfs`. Ce mode est techniquement obligatoire pour autoriser le montage direct du stockage réseau NFS sans restriction par les user namespaces du noyau Linux.
 </Note>
 
-## Accès distant — client Tailscale dédié (Option B)
+## Accès distant — client Tailscale dédié
 
 Contrairement au NAS (aucun accès distant), PBS a son propre client Tailscale plutôt qu'un subnet router généraliste — accès chirurgical, pas d'exposition du LAN entier.
 
@@ -60,27 +60,27 @@ Contrairement au NAS (aucun accès distant), PBS a son propre client Tailscale p
 
 ```mermaid
 graph LR
-    subgraph PVE_HOST ["🖥️ Proxmox Host (MS-01)"]
-        VM104["VM 104 (IMS-Coolify)"]
-        VZDUMP["vzdump (Local NVMe)"]
+    subgraph PVE_HOST ["Proxmox Host MS-01"]
+        VM104["VM 104 IMS-Coolify"]
+        VZDUMP["vzdump Local NVMe"]
     end
 
-    subgraph PBS_LXC ["💾 IMS-PBS (LXC 103)"]
+    subgraph PBS_LXC ["IMS-PBS LXC 103"]
         PBS_SRV["Proxmox Backup Server Engine"]
-        MNT["/mnt/pbs-datastore (NFSv3 Mount)"]
+        MNT["/mnt/pbs-datastore NFSv3 Mount"]
     end
 
-    subgraph NAS_LXC ["📁 IMS-NAS (LXC 100)"]
-        NAS_NFS["NFS Export: /mnt/storage/backups<br/>(10.10.10.1 - vers=3)"]
+    subgraph NAS_LXC ["IMS-NAS LXC 100"]
+        NAS_NFS["NFS Export: /mnt/storage/backups (10.10.10.1 - vers=3)"]
         HDD["HDD 3To Physique"]
     end
 
-    VM104 -->|1. Backup quotidien 02:00 (vma.zst chunks)| PBS_SRV
-    PBS_SRV -->|2. Écriture chunks déduplicatifs| MNT
-    MNT <-->|3. Transit NFSv3 (Réseau Isolé vmbr1)| NAS_NFS
+    VM104 -->|"1. Backup quotidien 02:00 (vma.zst chunks)"| PBS_SRV
+    PBS_SRV -->|"2. Écriture chunks déduplicatifs"| MNT
+    MNT -->|"3. Transit NFSv3 (Réseau Isolé vmbr1)"| NAS_NFS
     NAS_NFS --> HDD
 
-    PVE_HOST -.->|4. Anti-circularité: vzdump direct du NAS & PBS| VZDUMP
+    PVE_HOST -.->|"4. Anti-circularité: vzdump direct du NAS et PBS"| VZDUMP
 
     classDef host fill:#2c3e50,stroke:#34495e,color:#fff;
     classDef pbs fill:#0F6E56,stroke:#16A085,color:#fff;
