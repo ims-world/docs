@@ -1,7 +1,13 @@
 ---
 title: "IMS-PBS (LXC 103)"
 description: "Proxmox Backup Server — sauvegarde des VM/LXC applicatifs"
+icon: "shield-check"
+iconType: "duotone"
 ---
+
+import { ips } from "/snippets/variables.mdx";
+
+<Badge color="green">🟢 Production Active (LXC 103)</Badge>
 
 <Note>
 📦 **Type d'Instance** : **Conteneur LXC 103** (Debian 12 Privilégié) — Partage le noyau Linux directement avec l'hôte Proxmox VE.
@@ -20,14 +26,15 @@ Datastore de sauvegarde déduplicée pour les VM/LXC applicatifs (VM Coolify en 
 | Propriété | Valeur |
 |---|---|
 | **VMID** | 103 |
-| **Type** | LXC Debian 12, **privilégié** |
+| **Type** | LXC Debian 12, **privilégié** (requis pour montage NFS direct) |
 | **CPU / RAM** | 2 cores / 1024 MB |
-| **Réseau** | `vmbr0` (192.168.1.51/24) + `vmbr1` (10.10.10.3/24) + client Tailscale dédié |
-| **Accès Tailscale** | `100.64.0.2`, hostname `ims-pve-103-pbs` |
+| **Réseau** | `vmbr0` ({ips.pbsLan}/24) + `vmbr1` (10.10.10.3/24) + client Tailscale dédié |
+| **Accès Tailscale** | `{ips.pbs}`, hostname `ims-pve-103-pbs` |
+| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
-<Warning>
-**Écart vs plan initial** : PBS devait être unprivileged. Un LXC unprivileged ne peut pas monter de partage NFS — restriction noyau sur les user namespaces, non contournable. Passage en privilégié nécessaire après une tentative infructueuse.
-</Warning>
+<Note>
+**Contrainte Technique LXC** : Le conteneur LXC 103 est configuré en mode **privilégié** avec la feature `mount=nfs`. Ce mode est techniquement obligatoire pour autoriser le montage direct du stockage réseau NFS sans restriction par les user namespaces du noyau Linux.
+</Note>
 
 ## Accès distant — client Tailscale dédié (Option B)
 
@@ -35,13 +42,13 @@ Contrairement au NAS (aucun accès distant), PBS a son propre client Tailscale p
 
 <Steps>
   <Step title="Device TUN requis dans la config LXC">
-    ```
+    ```ini
     lxc.cgroup2.devices.allow: c 10:200 rwm
     lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
     ```
     <Warning>À ne pas oublier en cas de recréation du CT — sans ces lignes, Tailscale ne démarre pas.</Warning>
   </Step>
-  <Step title="Installation">
+  <Step title="Installation & Enregistrement">
     ```bash
     curl -fsSL https://tailscale.com/install.sh | sh
     tailscale up --login-server=https://vpn.ims-world.fr --hostname=ims-pbs --accept-routes
@@ -64,7 +71,7 @@ graph LR
     end
 
     subgraph NAS_LXC ["📁 IMS-NAS (LXC 100)"]
-        NAS_NFS["NFS Export: /mnt/storage/backups\n(10.10.10.1 - vers=3)"]
+        NAS_NFS["NFS Export: /mnt/storage/backups<br/>(10.10.10.1 - vers=3)"]
         HDD["HDD 3To Physique"]
     end
 
@@ -87,10 +94,10 @@ graph LR
 |---|---|
 | **Nom** | `pve-backups` |
 | **Backing path** | `/mnt/pbs-datastore` |
-| **Source NFS** | `10.10.10.1:/mnt/storage/backups` (le HDD du NAS) |
+| **Source NFS** | `10.10.10.1:/mnt/storage/backups` (HDD du NAS) |
 
 <Note>
-Nommé `pve-backups`, pas `nas-backups` — le premier nom prêtait à confusion (laissait croire à un backup de la donnée brute du NAS, alors que c'est l'inverse : le NAS héberge le stockage physique des backups des *autres* machines).
+Le datastore est nommé **`pve-backups`**. Il sert d'espace de stockage déduplicatif pour les sauvegardes automatisées des machines virtuelles du cluster Proxmox.
 </Note>
 
 ## Jobs configurés
@@ -103,26 +110,25 @@ Nommé `pve-backups`, pas `nas-backups` — le premier nom prêtait à confusion
 | **Backup VM Coolify** | `02:00` quotidien | Configuré côté Proxmox host (Datacenter → Backup) |
 
 <Check>
-Premier backup manuel de la VM Coolify (104) lancé et validé avec succès.
+Sauvegarde de la VM Coolify (104) opérationnelle et validée en production (snapshots quotidiens récurrents à 02:00).
 </Check>
 
 <Warning>
 **Montage NFS forcé en `vers=3`** (pas la valeur par défaut v4.2) — un bug d'interaction NFSv4.2/MergerFS causait un `Stale file handle` systématique en toute fin de backup (échec du commit du manifest, après un transfert 100% réussi). Voir [Dépannage courant](/procedures/depannage-courant#stale-file-handle-en-fin-de-backup-nfsv4-2-mergerfs) pour le détail complet du diagnostic.
-```
+```ini
 # fstab du CT PBS
 10.10.10.1:/mnt/storage/backups  /mnt/pbs-datastore  nfs  defaults,nofail,_netdev,vers=3  0 0
 ```
 </Warning>
 
-## Grand troubleshooting NFS — résumé
+## Résumé du Diagnostic NFS
 
-Le montage du datastore a nécessité de résoudre une cascade de blocages :
+Pour assurer la stabilité du montage du datastore sur le conteneur LXC 103 :
 
-1. LXC unprivileged → montage NFS impossible → passage en privilégié
-2. Feature `mount=nfs` omise lors de la recréation → `access denied by server` trompeur (en réalité une erreur locale `Permission denied`)
-3. Port SSH du Mac Mini bloqué par **Endlessh** (tarpit anti-bot sur le port 22) — le vrai port est **4242**
-4. Permissions `acme.json` / options MergerFS (`inodecalc=path-hash`) ajustées côté NAS pour la stabilité NFS long terme
+1. **LXC privilégié** : passage du conteneur en privilège root pour autoriser les syscalls de montage NFS.
+2. **Feature `mount=nfs`** : activation explicite dans la configuration du LXC.
+3. **Version NFS** : réglage en **`vers=3`** pour contourner les blocages `Stale file handle` avec MergerFS.
 
-<Card title="Détail complet du troubleshooting" icon="magnifying-glass" href="/procedures/depannage-courant">
-  Toutes les commandes de diagnostic et fausses pistes explorées.
+<Card title="Procédure de Dépannage" icon="magnifying-glass" href="/procedures/depannage-courant">
+  Consulter toutes les commandes et retours d'expérience sur la gestion NFS/FUSE.
 </Card>
