@@ -7,12 +7,12 @@ iconType: "duotone"
 
 import { ips } from "/snippets/variables.mdx";
 
-<Badge color="amber">🟡 Standby Chaud (Secours Post-Cutover)</Badge>
+<Badge color="amber">🟡 Standby Chaud (Machine de Secours)</Badge>
 
 ## Rôle & Emplacement
 
 <Info>
-Le **Mac Mini 2014** a hébergé l'intégralité de la production IMS-WORLD pendant la première phase du projet. Suite au cutover réussi du 02/08/2026 vers le Minisforum MS-01, il est conservé en **mode Standby chaud** dans le rack [Labrax](/infrastructure/labrax).
+Le **Mac Mini 2014** a été l'hôte principal de l'infrastructure. Aujourd'hui, il est conservé en **mode Standby chaud** dans le rack [Labrax](/infrastructure/labrax) pour servir de nœud de secours et de fallback en cas de panne physique de l'hyperviseur principal.
 </Info>
 
 ## Fiche Technique

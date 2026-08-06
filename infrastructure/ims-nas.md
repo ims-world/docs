@@ -15,16 +15,16 @@ import { ips, hardware } from "/snippets/variables.mdx";
 
 ## Rôle
 
-Centralise le stockage de l'infrastructure : documents, photos, backups, et médias HomeFlix (hardlinks). Sert en NFS aux guests internes (réseau isolé) et en SMB au LAN.
+Centralise le stockage de l'infrastructure : documents, photos, backups, et médias. Sert en NFS aux guests internes (réseau isolé) et en SMB au LAN.
 
 <Warning>
-Mono-disque, **aucune redondance en Phase 1**. Le HDD 3To est l'unique copie physique — un backup NAS n'existe pas encore à ce niveau (voir [PBS](/infrastructure/ims-pbs) pour les VM, pas pour la data brute).
+**Capacité & Évolution** : Mono-disque actuellement (HDD Seagate 3To). L'infrastructure est conçue pour accueillir de **nouveaux disques de stockage supplémentaires** (slots caddies Dell 3.5" disponibles dans le rack [Labrax](/infrastructure/labrax), raccordés à la carte SATA 6 ports {hardware.sataCard}).
 </Warning>
 
 ## Fiche technique
 
 <Info>
-**Architecture "Fait Maison"** : Ce NAS n'est pas un boîtier commercial (Synology/QNAP), mais une solution sur-mesure combinant un conteneur LXC Debian 12 et MergerFS. Le disque physique est logé dans le **4-Pack Hard Drive Tray Caddy 3,5" pour DELL** du rack [Labrax](/infrastructure/labrax) et raccordé au MS-01 via la carte {hardware.sataCard}.
+**Architecture "Fait Maison"** : Ce NAS n'est pas un boîtier commercial (Synology/QNAP), mais une solution sur-mesure combinant un conteneur LXC Debian 12 et MergerFS. Les disques physiques sont logés dans le **4-Pack Hard Drive Tray Caddy 3,5" pour DELL** du rack [Labrax](/infrastructure/labrax) et raccordés au MS-01 via la carte {hardware.sataCard}.
 </Info>
 
 | Propriété | Valeur |
@@ -34,7 +34,7 @@ Mono-disque, **aucune redondance en Phase 1**. Le HDD 3To est l'unique copie phy
 | **CPU / RAM** | 2 cores / 1024 MB |
 | **Réseau** | `vmbr0` ({ips.nasLan}/24, LAN) + `vmbr1` (10.10.10.1/24, isolé, sans gateway) |
 | **Carte SATA** | {hardware.sataCard} |
-| **Emplacement disques** | 4-Pack Hard Drive Tray Caddy 3.5" pour DELL (avec 1 adaptateur 2.5" pour le SSD) |
+| **Emplacement disques** | 4-Pack Hard Drive Tray Caddy 3.5" pour DELL (baie évolutive multi-disques) |
 | **Accès distant** | Aucun — LAN uniquement à ce jour |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
@@ -42,17 +42,17 @@ Mono-disque, **aucune redondance en Phase 1**. Le HDD 3To est l'unique copie phy
 `vmbr1` est un bridge isolé sans port physique ni gateway, dédié au trafic NFS interne entre guests (NAS ↔ PBS ↔ VM Coolify). Le LAN (`vmbr0`) sert le SMB et l'accès humain.
 </Note>
 
-## Disque physique
+## Disques physiques & Évolutivité
 
 | Propriété | Valeur |
 |---|---|
-| **Modèle** | Seagate/Apple HDD ST3000DM001 (Z1F3N0NZ) |
-| **Capacité** | 3 To, 7200rpm |
-| **Historique** | Ex-disque Time Machine Apple — wipé et reformaté ext4 |
+| **Disque Actuel** | Seagate/Apple HDD ST3000DM001 (Z1F3N0NZ) |
+| **Capacité Actuelle** | 3 To, 7200rpm (ext4) |
 | **Santé au déploiement** | SMART PASSED, 0 secteur réalloué, **14h d'usure totale** (quasi neuf) |
+| **Évolution Prévue** | Integration de **nouveaux disques** (SSD chaud / HDD additionnels dans le pool MergerFS) |
 
 <Warning>
-Modèle statistiquement plus sujet aux pannes (études Backblaze), malgré son excellent état réel. Le SSD du Mac Mini reste le filet de sécurité jusqu'à validation complète post-cutover.
+Le disque Seagate ST3000DM001 est statistiquement plus sujet aux pannes selon les études de référence (Backblaze). L'intégration de nouveaux disques supplémentaires dans le pool permettra de mettre en place de la redondance.
 </Warning>
 
 ## Stockage — architecture MergerFS
@@ -93,13 +93,13 @@ graph TB
 ```
 
 ```
-/mnt/disk1        ext4, passthrough mp0 — membre unique du pool
-/mnt/storage      fuse.mergerfs (mono-membre, category.create=mfs)
+/mnt/disk1        ext4, passthrough mp0 — membre actuel du pool
+/mnt/storage      fuse.mergerfs (pool modulable, category.create=mfs)
                   ├── documents/
                   ├── photos-archives/
                   ├── backups/
                   └── homeflix/
-/mnt/storage-hot  bind mount → /mnt/disk1/hot (basculera sur SSD en Phase 4)
+/mnt/storage-hot  bind mount → /mnt/disk1/hot (destiné à basculer sur SSD dédié)
                   ├── immich-data/
                   └── forgejo-data/
 ```
@@ -123,14 +123,14 @@ graph TB
 | **Partage** | `smb://{ips.nasLan}/storage` |
 | **Utilisateur** | `cmolotkoff` |
 
-<Warning>
-Déviation assumée vs plan initial : `cmolotkoff` (compte système, accès SSH complet) est utilisé au lieu d'un compte `clement` dédié sans accès shell. Décision de simplicité, à revisiter si le partage s'ouvre à plus de monde.
-</Warning>
+<Note>
+L'accès SMB est configuré sur l'utilisateur `cmolotkoff` pour la gestion simplifiée des droits du partage. À adapter avec un compte restreint si le stockage doit être ouvert à d'autres utilisateurs du LAN.
+</Note>
 
 ## Monitoring
 
 <Warning>
-**`smartd` et `hd-idle` ne peuvent PAS tourner dans ce LXC** — le passthrough mountpoint ne donne pas accès au device bloc brut nécessaire à ces outils. Les deux tournent sur le **host**. Voir [Dépannage courant](/procedures/depannage-courant) pour le détail de cette découverte, qui a inclus un piège silencieux (hd-idle affichait "active" sans jamais fonctionner réellement, pendant 3 jours).
+**`smartd` et `hd-idle` ne peuvent PAS tourner dans ce LXC** — le passthrough mountpoint ne donne pas accès au device bloc brut nécessaire à ces outils. Les deux tournent sur le **host**. Voir [Dépannage courant](/procedures/depannage-courant) pour le détail de cette découverte.
 </Warning>
 
 ## Documents associés
@@ -140,6 +140,6 @@ Déviation assumée vs plan initial : `cmolotkoff` (compte système, accès SSH 
     Tous les problèmes réseau/FUSE/monitoring rencontrés sur ce nœud.
   </Card>
   <Card title="Ajout d'un disque" icon="hard-drive" href="/procedures/ajout-nouveau-disque">
-    Procédure pour l'intégration du SSD 4To (Phase 4).
+    Procédure pour l'intégration de nouveaux disques dans MergerFS.
   </Card>
 </CardGroup>

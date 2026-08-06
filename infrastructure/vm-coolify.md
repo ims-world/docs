@@ -15,7 +15,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 ## Rôle
 
-Héberge Coolify et l'ensemble de la stack applicative (Authentik, Vaultwarden, HomeFlix, Headscale, etc). Point d'entrée de production réel depuis le cutover du 02/08/2026.
+Héberge Coolify et l'ensemble de la stack applicative (Authentik, Vaultwarden, HomeFlix, Headscale, etc). C'est le point d'entrée de production principal de l'infrastructure.
 
 ## Fiche technique
 
