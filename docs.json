@@ -9,8 +9,12 @@
     "href": "https://ims-world.fr"
   },
   "favicon": "/assets/favicon.svg",
+  "versions": [
+    "v2.0",
+    "v1.0"
+  ],
   "banner": {
-    "content": "📝 Documentation en cours de rédaction",
+    "content": "📝 Documentation en cours de rédaction (v2.0)",
     "dismissible": true
   },
   "colors": {
