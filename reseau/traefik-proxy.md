@@ -130,6 +130,21 @@ http:
 
 Appliqué sur : qBittorrent, Prowlarr, Radarr, Sonarr (label `traefik.http.routers.<x>.middlewares=vpn-only@file`).
 
+### Double Verrouillage & Limites de Sécurité Réelle
+
+La restriction d'accès aux services privés (qBittorrent, Sonarr, Radarr, Prowlarr) s'appuie sur une **double barrière de sécurité** :
+
+1. **Masquage au niveau DNS (OVH Override `127.0.0.1`)** :
+   - Les sous-domaines privés sont configurés dans la zone DNS OVH pour pointer vers `127.0.0.1` (loopback). Un client public WAN qui effectue une résolution DNS ne découvre pas l'IP publique Bbox.
+   - *Limite* : Le DNS n'étant pas une frontière réseau, un attaquant connaissant l'IP publique Bbox et forçant le header HTTP `Host` en HTTPS interroge tout de même le proxy Traefik.
+
+2. **Filtrage applicatif au niveau Proxy (Middleware `ipAllowList`)** :
+   - Le middleware Traefik `vpn-only` contrôle l'IP source de la requête HTTP entrante. Si l'IP ne fait pas partie de la plage du Tailnet (`100.64.0.0/10`), Traefik rejette immédiatement la connexion avec une **HTTP 403 Forbidden**.
+
+<Note>
+**Piste de Durcissement Niveau 4 (Roadmap)** : Pour une étanchéité absolue indépendante de la couche HTTP (évitant qu'une requête WAN atteigne Traefik), il est préconisé soit de binder l'écoute de ces services uniquement sur l'IP Tailscale de la VM (`100.64.0.4`), soit de bloquer les ports au niveau du pare-feu Proxmox (Layer 4). Voir [Roadmap](/procedures/roadmap).
+</Note>
+
 ---
 
 ## Règle Réseau Multi-Interfaces — `traefik.docker.network`
