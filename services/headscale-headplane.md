@@ -10,20 +10,20 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 <Badge color="green">🟢 Production Active</Badge>
 
-## Accès & Administration VPN
+## Accès Rapides & Administration
 
 <Tabs>
-  <Tab title="🌐 WebUI Admin (Headplane)">
-    <Card title="Headplane Admin" icon="network-wired" href="https://vpn.ims-world.fr">
+  <Tab title="🌐 Interfaces Web">
+    <Card title="Headplane Admin Console" icon="network-wired" href="https://vpn.ims-world.fr">
       Interface de gestion des utilisateurs, clés d'authentification et appareils du réseau Tailnet.
     </Card>
   </Tab>
-  <Tab title="⚡ CLI Headscale & Actions">
+  <Tab title="⚡ Commandes CLI & Maintenance">
     ```bash
-    # Lister les nœuds enregistrés
+    # Lister les nœuds enregistrés sur le Tailnet
     docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale nodes list
 
-    # Créer une clé API pour Headplane
+    # Créer une clé API pour la console Headplane
     docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale apikeys create --expiration 999d
     ```
   </Tab>
@@ -32,13 +32,15 @@ import { ips, domains } from "/snippets/variables.mdx";
   </Tab>
 </Tabs>
 
+---
+
 ## Fiche Service
 
 | Propriété | Valeur |
 |---|---|
 | **Domaine** | `{domains.headscale}` |
 | **Versions** | `headscale/headscale:v0.28.0` + `ghcr.io/tale/headplane:0.6.2` |
-| **Base de données** | SQLite |
+| **Base de Données** | SQLite |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `i136ix2bmrrbeovnyrh1o72w` |
 | **Chemin sur la VM** | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` |
@@ -46,7 +48,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 ---
 
-## Architecture Headscale & Mesh VPN (WireGuard Overlay)
+## Architecture & Topologie
 
 ```mermaid
 graph TB
@@ -104,9 +106,9 @@ Headscale est un control plane qui coordonne des connexions WireGuard peer-to-pe
 
 ---
 
-## Identité Cryptographique & Clés Critiques
+## Composants & Fichiers Critiques
 
-| Fichier | Rôle | Conséquence si changé |
+| Fichier / Élement | Rôle & Usage | Conséquence si Altéré |
 |---|---|---|
-| `noise_private.key` | Identité cryptographique du serveur | Tous les clients verraient un "nouveau serveur" non reconnu |
-| `db.sqlite` | Nœuds, utilisateurs, clés | Perte de tous les appareils enregistrés |
+| `noise_private.key` | Identité cryptographique du serveur Headscale | Tous les clients verraient un "nouveau serveur" non reconnu |
+| `db.sqlite` | Base SQLite des nœuds, utilisateurs et clés d'accès | Perte instantanée de tous les appareils enregistrés |

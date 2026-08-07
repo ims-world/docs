@@ -9,10 +9,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 <Badge color="green">🟢 Production Active (Stack 9 Conteneurs)</Badge>
 
-## Accès Rapides aux Services
+## Accès Rapides & Administration
 
 <Tabs>
-  <Tab title="🌐 Accès Web Publics (Zone 1)">
+  <Tab title="🌐 Interfaces Web">
     <CardGroup cols={2}>
       <Card title="Jellyfin (Streaming)" icon="play" href="https://homeflix.ims-world.fr">
         Interface principale de streaming vidéo (accélération matérielle QuickSync iGPU).
@@ -20,25 +20,21 @@ import { ips, domains } from "/snippets/variables.mdx";
       <Card title="Jellyseerr (Demandes)" icon="film" href="https://videoclub.ims-world.fr">
         Portail de recherche et de demande automatique de médias.
       </Card>
-    </CardGroup>
-  </Tab>
-  <Tab title="🔐 Accès Filtrés Tailnet (Zone 2)">
-    <CardGroup cols={2}>
       <Card title="Radarr (Films)" icon="video" href="https://radarr.ims-world.fr">
-        Gestion et automatisation des films.
+        Gestion et automatisation des films (Tailnet).
       </Card>
       <Card title="Sonarr (Séries)" icon="tv" href="https://sonarr.ims-world.fr">
-        Gestion et automatisation des séries.
+        Gestion et automatisation des séries (Tailnet).
       </Card>
       <Card title="Prowlarr (Indexers)" icon="magnifying-glass" href="https://prowlarr.ims-world.fr">
-        Gestionnaire centralisé des indexeurs torrent.
+        Gestionnaire centralisé des indexeurs torrent (Tailnet).
       </Card>
       <Card title="qBittorrent (Client)" icon="download" href="https://qbit.ims-world.fr">
-        Client torrent routé via VPN Gluetun (kill-switch actif).
+        Client torrent routé via VPN Gluetun (Tailnet).
       </Card>
     </CardGroup>
   </Tab>
-  <Tab title="💻 Administration CLI">
+  <Tab title="⚡ Commandes CLI & Maintenance">
     ```bash
     # Se connecter à la VM Coolify
     ssh cmolotkoff@100.64.0.4
@@ -70,7 +66,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 ---
 
-## Topologie de la Stack HomeFlix (9 Containers)
+## Architecture & Topologie
 
 ```mermaid
 graph TB
@@ -138,7 +134,7 @@ graph TB
 
 ---
 
-## Composants & Roles de la Stack
+## Composants & Fonctionnement
 
 | Service | Domaine | Exposition / Zone | Rôle |
 |---|---|---|---|
@@ -154,7 +150,7 @@ graph TB
 
 ---
 
-## Architecture Stockage — Répartition SSD/NAS & Hardlinks
+## Stockage & Politique de Sécurité (Hardlinks)
 
 <Warning>
 **Contrainte technique impérative** : Les hardlinks ne traversent jamais deux systèmes de fichiers distincts. Le dossier `downloads/` **DOIT impérativement** résider sur le même point de montage NFS que `movies/` et `series/`. Sinon, Radarr et Sonarr effectuent une copie complète des fichiers au lieu d'un hardlink, ce qui double la consommation de stockage sur disque !
@@ -169,7 +165,7 @@ graph TB
 
 ---
 
-## Exploitation & Vérifications VPN
+## Exploitation & Procédures (ProtonVPN & Hardlinks)
 
 <AccordionGroup>
   <Accordion title="Vérification du Port Forwarding ProtonVPN">
