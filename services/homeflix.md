@@ -5,22 +5,24 @@ icon: "clapperboard"
 iconType: "duotone"
 ---
 
-![HomeFlix Stack Médias](/assets/homeflix-banner.png)
+import { ips, domains } from "/snippets/variables.mdx";
+
+<Badge color="green">🟢 Production Active (Stack 9 Conteneurs)</Badge>
 
 ## Accès Rapides aux Services
 
 <Tabs>
-  <Tab title="🌐 Publics (Internet)">
+  <Tab title="🌐 Accès Web Publics (Zone 1)">
     <CardGroup cols={2}>
       <Card title="Jellyfin (Streaming)" icon="play" href="https://homeflix.ims-world.fr">
-        Interface principale de streaming vidéo 4K/HDR.
+        Interface principale de streaming vidéo (accélération matérielle QuickSync iGPU).
       </Card>
       <Card title="Jellyseerr (Demandes)" icon="film" href="https://videoclub.ims-world.fr">
-        Portail de demande de films et séries.
+        Portail de recherche et de demande automatique de médias.
       </Card>
     </CardGroup>
   </Tab>
-  <Tab title="🔒 Tailnet Only (VPN)">
+  <Tab title="🔐 Accès Filtrés Tailnet (Zone 2)">
     <CardGroup cols={2}>
       <Card title="Radarr (Films)" icon="video" href="https://radarr.ims-world.fr">
         Gestion et automatisation des films.
@@ -32,7 +34,7 @@ iconType: "duotone"
         Gestionnaire centralisé des indexeurs torrent.
       </Card>
       <Card title="qBittorrent (Client)" icon="download" href="https://qbit.ims-world.fr">
-        Client torrent routé via VPN Gluetun.
+        Client torrent routé via VPN Gluetun (kill-switch actif).
       </Card>
     </CardGroup>
   </Tab>
@@ -41,64 +43,81 @@ iconType: "duotone"
     # Se connecter à la VM Coolify
     ssh cmolotkoff@100.64.0.4
     
-    # Accéder au dossier du service HomeFlix
+    # Accéder au dossier de la stack HomeFlix
     cd /data/coolify/services/w39uebmcnse7yctsft8hzed8/
     
-    # Inspecter les logs des 9 containers
+    # Inspecter les logs des 9 conteneurs
     docker compose logs -f --tail=100
     ```
   </Tab>
 </Tabs>
 
+---
+
+## Fiche Service
+
+| Propriété | Valeur |
+|---|---|
+| **Nom de la Stack** | HomeFlix V2 (9 conteneurs Docker) |
+| **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
+| **UUID Coolify** | `w39uebmcnse7yctsft8hzed8` |
+| **Chemin sur la VM** | `/data/coolify/services/w39uebmcnse7yctsft8hzed8/` |
+| **VPN & Kill-Switch** | ProtonVPN WireGuard (`qmcgaw/gluetun:v3.40.0` avec Port-Forwarding) |
+| **Accélération Matérielle** | Passthrough iGPU Intel Iris Xe (QuickSync Haswell / QSV) |
+| **Profils Qualité** | TRaSH-Guides sync quotidien (Recyclarr 04h00) |
+| **Stockage NFS Shared** | `/mnt/nas-storage/homeflix/` (Hardlinks garantis sur même volume) |
+| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
+
+---
+
 ## Topologie de la Stack HomeFlix (9 Containers)
 
 ```mermaid
 graph TB
-    subgraph INGRESS ["🌐 Accès External & VPN Middleware"]
-        PUB_CLIENT["Client Public"]
-        VPN_CLIENT["Client Tailnet VPN"]
-        TRAEFIK["Traefik v3.7 Proxy"]
+    subgraph INGRESS ["🌐 Routage & Reverse Proxy Traefik"]
+        PUB_REQ["Client Internet WAN"]
+        VPN_REQ["Client Tailnet (100.64.0.x)"]
+        TRAEFIK["Traefik v3.7 Proxy Engine"]
     end
 
     subgraph HOMEFLIX_STACK ["🎬 Stack HomeFlix (VM 104 Docker)"]
-        subgraph PUBLIC_SERVICES ["Services Exposés"]
+        subgraph PUBLIC_SERVICES ["Zone 1 — Services Publics"]
             JELLYFIN["Jellyfin (homeflix.ims-world.fr)"]
             JELLYSEERR["Jellyseerr (videoclub.ims-world.fr)"]
         end
 
-        subgraph VPN_RESTRICTED ["Services Filtrés (vpn-only)"]
+        subgraph VPN_RESTRICTED ["Zone 2 — Services Filtrés (vpn-only)"]
             RADARR["Radarr (radarr.ims-world.fr)"]
             SONARR["Sonarr (sonarr.ims-world.fr)"]
             PROWLARR["Prowlarr (prowlarr.ims-world.fr)"]
-            QBIT["qBittorrent (qbit.ims-world.fr)\n[HostHeaderValidation=false]"]
+            QBIT["qBittorrent (qbit.ims-world.fr)"]
         end
 
         subgraph INTERNAL_STACK ["Infrastructure Interne"]
             GLUETUN["Gluetun VPN (ProtonVPN WireGuard)"]
             RECYCLARR["Recyclarr (TRaSH-Guides Sync Cron)"]
-            AUTOHEAL["Autoheal (qBit Monitoring)"]
+            AUTOHEAL["Autoheal (Monitoring qBit)"]
         end
     end
 
-    subgraph NAS_STORAGE ["📁 Stockage Shared NAS (NFS /mnt/nas-storage)"]
-        CONFIG_SSD["SSD Local VM (configs & bases SQLite)"]
+    subgraph NAS_STORAGE ["📁 Stockage NFS Shared (/mnt/nas-storage)"]
         MEDIA_NAS["NAS HDD (/mnt/storage/homeflix)"]
         MOOV["movies/"]
         SERIES["series/"]
-        DL["downloads/ (SAME FS -> Hardlinks OK!)"]
+        DL["downloads/ (Même Volume -> Hardlinks OK!)"]
     end
 
-    PUB_CLIENT -->|HTTPS| TRAEFIK
-    VPN_CLIENT -->|HTTPS (100.64.0.x)| TRAEFIK
+    PUB_REQ --> TRAEFIK
+    VPN_REQ --> TRAEFIK
 
     TRAEFIK --> JELLYFIN
     TRAEFIK --> JELLYSEERR
-    TRAEFIK -->|vpn-only| RADARR
-    TRAEFIK -->|vpn-only| SONARR
-    TRAEFIK -->|vpn-only| PROWLARR
-    TRAEFIK -->|vpn-only| QBIT
+    TRAEFIK --> RADARR
+    TRAEFIK --> SONARR
+    TRAEFIK --> PROWLARR
+    TRAEFIK --> QBIT
 
-    QBIT <-->|Réseau via Container| GLUETUN
+    QBIT <-->|Network Mode Service| GLUETUN
     PROWLARR --> QBIT
     RADARR --> PROWLARR
     SONARR --> PROWLARR
@@ -114,48 +133,59 @@ graph TB
     classDef nas fill:#2c3e50,stroke:#34495e,color:#fff;
     class JELLYFIN,JELLYSEERR pub;
     class RADARR,SONARR,PROWLARR,QBIT,GLUETUN vpn;
-    class CONFIG_SSD,MEDIA_NAS,MOOV,SERIES,DL nas;
+    class MEDIA_NAS,MOOV,SERIES,DL nas;
 ```
 
-## Vue d'ensemble
+---
 
-<Info>
-Stack Médias de Production — 1.6 To de données, 9 conteneurs interdépendants, hardlinks optimisés sur le NAS sans duplication physique.
-- **UUID Coolify** : `w39uebmcnse7yctsft8hzed8`
-- **Chemin d'accès sur la VM** : `/data/coolify/services/w39uebmcnse7yctsft8hzed8/`
-</Info>
+## Composants & Roles de la Stack
 
-| Service | Domaine | Rôle |
-|---|---|---|
-| Jellyfin | `homeflix.ims-world.fr` | Diffusion médias, exposé publiquement |
-| Jellyseerr | `videoclub.ims-world.fr` | Demandes utilisateurs, exposé publiquement |
-| qBittorrent | `qbit.ims-world.fr` | Client torrent, **Tailscale-only** |
-| Prowlarr | `prowlarr.ims-world.fr` | Agrégateur d'indexers, **Tailscale-only** |
-| Radarr | `radarr.ims-world.fr` | Gestion films, **Tailscale-only** |
-| Sonarr | `sonarr.ims-world.fr` | Gestion séries, **Tailscale-only** |
-| Gluetun | interne | VPN (ProtonVPN WireGuard), kill-switch pour qBittorrent |
-| Recyclarr | interne | Sync profils qualité TRaSH-Guides, cron 04h00 |
-| Autoheal | interne | Redémarre qBittorrent si Gluetun tombe |
+| Service | Domaine | Exposition / Zone | Rôle |
+|---|---|---|---|
+| **Jellyfin** | `homeflix.ims-world.fr` | 🌐 Zone 1 (Public WAN) | Serveur de streaming vidéo (accélération iGPU Haswell/Iris Xe) |
+| **Jellyseerr** | `videoclub.ims-world.fr` | 🌐 Zone 1 (Public WAN) | Portail de demande de films/séries |
+| **qBittorrent** | `qbit.ims-world.fr` | 🔐 Zone 2 (Tailnet Only) | Client de téléchargement torrent routé via Gluetun |
+| **Prowlarr** | `prowlarr.ims-world.fr` | 🔐 Zone 2 (Tailnet Only) | Gestionnaire centralisé d'indexeurs |
+| **Radarr** | `radarr.ims-world.fr` | 🔐 Zone 2 (Tailnet Only) | Automation & gestion de la bibliothèque de films |
+| **Sonarr** | `sonarr.ims-world.fr` | 🔐 Zone 2 (Tailnet Only) | Automation & gestion de la bibliothèque de séries |
+| **Gluetun** | Interne | 🏠 Interne | Client VPN ProtonVPN WireGuard avec kill-switch mécanique pour qBit |
+| **Recyclarr** | Interne | 🏠 Interne | Synchronisation automatique quotidienne des profils de qualité TRaSH-Guides (04h00) |
+| **Autoheal** | Interne | 🏠 Interne | Surveillance et redémarrage automatique de qBittorrent si la liaison VPN Gluetun tombe |
 
-## Architecture Stockage — Répartition SSD/NAS
+---
+
+## Architecture Stockage — Répartition SSD/NAS & Hardlinks
 
 <Warning>
-`config/`+`cache/` sur SSD local (petits fichiers, accès fréquent), `movies/`+`series/`+`downloads/` groupés sur le NAS.
-
-**Contrainte technique impérative** : les hardlinks ne traversent pas deux filesystems différents — `downloads/` DOIT rester sur le même volume que `movies/`/`series/`, sinon Radarr/Sonarr ne peuvent plus faire de hardlink à l'import (copie complète à la place, double l'espace utilisé).
+**Contrainte technique impérative** : Les hardlinks ne traversent jamais deux systèmes de fichiers distincts. Le dossier `downloads/` **DOIT impérativement** résider sur le même point de montage NFS que `movies/` et `series/`. Sinon, Radarr et Sonarr effectuent une copie complète des fichiers au lieu d'un hardlink, ce qui double la consommation de stockage sur disque !
 </Warning>
 
 ```
-./config           SSD local (VM) — configs, bases SQLite *arr, qBittorrent
-./cache            SSD local (VM) — thumbnails Jellyfin
-/mnt/nas-storage/homeflix/movies      NAS — hardlinks garantis avec downloads/
-/mnt/nas-storage/homeflix/series      NAS
-/mnt/nas-storage/homeflix/downloads   NAS
+/data/coolify/services/w39uebmcnse7yctsft8hzed8/data/config   (SSD local VM — SQLite & configs)
+/mnt/nas-storage/homeflix/movies      (NAS — Hardlinks garantis avec downloads/)
+/mnt/nas-storage/homeflix/series      (NAS — Hardlinks garantis avec downloads/)
+/mnt/nas-storage/homeflix/downloads   (NAS — Dossier de téléchargement qBittorrent)
 ```
 
-## Détails Techniques & Troubleshooting
+---
+
+## Exploitation & Vérifications VPN
 
 <AccordionGroup>
+  <Accordion title="Vérification du Port Forwarding ProtonVPN">
+    ```bash
+    # Nom du conteneur Gluetun
+    GLUETUN=$(docker ps --format '{{.Names}}' | grep "^gluetun" | head -1)
+
+    # Récupérer le port attribué dynamiquement par ProtonVPN
+    docker exec "$GLUETUN" cat /tmp/gluetun/forwarded_port
+    
+    # Logs d'attribution du port
+    docker logs "$GLUETUN" --tail 20 | grep -i "port forwarded"
+    ```
+    *Ce port doit être reporté dans qBittorrent (`Options → Connexion → Port d'écoute`).*
+  </Accordion>
+
   <Accordion title="Audit & Gestion des Hardlinks (rdfind)">
     <Steps>
       <Step title="Audit des doublons réels (rdfind)">
@@ -165,47 +195,15 @@ Stack Médias de Production — 1.6 To de données, 9 conteneurs interdépendant
       </Step>
       <Step title="Comptage des fichiers en hardlink">
         ```bash
-        find /mnt/nas-storage/homeflix/ -type f -links +1 | wc -l   # nombre de fichiers hardlinkés
+        find /mnt/nas-storage/homeflix/ -type f -links +1 | wc -l   # Fichiers partagés en hardlink
         ```
       </Step>
     </Steps>
-    <Warning>
-    **Ménage à faire via Radarr/Sonarr, jamais en supprimant les fichiers à la main** — ces outils gèrent proprement le nettoyage DB + fichiers + torrents associés. Une suppression manuelle désynchronise la base de l'appli.
-    </Warning>
   </Accordion>
 
-  <Accordion title="Métrologie Disque — Piège du vs df">
+  <Accordion title="Métrologie Disque — Piège de du vs df">
     <Warning>
-    `du -sh` sur le dossier homeflix peut afficher artificiellement un volume supérieur (ex: 2.7 To) en surcomptant les hardlinks. Toujours croiser avec **`df -h`** pour connaître l'occupation réelle au niveau bloc (1.6 To réels).
-    </Warning>
-
-    **`du` additionne la taille de chaque fichier à chaque fois qu'il le rencontre — y compris pour des hardlinks — donc il sur-compte. `df` seul reflète l'espace disque réel.**
-
-    Toujours valider une migration avec hardlinks via `df`, jamais `du` seul.
-  </Accordion>
-
-  <Accordion title="Le grand troubleshooting qBittorrent (401 / 403)">
-    Trois fausses pistes explorées avant la vraie cause :
-    <Steps>
-      <Step title="vpn-only middleware — éliminé">
-        Code HTTP différent de celui attendu (403 vs 401 observé), et Radarr avec le même middleware fonctionnait.
-      </Step>
-      <Step title="Double router Traefik auto-généré — confirmé normal">
-        Comparaison avec le Mac Mini a montré que ce doublon existe aussi en prod historique, pas une anomalie.
-      </Step>
-      <Step title="Instabilité Gluetun — détournement d'~1h de diagnostic">
-        `DOT: 'on'` (DNS-over-TLS) timeoutait par intermittence à travers le tunnel ProtonVPN, causant des redémarrages VPN en boucle. Stabilisé seul après quelques minutes.
-      </Step>
-    </Steps>
-
-    <Warning>
-    **Cause réelle** : `WebUI\HostHeaderValidation` de qBittorrent (activé par défaut) rejette les requêtes dont le header `Host` ne correspond pas à un domaine autorisé — malgré un `ServerDomains=*` (wildcard) déjà en place.
-
-    ```ini
-    WebUI\HostHeaderValidation=false
-    ```
-
-    Compromis sécurité assumé (désactive une protection anti-DNS-rebinding) — risque jugé limité, l'accès étant déjà filtré par `vpn-only` en amont.
+    La commande `du -sh` sur le dossier homeflix sur-compte les hardlinks en additionnant la taille de chaque lien physique. Toujours valider l'occupation réelle au niveau bloc via la commande **`df -h`**.
     </Warning>
   </Accordion>
 
