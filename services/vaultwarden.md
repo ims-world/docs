@@ -45,6 +45,17 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 ---
 
+## 🛡️ Politique de Sécurité & Durcissement (Hardening)
+
+- **Fermeture des Inscriptions (`SIGNUPS_ALLOWED=false`)** : Une fois le coffre-fort initial configuré, l'option d'enregistrement de nouveaux utilisateurs est fermée au niveau des variables d'environnement afin de prévenir toute création de compte non autorisée.
+- **Accès Administration Restreint (`/admin`)** : L'accès au panneau d'administration (`vault.ims-world.fr/admin`) est strictement filtré par le middleware Traefik `vpn-only` et accessible uniquement depuis les appareils connectés au Tailnet (`100.64.0.0/10`).
+
+<Warning>
+Mapping Authentik custom requis pour `email_verified: true` — sans lui, le SSO OIDC casse silencieusement.
+</Warning>
+
+---
+
 ## Topologie Vaultwarden & Stockage WAL
 
 ```mermaid
@@ -89,7 +100,3 @@ graph TD
     class TLS proxy;
     class ENGINE,CFG,DB,SHM,WAL,RSA,ATT vault;
 ```
-
-<Warning>
-Mapping Authentik custom requis pour `email_verified: true` — sans lui, le SSO OIDC casse silencieusement.
-</Warning>
