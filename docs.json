@@ -102,8 +102,7 @@
               "services/authentik",
               "services/vaultwarden",
               "services/homeflix",
-              "services/headscale-headplane",
-              "services/cap"
+              "services/headscale-headplane"
             ]
           }
         ]
