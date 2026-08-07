@@ -34,7 +34,7 @@ Le reste de l'infrastructure et des services publics (Authentik, Vaultwarden, Ho
 ### 🆕 Nouveautés
 
 - **Afficheur Kiosk Raspberry Pi 3B+** — Un Raspberry Pi 3B+ dédié pilote l'affichage physique du rack Labrax via un écran principal Wisecoco 7.84" (1280x400) et un second écran OLED 0.91" (128x32) encastrés dans un module 2U 3D. Un navigateur headless fait tourner en boucle la bannière IMS et des pages web en mode lisibilité, contrôlé par un bouton poussoir GPIO (appui court = change source, long 3s = éteint). Voir [Raspberry Pi 3B+ & Écrans](/infrastructure/rpi-monitor).
-- **Désinstallation définitive de Cap** — Abandon de l'expérimentation du service d'enregistrement d'écran Cap, retiré du homelab. Voir [Cap (Service Supprimé)](/services/cap).
+- **Désinstallation définitive de Cap** — Abandon de l'expérimentation du service d'enregistrement d'écran Cap, retiré du homelab.
 
 ### 🔧 Améliorations
 
