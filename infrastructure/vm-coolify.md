@@ -82,6 +82,9 @@ graph TD
 | **Vaultwarden** | `i5ae953riutbot9afjcboptb` | `/data/coolify/services/i5ae953riutbot9afjcboptb/` | <Badge color="green">🟢 Production</Badge> |
 | **HomeFlix** (Jellyfin/Sonarr/Radarr/Prowlarr/qBit/Gluetun) | `w39uebmcnse7yctsft8hzed8` | `/data/coolify/services/w39uebmcnse7yctsft8hzed8/` | <Badge color="green">🟢 Production</Badge> |
 | **Headscale + Headplane** | `i136ix2bmrrbeovnyrh1o72w` | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` | <Badge color="green">🟢 Production</Badge> |
+| **Monitoring LGTM** (Grafana/Loki/Prometheus) | `rrw19kmye6gng961igtzqpgw` | `/data/coolify/services/rrw19kmye6gng961igtzqpgw/` | <Badge color="green">🟢 Production</Badge> |
+| **Ntfy** (Push Notifications) | `j5akn2e9pr6g7c2pjvdj78w0` | `/data/coolify/services/j5akn2e9pr6g7c2pjvdj78w0/` | <Badge color="green">🟢 Production</Badge> |
+| **Dozzle** (Logs Docker Live) | `ejdn7jiuwiyixrmp8nffjkcj` | `/data/coolify/services/ejdn7jiuwiyixrmp8nffjkcj/` | <Badge color="green">🟢 Production</Badge> |
 | **IT-Tools** (smoke test) | `yefujwl3pxvum45edpsbsru7` | `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` | <Badge color="gray">⚪ Actif</Badge> |
 
 ## Stockage NFS

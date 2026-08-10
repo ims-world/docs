@@ -96,6 +96,16 @@ graph TB
         **Auth** : Noise Key Protocol + OIDC SSO
         **Protection** : Port-forwarding dédié 443
       </Card>
+      <Card title="Ntfy Push Server" icon="bell" href="/services/ntfy">
+        **Domaine** : `ntfy.ims-world.fr`
+        **Auth** : Compte/Token local (Exposition WAN assumée pour push mobile)
+        **Protection** : `signup=false`, `default_access=deny-all`
+      </Card>
+      <Card title="Dozzle Logs" icon="list" href="/services/dozzle">
+        **Domaine** : `logs.ims-world.fr`
+        **Auth** : Authentik Forward-Auth Outpost Traefik
+        **Protection** : Session SSO obligatoire en amont du proxy
+      </Card>
     </CardGroup>
   </Tab>
   <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">

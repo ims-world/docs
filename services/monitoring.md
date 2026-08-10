@@ -12,10 +12,15 @@ import { ips, domains } from "/snippets/variables.mdx";
 ## Accès Rapides & Administration
 
 <Tabs>
-  <Tab title="🌐 Interface Web">
-    <Card title="Grafana (Dashboards & Logs)" icon="chart-line" href="https://monitoring.ims-world.fr">
-      Interface centrale de métrologie et d'exploration de logs Loki. Accessible sur `monitoring.ims-world.fr` (Tailnet + SSO Authentik).
-    </Card>
+  <Tab title="🌐 Interfaces Web">
+    <CardGroup cols={2}>
+      <Card title="Grafana (Dashboards, Logs & Alerting)" icon="chart-line" href="https://monitoring.ims-world.fr">
+        Interface centrale de métrologie, d'exploration de logs Loki et de gestion des règles d'alerte. Accessible sur `monitoring.ims-world.fr` (Tailnet + SSO Authentik).
+      </Card>
+      <Card title="Ntfy — Notifications Push" icon="bell" href="/services/ntfy">
+        Les notifications d'alerte Grafana sont délivrées via Ntfy (service dédié, voir la fiche Ntfy).
+      </Card>
+    </CardGroup>
   </Tab>
   <Tab title="⚡ Commandes CLI & Maintenance">
     ```bash
@@ -41,14 +46,18 @@ import { ips, domains } from "/snippets/variables.mdx";
 | Propriété | Valeur |
 |---|---|
 | **Domaine** | `monitoring.ims-world.fr` |
-| **Rôle** | Centralisation des Métriques (Prometheus), Logs (Loki) & Visualisation (Grafana) |
-| **Versions** | Grafana `11.4.0` / Loki `3.3.2` / Prometheus `v3.1.0` / Alloy `1.18.1` |
+| **Rôle** | Centralisation des Métriques (Prometheus), Logs (Loki) & Visualisation/Alerting (Grafana) |
+| **Versions** | Grafana `13.1.3` / Loki `3.3.2` / Prometheus `v3.1.0` / Alloy `1.18.1` |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `rrw19kmye6gng961igtzqpgw` |
 | **Chemin sur la VM** | `/data/coolify/services/rrw19kmye6gng961igtzqpgw/` |
 | **Mode d'Ingestion** | **Push Remote-Write** (les 5 agents Alloy poussent vers le serveur) |
 | **Rétention Métriques/Logs** | 30 jours (Prometheus TSDB `--storage.tsdb.retention.time=30d` & Loki `retention_period: 720h`) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
+
+<Warning>
+**Grafana 13.1.3 est requis**, pas une version antérieure. La fonctionnalité "Custom Payload" du contact point Webhook (utilisée pour formater les notifications Ntfy) n'existe qu'à partir de **Grafana 12.0** — absente en 11.x. Ne pas downgrade sans vérifier ce point.
+</Warning>
 
 ---
 
@@ -63,7 +72,7 @@ graph TB
     end
 
     subgraph CENTRAL_STACK ["📊 Stack Centrale Monitoring (VM 104 Docker)"]
-        GRAFANA["Grafana v11.4.0 (Port 3000)"]
+        GRAFANA["Grafana v13.1.3 (Port 3000)"]
         PROMETHEUS["Prometheus v3.1.0 (Port 9090 — Remote Write)"]
         LOKI["Loki v3.3.2 (Port 3100 — Log Push)"]
     end
@@ -72,7 +81,7 @@ graph TB
         MS01_ALLOY["MS-01 Host Bare Metal (Alloy systemd)"]
         NAS_ALLOY["LXC 100 IMS-NAS (Alloy systemd)"]
         PBS_ALLOY["LXC 103 IMS-PBS (Alloy systemd)"]
-        COOL_ALLOY["VM 104 IMS-Coolify (Alloy root systemd + cAdvisor)"]
+        COOL_ALLOY["VM 104 IMS-Coolify (Alloy root systemd + cAdvisor + Traefik metrics)"]
         RPI_ALLOY["Raspberry Pi Kiosk (Alloy systemd)"]
     end
 
@@ -81,6 +90,7 @@ graph TB
     GRAFANA <-->|SSO OIDC| AUTHENTIK
     GRAFANA -->|Query| PROMETHEUS
     GRAFANA -->|Query LogQL| LOKI
+    GRAFANA -.->|Webhook Alerting| NTFY_EXT["Ntfy (ntfy.ims-world.fr)"]
 
     MS01_ALLOY -->|Push LAN 192.168.1.52:9090/3100| PROMETHEUS
     MS01_ALLOY -->|Push LAN| LOKI
@@ -100,18 +110,20 @@ graph TB
     classDef web fill:#F97316,stroke:#FB923C,color:#fff;
     classDef central fill:#0F6E56,stroke:#16A085,color:#fff;
     classDef agent fill:#1a2b3c,stroke:#F97316,color:#fff;
+    classDef ext fill:#333,stroke:#777,color:#fff,stroke-dasharray: 5 5;
     class CLIENT_VPN,TRAEFIK,AUTHENTIK web;
     class GRAFANA,PROMETHEUS,LOKI central;
     class MS01_ALLOY,NAS_ALLOY,PBS_ALLOY,COOL_ALLOY,RPI_ALLOY agent;
+    class NTFY_EXT ext;
 ```
 
 <Info>
-**Décision d'architecture clé : Push, pas Pull.** Chaque agent Alloy (5 hôtes) pousse ses métriques (`prometheus.remote_write`) et ses logs (`loki.write`) vers le serveur central via le LAN ou le réseau isolé `vmbr1`. Le port HTTP d'Alloy (12345) reste strictement local. La télémétrie ne transite **jamais par Tailscale**, ce qui garantit que la collecte continue même en cas de coupure du control plane Headscale ou du Tailnet.
+**Décision d'architecture clé : Push, pas Pull.** Chaque agent Alloy (5 hôtes) pousse ses métriques (`prometheus.remote_write`) et ses logs (`loki.write`) vers le serveur central via le LAN ou le réseau isolé `vmbr1`. Le port HTTP d'Alloy (12345) reste strictly local. La télémétrie ne transite **jamais par Tailscale**, ce qui garantit que la collecte continue même en cas de coupure du control plane Headscale ou du Tailnet.
 </Info>
 
 ---
 
-## Composants & Fonctionnement
+## Composants & Dashboards
 
 ### 1. Hôtes Surveillés par Grafana Alloy
 
@@ -120,38 +132,70 @@ graph TB
 | **Host Proxmox (MS-01)** | Bare metal | `192.168.1.52:9090 / 3100` (LAN) | `ms01-pve` | `unix` exporter + systemd journal |
 | **IMS-NAS** | LXC 100 unprivileged | `10.10.10.2:9090 / 3100` (vmbr1) | `ims-nas` | `unix` exporter + systemd journal |
 | **IMS-PBS** | LXC 103 unprivileged | `10.10.10.2:9090 / 3100` (vmbr1) | `ims-pbs` | `unix` exporter + systemd journal |
-| **IMS-Coolify** | VM 104 Docker | `10.10.10.2:9090 / 3100` (Local) | `ims-coolify` | `unix` exporter + systemd journal + cAdvisor Docker + logs conteneurs |
+| **IMS-Coolify** | VM 104 Docker | `10.10.10.2:9090 / 3100` (Local) | `ims-coolify` | `unix` exporter + systemd journal + cAdvisor Docker + logs conteneurs + métriques Traefik |
 | **Raspberry Pi** | Bare metal ARM | `192.168.1.52:9090 / 3100` (LAN) | `rpi-kiosk` | `unix` exporter + systemd journal |
 
 ---
 
-### 2. Intégration SSO Authentik OIDC (Entitlements RBAC)
+### 2. Dashboards Installés
 
-L'authentification sur Grafana s'appuie sur le provider OIDC Authentik (slug `grafana`) avec l'utilisation des **Application Entitlements** pour la correspondance automatique des rôles RBAC :
-- `Grafana Admins` ➔ Rôle **Admin** dans Grafana.
-- `Grafana Editors` ➔ Rôle **Editor** dans Grafana.
-- `Grafana Viewers` ➔ Rôle **Viewer** dans Grafana.
+| Dashboard | Origine | Contenu |
+|---|---|---|
+| **Node Exporter Full** | Grafana.com ID `1860` | Vue par hôte : CPU/RAM/disque/réseau, filtrable par `Nodename`/`Instance` |
+| **Docker monitoring** | Grafana.com ID `15798` + 4 panels custom | Vue globale containers + panels sur-mesure CPU/RAM/Réseau/Disk par container |
+| **Traefik Standalone** | Grafana.com ID `17346` | Requêtes par entrypoint, Apdex, codes HTTP, services les plus lents/demandés |
+| **Logs — Vue d'ensemble** | Custom (`dashboards/logs-overview.json`) | Flux de logs filtrable (`$host`/`$job`/`$container`/`$level`), volumes et erreurs |
 
 ---
 
-## Stockage & Politique de Sécurité
+## Alerting & Contact Point Ntfy
 
-- Sur les hôtes nus, Alloy tourne sous l'utilisateur `alloy` rattaché aux groupes `adm` et `systemd-journal`.
-- Sur la VM IMS-Coolify, la collecte cAdvisor nécessite un accès au socket `containerd` (`/run/containerd/containerd.sock` `root:root`). Alloy est configuré via un override systemd pour s'exécuter sous **root** :
-```ini
-# /etc/systemd/system/alloy.service.d/override.conf
-[Service]
-User=root
+Grafana gère l'évaluation des règles d'alerte et transmet les notifications push à **[Ntfy](/services/ntfy)** via un contact point Webhook.
+
+### 1. Configuration du Contact Point Webhook
+- **URL** : `https://ntfy.ims-world.fr`
+- **Méthode HTTP** : `POST`
+- **Header d'autorisation** : `Bearer <token_ntfy_grafana>`
+- **Custom Payload (Grafana ≥ 12.0)** :
+```json
+{{ $msg := "" }}
+{{ range .Alerts }}{{ $msg = printf "%s%s (%s)\n" $msg .Annotations.summary .Labels.host }}{{ end }}
+{{ if eq .Status "firing" }}{
+  "topic": "ims-alerts",
+  "title": {{ printf "%s" .CommonLabels.alertname | data.ToJSON }},
+  "message": {{ $msg | data.ToJSON }},
+  "priority": 4,
+  "tags": ["rotating_light"],
+  "click": {{ .ExternalURL | data.ToJSON }}
+}
+{{ else }}{
+  "topic": "ims-alerts",
+  "title": {{ printf "Résolu: %s" .CommonLabels.alertname | data.ToJSON }},
+  "message": {{ $msg | data.ToJSON }},
+  "priority": 3,
+  "tags": ["white_check_mark"]
+}
+{{ end }}
 ```
+
+### 2. Règles d'Alerte Grafana (Group `default`)
+
+| Règle | Requête PromQL (Instant) | Condition | Pending | No data state |
+|---|---|---|---|---|
+| **CPU élevé** | `100 - (avg by (host) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)` | > 90% | 5m | Normal |
+| **RAM élevée** | `(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100` | > 90% | 5m | Normal |
+| **Disque plein** | `(1 - node_filesystem_avail_bytes{fstype!~"tmpfs\|overlay"} / node_filesystem_size_bytes) * 100` | > 85% | 10m | Normal |
+| **Host down** | `time() - timestamp(node_load1) > 120` | > 120s | 1m | Normal |
+| **Container crash-loop** | `changes(container_start_time_seconds{image!="", host="ims-coolify"}[15m])` | > 2 | 0s | Normal |
 
 ---
 
 ## Exploitation & Procédures
 
 <AccordionGroup>
-  <Accordion title="Procédure : Ajouter un Nouvel Hôte à Surveiller">
+  <Accordion title="Procédure : Ajouter un Nouvel Hôte à Surveiller (Alloy)">
     <Steps>
-      <Step title="Installation du binaire Alloy via le dépôt officiel">
+      <Step title="Installation d'Alloy via apt">
         ```bash
         sudo apt install -y gpg
         sudo mkdir -p /etc/apt/keyrings
@@ -161,24 +205,26 @@ User=root
         sudo apt-get update && sudo apt-get install -y alloy
         ```
       </Step>
-      <Step title="Détermination de l'adresse de Push">
-        - Si l'hôte est sur le réseau isolé `vmbr1` ➔ Utiliser `http://10.10.10.2:9090/api/v1/write` et `http://10.10.10.2:3100/loki/api/v1/push`.
-        - Si l'hôte est sur le LAN ➔ Utiliser `http://192.168.1.52:9090/api/v1/write` et `http://192.168.1.52:3100/loki/api/v1/push`.
-      </Step>
-      <Step title="Configuration de /etc/alloy/config.alloy">
-        Remplacer intégralement le fichier d'exemple `/etc/alloy/config.alloy` avec les blocs `prometheus.exporter.unix`, `prometheus.remote_write` et `loki.source.journal`. Saisir le label de l'hôte (`host = "ims-xxx"`).
-      </Step>
-      <Step title="Activation des permissions et démarrage">
+      <Step title="Configuration & Démarrage">
+        Editer `/etc/alloy/config.alloy` avec les endpoints de push (`10.10.10.2` ou `192.168.1.52`), puis :
         ```bash
         sudo usermod -aG adm,systemd-journal alloy
         sudo systemctl restart alloy && sudo systemctl enable alloy
         ```
       </Step>
-      <Step title="Validation de l'ingestion">
-        ```bash
-        curl -s -G 'http://192.168.1.52:9090/api/v1/query' --data-urlencode 'query=node_load1{host="ims-xxx"}'
-        curl -s -G 'http://192.168.1.52:3100/loki/api/v1/label/host/values'
-        ```
+    </Steps>
+  </Accordion>
+
+  <Accordion title="Procédure : Créer une Nouvelle Règle d'Alerte Grafana → Ntfy">
+    <Steps>
+      <Step title="Création de la règle">
+        Dans Grafana : **Alerting → Alert rules → New alert rule**, saisir la requête PromQL en mode **Instant**.
+      </Step>
+      <Step title="Configuration du No Data State">
+        Régler "No data state" sur **Normal** pour éviter les fausses alertes sur requêtes saines vides.
+      </Step>
+      <Step title="Attribution du Contact Point">
+        Sélectionner le contact point Webhook **Ntfy alerting**.
       </Step>
     </Steps>
   </Accordion>
@@ -196,13 +242,6 @@ User=root
     ```logql
     {host="ms01-pve"}                               # Tous les logs du host Proxmox
     {host="ims-coolify", job="docker-containers"}   # Tous les logs des conteneurs Docker
-    {host="ims-coolify", compose_service="grafana"} # Logs d'un conteneur spécifique
     ```
-  </Accordion>
-
-  <Accordion title="Roadmap & TODOs Restants">
-    - [ ] **Dashboard Traefik** : Activer `metrics.prometheus` sur l'instance Traefik Coolify et importer le dashboard Grafana `17346`.
-    - [ ] **Alerting Ntfy** : Déployer l'instance Ntfy et connecter le Contact Point Grafana.
-    - [ ] **Règles d'alerte Grafana** : Définir les seuils d'alerte CPU/RAM/Disque et détection de conteneurs KO.
   </Accordion>
 </AccordionGroup>

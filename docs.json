@@ -103,7 +103,9 @@
               "services/vaultwarden",
               "services/homeflix",
               "services/headscale-headplane",
-              "services/monitoring"
+              "services/monitoring",
+              "services/ntfy",
+              "services/dozzle"
             ]
           }
         ]

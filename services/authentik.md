@@ -79,6 +79,39 @@ sequenceDiagram
 
 ---
 
+## Outpost Proxy & Forward-Auth Traefik
+
+Authentik supporte **deux modes d'intégration** selon les capacités des applications hébergées :
+
+1. **OIDC Natif (OpenID Connect / OAuth2)** : L'application gère son propre flux d'authentification et dialogue directement avec Authentik (ex. Grafana, Vaultwarden, Headplane).
+2. **Proxy Outpost (Forward-Auth)** : Pour les applications web dépourvues de système d'authentification natif (ex. [Dozzle](/services/dozzle) sur `logs.ims-world.fr`), l'Outpost embarqué Authentik (`ak-outpost-ims-outpost:9000`) s'intercale en amont via le middleware Traefik `forwardAuth`.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as 👤 Utilisateur
+    participant Traefik as 🚦 Traefik Proxy Engine
+    participant Outpost as 🛡️ Authentik Outpost (Port 9000)
+    participant App as 🐳 Application Web (ex: Dozzle)
+
+    User->>Traefik: GET https://logs.ims-world.fr
+    Traefik->>Outpost: Auth Check (Forward-Auth)
+    alt Session Invalide / Absente
+        Outpost-->>Traefik: 401 Unauthorized + Redirect
+        Traefik-->>User: Redirection vers auth.ims-world.fr
+    else Session Valide (Auth OK)
+        Outpost-->>Traefik: 200 OK + Headers X-authentik-*
+        Traefik->>App: Transmet la requête + Headers identité
+        App-->>User: Affichage du service
+    end
+```
+
+<Info>
+Le filtrage des accès des applications en Forward-Auth ne se fait pas dans le fichier Compose de l'application, mais directement dans la console **Authentik (Applications → Outposts / Policies)**.
+</Info>
+
+---
+
 ## Exploitation & Procédures (Inviter un Utilisateur)
 
 <Steps>
