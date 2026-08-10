@@ -3,6 +3,18 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 10/08/2026 — Notifications push, logs live & Forward-Auth Authentik
+
+### 🆕 Nouveautés
+
+- **Ntfy en production** — Un serveur de notifications push est en ligne sur `ntfy.ims-world.fr`, accessible depuis le web et les applications mobiles Android/iOS via le topic `ims-alerts`. Il sert de point de sortie unique pour les alertes du homelab. Voir [Ntfy — Notifications Push](/services/ntfy).
+- **Dozzle en production** — Une interface de logs Docker en direct est disponible sur `logs.ims-world.fr` pour visualiser en temps réel les logs de tous les conteneurs de la VM Coolify. L'accès est protégé par Authentik (Forward-Auth Outpost). Voir [Dozzle — Logs Docker en Direct](/services/dozzle).
+- **Alerting Grafana → Ntfy** — Grafana pousse désormais ses alertes vers Ntfy via un contact point Webhook, avec des payloads distincts pour les états *firing* et *resolved*. Les notifications arrivent sur mobile en priorité 4 (alerte) ou 3 (résolution). Voir [Alerting & Contact Point Ntfy](/services/monitoring#alerting--contact-point-ntfy).
+
+### 🔧 Améliorations
+
+- **Forward-Auth Authentik pour les apps sans SSO** — L'Outpost Proxy embarqué d'Authentik (`ak-outpost-ims-outpost:9000`) s'intercale via le middleware Traefik `forwardAuth` en amont des applications qui n'ont pas d'authentification native. Dozzle est le premier consommateur : toute requête vers `logs.ims-world.fr` exige une session Authentik valide avant d'atteindre l'interface. Le filtrage des accès se pilote depuis la console Authentik (*Applications → Outposts / Policies*). Voir [Outpost Proxy & Forward-Auth Traefik](/services/authentik#outpost-proxy--forward-auth-traefik).
+
 ## Semaine du 10/08/2026 — Stack Monitoring LGTM en production
 
 ### 🆕 Nouveautés
