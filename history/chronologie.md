@@ -14,6 +14,8 @@ description: "Chronologie du projet de migration Mac Mini → MS-01"
 ### 🔧 Améliorations
 
 - **Isolation réseau du monitoring** — `monitoring.ims-world.fr` est masqué en DNS OVH (résolution `127.0.0.1` côté public) et filtré par Traefik au tailnet `100.64.0.0/10`. Concrètement, l'interface n'est joignable que via le VPN. Voir [Masquage DNS & Isolation Réseau](/services/monitoring#1-masquage-dns--isolation-réseau).
+- **Matrice de sécurité étendue au monitoring** — Grafana rejoint la Zone 2 (Tailnet Overlay) de la matrice d'exposition, aux côtés de qBittorrent, Radarr, Sonarr, Prowlarr et Headplane. La cartographie des 3 zones de confiance est à jour. Voir [Matrice de Sécurité & d'Exposition](/reseau/matrice-securite-exposition).
+- **Règle d'or de routage Traefik/Coolify formalisée** — Une nouvelle section documente quand utiliser le champ *Domains* de l'UI Coolify et quand ré-expliciter les labels Traefik manuellement dans le `docker-compose.yml`. Dès qu'un service utilise un middleware sur-mesure (`vpn-only`, forward-auth), il faut laisser le champ Domains vide côté Coolify pour éviter qu'un routeur automatique parallèle ne ré-expose le service publiquement. Voir [Règle d'Or de Routage](/reseau/traefik-proxy#️-règle-dor-de-routage--ui-coolify-vs-labels-compose-manuels).
 
 ## Semaine du 06/08/2026 — Audit sécurité `vpn-only` validé & RBAC Authentik
 
