@@ -3,6 +3,18 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 10/08/2026 — Stack Monitoring LGTM en production
+
+### 🆕 Nouveautés
+
+- **Stack Monitoring LGTM disponible** — Grafana, Loki et Prometheus sont en ligne sur `monitoring.ims-world.fr` pour la métrologie et la centralisation des logs de tout le homelab. L'interface est accessible depuis le tailnet, via connexion SSO Authentik. Voir [Stack Monitoring (LGTM)](/services/monitoring).
+- **Collecte unifiée via Grafana Alloy** — Un agent Grafana Alloy tourne sur chaque hôte surveillé et pousse métriques et logs vers la stack en `remote-write`, sans configuration à maintenir côté serveur. Voir [Composants & Fonctionnement](/services/monitoring#composants--fonctionnement).
+- **SSO Authentik OIDC sur Grafana** — La connexion à Grafana passe par le bouton *Sign in with authentik*. Trois rôles RBAC sont provisionnés côté Authentik : `Grafana Admins` (Admin), `Grafana Editors` (Éditeur) et `Grafana Viewers` (Lecteur). L'inscription libre est désactivée (`GF_USERS_ALLOW_SIGN_UP=false`) et un compte admin local reste disponible en secours. Voir [Intégration SSO Authentik OIDC](/services/monitoring#2-intégration-sso-authentik-oidc).
+
+### 🔧 Améliorations
+
+- **Isolation réseau du monitoring** — `monitoring.ims-world.fr` est masqué en DNS OVH (résolution `127.0.0.1` côté public) et filtré par Traefik au tailnet `100.64.0.0/10`. Concrètement, l'interface n'est joignable que via le VPN. Voir [Masquage DNS & Isolation Réseau](/services/monitoring#1-masquage-dns--isolation-réseau).
+
 ## Semaine du 06/08/2026 — Audit sécurité `vpn-only` validé & RBAC Authentik
 
 ### 🆕 Nouveautés
