@@ -12,21 +12,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 ## Accès Rapides & Administration
 
 <Tabs>
-  <Tab title="🌐 Interfaces Web">
-    <CardGroup cols={2}>
-      <Card title="Grafana (Dashboards & Logs)" icon="chart-line" href="https://monitoring.ims-world.fr">
-        Interface centrale de métrologie et d'exploration de logs Loki. Accessible sur `monitoring.ims-world.fr` (Tailnet + SSO Authentik).
-      </Card>
-      <Card title="Console Authentik Admin" icon="shield-halved" href="https://auth.ims-world.fr">
-        Provider d'identité OIDC gérant les rôles et accès SSO Grafana.
-      </Card>
-    </CardGroup>
-  </Tab>
-  <Tab title="🔐 SSO Authentik & Connexion">
-    - **Authentification Principale** : Bouton *Sign in with authentik* via OIDC natif.
-    - **Application Authentik** : Provider OAuth2/OIDC, slug `grafana`.
-    - **Rôles RBAC (Entitlements)** : `Grafana Admins` (Admin), `Grafana Editors` (Éditeur), `Grafana Viewers` (Lecteur).
-    - **Compte Admin Local** : Compte de secours configuré via Coolify (`GF_USERS_ALLOW_SIGN_UP=false`).
+  <Tab title="🌐 Interface Web">
+    <Card title="Grafana (Dashboards & Logs)" icon="chart-line" href="https://monitoring.ims-world.fr">
+      Interface centrale de métrologie et d'exploration de logs Loki. Accessible sur `monitoring.ims-world.fr` (Tailnet + SSO Authentik).
+    </Card>
   </Tab>
   <Tab title="⚡ Commandes CLI & Maintenance">
     ```bash
@@ -117,7 +106,7 @@ graph TB
 ```
 
 <Info>
-**Décision d'architecture clé : Push, pas Pull.** Chaque agent Alloy (5 hôtes) pousse ses métriques (`prometheus.remote_write`) et ses logs (`loki.write`) vers le serveur central via le LAN ou le réseau isolé `vmbr1`. Le port HTTP d'Alloy (12345) reste strictement local. La télémétrie ne transite **jamais par Tailscale**, ce qui garantit que la collecte continue même en cas de coupure du VPN Headscale.
+**Décision d'architecture clé : Push, pas Pull.** Chaque agent Alloy (5 hôtes) pousse ses métriques (`prometheus.remote_write`) et ses logs (`loki.write`) vers le serveur central via le LAN ou le réseau isolé `vmbr1`. Le port HTTP d'Alloy (12345) reste strictement local. La télémétrie ne transite **jamais par Tailscale**, ce qui garantit que la collecte continue même en cas de coupure du control plane Headscale ou du Tailnet.
 </Info>
 
 ---
@@ -136,51 +125,17 @@ graph TB
 
 ---
 
-### 2. Intégration SSO Authentik OIDC
+### 2. Intégration SSO Authentik OIDC (Entitlements RBAC)
 
-Grafana combine un **double verrouillage de sécurité** : restreint au réseau Tailscale (`vpn-only@file`) ET authentifié par SSO Authentik.
-
-#### Configuration Côté Authentik (`https://auth.ims-world.fr`)
-- **Application & Provider** : Slug `grafana`, Type OAuth2 / OpenID Connect.
-- **Redirect URIs** : `https://monitoring.ims-world.fr/login/generic_oauth`
-- **Logout URI** : `https://monitoring.ims-world.fr/logout`
-- **Rôles RBAC (Application Entitlements)** :
-  - `Grafana Admins` ➔ Attribue le rôle `Admin` dans Grafana.
-  - `Grafana Editors` ➔ Attribue le rôle `Editor` dans Grafana.
-  - `Grafana Viewers` ➔ Attribue le rôle `Viewer` dans Grafana.
-
-#### Configuration Côté Grafana UI (Administration → Authentication → authentik)
-```ini
-Auth URL : https://auth.ims-world.fr/application/o/authorize/
-Token URL : https://auth.ims-world.fr/application/o/token/
-API URL : https://auth.ims-world.fr/application/o/userinfo/
-Sign out redirect URL : https://auth.ims-world.fr/application/o/grafana/end-session/
-Scopes : openid profile email entitlements
-Role attribute path : contains(entitlements[*], 'Grafana Admins') && 'Admin' || contains(entitlements[*], 'Grafana Editors') && 'Editor' || 'Viewer'
-```
-
-<Warning>
-**Piège Client ID/Secret** : Si les identifiants sont régénérés dans Authentik, ils doivent obligatoirement être re-collés dans la console Grafana UI, sous peine d'erreur `Client ID Error: the client identifier is missing or invalid` lors du login SSO.
-</Warning>
+L'authentification sur Grafana s'appuie sur le provider OIDC Authentik (slug `grafana`) avec l'utilisation des **Application Entitlements** pour la correspondance automatique des rôles RBAC :
+- `Grafana Admins` ➔ Rôle **Admin** dans Grafana.
+- `Grafana Editors` ➔ Rôle **Editor** dans Grafana.
+- `Grafana Viewers` ➔ Rôle **Viewer** dans Grafana.
 
 ---
 
 ## Stockage & Politique de Sécurité
 
-### 1. Masquage DNS & Isolation Réseau
-- **DNS Public OVH** : Le nom `monitoring.ims-world.fr` pointe vers `127.0.0.1` (loopback). Toute tentative d'accès depuis le Web public échoue immédiatement sans atteindre le serveur.
-- **Headscale Split-DNS** : Les clients enregistrés sur le Tailnet résolvent `monitoring.ims-world.fr` vers l'IP Tailscale réelle de la VM Coolify (`100.64.0.4`).
-- **Traefik `vpn-only`** : Traefik rejette en **HTTP 403** toute requête ne provenant pas de `100.64.0.0/10`.
-
-<Warning>
-**Piège des Routeurs Coolify** : Ne jamais renseigner le champ *Domains* dans l'UI Coolify pour ce service. Coolify créerait un routeur Traefik parallèle sans le middleware `vpn-only`. Vérification post-déploiement :
-```bash
-docker inspect grafana-rrw19kmye6gng961igtzqpgw --format '{{json .Config.Labels}}' | python3 -m json.tool
-```
-Seuls les routeurs `traefik.http.routers.monitoring.*` doivent figurer.
-</Warning>
-
-### 2. Permissions Linux & Service Systemd Root
 - Sur les hôtes nus, Alloy tourne sous l'utilisateur `alloy` rattaché aux groupes `adm` et `systemd-journal`.
 - Sur la VM IMS-Coolify, la collecte cAdvisor nécessite un accès au socket `containerd` (`/run/containerd/containerd.sock` `root:root`). Alloy est configuré via un override systemd pour s'exécuter sous **root** :
 ```ini
