@@ -117,6 +117,7 @@
             "group": "Guides Opérationnels",
             "icon": "wrench",
             "pages": [
+              "procedures/catalogue-procedures",
               "procedures/commandes-urgence",
               "procedures/deploiement-service",
               "procedures/depannage-courant",
