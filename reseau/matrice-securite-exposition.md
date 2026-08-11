@@ -19,7 +19,7 @@ L'infrastructure IMS-WORLD applique le principe de **moindre privilège** et de 
 
 Avant de répertorier chaque service applicatif, l'infrastructure est découpée en **3 zones d'isolation étanches** :
 
-1. **Zone 1 — Public WAN (Internet)** : Services ouverts sur le Web (`auth.ims-world.fr`, `vault.ims-world.fr`, `homeflix.ims-world.fr`, `videoclub.ims-world.fr`). Accessibles via HTTPS sur les ports 80/443 de la Bbox, protégés par Traefik, Let's Encrypt et Authentik SSO.
+1. **Zone 1 — Public WAN (Internet)** : Services ouverts sur le Web (`auth.ims-world.fr`, `vault.ims-world.fr`, `photos.ims-world.fr`, `homeflix.ims-world.fr`, `videoclub.ims-world.fr`). Accessibles via HTTPS sur les ports 80/443 de la Bbox, protégés par Traefik, Let's Encrypt et Authentik SSO.
 2. **Zone 2 — Tailnet Overlay (VPN Restreint `100.64.0.0/10`)** : Services privés d'administration applicative (`qbit`, `radarr`, `sonarr`, `prowlarr`, `monitoring`, `headplane`). Résolution masquée (OVH `127.0.0.1`) et filtrés par le middleware Traefik `vpn-only` (**HTTP 403 Forbidden** hors du Tailnet).
 3. **Zone 3 — Administration LAN & Bridge NFS Isolé (`192.168.1.0/24` & `10.10.10.0/24`)** : Interfaces de gestion bas niveau des hyperviseurs et stockage (GUI Proxmox 8006, PBS GUI 8007, SMB 445, NFS 2049). Totalement fermées à l'Internet public.
 
@@ -41,7 +41,7 @@ graph TB
     end
 
     subgraph SERVICES ["🐳 Services Applicatifs Docker (VM 104)"]
-        PUB_APPS["Authentik (auth) / Vaultwarden (vault) / Jellyfin (homeflix)"]
+        PUB_APPS["Authentik (auth) / Vaultwarden (vault) / Immich (photos) / Jellyfin (homeflix)"]
         PRIV_APPS["qBittorrent (qbit) / Radarr / Sonarr / Prowlarr / Grafana (monitoring)"]
         ADMIN_NODES["Host PVE (41) / NAS LXC (50) / PBS LXC (51)"]
     end
@@ -105,6 +105,11 @@ graph TB
         **Domaine** : `logs.ims-world.fr`
         **Auth** : Authentik Forward-Auth Outpost Traefik
         **Protection** : Session SSO obligatoire en amont du proxy
+      </Card>
+      <Card title="Immich Photos" icon="images" href="/services/immich">
+        **Domaine** : `photos.ims-world.fr`
+        **Auth** : Native & SSO Authentik OIDC
+        **Protection** : TLS 1.3, Transcodage & IA (CLIP / Faciale)
       </Card>
     </CardGroup>
   </Tab>

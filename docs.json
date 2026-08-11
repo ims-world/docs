@@ -105,7 +105,8 @@
               "services/headscale-headplane",
               "services/monitoring",
               "services/ntfy",
-              "services/dozzle"
+              "services/dozzle",
+              "services/immich"
             ]
           }
         ]
