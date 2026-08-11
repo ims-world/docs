@@ -3,6 +3,18 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 11/08/2026 — Statuspage Uptime Kuma & boîte à outils IT-Tools
+
+### 🆕 Nouveautés
+
+- **Uptime Kuma en production** — Une statuspage et un moteur de monitoring actif sont en ligne sur `status.ims-world.fr`. Uptime Kuma surveille en HTTP et en TCP la disponibilité des services publics et internes du homelab, avec accès protégé par SSO Authentik. Voir [Uptime Kuma](/services/uptime-kuma).
+- **Alerting Uptime Kuma → Ntfy** — Les incidents détectés par Uptime Kuma déclenchent des notifications push sur mobile via Ntfy, avec des templates distincts pour les états *down* et *recovered*. Concrètement, une panne de service remonte sur le téléphone en quelques secondes. Voir [Alerting & Templates Ntfy](/services/uptime-kuma#alerting--templates-ntfy-liquidjs).
+- **IT-Tools en production** — Une boîte à outils développeur et IT (générateurs, convertisseurs, utilitaires réseau) est disponible sur `tools.ims-world.fr`, protégée par le SSO Authentik. Voir [IT-Tools](/services/it-tools).
+
+### 🔧 Améliorations
+
+- **Forward-Auth Authentik étendu à Uptime Kuma & IT-Tools** — L'Outpost Proxy d'Authentik (`ak-outpost-ims-outpost:9000`) s'intercale via le middleware Traefik en amont des deux nouvelles interfaces, qui n'ont pas d'authentification native. Toute requête vers `status.ims-world.fr` ou `tools.ims-world.fr` exige une session Authentik valide avant d'atteindre l'application. Voir [Outpost Proxy & Forward-Auth Traefik](/services/authentik#outpost-proxy--forward-auth-traefik).
+
 ## Semaine du 11/08/2026 — Immich, médiathèque photo & vidéo self-hosted
 
 ### 🆕 Nouveautés
