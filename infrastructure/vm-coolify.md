@@ -86,7 +86,8 @@ graph TD
 | **Ntfy** (Push Notifications) | `j5akn2e9pr6g7c2pjvdj78w0` | `/data/coolify/services/j5akn2e9pr6g7c2pjvdj78w0/` | <Badge color="green">🟢 Production</Badge> |
 | **Dozzle** (Logs Docker Live) | `ejdn7jiuwiyixrmp8nffjkcj` | `/data/coolify/services/ejdn7jiuwiyixrmp8nffjkcj/` | <Badge color="green">🟢 Production</Badge> |
 | **Immich** (Médiathèque Photo/Vidéo IA) | `p3ujda5c7sc8nf4j9zzd8lck` | `/data/coolify/services/p3ujda5c7sc8nf4j9zzd8lck/` | <Badge color="green">🟢 Production</Badge> |
-| **IT-Tools** (smoke test) | `yefujwl3pxvum45edpsbsru7` | `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` | <Badge color="gray">⚪ Actif</Badge> |
+| **Uptime Kuma** (Monitoring Actif & Status) | `il53bmpdybmss5q14sfy0umm` | `/data/coolify/services/il53bmpdybmss5q14sfy0umm/` | <Badge color="green">🟢 Production</Badge> |
+| **IT-Tools** (Boîte à outils développeur) | `yefujwl3pxvum45edpsbsru7` | `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` | <Badge color="green">🟢 Production</Badge> |
 
 ## Stockage NFS
 

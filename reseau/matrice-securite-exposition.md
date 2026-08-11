@@ -111,6 +111,16 @@ graph TB
         **Auth** : Native & SSO Authentik OIDC
         **Protection** : TLS 1.3, Transcodage & IA (CLIP / Faciale)
       </Card>
+      <Card title="Uptime Kuma" icon="heart-pulse" href="/services/uptime-kuma">
+        **Domaine** : `status.ims-world.fr`
+        **Auth** : Authentik Forward-Auth Outpost Traefik
+        **Protection** : Monitoring HTTP/TCP & Alerting Ntfy
+      </Card>
+      <Card title="IT-Tools" icon="toolbox" href="/services/it-tools">
+        **Domaine** : `tools.ims-world.fr`
+        **Auth** : Authentik Forward-Auth Outpost Traefik
+        **Protection** : Session SSO obligatoire en amont du proxy
+      </Card>
     </CardGroup>
   </Tab>
   <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">
