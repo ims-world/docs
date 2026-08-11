@@ -3,6 +3,19 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 11/08/2026 — Immich, médiathèque photo & vidéo self-hosted
+
+### 🆕 Nouveautés
+
+- **Immich en production** — Une médiathèque photo et vidéo self-hosted est en ligne sur `photos.ims-world.fr`, avec sauvegarde automatique depuis les applications mobiles iOS et Android (v3.x). La bibliothèque démarre avec 61 880 assets déjà indexés. Voir [Immich](/services/immich).
+- **Recherche par IA (CLIP) & reconnaissance faciale** — Le moteur Machine Learning d'Immich permet la recherche sémantique en langage naturel (« plage au coucher du soleil ») et le regroupement automatique des visages, sans dépendre d'un service cloud externe. Voir [Composants & Stockage](/services/immich#composants--stockage).
+- **SSO Authentik sur Immich** — L'authentification passe par le SSO central `auth.ims-world.fr` (OIDC), en plus de l'authentification native Immich pour les comptes techniques. Voir [Fiche Service](/services/immich#fiche-service).
+
+### 🔧 Améliorations
+
+- **Matrice de sécurité mise à jour** — Immich rejoint la Zone 1 (Public WAN) de la matrice d'exposition, aux côtés d'Authentik, Vaultwarden et HomeFlix, avec accès HTTPS protégé par Traefik et Let's Encrypt. Voir [Matrice de Sécurité & d'Exposition](/reseau/matrice-securite-exposition).
+- **Cartographie Coolify mise à jour** — La liste des services orchestrés sur la VM Coolify inclut désormais Immich et son UUID de déploiement. Voir [VM IMS-Coolify](/infrastructure/vm-coolify).
+
 ## Semaine du 10/08/2026 — Notifications push, logs live & Forward-Auth Authentik
 
 ### 🆕 Nouveautés
