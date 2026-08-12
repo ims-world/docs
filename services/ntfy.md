@@ -3,6 +3,8 @@ title: "Ntfy — Notifications Push"
 description: "Serveur de notifications push pour l'alerting et les applications mobile"
 icon: "bell"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
+app_version: "v2.27.0"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";

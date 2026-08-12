@@ -3,6 +3,8 @@ title: "Stack Monitoring (LGTM)"
 description: "Grafana, Loki, Prometheus & Grafana Alloy — métriques & centralisation de logs"
 icon: "chart-line"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
+app_version: "v13.1.3"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";

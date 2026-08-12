@@ -1,8 +1,9 @@
 ---
-title: "IMS-PBS (LXC 103)"
-description: "Proxmox Backup Server — sauvegarde des VM/LXC applicatifs"
-icon: "shield-check"
+title: "IMS-PBS (LXC 103 — Proxmox Backup Server)"
+description: "Serveur de sauvegarde dédupliquée et chiffrée de tout le homelab"
+icon: "shield-halved"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
 ---
 
 import { ips } from "/snippets/variables.mdx";

@@ -1,8 +1,10 @@
 ---
-title: "Headscale + Headplane"
-description: "Control plane Tailscale self-hosted, avec interface d'administration"
+title: "Headscale & Headplane"
+description: "Serveur VPN Tailscale self-hosted et son interface Web d'administration"
 icon: "network-wired"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
+app_version: "v0.24.2 / v0.4.0"
 ---
 
 import TailscaleTable from "/snippets/tailscale-table.mdx";

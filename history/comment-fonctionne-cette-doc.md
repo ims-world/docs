@@ -57,6 +57,19 @@ Toute nouvelle fiche applicative ajoutée dans le dossier `services/` **DOIT imp
 - Chaque problème complexe résolu doit être consigné dans [Dépannage courant](/procedures/depannage-courant) avec son symptôme, sa cause exacte et sa résolution éprouvée.
 - Toute évolution majeure d'architecture est consignée dans la [Chronologie du projet](/history/chronologie).
 
-### 4. Stratégie de Versionnement de la Documentation (Git & Mintlify)
-- **Version Actuelle (`v1.0`)** : La branche `main` héberge la documentation de référence officielle v1.0 (cutover réussi sur Proxmox MS-01, Coolify, Tailscale et Labrax 10").
-- **Évolutions Futures (`v1.2`, `v2.0`)** : Lors d'évolutions d'infrastructure majeures (ex: cluster HA multi-nœuds, migration SAN 10G), créer une branche Git dédiée `v1.2` ou `v2.0` (ou un tag Release) liée au déploiement Mintlify pour maintenir les versions de doc en parallèle.
+### 4. Definition of Done (DoD) IMS-WORLD
+<Warning>
+**Règle d'or de gouvernance** : Aucune modification de conteneur, de sous-domaine, de volume NFS ou de règle de pare-feu n'est considérée comme terminée tant que la documentation n'est pas mise à jour.
+</Warning>
+
+Une Pull Request / un commit est valide uniquement si la checklist suivante est complétée :
+- [ ] La **Fiche Service** (`services/*.md`) ou **Infra** est à jour (avec `last_reviewed` et `app_version`).
+- [ ] L'UUID et le chemin sur la VM sont inscrits dans [vm-coolify.md](/infrastructure/vm-coolify).
+- [ ] La zone de confiance est déclarée dans [matrice-securite-exposition.md](/reseau/matrice-securite-exposition).
+- [ ] Les commandes CLI sont validées selon le principe **Command-Paste Safety** (100% exécutables par simple copier-coller).
+- [ ] La commande `mintlify broken-links` s'exécute avec **0 lien mort**.
+
+### 5. Stratégie de Versionnement & Fraîcheur (`last_reviewed`)
+- **Frontmatter YAML obligatoire** : Chaque fiche service ou hôte possède un paramètre `last_reviewed` (date ISO YYYY-MM-DD) et `app_version` (tag d'image Docker figé).
+- **Revue trimestrielle** : Toute fiche dont la date `last_reviewed` dépasse 6 mois doit faire l'objet d'un audit de conformité avec les conteneurs réellement en cours d'exécution sur le serveur MS-01.
+

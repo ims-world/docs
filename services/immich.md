@@ -3,6 +3,8 @@ title: "Immich"
 description: "Médiathèque photo & vidéo self-hosted avec IA (reconnaissance faciale & recherche CLIP)"
 icon: "images"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
+app_version: "v3.1.0"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";

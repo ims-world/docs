@@ -1,8 +1,9 @@
 ---
 title: "IMS-NAS (LXC 100)"
-description: "Serveur de stockage — NFS + SMB, MergerFS, HDD 3To"
-icon: "box"
+description: "Serveur de stockage central — NFS v4, ZFS Passthrough & SMB"
+icon: "hard-drive"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
 ---
 
 import { ips, hardware } from "/snippets/variables.mdx";

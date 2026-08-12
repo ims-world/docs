@@ -132,14 +132,41 @@
         ]
       },
       {
+        "tab": "ADR & Décisions",
+        "groups": [
+          {
+            "group": "Architectural Decision Records",
+            "icon": "file-code",
+            "pages": [
+              "history/adr/adr-001-stack-monitoring-lgtm",
+              "history/adr/adr-002-pattern-forward-auth-authentik",
+              "history/adr/adr-003-partitionnement-stockage-nfs",
+              "history/adr/adr-004-isolation-reseau-trois-zones"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Glossaire",
+        "groups": [
+          {
+            "group": "Référentiel & Termes",
+            "icon": "book",
+            "pages": [
+              "history/glossaire"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Historique",
         "groups": [
           {
-            "group": "Traçabilité",
+            "group": "Traçabilité & Gouvernance",
             "icon": "clock-rotate-left",
             "pages": [
               "history/chronologie",
-              "history/glossaire"
+              "history/comment-fonctionne-cette-doc"
             ]
           }
         ]

@@ -3,6 +3,8 @@ title: "Uptime Kuma"
 description: "Statuspage et monitoring actif — pings HTTP/TCP, alerting Ntfy"
 icon: "heart-pulse"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
+app_version: "v2.5.0"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";

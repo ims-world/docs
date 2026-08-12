@@ -3,6 +3,8 @@ title: "IT-Tools"
 description: "Boîte à outils développeur & IT en ligne"
 icon: "toolbox"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
+app_version: "latest"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";

@@ -3,6 +3,8 @@ title: "Authentik"
 description: "SSO / OIDC — provider d'identité central"
 icon: "key"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
+app_version: "2024.12.3"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";

@@ -1,8 +1,10 @@
 ---
 title: "Vaultwarden"
-description: "Gestionnaire de mots de passe (implémentation Bitwarden compatible)"
+description: "Coffre-fort de mots de passe centralisé"
 icon: "shield-halved"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
+app_version: "1.32.7"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";

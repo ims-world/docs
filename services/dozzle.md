@@ -3,6 +3,8 @@ title: "Dozzle — Logs Docker en Direct"
 description: "Visualisation live des logs de tous les containers Docker, protégée par Authentik"
 icon: "list"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
+app_version: "v10.6.15"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";

@@ -1,8 +1,10 @@
 ---
-title: "HomeFlix"
-description: "Stack médias — Jellyfin, Sonarr, Radarr, Prowlarr, qBittorrent, Gluetun"
-icon: "clapperboard"
+title: "HomeFlix (Jellyfin Stack)"
+description: "Stack média complète (Jellyfin, Sonarr, Radarr, Prowlarr, qBittorrent, Gluetun)"
+icon: "film"
 iconType: "duotone"
+last_reviewed: "2026-08-12"
+app_version: "v10.9.11"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
