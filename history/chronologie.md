@@ -3,6 +3,17 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 13/08/2026 — Stirling PDF, boîte à outils PDF self-hosted
+
+### 🆕 Nouveautés
+
+- **Stirling PDF en production** — Une boîte à outils PDF complète est en ligne sur `pdf.ims-world.fr` pour la fusion, la découpe, la conversion et l'édition de documents PDF, avec OCR intégré via Tesseract v5. Le service est *stateless* : aucun document utilisateur n'est conservé après traitement. Voir [Stirling PDF](/services/stirling-pdf).
+- **SSO Authentik sur Stirling PDF** — L'accès à `pdf.ims-world.fr` passe par le SSO central `auth.ims-world.fr`. L'authentification native de Stirling PDF est désactivée (`DOCKER_ENABLE_SECURITY=false`) pour éviter une double mire de connexion. Voir [Sécurité & Authentification](/services/stirling-pdf#sécurité--authentification).
+
+### 🔧 Améliorations
+
+- **Forward-Auth Authentik étendu à Stirling PDF** — L'Outpost Proxy Authentik (`ak-outpost-ims-outpost:9000`) s'intercale via le middleware Traefik en amont de Stirling PDF, qui n'a pas d'authentification native activée. Toute requête vers `pdf.ims-world.fr` exige une session Authentik valide avant d'atteindre l'interface. Voir [Outpost Proxy & Forward-Auth Traefik](/services/authentik#outpost-proxy--forward-auth-traefik).
+
 ## Semaine du 11/08/2026 — Statuspage Uptime Kuma & boîte à outils IT-Tools
 
 ### 🆕 Nouveautés
