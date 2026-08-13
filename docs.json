@@ -108,7 +108,8 @@
               "services/dozzle",
               "services/immich",
               "services/uptime-kuma",
-              "services/it-tools"
+              "services/it-tools",
+              "services/stirling-pdf"
             ]
           }
         ]

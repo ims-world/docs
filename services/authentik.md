@@ -86,7 +86,7 @@ sequenceDiagram
 Authentik supporte **deux modes d'intégration** selon les capacités des applications hébergées :
 
 1. **OIDC Natif (OpenID Connect / OAuth2)** : L'application gère son propre flux d'authentification et dialogue directement avec Authentik (ex. Grafana, Vaultwarden, Headplane).
-2. **Proxy Outpost (Forward-Auth)** : Pour les applications web dépourvues de système d'authentification natif (ex. [Dozzle](/services/dozzle) sur `logs.ims-world.fr`, [Uptime Kuma](/services/uptime-kuma) sur `status.ims-world.fr` et [IT-Tools](/services/it-tools) sur `tools.ims-world.fr`), l'Outpost embarqué Authentik (`ak-outpost-ims-outpost:9000`) s'intercale en amont via le middleware Traefik `forwardAuth`.
+2. **Proxy Outpost (Forward-Auth)** : Pour les applications web dépourvues de système d'authentification natif (ex. [Dozzle](/services/dozzle) sur `logs.ims-world.fr`, [Uptime Kuma](/services/uptime-kuma) sur `status.ims-world.fr`, [IT-Tools](/services/it-tools) sur `tools.ims-world.fr` et [Stirling PDF](/services/stirling-pdf) sur `pdf.ims-world.fr`), l'Outpost embarqué Authentik (`ak-outpost-ims-outpost:9000`) s'intercale en amont via le middleware Traefik `forwardAuth`.
 
 ```mermaid
 sequenceDiagram

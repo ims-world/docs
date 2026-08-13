@@ -121,6 +121,11 @@ graph TB
         **Auth** : Authentik Forward-Auth Outpost Traefik
         **Protection** : Session SSO obligatoire en amont du proxy
       </Card>
+      <Card title="Stirling PDF" icon="file-pdf" href="/services/stirling-pdf">
+        **Domaine** : `pdf.ims-world.fr`
+        **Auth** : Authentik Forward-Auth Outpost Traefik
+        **Protection** : Session SSO obligatoire (`SECURITY=false` natif)
+      </Card>
     </CardGroup>
   </Tab>
   <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">
