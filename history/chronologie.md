@@ -3,6 +3,18 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 14/08/2026 — Forgejo, forge Git self-hosted & miroir GitHub
+
+### 🆕 Nouveautés
+
+- **Forgejo en production** — Une forge Git self-hosted est en ligne sur `forge.ims-world.fr` pour héberger dépôts, issues et Pull Requests, avec miroir de sauvegarde automatique de dépôts GitHub (`sentryx`, `FailyBanDiscordBot`, `my_printf`, `MonitoringServer`, `Intra-IMS`, `default-ansible`). GitHub reste la plateforme principale de développement, Forgejo joue le rôle de miroir de sécurité secondaire. Voir [Forgejo](/services/forgejo).
+- **Git SSH accessible depuis n'importe où** — Le trafic Git SSH sort par un port dédié `2222` exposé en NAT direct sur la Bbox (`git clone ssh://git@forge.ims-world.fr:2222/...`), sans VPN obligatoire. Le port SSH système du homelab reste isolé sur `4242`. Voir [ADR-006 — Exposition du port SSH Forgejo](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
+- **SSO Authentik OIDC natif sur Forgejo** — La connexion à `forge.ims-world.fr` passe directement par le SSO central `auth.ims-world.fr` en OIDC natif. Les inscriptions publiques directes sont fermées (`DISABLE_REGISTRATION=true`) : l'accès passe par Authentik ou par un compte local provisionné. Voir [Authentification & SSO OIDC](/services/forgejo#1-authentification--sso-oidc).
+
+### 🔧 Améliorations
+
+- **Relais mail Forgejo via Resend** — Les notifications transactionnelles de Forgejo (invitations, alertes de dépôt) partent via le relais SMTP Resend (`forgejo@ims-world.fr`), aligné sur le reste des services du homelab. Voir [Forgejo — Fiche Service](/services/forgejo#fiche-service).
+
 ## Semaine du 14/08/2026 — Zipline, CPU host VM Coolify & Matrice RBAC Authentik
 
 ### 🆕 Nouveautés
