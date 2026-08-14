@@ -131,6 +131,11 @@ graph TB
         **Auth** : SSO Authentik OIDC Natif
         **Protection** : Partage de fichiers & ShareX, Postgres 16
       </Card>
+      <Card title="Forgejo" icon="code-branch" href="/services/forgejo">
+        **Domaine / SSH** : `forge.ims-world.fr` (Port 2222)
+        **Auth** : SSO Authentik OIDC Natif
+        **Protection** : TLS Traefik (Web) & Clés SSH (Port 2222 NAT)
+      </Card>
     </CardGroup>
   </Tab>
   <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">

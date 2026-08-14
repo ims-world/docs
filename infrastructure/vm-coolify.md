@@ -92,6 +92,7 @@ graph TD
 | **IT-Tools** (Boîte à outils développeur) | `yefujwl3pxvum45edpsbsru7` | `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` | <Badge color="green">🟢 Production</Badge> |
 | **Stirling PDF** (Traitement & OCR PDF) | `p6lm9p4zf1caqruekeuocnje` | `/data/coolify/services/p6lm9p4zf1caqruekeuocnje/` | <Badge color="green">🟢 Production</Badge> |
 | **Zipline** (Partage Fichiers & ShareX) | `kbcknnnkswmcnlgmupxoyheh` | `/data/coolify/services/kbcknnnkswmcnlgmupxoyheh/` | <Badge color="green">🟢 Production</Badge> |
+| **Forgejo** (Forge Git & Miroir GitHub) | `culcigf0vwg0fbdvegbkzoan` | `/data/coolify/services/culcigf0vwg0fbdvegbkzoan/` | <Badge color="green">🟢 Production</Badge> |
 
 ## Stockage NFS
 

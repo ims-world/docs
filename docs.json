@@ -110,7 +110,8 @@
               "services/uptime-kuma",
               "services/it-tools",
               "services/stirling-pdf",
-              "services/zipline"
+              "services/zipline",
+              "services/forgejo"
             ]
           }
         ]
@@ -144,7 +145,8 @@
               "history/adr/adr-002-pattern-forward-auth-authentik",
               "history/adr/adr-003-partitionnement-stockage-nfs",
               "history/adr/adr-004-isolation-reseau-trois-zones",
-              "history/adr/adr-005-cpu-vm-coolify-mode-host"
+              "history/adr/adr-005-cpu-vm-coolify-mode-host",
+              "history/adr/adr-006-exposition-port-ssh-forgejo-bbox"
             ]
           }
         ]

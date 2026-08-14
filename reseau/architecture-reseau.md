@@ -19,6 +19,7 @@ graph TB
     subgraph BBOX ["📡 Bbox / Routeur WAN (IP Publique)"]
         NAT80["NAT Port 80"]
         NAT443["NAT Port 443"]
+        NAT2222["NAT Port 2222 (Git SSH)"]
     end
 
     subgraph PROXMOX_NET ["🖥️ Hyperviseur Proxmox MS-01 (192.168.1.41)"]
@@ -104,6 +105,7 @@ graph TB
 |---|---|---|---|
 | `Coolify_HTTP` | 80 | 80 | VM Coolify (`{ips.coolifyLan}`) |
 | `Coolify_HTTPS` | 443 | 443 | VM Coolify (`{ips.coolifyLan}`) |
+| `Forgejo_SSH` | 2222 | 2222 | VM Coolify (`{ips.coolifyLan}`) |
 
 ## DNS Public Wildcard (OVH)
 
