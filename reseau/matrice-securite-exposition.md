@@ -136,6 +136,11 @@ graph TB
         **Auth** : SSO Authentik OIDC Natif
         **Protection** : TLS Traefik (Web) & Clés SSH (Port 2222 NAT)
       </Card>
+      <Card title="Patrimo" icon="chart-pie" href="/services/patrimo">
+        **Domaine** : `patrimo.ims-world.fr`
+        **Auth** : Compte applicatif local
+        **Protection** : Application Git Coolify (Auto-Build Node.js)
+      </Card>
     </CardGroup>
   </Tab>
   <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">

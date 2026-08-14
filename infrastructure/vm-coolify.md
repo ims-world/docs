@@ -93,6 +93,7 @@ graph TD
 | **Stirling PDF** (Traitement & OCR PDF) | `p6lm9p4zf1caqruekeuocnje` | `/data/coolify/services/p6lm9p4zf1caqruekeuocnje/` | <Badge color="green">🟢 Production</Badge> |
 | **Zipline** (Partage Fichiers & ShareX) | `kbcknnnkswmcnlgmupxoyheh` | `/data/coolify/services/kbcknnnkswmcnlgmupxoyheh/` | <Badge color="green">🟢 Production</Badge> |
 | **Forgejo** (Forge Git & Miroir GitHub) | `culcigf0vwg0fbdvegbkzoan` | `/data/coolify/services/culcigf0vwg0fbdvegbkzoan/` | <Badge color="green">🟢 Production</Badge> |
+| **Patrimo** (App Node.js — Git Build) | *Application Git* | `/var/lib/docker/volumes/...` (Volume nommé) | <Badge color="green">🟢 Production</Badge> |
 
 ## Stockage NFS
 

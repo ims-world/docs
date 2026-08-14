@@ -111,7 +111,8 @@
               "services/it-tools",
               "services/stirling-pdf",
               "services/zipline",
-              "services/forgejo"
+              "services/forgejo",
+              "services/patrimo"
             ]
           }
         ]
