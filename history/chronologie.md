@@ -3,6 +3,17 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 14/08/2026 — Patrimo, déploiement continu depuis GitHub
+
+### 🆕 Nouveautés
+
+- **Patrimo en production** — Une application web personnelle Node.js + PostgreSQL est en ligne sur `patrimo.ims-world.fr`, exposée en HTTPS via Traefik (Zone 1 Public WAN). Voir [Patrimo](/services/patrimo).
+- **Déploiement continu via la GitHub App Coolify** — Patrimo est configuré comme *Application Coolify* (Git Integration Build Strategy), pas comme *Service Coolify* : chaque push sur la branche principale du dépôt GitHub privé déclenche un webhook et un build Docker Compose automatique sur la VM Coolify (VM 104), sans intervention manuelle. Voir [Fiche Service](/services/patrimo#fiche-service).
+
+### 🔧 Améliorations
+
+- **Politique de sauvegarde documentée pour les volumes nommés Docker** — La base PostgreSQL de Patrimo utilise un volume Docker nommé (`/var/lib/docker/volumes/...`) au lieu d'un bind-mount sous `/data/coolify/services/`. Les données étant non-critiques à ce stade, ce volume est explicitement hors périmètre de la sauvegarde Proxmox Backup Server ; une migration vers un bind-mount ou un dump automatisé est prévue si le projet devient critique. Voir [Stockage & Politique de Sauvegarde](/services/patrimo#stockage--politique-de-sauvegarde).
+
 ## Semaine du 14/08/2026 — Forgejo, forge Git self-hosted & miroir GitHub
 
 ### 🆕 Nouveautés
