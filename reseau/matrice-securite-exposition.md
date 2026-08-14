@@ -126,6 +126,11 @@ graph TB
         **Auth** : Authentik Forward-Auth Outpost Traefik
         **Protection** : Session SSO obligatoire (`SECURITY=false` natif)
       </Card>
+      <Card title="Zipline" icon="share-nodes" href="/services/zipline">
+        **Domaine** : `share.ims-world.fr`
+        **Auth** : SSO Authentik OIDC Natif
+        **Protection** : Partage de fichiers & ShareX, Postgres 16
+      </Card>
     </CardGroup>
   </Tab>
   <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">
@@ -173,6 +178,48 @@ graph TB
 <Warning>
 **Protection Iptables / Docker Bypass** : Docker contourne par défaut les règles UFW/iptables standards. La chaîne `DOCKER-USER` est configurée pour forcer le respect des restrictions IP.
 </Warning>
+
+---
+
+## 🛡️ Matrice des Rôles & Droits d'Accès (RBAC Authentik)
+
+<Info>
+Authentik assure la gestion centralisée des identités (IAM) et du contrôle d'accès basé sur les rôles (**RBAC**). La table ci-dessous définit le périmètre d'accès applicatif exact pour chaque groupe d'utilisateurs.
+</Info>
+
+### 1. Vue d'Ensemble des Groupes Authentik
+
+| Groupe Authentik | Super-Utilisateur ? | Description & Rôle |
+|---|:---:|---|
+| **`authentik Admins`** | `Oui` (🟢) | Administrateurs globaux de l'infrastructure homelab et de l'orchestration |
+| **`admins`** | `Oui` (🟢) | Administrateurs de la plateforme IAM Authentik et des politiques de sécurité |
+| **`membres`** | `Non` (🔴) | Utilisateurs principaux certifiés du homelab (accès applicatif complet) |
+| **`invites`** | `Non` (🔴) | Utilisateurs invités / restreints (accès limité aux médias et outils partagés) |
+| **`authentik Read-only`** | `Non` (🔴) | Profil de consultation et d'audit en lecture seule (sans droits de modification) |
+
+### 2. Matrice Croisée d'Accès aux Applications
+
+| Application / Service | Mode d'Auth | `authentik Admins` / `admins` | `membres` | `invites` |
+|---|---|:---:|:---:|:---:|
+| **Authentik Admin** | SSO Direct | ✅ Admin | ❌ | ❌ |
+| **Proxmox PVE / PBS** | PVE PAM / API | ✅ Admin | ❌ | ❌ |
+| **Coolify Orchestrator** | SSO / Local | ✅ Admin | ❌ | ❌ |
+| **Headplane Admin** | OIDC Natif + Tailnet | ✅ Admin | ❌ | ❌ |
+| **Stack LGTM (Grafana)** | OIDC Natif + Tailnet | ✅ Admin | ❌ | ❌ |
+| **Dozzle (Logs Docker)** | Forward-Auth Outpost | ✅ Admin | ❌ | ❌ |
+| **Uptime Kuma** | Forward-Auth Outpost | ✅ Admin | ❌ | ❌ |
+| **Ntfy Server** | Token / Basic | ✅ Admin | ❌ | ❌ |
+| **Vaultwarden** | OIDC Natif | ✅ Full | ✅ Accès | ❌ |
+| **Immich (Photos IA)** | OIDC Natif | ✅ Full | ✅ Accès | ❌ |
+| **Zipline (ShareX)** | OIDC Natif | ✅ Full | ✅ Accès | ❌ |
+| **PhotoPrism** | OIDC / Basic | ✅ Full | ✅ Accès | ❌ |
+| **Patrimo** | OIDC / Local | ✅ Full | ✅ Accès | ❌ |
+| **Forgejo (Git)** | OIDC Natif | ✅ Full | ✅ Accès | ❌ |
+| **HomeFlix (Jellyfin)** | SSO OIDC / Direct | ✅ Full | ✅ Accès | ✅ Accès |
+| **Vidéoclub (Jellyseerr)** | OIDC Natif | ✅ Full | ✅ Accès | ✅ Accès |
+| **IT-Tools** | Forward-Auth Outpost | ✅ Full | ✅ Accès | ✅ Accès |
+| **Stirling PDF** | Forward-Auth Outpost | ✅ Full | ✅ Accès | ✅ Accès |
+
 
 <Tip>
 Pour vérifier à tout moment qu'un service restreint n'est pas accessible depuis l'extérieur, exécuter un test d'accès WAN :

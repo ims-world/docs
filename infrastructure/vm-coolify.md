@@ -23,7 +23,7 @@ Héberge Coolify et l'ensemble de la stack applicative (Authentik, Vaultwarden, 
 |---|---|
 | **VMID** | 104 |
 | **OS** | Ubuntu 24.04 LTS (clonée depuis template `9000`) |
-| **CPU / RAM** | 6 cores / 18 Go RAM |
+| **CPU / RAM** | 6 cores (mode CPU `host` — `x86-64-v2`) / 18 Go RAM |
 | **Disque** | 128 Go NVMe |
 | **Réseau** | `vmbr0` (192.168.1.52/24) + `vmbr1` (10.10.10.2/24) + client Tailscale dédié |
 | **Tailscale** | `100.64.0.4`, hostname `ims-pve-104-coolify` |
@@ -91,6 +91,7 @@ graph TD
 | **Uptime Kuma** (Monitoring Actif & Status) | `il53bmpdybmss5q14sfy0umm` | `/data/coolify/services/il53bmpdybmss5q14sfy0umm/` | <Badge color="green">🟢 Production</Badge> |
 | **IT-Tools** (Boîte à outils développeur) | `yefujwl3pxvum45edpsbsru7` | `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` | <Badge color="green">🟢 Production</Badge> |
 | **Stirling PDF** (Traitement & OCR PDF) | `p6lm9p4zf1caqruekeuocnje` | `/data/coolify/services/p6lm9p4zf1caqruekeuocnje/` | <Badge color="green">🟢 Production</Badge> |
+| **Zipline** (Partage Fichiers & ShareX) | `kbcknnnkswmcnlgmupxoyheh` | `/data/coolify/services/kbcknnnkswmcnlgmupxoyheh/` | <Badge color="green">🟢 Production</Badge> |
 
 ## Stockage NFS
 

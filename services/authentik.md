@@ -72,12 +72,17 @@ sequenceDiagram
 
 ## Composants & Fonctionnement (Groupes & Rôles RBAC)
 
-| Groupe | Privilèges Superuser | Rôle & Portée d'Accès |
-|---|---|---|
-| `admins` | ✅ `is_superuser` | Administrateurs système — contournement automatique de toutes les règles |
-| `membres` | ❌ Utilisateur standard | Famille & amis — accès aux applications personnelles (Vaultwarden, HomeFlix, etc.) |
-| `invites` | ❌ Accès restreint | Accès limité aux outils de divertissement |
-| `authentik Admins` | ✅ Système | Groupe système interne (ne pas modifier) |
+<Info>
+ Authentik assure la gouvernance IAM et le contrôle d'accès basé sur les rôles (**RBAC**). La répartition exacte des 5 groupes (`authentik Admins`, `admins`, `membres`, `invites`, `authentik Read-only`) et la matrice croisée d'accès applicatif sont détaillées dans la [Matrice des Rôles & Droits d'Accès (RBAC)](/reseau/matrice-securite-exposition#matrice-des-rles--droits-daccs-rbac-authentik).
+</Info>
+
+| Groupe Authentik | Super-Utilisateur ? | Périmètre d'Accès Résumé |
+|---|:---:|---|
+| **`authentik Admins`** | `Oui` (🟢) | Administration globale du Homelab, Coolify, Proxmox, Traefik, Monitoring |
+| **`admins`** | `Oui` (🟢) | Administration de la plateforme IAM Authentik et des politiques de sécurité |
+| **`membres`** | `Non` (🔴) | Accès complet aux apps (Vaultwarden, Immich, Zipline, HomeFlix, IT-Tools, etc.) |
+| **`invites`** | `Non` (🔴) | Accès restreint (HomeFlix Jellyfin, Vidéoclub JellySeerr, IT-Tools, Stirling PDF) |
+| **`authentik Read-only`** | `Non` (🔴) | Audit et consultation des métriques en lecture seule |
 
 ---
 
@@ -85,7 +90,7 @@ sequenceDiagram
 
 Authentik supporte **deux modes d'intégration** selon les capacités des applications hébergées :
 
-1. **OIDC Natif (OpenID Connect / OAuth2)** : L'application gère son propre flux d'authentification et dialogue directement avec Authentik (ex. Grafana, Vaultwarden, Headplane).
+1. **OIDC Natif (OpenID Connect / OAuth2)** : L'application gère son propre flux d'authentification et dialogue directement avec Authentik (ex. [Grafana](/services/monitoring), [Vaultwarden](/services/vaultwarden), [Headplane](/services/headscale-headplane), [Zipline](/services/zipline)).
 2. **Proxy Outpost (Forward-Auth)** : Pour les applications web dépourvues de système d'authentification natif (ex. [Dozzle](/services/dozzle) sur `logs.ims-world.fr`, [Uptime Kuma](/services/uptime-kuma) sur `status.ims-world.fr`, [IT-Tools](/services/it-tools) sur `tools.ims-world.fr` et [Stirling PDF](/services/stirling-pdf) sur `pdf.ims-world.fr`), l'Outpost embarqué Authentik (`ak-outpost-ims-outpost:9000`) s'intercale en amont via le middleware Traefik `forwardAuth`.
 
 ```mermaid

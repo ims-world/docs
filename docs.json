@@ -109,7 +109,8 @@
               "services/immich",
               "services/uptime-kuma",
               "services/it-tools",
-              "services/stirling-pdf"
+              "services/stirling-pdf",
+              "services/zipline"
             ]
           }
         ]
@@ -142,7 +143,8 @@
               "history/adr/adr-001-stack-monitoring-lgtm",
               "history/adr/adr-002-pattern-forward-auth-authentik",
               "history/adr/adr-003-partitionnement-stockage-nfs",
-              "history/adr/adr-004-isolation-reseau-trois-zones"
+              "history/adr/adr-004-isolation-reseau-trois-zones",
+              "history/adr/adr-005-cpu-vm-coolify-mode-host"
             ]
           }
         ]
