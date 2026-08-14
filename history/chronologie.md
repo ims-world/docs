@@ -3,6 +3,18 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 14/08/2026 — Zipline, CPU host VM Coolify & Matrice RBAC Authentik
+
+### 🆕 Nouveautés
+
+- **Zipline en production** — Une plateforme de partage de fichiers, d'hébergement de captures d'écran (compatible ShareX) et de raccourcissement de liens est en ligne sur `share.ims-world.fr`. Les téléversements automatisés depuis un poste de travail passent par l'API Zipline avec jeton d'accès. Voir [Zipline](/services/zipline).
+- **SSO Authentik OIDC natif sur Zipline** — La connexion à `share.ims-world.fr` passe directement par le SSO central `auth.ims-world.fr` via OIDC natif, sans middleware Forward-Auth. Voir [Sécurité & Authentification](/services/zipline#sécurité--authentification).
+
+### 🔧 Améliorations
+
+- **Matrice des rôles & droits d'accès (RBAC Authentik)** — Une matrice croisée documente désormais le périmètre d'accès applicatif des 5 groupes Authentik (`authentik Admins`, `admins`, `membres`, `invites`, `authentik Read-only`) pour chaque service exposé du homelab. Concrètement, on sait au premier coup d'œil qui peut atteindre quoi. Voir [Matrice des Rôles & Droits d'Accès (RBAC Authentik)](/reseau/matrice-securite-exposition#matrice-des-rles--droits-daccs-rbac-authentik).
+- **VM Coolify en CPU mode `host` (x86-64-v2)** — Le CPU physique Intel i5-12600H de l'hôte MS-01 est désormais exposé intégralement à la VM Coolify (VMID 104) à la place du profil générique `kvm64`. Les binaires natifs Node.js qui exigent les instructions `x86-64-v2` (comme `sharp` pour l'optimisation d'images) démarrent sans contournement, et les performances vectorielles sont au maximum. Voir [ADR-005 — CPU VM Coolify en mode host](/history/adr/adr-005-cpu-vm-coolify-mode-host).
+
 ## Semaine du 13/08/2026 — Stirling PDF, boîte à outils PDF self-hosted
 
 ### 🆕 Nouveautés
