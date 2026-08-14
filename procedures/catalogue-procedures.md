@@ -87,3 +87,22 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
     Détecter les vrais doublons de fichiers sur le NAS NFS et valider l'occupation disque réelle avec `df -h`.
   </Card>
 </CardGroup>
+
+---
+
+## 🛠️ 6. Outillages, Partage & Développement
+
+<CardGroup cols={2}>
+  <Card title="Miroirs de Sauvegarde GitHub (Forgejo)" icon="code-branch" href="/services/forgejo#2-depots-miroirs-de-sauvegarde-pull-mirrors">
+    Procédure de renouvellement des jetons d'accès PAT GitHub dans `Settings → Mirror Settings` pour réactiver la synchro des dépôts.
+  </Card>
+  <Card title="Partage de Fichiers & ShareX (Zipline)" icon="share-nodes" href="/services/zipline#securite--authentification">
+    Configuration des jetons d'accès API Zipline pour les téléversements automatisés depuis les clients lourds.
+  </Card>
+  <Card title="Déploiement Continu Git (Patrimo)" icon="chart-pie" href="/services/patrimo#fiche-service">
+    Fonctionnement du pipeline CI/CD Webhook Coolify App et gestion des volumes nommés Docker.
+  </Card>
+  <Card title="Traitement PDF & Sécurité (Stirling PDF)" icon="file-pdf" href="/services/stirling-pdf#securite--authentification">
+    Gestion du mode stateless et du contrôle d'accès Authentik Outpost sans double mire de connexion.
+  </Card>
+</CardGroup>
