@@ -3,27 +3,18 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
-## Semaine du 14/08/2026 — Patrimo, déploiement continu depuis GitHub
+## Semaine du 14/08/2026 — Patrimo, Coolify v4.3.2 & Forgejo
 
 ### 🆕 Nouveautés
 
-- **Patrimo en production** — Une application web personnelle Node.js + PostgreSQL est en ligne sur `patrimo.ims-world.fr`, exposée en HTTPS via Traefik (Zone 1 Public WAN). Voir [Patrimo](/services/patrimo).
-- **Déploiement continu via la GitHub App Coolify** — Patrimo est configuré comme *Application Coolify* (Git Integration Build Strategy), pas comme *Service Coolify* : chaque push sur la branche principale du dépôt GitHub privé déclenche un webhook et un build Docker Compose automatique sur la VM Coolify (VM 104), sans intervention manuelle. Voir [Fiche Service](/services/patrimo#fiche-service).
-
-### 🔧 Améliorations
-
-- **Politique de sauvegarde documentée pour les volumes nommés Docker** — La base PostgreSQL de Patrimo utilise un volume Docker nommé (`/var/lib/docker/volumes/...`) au lieu d'un bind-mount sous `/data/coolify/services/`. Les données étant non-critiques à ce stade, ce volume est explicitement hors périmètre de la sauvegarde Proxmox Backup Server ; une migration vers un bind-mount ou un dump automatisé est prévue si le projet devient critique. Voir [Stockage & Politique de Sauvegarde](/services/patrimo#stockage--politique-de-sauvegarde).
-
-## Semaine du 14/08/2026 — Forgejo, forge Git self-hosted & miroir GitHub
-
-### 🆕 Nouveautés
-
+- **Patrimo en production (Application Coolify Git Build)** — Projet personnel Node.js déployé sur `patrimo.ims-world.fr`. Contrairement aux *Services Coolify* statiques, Patrimo est configuré en **Application Coolify** avec déploiement continu automatisé à chaque push GitHub via la GitHub App Coolify. La base de données PostgreSQL utilise un volume nommé Docker interne (`/var/lib/docker/volumes/`), exclu du périmètre de sauvegarde PBS en raison de son statut non-critique actuel. Voir [Patrimo](/services/patrimo).
 - **Forgejo en production** — Une forge Git self-hosted est en ligne sur `forge.ims-world.fr` pour héberger dépôts, issues et Pull Requests, avec miroir de sauvegarde automatique de dépôts GitHub (`sentryx`, `FailyBanDiscordBot`, `my_printf`, `MonitoringServer`, `Intra-IMS`, `default-ansible`). GitHub reste la plateforme principale de développement, Forgejo joue le rôle de miroir de sécurité secondaire. Voir [Forgejo](/services/forgejo).
 - **Git SSH accessible depuis n'importe où** — Le trafic Git SSH sort par un port dédié `2222` exposé en NAT direct sur la Bbox (`git clone ssh://git@forge.ims-world.fr:2222/...`), sans VPN obligatoire. Le port SSH système du homelab reste isolé sur `4242`. Voir [ADR-006 — Exposition du port SSH Forgejo](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
 - **SSO Authentik OIDC natif sur Forgejo** — La connexion à `forge.ims-world.fr` passe directement par le SSO central `auth.ims-world.fr` en OIDC natif. Les inscriptions publiques directes sont fermées (`DISABLE_REGISTRATION=true`) : l'accès passe par Authentik ou par un compte local provisionné. Voir [Authentification & SSO OIDC](/services/forgejo#1-authentification--sso-oidc).
 
 ### 🔧 Améliorations
 
+- **Mise à niveau de Coolify en v4.3.2** — L'orchestrateur principal hébergé sur la VM 104 a été mis à niveau en version **v4.3.2**, apportant des améliorations de stabilité sur la gestion des Webhooks Git et des builds Compose. Voir [VM IMS-Coolify](/infrastructure/vm-coolify).
 - **Relais mail Forgejo via Resend** — Les notifications transactionnelles de Forgejo (invitations, alertes de dépôt) partent via le relais SMTP Resend (`forgejo@ims-world.fr`), aligné sur le reste des services du homelab. Voir [Forgejo — Fiche Service](/services/forgejo#fiche-service).
 
 ## Semaine du 14/08/2026 — Zipline, CPU host VM Coolify & Matrice RBAC Authentik

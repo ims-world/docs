@@ -3,8 +3,8 @@ title: "VM IMS-Coolify (VM 104)"
 description: "Serveur d'orchestration Docker et Reverse Proxy Traefik de production"
 icon: "box"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
-app_version: "v4.1.2"
+last_reviewed: "2026-08-14"
+app_version: "v4.3.2"
 ---
 
 <Badge color="green">🟢 Production Active (VM 104)</Badge>
