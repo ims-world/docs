@@ -3,31 +3,23 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
-## Semaine du 14/08/2026 — Patrimo, Coolify v4.3.2 & Forgejo
+## Semaine du 14/08/2026 — Forgejo, Patrimo, Zipline & Coolify v4.3.2
 
 ### 🆕 Nouveautés
 
-- **Patrimo en production (Application Coolify Git Build)** — Projet personnel Node.js déployé sur `patrimo.ims-world.fr`. Contrairement aux *Services Coolify* statiques, Patrimo est configuré en **Application Coolify** avec déploiement continu automatisé à chaque push GitHub via la GitHub App Coolify. La base de données PostgreSQL utilise un volume nommé Docker interne (`/var/lib/docker/volumes/`), exclu du périmètre de sauvegarde PBS en raison de son statut non-critique actuel. Voir [Patrimo](/services/patrimo).
 - **Forgejo en production** — Une forge Git self-hosted est en ligne sur `forge.ims-world.fr` pour héberger dépôts, issues et Pull Requests, avec miroir de sauvegarde automatique de dépôts GitHub (`sentryx`, `FailyBanDiscordBot`, `my_printf`, `MonitoringServer`, `Intra-IMS`, `default-ansible`). GitHub reste la plateforme principale de développement, Forgejo joue le rôle de miroir de sécurité secondaire. Voir [Forgejo](/services/forgejo).
 - **Git SSH accessible depuis n'importe où** — Le trafic Git SSH sort par un port dédié `2222` exposé en NAT direct sur la Bbox (`git clone ssh://git@forge.ims-world.fr:2222/...`), sans VPN obligatoire. Le port SSH système du homelab reste isolé sur `4242`. Voir [ADR-006 — Exposition du port SSH Forgejo](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
 - **SSO Authentik OIDC natif sur Forgejo** — La connexion à `forge.ims-world.fr` passe directement par le SSO central `auth.ims-world.fr` en OIDC natif. Les inscriptions publiques directes sont fermées (`DISABLE_REGISTRATION=true`) : l'accès passe par Authentik ou par un compte local provisionné. Voir [Authentification & SSO OIDC](/services/forgejo#1-authentification--sso-oidc).
-
-### 🔧 Améliorations
-
-- **Mise à niveau de Coolify en v4.3.2** — L'orchestrateur principal hébergé sur la VM 104 a été mis à niveau en version **v4.3.2**, apportant des améliorations de stabilité sur la gestion des Webhooks Git et des builds Compose. Voir [VM IMS-Coolify](/infrastructure/vm-coolify).
-- **Relais mail Forgejo via Resend** — Les notifications transactionnelles de Forgejo (invitations, alertes de dépôt) partent via le relais SMTP Resend (`forgejo@ims-world.fr`), aligné sur le reste des services du homelab. Voir [Forgejo — Fiche Service](/services/forgejo#fiche-service).
-
-## Semaine du 14/08/2026 — Zipline, CPU host VM Coolify & Matrice RBAC Authentik
-
-### 🆕 Nouveautés
-
+- **Patrimo en production (Application Coolify Git Build)** — Projet personnel Node.js déployé sur `patrimo.ims-world.fr`. Contrairement aux *Services Coolify* statiques, Patrimo est configuré en **Application Coolify** avec déploiement continu automatisé à chaque push GitHub via la GitHub App Coolify. La base de données PostgreSQL utilise un volume nommé Docker interne (`/var/lib/docker/volumes/`), exclu du périmètre de sauvegarde PBS en raison de son statut non-critique actuel. Voir [Patrimo](/services/patrimo).
 - **Zipline en production** — Une plateforme de partage de fichiers, d'hébergement de captures d'écran (compatible ShareX) et de raccourcissement de liens est en ligne sur `share.ims-world.fr`. Les téléversements automatisés depuis un poste de travail passent par l'API Zipline avec jeton d'accès. Voir [Zipline](/services/zipline).
 - **SSO Authentik OIDC natif sur Zipline** — La connexion à `share.ims-world.fr` passe directement par le SSO central `auth.ims-world.fr` via OIDC natif, sans middleware Forward-Auth. Voir [Sécurité & Authentification](/services/zipline#sécurité--authentification).
 
 ### 🔧 Améliorations
 
-- **Matrice des rôles & droits d'accès (RBAC Authentik)** — Une matrice croisée documente désormais le périmètre d'accès applicatif des 5 groupes Authentik (`authentik Admins`, `admins`, `membres`, `invites`, `authentik Read-only`) pour chaque service exposé du homelab. Concrètement, on sait au premier coup d'œil qui peut atteindre quoi. Voir [Matrice des Rôles & Droits d'Accès (RBAC Authentik)](/reseau/matrice-securite-exposition#matrice-des-rles--droits-daccs-rbac-authentik).
+- **Mise à niveau de Coolify en v4.3.2** — L'orchestrateur principal hébergé sur la VM 104 a été mis à niveau en version **v4.3.2**, apportant des améliorations de stabilité sur la gestion des Webhooks Git et des builds Compose. Voir [VM IMS-Coolify](/infrastructure/vm-coolify).
 - **VM Coolify en CPU mode `host` (x86-64-v2)** — Le CPU physique Intel i5-12600H de l'hôte MS-01 est désormais exposé intégralement à la VM Coolify (VMID 104) à la place du profil générique `kvm64`. Les binaires natifs Node.js qui exigent les instructions `x86-64-v2` (comme `sharp` pour l'optimisation d'images) démarrent sans contournement, et les performances vectorielles sont au maximum. Voir [ADR-005 — CPU VM Coolify en mode host](/history/adr/adr-005-cpu-vm-coolify-mode-host).
+- **Matrice des rôles & droits d'accès (RBAC Authentik)** — Une matrice croisée documente désormais le périmètre d'accès applicatif des 5 groupes Authentik (`authentik Admins`, `admins`, `membres`, `invites`, `authentik Read-only`) pour chaque service exposé du homelab. Concrètement, on sait au premier coup d'œil qui peut atteindre quoi. Voir [Matrice des Rôles & Droits d'Accès (RBAC Authentik)](/reseau/matrice-securite-exposition#matrice-des-rles--droits-daccs-rbac-authentik).
+- **Relais mail Forgejo via Resend** — Les notifications transactionnelles de Forgejo (invitations, alertes de dépôt) partent via le relais SMTP Resend (`forgejo@ims-world.fr`), aligné sur le reste des services du homelab. Voir [Forgejo — Fiche Service](/services/forgejo#fiche-service).
 
 ## Semaine du 13/08/2026 — Stirling PDF, boîte à outils PDF self-hosted
 
