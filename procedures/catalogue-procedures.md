@@ -28,6 +28,9 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
   <Card title="Backup & Restauration Vaultwarden" icon="shield-halved" href="/services/vaultwarden#acces-rapides--administration">
     Procédure d'arrêt à chaud et d'archivage sécurisé des fichiers WAL du coffre-fort SQLite Vaultwarden.
   </Card>
+  <Card title="Politique de Sauvegarde & Tâches Planifiées" icon="shield-check" href="/infrastructure/politique-sauvegardes">
+    Vue d'ensemble de la protection des données, chronologie nocturne, règle d'anti-circularité et backups vzdump local.
+  </Card>
 </CardGroup>
 
 ---

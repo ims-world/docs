@@ -83,7 +83,8 @@
             "pages": [
               "infrastructure/ims-nas",
               "infrastructure/ims-pbs",
-              "infrastructure/vm-coolify"
+              "infrastructure/vm-coolify",
+              "infrastructure/politique-sauvegardes"
             ]
           },
           {

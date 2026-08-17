@@ -15,9 +15,8 @@ Cette page recense l'ensemble des **chantiers techniques restants et tâches d'a
 - **Constat** : Le Raspberry Pi 3B+ est actuellement un afficheur Kiosk passif (voir [Raspberry Pi 3B+](/infrastructure/rpi-monitor)), et non une sonde de métrologie.
 - **Tâche** : Déployer la stack Grafana, Loki et Prometheus avec l'agent **Grafana Alloy** sur chaque hôte (MS-01, VM Coolify, Mac Mini, RPi) pour collecter logs, températures, CPU/RAM et métriques d'usure SMART.
 
-### 2. 💾 Sauvegardes des Conteneurs LXC 100 (NAS) & 103 (PBS)
-- **Constat** : Actuellement, seuls les snapshots de la VM 104 (Coolify) sont sauvegardés par PBS. Le LXC NAS et le LXC PBS constituent deux points de défaillance uniques (SPOF) non sauvegardés (voir [Plan de Reprise PRA](/procedures/plan-reprise-activite-pra)).
-- **Tâche** : Configurer des jobs `vzdump` quotidiens vers le stockage NVMe local du host MS-01 (`/var/lib/vz/dump/`), conformément au principe anti-circularité.
+### 2. 💾 Sauvegardes des Conteneurs LXC 100 (NAS) & 103 (PBS) — 🟢 Effectué
+- **Statut** : Configuré et validé ("Run now" fonctionnels). Jobs `vzdump` planifiés à 03h00 (LXC 103, mode `snapshot`) et 05h00 (LXC 100, mode `stop`) vers le stockage NVMe local (`/var/lib/vz/dump/`), conformément au principe anti-circularité. Voir la [Politique de Sauvegarde](/infrastructure/politique-sauvegardes).
 
 ### 3. 🛡️ Firewall Proxmox 3 Niveaux
 - **Constat** : Le pare-feu natif de Proxmox VE (niveau Nœud → Datacenter → Guest) n'est pas encore activé.

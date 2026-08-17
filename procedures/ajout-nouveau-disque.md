@@ -3,6 +3,12 @@ title: "Ajout d'un nouveau disque"
 description: "Extension MergerFS ou bascule storage-hot — intégration du SSD 4To prévue en Phase 4"
 ---
 
+<Warning>
+⚠️ **PROCÉDURE THÉORIQUE — EN ATTENTE DE TEST & VALIDATION SUR LE TERRAIN**
+
+Cette procédure a été rédigée selon les spécifications d'architecture mais **n'a pas encore fait l'objet d'une exécution réelle** (prévue lors de l'intégration du SSD SATA 4To en Phase 4).
+</Warning>
+
 ## Schéma des Deux Stratégies d'Extension Stockage
 
 ```mermaid

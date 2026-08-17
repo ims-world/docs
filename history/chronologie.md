@@ -15,6 +15,7 @@ description: "Chronologie du projet de migration Mac Mini → MS-01"
 
 - **Mise à niveau de Coolify en v4.3.6 & Workaround IHM** — Montée en version de l'orchestrateur Coolify vers la v4.3.6. Documentation de la procédure de secours `docker restart coolify-proxy` requise pour rétablir l'accès à `coolify.ims-world.fr` en cas de perte de liaison IHM post-update. Voir [VM IMS-Coolify](/infrastructure/vm-coolify#procédure-post-mise-à-jour-coolify-perte-ihm).
 - **Enrichissement de l'ADR-001 (Abandon de Beszel & Dualité LGTM/Dozzle)** — Révision de l'ADR-001 pour officialiser l'abandon définitif de Beszel au profit de la stack unifiée LGTM (Grafana/Loki/Alloy) pour la métrologie et l'alerting, tout en maintenant Dozzle (`logs.ims-world.fr`) pour le live-tailing léger des logs conteneurs en 1 clic. Voir [ADR-001 — Stack Monitoring LGTM & Maintien de Dozzle](/history/adr/adr-001-stack-monitoring-lgtm).
+- **Formalisation de la Politique de Sauvegarde & Tâches Planifiées** — Publication de la page d'infrastructure consolidant la chronologie nocturne (02h-05h), les sauvegardes `vzdump` validées des LXC 100 & 103, les contournements FUSE/MergerFS (`--mode stop`) et les règles d'anti-circularité. Voir [Politique de Sauvegarde](/infrastructure/politique-sauvegardes).
 
 ## 16/08/2026 — Audit Hardlinks HomeFlix, Nettoyage NAS (~330 Go) & ADR-007
 

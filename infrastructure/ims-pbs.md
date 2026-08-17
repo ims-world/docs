@@ -19,7 +19,7 @@ import { ips } from "/snippets/variables.mdx";
 Datastore de sauvegarde déduplicée pour les VM/LXC applicatifs (VM Coolify en premier lieu). Stocke les backups sur le HDD du NAS via NFS.
 
 <Warning>
-**Ne sauvegarde PAS la donnée brute du NAS.** Principe anti-circularité : le NAS et PBS eux-mêmes sont sauvegardés séparément (`vzdump` vers le NVMe local du host), jamais dans le datastore qu'ils hébergent/gèrent.
+**Ne sauvegarde PAS la donnée brute du NAS.** Principe anti-circularité : le NAS et PBS eux-mêmes sont sauvegardés séparément (`vzdump` vers le NVMe local du host), jamais dans le datastore qu'ils hébergent/gèrent. Voir la [Politique de Sauvegarde & Tâches Planifiées](/infrastructure/politique-sauvegardes).
 </Warning>
 
 ## Fiche technique

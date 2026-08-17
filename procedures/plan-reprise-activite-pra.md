@@ -8,13 +8,19 @@ iconType: "duotone"
 import { ips, domains } from "/snippets/variables.mdx";
 
 <Warning>
-**État Réel de la Couverture Sauvegardes (Audit Aout 2026)** :
-- <Badge color="green">🟢 VM 104 (IMS-Coolify)</Badge> : **Sauvegardée & Restaurable** — Backup quotidien automatisé à 02:00 dans PBS via NFSv3 (`vers=3`).
-- <Badge color="red">🔴 LXC 100 (IMS-NAS)</Badge> : **Aucun backup actif** (SPOF) — Reconstruction manuelle obligatoire en cas de sinistre.
-- <Badge color="red">🔴 LXC 103 (IMS-PBS)</Badge> : **Aucun backup actif** (SPOF) — Reconstruction manuelle obligatoire en cas de sinistre.
+⚠️ **PROCÉDURE THÉORIQUE — EN ATTENTE DE TEST & VALIDATION SUR LE TERRAIN**
 
-*Voir la [Roadmap](/procedures/roadmap) pour le chantier prioritaire "Mise en place de sauvegardes vzdump locales pour les LXC 100 et 103".*
+Ce Plan de Reprise d'Activité (PRA) a été conçu et documenté selon les spécifications d'architecture, mais **n'a pas encore fait l'objet d'une simulation réelle de crash et de restauration de bout en bout**.
 </Warning>
+
+<Check>
+**Couverture & Stratégie de Sauvegarde (Mise à jour Août 2026)** :
+- <Badge color="green">🟢 VM 104 (IMS-Coolify)</Badge> : **Sauvegardée & Restaurable** — Backup quotidien automatisé à 02:00 dans PBS via NFSv3 (`pbs-coolify`).
+- <Badge color="green">🟢 LXC 100 (IMS-NAS)</Badge> : **Sauvegardé & Restaurable** — Backup `vzdump` local NVMe quotidien à 05:00 (`--mode stop`).
+- <Badge color="green">🟢 LXC 103 (IMS-PBS)</Badge> : **Sauvegardé & Restaurable** — Backup `vzdump` local NVMe quotidien à 03:00 (`--mode snapshot`).
+
+*Voir la [Politique de Sauvegarde & Tâches Planifiées](/infrastructure/politique-sauvegardes) pour le détail de la chronologie et de l'anti-circularité.*
+</Check>
 
 ## Objectif & Scénarios de Sinistre
 
@@ -90,19 +96,25 @@ sequenceDiagram
     </Check>
   </Step>
 
-  <Step title="Phase 3 — Reconstruction Manuelle des Conteneurs LXC (NAS & PBS)">
-    <Warning>
-      Les conteneurs LXC 100 et LXC 103 n'ayant pas de sauvegarde PBS/vzdump active, leur restauration nécessite une réinstallation à partir des procédures documentées.
-    </Warning>
+  <Step title="Phase 3 — Restauration des Conteneurs LXC 100 (NAS) & 103 (PBS)">
+    <Check>
+      Les conteneurs LXC 100 et 103 disposent de sauvegardes `vzdump` quotidiennes stockées sur le NVMe local de l'hôte (`/var/lib/vz/dump/`). Voir la [Politique de Sauvegarde](/infrastructure/politique-sauvegardes).
+    </Check>
 
-    1. **LXC 100 (IMS-NAS)** :
-       - Créer un LXC Debian 12 Privilégié (2 vCPU / 1024 Mo RAM).
-       - Réinstaller `mergerfs`, `nfs-kernel-server` et `samba`.
-       - Re-créer le passthrough `mp0` du disque physique Seagate 3To dans `/etc/pve/lxc/100.conf`.
-       - Remonter le pool `/mnt/storage` avec l'option `inodecalc=path-hash`. Voir [Fiche IMS-NAS](/infrastructure/ims-nas).
+    ```bash
+    # Restaurer le conteneur LXC 103 (PBS) depuis l'archive vzdump
+    pctrestore 103 /var/lib/vz/dump/vzdump-lxc-103-*.tar.zst --storage local-lvm
 
-    2. **LXC 103 (IMS-PBS)** :
-       - Créer un LXC Debian 12 Privilégié (2 vCPU / 1024 Mo RAM) avec la feature `mount=nfs`.
+    # Restaurer le conteneur LXC 100 (NAS) depuis l'archive vzdump
+    pctrestore 100 /var/lib/vz/dump/vzdump-lxc-100-*.tar.zst --storage local-lvm
+    ```
+
+    1. **Reconnexion du passthrough disque NAS (LXC 100)** :
+       - Re-créer la ligne passthrough `mp0` du disque physique Seagate 3To dans `/etc/pve/lxc/100.conf`.
+       - Démarrer le conteneur et vérifier l'export NFS : `pct start 100`.
+
+    2. **Vérification du Datastore PBS (LXC 103)** :
+       - Démarrer le conteneur et lancer un verifier job : `pct start 103`.
        - Installer Proxmox Backup Server (`proxmox-backup-server`).
        - Remonter le partage NFS `/mnt/storage/backups` en `vers=3`. Voir [Fiche IMS-PBS](/infrastructure/ims-pbs).
   </Step>

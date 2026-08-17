@@ -103,7 +103,7 @@ graph TD
 <Info>
 **Principe d'Architecture** : **Coolify ne gère aucune sauvegarde nativement** (aucun job de backup applicatif automatisé n'est configuré dans l'UI Coolify). La sécurité et l'historisation des données reposent intégralement sur **Proxmox Backup Server (PBS)**, qui effectue un snapshot dédupliqué quotidien à chaud de la **VM 104 (IMS-Coolify)** complète au niveau hyperviseur.
 
-Ce snapshot englobe à la fois le système d'exploitation Ubuntu, l'arborescence `/data/coolify/` (configurations & bind-mounts localisés) et l'intégralité des **volumes Docker nommés** (`/var/lib/docker/volumes/` comme les bases Postgres et MariaDB).
+Ce snapshot englobe à la fois le système d'exploitation Ubuntu, l'arborescence `/data/coolify/` (configurations & bind-mounts localisés) et l'intégralité des **volumes Docker nommés** (`/var/lib/docker/volumes/` comme les bases Postgres et MariaDB). Voir la [Politique de Sauvegarde & Tâches Planifiées](/infrastructure/politique-sauvegardes).
 </Info>
 
 ---
