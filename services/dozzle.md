@@ -71,4 +71,4 @@ Dozzle et la stack Grafana/Loki ne remplissent pas le même rôle, volontairemen
 | **Alerting sur contenu de logs** | ❌ Non | ✅ via règles Grafana |
 | **Corrélation avec métriques (CPU/RAM au moment d'une erreur)** | ❌ Non | ✅ dashboards croisés |
 
-Garder les deux plutôt que de forcer l'un à remplacer l'autre.
+Garder les deux plutôt que de forcer l'un à remplacer l'autre. Pour la décision d'architecture détaillée, voir l'[ADR-001 — Stack Monitoring LGTM & Maintien de Dozzle](/history/adr/adr-001-stack-monitoring-lgtm).

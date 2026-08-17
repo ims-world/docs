@@ -61,6 +61,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 **Grafana 13.1.3 est requis**, pas une version antérieure. La fonctionnalité "Custom Payload" du contact point Webhook (utilisée pour formater les notifications Ntfy) n'existe qu'à partir de **Grafana 12.0** — absente en 11.x. Ne pas downgrade sans vérifier ce point.
 </Warning>
 
+<Info>
+**Historique d'Architecture** : La stack LGTM remplace définitivement Beszel pour l'observabilité globale du homelab tout en conservant Dozzle pour le live-tailing. Voir l'[ADR-001 — Stack Monitoring LGTM](/history/adr/adr-001-stack-monitoring-lgtm).
+</Info>
+
 ---
 
 ## Architecture & Topologie (Push Remote-Write)
