@@ -274,7 +274,24 @@ graph TB
     </Warning>
   </Accordion>
 
-  <Accordion title="Passthrough GPU (Iris Xe)">
-    L'iGPU Intel Iris Xe du MS-01 est attribuée en passthrough à la VM Coolify (VM 104) pour le transcodage matériel QuickSync de Jellyfin. Voir [Host Proxmox](/infrastructure/proxmox-host#gpu-igpu-iris-xe-passthrough-vm-coolify).
+  <Accordion title="Accélération Matérielle GPU (Intel QuickSync QSV — Validé)">
+    L'iGPU Intel Iris Xe du MS-01 est attribuée en passthrough PCIe (`hostpci0`) à la VM Coolify (VM 104).
+
+    **1. Montage du périphérique dans `docker-compose.yml`** :
+    ```yaml
+    services:
+      jellyfin:
+        devices:
+          - /dev/dri:/dev/dri
+    ```
+
+    **2. Configuration dans l'interface Jellyfin (`Dashboard → Playback → Transcoding`)** :
+    - **Hardware acceleration** : `Intel QuickSync (QSV)`
+    - **Device** : `/dev/dri/renderD128`
+    - **Décodage & Encodage** : Cocher H.264 et HEVC.
+
+    <Check>
+    **Validation en Conditions Réelles** : Lors d'un test de lecture avec qualité forcée (transcodage actif), les logs `ffmpeg` confirment le démarrage des encodeurs/décodeurs matériels `hevc_qsv` et `h264_qsv` avec une vitesse de transcodage de **29.7x le temps réel** (charge CPU quasi nulle). Voir l'[ADR-008 — GPU Passthrough](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe) et l'[Hôte Proxmox](/infrastructure/proxmox-host#gpu-igpu-iris-xe--passthrough-vm-coolify).
+    </Check>
   </Accordion>
 </AccordionGroup>

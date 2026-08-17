@@ -140,4 +140,9 @@ smartctl -H /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ
 
 ## GPU (iGPU Iris Xe) — Passthrough VM Coolify
 
-L'iGPU Intel Iris Xe du processeur i5-12600H est attribuée en passthrough PCIe (`hostpci0`) à la VM IMS-Coolify (VM 104) pour assurer le transcodage matériel QuickSync (H.264/HEVC/AV1) du serveur média [HomeFlix](/services/homeflix) (Jellyfin).
+L'iGPU Intel Iris Xe du processeur i5-12600H est attribuée en passthrough PCIe (`hostpci0`) à la VM IMS-Coolify (VM 104). Voir l'[ADR-008 — Passthrough GPU (iGPU Iris Xe)](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe) pour le détail complet de la mise en place (IOMMU, VFIO, chipset q35, drivers).
+
+### Statut de Validation des Services Applicatifs
+- **[HomeFlix / Jellyfin](/services/homeflix#accélération-matérielle-gpu-intel-quicksync-qsv--validé)** : <Badge color="green">🟢 Validé en Production (29.7x)</Badge> — QuickSync QSV opérationnel (`hevc_qsv` / `h264_qsv`), transcodage à 29.7x le temps réel.
+- **[PhotoPrism](/services/photoprism#accélération-gpu-ffmpeg--statut-transcodage-igpu-iris-xe)** : <Badge color="orange">⚠️ Transcodage Vidéo Partiel</Badge> — Variable `PHOTOPRISM_INIT: 'intel tensorflow'` requise pour installer les paquets VA-API/QSV (évite la retombée sur `libx264` CPU).
+- **[Immich](/services/immich#décision-darchitecture--accélération-gpu--openvino-ia--smart-search)** : <Badge color="gray">⚙️ Écarté (Maintien CPU)</Badge> — Support OpenVINO écarté pour éviter la complexité de stack, l'indexation initiale du stock photo (61 880 assets) étant déjà achevée.

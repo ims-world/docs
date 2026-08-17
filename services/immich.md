@@ -172,4 +172,12 @@ graph TB
     **Compatibilité Version Majeure Mobile/Serveur** : Le serveur Immich v3.x impose que l'application mobile (iOS / Android) soit également mise à jour en version **v3.x**. Une application mobile restée en v2.x échouera à se synchroniser avec le serveur.
     </Warning>
   </Accordion>
+
+  <Accordion title="Décision d'Architecture — Accélération GPU & OpenVINO (IA / Smart Search)">
+    <Info>
+    **Support OpenVINO (iGPU Intel)** : Immich propose un support officiel d'OpenVINO pour délester les tâches de Machine Learning (Smart Search + reconnaissance faciale/CLIP) du CPU vers l'iGPU Intel (gain démontré sur une première indexation massive : ~7h → ~55min).
+    
+    **Décision d'Écartement** : L'indexation initiale du stock photo (61 880 assets) étant intégralement achevée et validée, ce gain de vitesse ne s'appliquerait qu'à un futur batch d'importation massif hypothétique. Le surcroît de complexité n'étant pas justifié pour le flux quotidien classique, la décision a été prise de **maintenir l'exécution du conteneur ML sur CPU**.
+    </Info>
+  </Accordion>
 </AccordionGroup>

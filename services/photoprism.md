@@ -157,6 +157,26 @@ L'accès à `studio.ims-world.fr` est sécurisé de manière native par OpenID C
     docker exec -it $(docker ps -qf "name=photoprism_photoprism") photoprism import
     ```
   </Accordion>
+
+  <Accordion title="Accélération GPU FFmpeg & Statut Transcodage (iGPU Iris Xe)">
+    ```yaml
+    services:
+      photoprism:
+        devices:
+          - /dev/dri:/dev/dri
+        environment:
+          PHOTOPRISM_FFMPEG_ENCODER: intel
+          PHOTOPRISM_INIT: 'intel tensorflow'
+    ```
+
+    <Warning>
+    **Piège `PHOTOPRISM_INIT`** : La variable `PHOTOPRISM_INIT` **doit impérativement inclure `intel`** (en plus de `tensorflow`). Sans cela, les paquets système nécessaires à FFmpeg pour piloter le périphérique `/dev/dri` (VA-API / QuickSync) ne sont pas installés dans le conteneur, et PhotoPrism retombe silencieusement sur l'encodeur logiciel `libx264` sans message d'erreur explicite.
+    </Warning>
+
+    <Info>
+    **Retour d'Expérience & Transcodage Vidéo** : Après application de la configuration `intel`, le chargement des vidéos est perçu comme plus fluide. Cependant, aucun flag hardware explicite n'a été observé sur les processus `ffmpeg`. De nombreuses issues GitHub récentes (2025-2026) signalent des échecs récurrents de session MFX/QSV sur les processeurs récents Intel (`Error creating a MFX session`). L'accélération GPU pour le labeling/reconnaissance faciale a également été écartée (fonctionnalité historiquement CPU, délester sur serveur distant étant réservé à la version Pro payante). Voir l'[ADR-008 — GPU Passthrough](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe).
+    </Info>
+  </Accordion>
 </AccordionGroup>
 
 ---
