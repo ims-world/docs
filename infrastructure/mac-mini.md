@@ -3,16 +3,17 @@ title: "Mac Mini 2014 (Hôte Standby)"
 description: "Ancien hôte de production — serveur de secours, agent Tailnet et fallback"
 icon: "apple"
 iconType: "duotone"
+last_reviewed: "2026-08-17"
 ---
 
 import { ips } from "/snippets/variables.mdx";
 
-<Badge color="amber">🟡 Standby Chaud (Machine de Secours)</Badge>
+<Badge color="amber">🟡 Standby Chaud (Déconnecté le 17/08/2026)</Badge>
 
 ## Rôle & Emplacement
 
 <Info>
-Le **Mac Mini 2014** a été l'hôte principal de l'infrastructure. Aujourd'hui, il est conservé en **mode Standby chaud** dans le rack [Labrax](/infrastructure/labrax) pour servir de nœud de secours et de fallback en cas de panne physique de l'hyperviseur principal.
+Le **Mac Mini 2014** a été l'hôte principal de l'infrastructure jusqu'à sa **déconnexion officielle le 17 août 2026**, suite à la migration réussie de la totalité des services (PhotoPrism, Immich, Authentik, etc.) sur le nouveau MS-01. Il est conservé en **mode Standby chaud** dans le rack [Labrax](/infrastructure/labrax) pour servir de nœud de secours et de fallback en cas de panne physique de l'hyperviseur principal.
 </Info>
 
 ## Fiche Technique
@@ -21,7 +22,7 @@ Le **Mac Mini 2014** a été l'hôte principal de l'infrastructure. Aujourd'hui,
 |---|---|
 | **Matériel** | Apple Mac Mini (Late 2014) |
 | **Processeur** | Intel Core i5 Dual-Core |
-| **Stockage** | SSD SATA 500 Go |
+| **Stockage** | SSD SATA 256 Go |
 | **Réseau LAN** | Ethernet Gigabit `192.168.1.x` |
 | **Tailscale IP** | `{ips.macmini}` |
 | **Hostname Tailnet** | `macmini-standby` / `coolify-old.ims-world.fr` |

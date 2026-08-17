@@ -97,7 +97,6 @@ graph TB
 /mnt/disk1        ext4, passthrough mp0 — membre actuel du pool
 /mnt/storage      fuse.mergerfs (pool modulable, category.create=mfs, inodecalc=path-hash)
                   ├── documents/
-                  ├── photos-archives/
                   ├── backups/
                   ├── homeflix/
                   └── photoprism-data/

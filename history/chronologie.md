@@ -21,6 +21,7 @@ Sept nouveaux services en production, le transcodage matériel Jellyfin activé,
 
 ### 🔧 Améliorations
 
+- **Décommissionnement officiel du Mac Mini 2014** — L'ancien serveur principal Mac Mini 2014 a été officiellement déconnecté de la production ce 17/08/2026 suite à la migration réussie de l'ensemble des services applicatifs (PhotoPrism, Immich, Authentik, etc.) sur le nouveau MS-01. Il bascule officiellement en mode Standby Chaud de secours. Voir [Mac Mini 2014](/infrastructure/mac-mini).
 - **Coolify mis à niveau en v4.3.6** — Deux montées de version successives cette semaine (v4.3.2 puis v4.3.6). Une procédure de secours `docker restart coolify-proxy` est désormais documentée pour rétablir l'IHM en cas de perte post-update. Voir [VM IMS-Coolify](/infrastructure/vm-coolify).
 - **Politique de sauvegarde formalisée** — Nouvelle page consolidant la chronologie nocturne, les sauvegardes `vzdump` validées et les contournements FUSE/MergerFS. Voir [Politique de Sauvegarde](/infrastructure/politique-sauvegardes).
 - **~330 Go libérés sur le NAS** — Un audit des orphelins `downloads/` de HomeFlix a permis de porter l'espace disponible de 791 Go à 1.1 To. Voir [Détection & Nettoyage des Orphelins](/services/homeflix#detection--nettoyage-des-orphelins-downloads-audit--script-inodes).
