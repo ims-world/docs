@@ -3,6 +3,14 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## 16/08/2026 — Audit Hardlinks HomeFlix, Nettoyage NAS (~330 Go) & ADR-007
+
+### 🔧 Améliorations & Maintenance
+
+- **Audit & Nettoyage des Orphelins `downloads/`** — Résolution d'un problème d'accumulation de fichiers orphelins dans `downloads/` causé par la suppression de contenus dans Radarr/Sonarr sans suppression du torrent qBittorrent associé. Un script de scan par comparaison d'inodes réels a permis de libérer **~330 Go d'espace disque** (disponibilité portée de 791 Go à 1.1 To). Voir [Détection & Nettoyage des Orphelins](/services/homeflix#detection--nettoyage-des-orphelins-downloads-audit--script-inodes).
+- **Formalisation de l'ADR-007 (MergerFS `inodecalc=path-hash`)** — Documentation de la règle d'or pour le diagnostic d'inodes et de hardlinks : les calculs d'inodes virtuels par FUSE/MergerFS faussant les résultats via `/mnt/storage` ou NFS, tout diagnostic de hardlink doit s'effectuer en SSH direct sur le LXC NAS 100 sur le point de montage du disque physique (`/mnt/disk1/`). Voir [ADR-007 — Calcul d'Inodes MergerFS](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
+- **Procédure de résolution des imports manuels bloqués** — Documentation de la procédure d'import manuel pour les fichiers au nom générique bloqués avec l'erreur `Unable to parse file` dans Radarr/Sonarr. Voir [Résolution des Imports Manuels Bloqués](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
+
 ## Semaine du 14/08/2026 — Forgejo, Patrimo, Zipline & Coolify v4.3.2
 
 ### 🆕 Nouveautés

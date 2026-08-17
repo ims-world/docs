@@ -205,6 +205,75 @@ graph TB
     </Warning>
   </Accordion>
 
+  <Accordion title="Résolution des Imports Manuels Bloqués (Unable to parse file)">
+    **Symptôme** : Un film/épisode apparaît en *"Downloading 0B"* ou reste bloqué dans Radarr/Sonarr alors que le fichier est déjà complet dans qBittorrent.
+    
+    **Cause** : Nom de fichier trop générique (ex: `Iron Man 2 1080p.mkv` sans tags de source/codec/groupe). Radarr/Sonarr ne peuvent pas déduire la Qualité automatiquement et bloquent l'importation.
+
+    **Procédure de Résolution** :
+    1. Dans Radarr/Sonarr → **Activity → Queue** → cliquer sur l'icône **Manual Import** de la ligne concernée.
+    2. Dans la fenêtre d'importation, cliquer sur le badge Quality (`Unknown`) et sélectionner manuellement la qualité réelle du fichier.
+    3. **Règle d'Or** : S'assurer que le mode d'importation est réglé sur **Import Mode = Hardlink** (ne jamais sélectionner *Copy*).
+    4. Valider l'importation.
+  </Accordion>
+
+  <Accordion title="Détection & Nettoyage des Orphelins downloads/ (Audit & Script Inodes)">
+    **Mécanique du Problème** : Supprimer un film/épisode depuis Radarr ou Sonarr (*Delete File*) retire uniquement le hardlink côté `movies/` ou `series/`. Le fichier téléchargé dans `downloads/` et le torrent associé dans qBittorrent restent intacts et continuent d'occuper la totalité de l'espace disque.
+
+    <Warning>
+    **Avertissement Piège MergerFS (`inodecalc=path-hash`)** : Ne jamais exécuter le diagnostic d'inodes ou d'espace disque à travers `/mnt/storage` ou `/mnt/nas-storage` (NFS). Le calcul `path-hash` génère des inodes virtuels artificiels. **Tout diagnostic DOIT s'effectuer en SSH direct sur le LXC NAS 100 sur le chemin du disque physique (`/mnt/disk1/homeflix/`)**. Voir l'[ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
+    </Warning>
+
+    **Script de Scan des Orphelins** (à exécuter en SSH direct sur le LXC NAS 100 dans `/mnt/disk1/homeflix/`) :
+
+    ```bash
+    # Entrer dans le LXC NAS 100 depuis l'hôte Proxmox
+    sudo pct enter 100
+    cd /mnt/disk1/homeflix/
+
+    echo "=== TORRENTS ORPHELINS (Dossiers multi-fichiers) ==="
+    for d in downloads/movies/*/ ; do
+      d="${d%/}"
+      has_link=0
+      total_size=0
+      while IFS= read -r -d '' f; do
+        inode=$(stat -c '%i' "$f")
+        size=$(stat -c '%s' "$f")
+        total_size=$((total_size + size))
+        match=$(find movies/ series/ -type f -inum "$inode" 2>/dev/null | head -1)
+        [ -n "$match" ] && has_link=1
+      done < <(find "$d" -type f -print0)
+      if [ "$has_link" -eq 0 ]; then
+        size_h=$(awk -v s="$total_size" 'BEGIN{printf "%.1f Go", s/1073741824}')
+        echo "$size_h   $(basename "$d")"
+      fi
+    done
+
+    echo ""
+    echo "=== FICHIERS ISOLÉS ORPHELINS (Single-file) ==="
+    for f in downloads/movies/*.mkv; do
+      [ -f "$f" ] || continue
+      inode=$(stat -c '%i' "$f")
+      match=$(find movies/ series/ -type f -inum "$inode" 2>/dev/null | head -1)
+      if [ -z "$match" ]; then
+        size_h=$(stat -c '%s' "$f" | awk '{printf "%.1f Go", $1/1073741824}')
+        echo "$size_h   $(basename "$f")"
+      fi
+    done
+    ```
+  </Accordion>
+
+  <Accordion title="Procédure de Suppression Propre (Double Liens)">
+    Pour libérer réellement l'espace disque physique d'un hardlink, **les deux liens doivent être supprimés** :
+
+    1. **Radarr / Sonarr** → *Delete Movie/Episode File* (retire le lien dans `movies/` ou `series/`).
+    2. **qBittorrent** → Rechercher le torrent concerné → Vérifier le ratio de seed minimum → Clic droit **Delete** → Cocher **"Also delete files"** (retire le lien dans `downloads/`).
+    
+    <Warning>
+    Ne jamais effectuer de `rm` manuel sur un fichier encore référencé par un torrent actif dans qBittorrent sous peine de laisser le torrent en erreur indéfiniment.
+    </Warning>
+  </Accordion>
+
   <Accordion title="Passthrough GPU (Iris Xe)">
     L'iGPU Intel Iris Xe du MS-01 est attribuée en passthrough à la VM Coolify (VM 104) pour le transcodage matériel QuickSync de Jellyfin. Voir [Host Proxmox](/infrastructure/proxmox-host#gpu-igpu-iris-xe-passthrough-vm-coolify).
   </Accordion>

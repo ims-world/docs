@@ -147,7 +147,8 @@
               "history/adr/adr-003-partitionnement-stockage-nfs",
               "history/adr/adr-004-isolation-reseau-trois-zones",
               "history/adr/adr-005-cpu-vm-coolify-mode-host",
-              "history/adr/adr-006-exposition-port-ssh-forgejo-bbox"
+              "history/adr/adr-006-exposition-port-ssh-forgejo-bbox",
+              "history/adr/adr-007-calcul-inodes-mergerfs-path-hash"
             ]
           }
         ]

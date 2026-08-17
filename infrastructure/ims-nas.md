@@ -95,7 +95,7 @@ graph TB
 
 ```
 /mnt/disk1        ext4, passthrough mp0 — membre actuel du pool
-/mnt/storage      fuse.mergerfs (pool modulable, category.create=mfs)
+/mnt/storage      fuse.mergerfs (pool modulable, category.create=mfs, inodecalc=path-hash)
                   ├── documents/
                   ├── photos-archives/
                   ├── backups/
@@ -104,6 +104,10 @@ graph TB
                   ├── immich-data/
                   └── forgejo-data/
 ```
+
+<Warning>
+**Piège du calcul d'inodes MergerFS (`inodecalc=path-hash`)** : MergerFS génère des inodes virtuels basés sur le hash du chemin. Deux fichiers hardlinkés sur `/mnt/disk1` afficheront des inodes virtuels différents via `/mnt/storage` ou via les montages NFS clients. Tout diagnostic d'inode ou de hardlink DOIT s'effectuer en SSH direct sur le LXC NAS 100 sur le chemin physique `/mnt/disk1/...`. Voir l'[ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
+</Warning>
 
 ### Logique de Découpage : Stockage Capacitif vs Données Chaudes
 
