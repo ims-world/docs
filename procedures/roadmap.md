@@ -38,15 +38,19 @@ Cette page recense l'ensemble des **chantiers techniques restants et tâches d'a
 ### 8. 🏷️ Renommage Éventuel du Domaine Control Plane VPN
 - **Tâche** : Évaluer le renommage de `vpn.ims-world.fr` vers un nom plus représentatif (ex: `controlplane.ims-world.fr`), en prenant en compte la reconfiguration obligatoire de tous les appareils enregistrés sur le Tailnet.
 
-### 9. 🚀 Migration à Froid des Services Secondaires (~11 Services)
-- **Tâche** : Migrer progressivement les applications encore hébergées sur l'ancien Mac Mini vers la VM Coolify du MS-01 : Beszel, Zipline, Forgejo, Photoprism, Immich, Ntfy, Home Assistant, Patrimo, Sentryx.
+### 9. 💾 Extension Capacitive NAS — Ajout HDD 8 To SATA
+- **Constat** : Le pool de stockage capacitif `storage` sur le NAS (3 To ext4 actuel) est soumis à une forte pression continue liée au volume de la médiathèque HomeFlix et à la réintégration des photos RAW PhotoPrism (`originals/`).
+- **Tâche** : Installer un disque dur HDD 8 To SATA additionnel sur le port SATA libre identifié de la carte PCIe ASM1166 et l'intégrer au pool MergerFS du NAS LXC 100 pour offrir une marge capacitive durable. Voir [IMS-NAS](/infrastructure/ims-nas).
 
-### 10. 🔒 Réactivation de `only_start_if_oidc_is_available` sur Headscale
+### 10. 🚀 Migration à Froid des Services Secondaires (~11 Services)
+- **Tâche** : Migrer progressivement les applications encore hébergées sur l'ancien Mac Mini vers la VM Coolify du MS-01 : Beszel, Zipline, Forgejo, PhotoPrism, Immich, Ntfy, Home Assistant, Patrimo, Sentryx.
+
+### 11. 🔒 Réactivation de `only_start_if_oidc_is_available` sur Headscale
 - **Constat** : Le paramètre `only_start_if_oidc_is_available` avait été passé à `false` pendant le cutover pour contourner une dépendance circulaire au démarrage.
 - **Tâche** : Repasser le paramètre à `true` dans la config Headscale maintenant que `auth.ims-world.fr` est parfaitement stable sur le MS-01.
 
-### 11. 🔐 Régénération de la Clé d'Authentification Headscale PBS
+### 12. 🔐 Régénération de la Clé d'Authentification Headscale PBS
 - **Tâche** : Régénérer la clé d'API et le jeton d'authentification Headscale utilisés lors de l'intégration initiale du conteneur PBS (LXC 103).
 
-### 12. 🧹 Décommissionnement Définitif du Mac Mini
+### 13. 🧹 Décommissionnement Définitif du Mac Mini
 - **Tâche** : Une fois la période de validation post-cutover achevée et l'ensemble des 11 services secondaires migrés, procéder au retrait propre du Mac Mini 2014 du réseau et retirer les `extra_records` dans Headscale (`coolify-old.ims-world.fr`).

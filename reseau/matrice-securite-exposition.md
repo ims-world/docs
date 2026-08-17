@@ -141,6 +141,11 @@ graph TB
         **Auth** : Compte applicatif local
         **Protection** : Application Git Coolify (Auto-Build Node.js)
       </Card>
+      <Card title="PhotoPrism" icon="camera" href="/services/photoprism">
+        **Domaine** : `studio.ims-world.fr`
+        **Auth** : SSO Authentik OIDC Natif
+        **Protection** : TLS Traefik & Session SSO (client photo-prism)
+      </Card>
     </CardGroup>
   </Tab>
   <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">

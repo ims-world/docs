@@ -3,6 +3,18 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## 17/08/2026 — Migration PhotoPrism sur MS-01 & SSO OIDC
+
+### 🆕 Nouveautés
+
+- **PhotoPrism en production sur MS-01** — Migration réussie de la bibliothèque photo & studio d'archivage RAW sur `studio.ims-world.fr` (UUID Coolify `yfotvbtkqj8cqw5alox6gfpr`). Le domaine d'origine a été conservé à l'identique pour réutiliser le client OIDC Authentik `photo-prism` sans casser les redirections. Restauration confirmée de **24 565 photos** via dump/restore SQL MariaDB 11.8.8. Voir [PhotoPrism](/services/photoprism).
+- **Architecture de stockage hybride** — Les originaux RAW (`originals/`, ~574 Go) et les métadonnées manuelles YAML (`storage/sidecar/`, 42 Go) résident sur le pool capacitif NFS HDD (`storage`), tandis que la base de données MariaDB tourne sur un **volume nommé Docker local** (`photoprism-mariadb-data`) sur le SSD de la VM Coolify pour garantir des I/O optimales. Voir [Architecture de Stockage](/services/photoprism#architecture-de-stockage-nfs-vs-volume-nomme-docker).
+- **Ingestion de photos RAW via WebDAV** — Documentation de la procédure de dépôt de fichiers RAW via le serveur WebDAV natif de PhotoPrism (`/import/` et `/originals/`), avec pas-à-pas macOS/Windows, gestion des identifiants et commande CLI `photoprism import`. Voir [Ingestion de Photos & WebDAV](/services/photoprism#ingestion-de-photos--webdav).
+
+### 🔧 Améliorations & Maintenance
+
+- **Mise à niveau de Coolify en v4.3.6 & Workaround IHM** — Montée en version de l'orchestrateur Coolify vers la v4.3.6. Documentation de la procédure de secours `docker restart coolify-proxy` requise pour rétablir l'accès à `coolify.ims-world.fr` en cas de perte de liaison IHM post-update. Voir [VM IMS-Coolify](/infrastructure/vm-coolify#procédure-post-mise-à-jour-coolify-perte-ihm).
+
 ## 16/08/2026 — Audit Hardlinks HomeFlix, Nettoyage NAS (~330 Go) & ADR-007
 
 ### 🔧 Améliorations & Maintenance

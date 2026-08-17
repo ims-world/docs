@@ -112,7 +112,8 @@
               "services/stirling-pdf",
               "services/zipline",
               "services/forgejo",
-              "services/patrimo"
+              "services/patrimo",
+              "services/photoprism"
             ]
           }
         ]

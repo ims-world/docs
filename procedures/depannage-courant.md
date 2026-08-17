@@ -141,11 +141,16 @@ Pire : si un container a déjà démarré avec ce mauvais mapping, un simple `do
   ```
 </CodeGroup>
 
-### <Badge color="orange">Traefik</Badge> Double router Traefik auto-généré par Coolify
+### <Badge color="orange">Coolify</Badge> Perte d'accès à l'IHM (`coolify.ims-world.fr`) après mise à jour
 
-<Info>
-Coolify peut générer automatiquement un router Traefik en plus des labels manuels définis dans le compose (nommé `https-0-<uuid>-<service>`). Comportement **normal**, confirmé identique entre plusieurs instances — pas une anomalie à corriger systématiquement, mais à garder en tête lors d'un diagnostic de routage.
-</Info>
+<Warning>
+Lors d'une montée en version de Coolify (ex: v4.3.2 → v4.3.6), le proxy d'administration interne `coolify-proxy` peut perdre sa liaison avec l'application web, provoquant des erreurs 502 / 504 Bad Gateway sur `coolify.ims-world.fr`.
+</Warning>
+
+**Solution (SSH VM Coolify 104)** :
+```bash
+docker restart coolify-proxy
+```
 
 ## Validation de données
 

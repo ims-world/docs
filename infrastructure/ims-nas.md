@@ -99,7 +99,8 @@ graph TB
                   ├── documents/
                   ├── photos-archives/
                   ├── backups/
-                  └── homeflix/
+                  ├── homeflix/
+                  └── photoprism-data/
 /mnt/storage-hot  bind mount → /mnt/disk1/hot (destiné à basculer sur SSD dédié)
                   ├── immich-data/
                   └── forgejo-data/

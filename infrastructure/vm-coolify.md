@@ -3,8 +3,8 @@ title: "VM IMS-Coolify (VM 104)"
 description: "Serveur d'orchestration Docker et Reverse Proxy Traefik de production"
 icon: "box"
 iconType: "duotone"
-last_reviewed: "2026-08-14"
-app_version: "v4.3.2"
+last_reviewed: "2026-08-17"
+app_version: "v4.3.6"
 ---
 
 <Badge color="green">🟢 Production Active (VM 104)</Badge>
@@ -94,6 +94,7 @@ graph TD
 | **Zipline** (Partage Fichiers & ShareX) | `kbcknnnkswmcnlgmupxoyheh` | `/data/coolify/services/kbcknnnkswmcnlgmupxoyheh/` | <Badge color="green">🟢 Production</Badge> |
 | **Forgejo** (Forge Git & Miroir GitHub) | `culcigf0vwg0fbdvegbkzoan` | `/data/coolify/services/culcigf0vwg0fbdvegbkzoan/` | <Badge color="green">🟢 Production</Badge> |
 | **Patrimo** (App Node.js — Git Build) | *Application Git* | `/var/lib/docker/volumes/...` (Volume nommé) | <Badge color="green">🟢 Production</Badge> |
+| **PhotoPrism** (Studio Photo RAW & Archivage) | `yfotvbtkqj8cqw5alox6gfpr` | `/data/coolify/services/yfotvbtkqj8cqw5alox6gfpr/` | <Badge color="green">🟢 Production</Badge> |
 
 ## Stockage NFS
 
@@ -143,5 +144,20 @@ sudo usermod -aG docker cmolotkoff
 L'astuce d'utilisation du champ *Domains* dans l'UI Coolify (*"laisser Coolify gérer le routeur Traefik"*) est **exclusivement réservée aux services standards sans middleware sur-mesure** (sans `vpn-only`, sans forward-auth).
 
 Dès qu'un service nécessite un middleware Traefik spécifique (ex: filtrage d'accès IP `vpn-only` pour les services Tailscale-only), **il faut impérativement ré-expliciter les labels Traefik manuellement dans le fichier Compose (`docker-compose.yml`) et laisser le champ Domains vide dans l'UI Coolify**. Sinon, Coolify génère un routeur automatique parallèle sans middleware, ce qui ré-expose publiquement le service.
+</Warning>
+
+---
+
+## 🔧 Procédure Post-Mise à Jour Coolify (Perte IHM)
+
+<Warning>
+**Gotcha connu après mise à jour** : Lors des montées en version de Coolify (ex: v4.3.2 → v4.3.6), le proxy d'administration interne `coolify-proxy` peut perdre la liaison avec l'application web, rendant `coolify.ims-world.fr` inaccessible (erreur 502 / 504 / Connection refused).
+
+**Procédure de déblocage (SSH VM Coolify 104)** :
+```bash
+# Redémarrer le conteneur du proxy d'administration Coolify
+docker restart coolify-proxy
+```
+L'interface web redevient immédiatement disponible après cette commande.
 </Warning>
 
