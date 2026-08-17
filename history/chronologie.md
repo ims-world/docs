@@ -3,6 +3,35 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 17/08/2026 — Récapitulatif hebdomadaire
+
+Sept nouveaux services en production, deux mises à niveau de Coolify et un gros nettoyage de stockage. Voici ce qui a livré cette semaine.
+
+### 🆕 Nouveautés
+
+- **PhotoPrism migré sur MS-01** — Bibliothèque photo & studio d'archivage RAW en ligne sur `studio.ims-world.fr`, avec restauration confirmée de 24 565 photos et ingestion RAW via WebDAV documentée. Voir [PhotoPrism](/services/photoprism).
+- **Forgejo en production** — Forge Git self-hosted sur `forge.ims-world.fr`, avec SSO Authentik OIDC natif et accès SSH Git accessible partout via le port `2222`. GitHub reste principal, Forgejo joue le miroir de sécurité. Voir [Forgejo](/services/forgejo).
+- **Patrimo en production** — Application Node.js déployée sur `patrimo.ims-world.fr` en mode *Application Coolify Git Build*, avec déploiement continu à chaque push GitHub. Voir [Patrimo](/services/patrimo).
+- **Zipline en production** — Plateforme de partage de fichiers et de captures d'écran (compatible ShareX) sur `share.ims-world.fr`, avec SSO Authentik OIDC natif. Voir [Zipline](/services/zipline).
+- **Stirling PDF en production** — Boîte à outils PDF (fusion, découpe, conversion, OCR) sur `pdf.ims-world.fr`, en mode *stateless* : aucun document conservé après traitement. Voir [Stirling PDF](/services/stirling-pdf).
+- **Uptime Kuma en production** — Statuspage et monitoring actif sur `status.ims-world.fr`, avec alerting push vers mobile via Ntfy en quelques secondes en cas de panne. Voir [Uptime Kuma](/services/uptime-kuma).
+- **IT-Tools en production** — Boîte à outils développeur (générateurs, convertisseurs, utilitaires réseau) sur `tools.ims-world.fr`. Voir [IT-Tools](/services/it-tools).
+- **Immich en production** — Médiathèque photo & vidéo self-hosted sur `photos.ims-world.fr`, avec sauvegarde automatique iOS/Android, recherche par IA (CLIP) et reconnaissance faciale. Démarre à 61 880 assets indexés. Voir [Immich](/services/immich).
+
+### 🔧 Améliorations
+
+- **Coolify mis à niveau en v4.3.6** — Deux montées de version successives cette semaine (v4.3.2 puis v4.3.6). Une procédure de secours `docker restart coolify-proxy` est désormais documentée pour rétablir l'IHM en cas de perte post-update. Voir [VM IMS-Coolify](/infrastructure/vm-coolify).
+- **Politique de sauvegarde formalisée** — Nouvelle page consolidant la chronologie nocturne, les sauvegardes `vzdump` validées et les contournements FUSE/MergerFS. Voir [Politique de Sauvegarde](/infrastructure/politique-sauvegardes).
+- **~330 Go libérés sur le NAS** — Un audit des orphelins `downloads/` de HomeFlix a permis de porter l'espace disponible de 791 Go à 1.1 To. Voir [Détection & Nettoyage des Orphelins](/services/homeflix#detection--nettoyage-des-orphelins-downloads-audit--script-inodes).
+- **SSO Authentik étendu** — Forward-Auth ajouté sur Stirling PDF, Uptime Kuma et IT-Tools ; SSO OIDC natif sur Forgejo, Zipline et Immich. Toute requête vers ces domaines exige désormais une session Authentik valide. Voir [Outpost Proxy & Forward-Auth Traefik](/services/authentik#outpost-proxy--forward-auth-traefik).
+- **Matrice RBAC Authentik** — Une matrice croisée permet désormais de savoir au premier coup d'œil quel groupe (`admins`, `membres`, `invites`, etc.) peut atteindre quel service. Voir [Matrice des Rôles & Droits d'Accès](/reseau/matrice-securite-exposition#matrice-des-rles--droits-daccs-rbac-authentik).
+- **VM Coolify en CPU mode `host`** — Le CPU physique Intel i5-12600H est désormais exposé intégralement à la VM Coolify. Les binaires natifs Node.js exigeant `x86-64-v2` (comme `sharp`) démarrent sans contournement. Voir [ADR-005](/history/adr/adr-005-cpu-vm-coolify-mode-host).
+- **Procédure d'import manuel Radarr/Sonarr** — Documentation de la résolution des fichiers bloqués avec `Unable to parse file`. Voir [Résolution des Imports Manuels Bloqués](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
+
+### 🐛 Corrections
+
+- **Diagnostic d'inodes MergerFS fiabilisé** — La règle formalisée dans l'ADR-007 corrige les faux résultats d'inodes virtuels FUSE/MergerFS : tout diagnostic de hardlink doit s'effectuer en SSH direct sur le point de montage physique. Voir [ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
+
 ## 17/08/2026 — Migration PhotoPrism sur MS-01 & SSO OIDC
 
 ### 🆕 Nouveautés
