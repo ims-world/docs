@@ -96,6 +96,18 @@ graph TD
 | **Patrimo** (App Node.js — Git Build) | *Application Git* | `/var/lib/docker/volumes/...` (Volume nommé) | <Badge color="green">🟢 Production</Badge> |
 | **PhotoPrism** (Studio Photo RAW & Archivage) | `yfotvbtkqj8cqw5alox6gfpr` | `/data/coolify/services/yfotvbtkqj8cqw5alox6gfpr/` | <Badge color="green">🟢 Production</Badge> |
 
+---
+
+## 🛡️ Stratégie & Politique de Sauvegarde (PBS)
+
+<Info>
+**Principe d'Architecture** : **Coolify ne gère aucune sauvegarde nativement** (aucun job de backup applicatif automatisé n'est configuré dans l'UI Coolify). La sécurité et l'historisation des données reposent intégralement sur **Proxmox Backup Server (PBS)**, qui effectue un snapshot dédupliqué quotidien à chaud de la **VM 104 (IMS-Coolify)** complète au niveau hyperviseur.
+
+Ce snapshot englobe à la fois le système d'exploitation Ubuntu, l'arborescence `/data/coolify/` (configurations & bind-mounts localisés) et l'intégralité des **volumes Docker nommés** (`/var/lib/docker/volumes/` comme les bases Postgres et MariaDB).
+</Info>
+
+---
+
 ## Stockage NFS
 
 ```bash

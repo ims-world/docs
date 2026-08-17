@@ -27,15 +27,12 @@ import { ips, domains } from "/snippets/variables.mdx";
     # Se connecter à la VM Coolify
     ssh cmolotkoff@100.64.0.4
 
-    # Retrouver le conteneur Ntfy
-    CONTAINER=$(docker ps -qf "name=ntfy")
-
-    # Gérer les utilisateurs
-    docker exec -it $CONTAINER ntfy user list
-    docker exec -it $CONTAINER ntfy user add --role=admin cmolotkoff
+    # Gérer les utilisateurs (nom de conteneur Coolify : ntfy-j5akn2e9pr6g7c2pjvdj78w0)
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user list
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user add --role=admin cmolotkoff
 
     # Générer un token d'accès (ex: pour Grafana)
-    docker exec -it $CONTAINER ntfy token add --label="grafana-alerting" cmolotkoff
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy token add --label="grafana-alerting" cmolotkoff
 
     # Test d'envoi manuel
     curl -H "Authorization: Bearer <token>" -d "Alerte de test" https://ntfy.ims-world.fr/ims-alerts
@@ -79,13 +76,13 @@ import { ips, domains } from "/snippets/variables.mdx";
   <Accordion title="Créer un utilisateur ou un token d'API">
     ```bash
     # Créer un compte utilisateur
-    docker exec -it $(docker ps -qf "name=ntfy") ntfy user add --role=admin nouvel_utilisateur
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user add --role=admin nouvel_utilisateur
 
     # Attribuer les droits d'accès sur le topic ims-alerts
-    docker exec -it $(docker ps -qf "name=ntfy") ntfy access nouvel_utilisateur ims-alerts read-write
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy access nouvel_utilisateur ims-alerts read-write
 
     # Générer un token pour une application
-    docker exec -it $(docker ps -qf "name=ntfy") ntfy token add --label="mon-application" cmolotkoff
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy token add --label="mon-application" cmolotkoff
     ```
   </Accordion>
 </AccordionGroup>
