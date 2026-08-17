@@ -5,10 +5,11 @@ description: "Chronologie du projet de migration Mac Mini → MS-01"
 
 ## Semaine du 17/08/2026 — Récapitulatif hebdomadaire
 
-Sept nouveaux services en production, deux mises à niveau de Coolify et un gros nettoyage de stockage. Voici ce qui a livré cette semaine.
+Sept nouveaux services en production, le transcodage matériel Jellyfin activé, deux mises à niveau de Coolify et un gros nettoyage de stockage. Voici ce qui a livré cette semaine.
 
 ### 🆕 Nouveautés
 
+- **Transcodage matériel Jellyfin (QuickSync)** — HomeFlix accélère désormais le transcodage H.264, HEVC et AV1 sur l'iGPU Intel Iris Xe, avec un débit validé à 29,7× le temps réel. La lecture consomme beaucoup moins de CPU et supporte plus de flux simultanés. Voir [HomeFlix](/services/homeflix).
 - **PhotoPrism migré sur MS-01** — Bibliothèque photo & studio d'archivage RAW en ligne sur `studio.ims-world.fr`, avec restauration confirmée de 24 565 photos et ingestion RAW via WebDAV documentée. Voir [PhotoPrism](/services/photoprism).
 - **Forgejo en production** — Forge Git self-hosted sur `forge.ims-world.fr`, avec SSO Authentik OIDC natif et accès SSH Git accessible partout via le port `2222`. GitHub reste principal, Forgejo joue le miroir de sécurité. Voir [Forgejo](/services/forgejo).
 - **Patrimo en production** — Application Node.js déployée sur `patrimo.ims-world.fr` en mode *Application Coolify Git Build*, avec déploiement continu à chaque push GitHub. Voir [Patrimo](/services/patrimo).
@@ -26,6 +27,7 @@ Sept nouveaux services en production, deux mises à niveau de Coolify et un gros
 - **SSO Authentik étendu** — Forward-Auth ajouté sur Stirling PDF, Uptime Kuma et IT-Tools ; SSO OIDC natif sur Forgejo, Zipline et Immich. Toute requête vers ces domaines exige désormais une session Authentik valide. Voir [Outpost Proxy & Forward-Auth Traefik](/services/authentik#outpost-proxy--forward-auth-traefik).
 - **Matrice RBAC Authentik** — Une matrice croisée permet désormais de savoir au premier coup d'œil quel groupe (`admins`, `membres`, `invites`, etc.) peut atteindre quel service. Voir [Matrice des Rôles & Droits d'Accès](/reseau/matrice-securite-exposition#matrice-des-rles--droits-daccs-rbac-authentik).
 - **VM Coolify en CPU mode `host`** — Le CPU physique Intel i5-12600H est désormais exposé intégralement à la VM Coolify. Les binaires natifs Node.js exigeant `x86-64-v2` (comme `sharp`) démarrent sans contournement. Voir [ADR-005](/history/adr/adr-005-cpu-vm-coolify-mode-host).
+- **Passthrough GPU iGPU Iris Xe formalisé (ADR-008)** — Le passthrough PCI de l'iGPU vers la VM Coolify passe en configuration officielle : chipset `q35`, `linux-modules-extra` Ubuntu Cloud et validation Jellyfin QSV. Voir [ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe).
 - **Procédure d'import manuel Radarr/Sonarr** — Documentation de la résolution des fichiers bloqués avec `Unable to parse file`. Voir [Résolution des Imports Manuels Bloqués](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 
 ### 🐛 Corrections
