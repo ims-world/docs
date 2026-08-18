@@ -20,7 +20,7 @@ import { ips, hardware } from "/snippets/variables.mdx";
 | **Stockage NVMe** | {hardware.ms01Storage} (LVM-Thin `local-lvm`) |
 | **Disques SATA** | HDD 3To Apple/Seagate (Passthrough `mp0`) + SSD 4To (Passthrough `mp1` — `storage-hot`) |
 | **OS** | Proxmox VE 9.2.3 |
-| **Accès Admin GUI** | `https://{ips.pveLan}:8006` |
+| **Accès Admin GUI** | `https://`{ips.pveLan}`:8006` |
 | **Comptes** | `cmolotkoff@pam` (nominatif), `root@pam` en break-glass local |
 
 ## Topologie Matérielle & Allocation

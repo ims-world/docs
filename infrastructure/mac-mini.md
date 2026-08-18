@@ -36,7 +36,7 @@ Le **Mac Mini 2014** a été l'hôte principal de l'infrastructure jusqu'à sa *
 
 Pour vous connecter en SSH au Mac Mini, spécifier impérativement le port **`4242`** :
 ```bash
-ssh -p 4242 cmolotkoff@{ips.macmini}
+ssh -p 4242 cmolotkoff@100.64.0.7
 ```
 </Warning>
 

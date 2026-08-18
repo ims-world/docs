@@ -18,9 +18,9 @@ import { ips, hardware } from "/snippets/variables.mdx";
 
 Centralise le stockage de l'infrastructure : documents, photos, backups, et médias. Sert en NFS aux guests internes (réseau isolé) et en SMB au LAN.
 
-<Warning>
-**Capacité & Évolution** : Mono-disque actuellement (HDD Seagate 3To). L'infrastructure est conçue pour accueillir de **nouveaux disques de stockage supplémentaires** (slots caddies Dell 3.5" disponibles dans le rack [Labrax](/infrastructure/labrax), raccordés à la carte SATA 6 ports {hardware.sataCard}).
-</Warning>
+<Info>
+**Capacité & Évolution** : Architecture multi-disques hybride composée d'un **HDD capacitif 3To** (Pool `/mnt/storage`) et d'un **SSD 4To dédié** (Tier `/mnt/storage-hot`). L'infrastructure reste évolutive pour accueillir de futurs disques durs HDD supplémentaires dans les slots caddies Dell 3.5" du rack [Labrax](/infrastructure/labrax).
+</Info>
 
 ## Fiche technique
 
@@ -45,29 +45,29 @@ Centralise le stockage de l'infrastructure : documents, photos, backups, et méd
 
 ## Disques physiques & Évolutivité
 
-| Propriété | Valeur |
-|---|---|
-| **Disque Actuel** | Seagate/Apple HDD ST3000DM001 (Z1F3N0NZ) |
-| **Capacité Actuelle** | 3 To, 7200rpm (ext4) |
-| **Santé au déploiement** | SMART PASSED, 0 secteur réalloué, **14h d'usure totale** (quasi neuf) |
-| **Évolution Prévue** | Integration de **nouveaux disques** (SSD chaud / HDD additionnels dans le pool MergerFS) |
+| Disque | Référence Matérielle | Capacité / Type | Affectation NAS | Passthrough Proxmox |
+|---|---|---|---|---|
+| **Disque 1 (Capacitif)** | Seagate/Apple ST3000DM001 (`Z1F3N0NZ`) | 3 To HDD 7200rpm (ext4) | Pool `/mnt/storage` (Documents, HomeFlix, Backups, PhotoPrism) | `mp0` → `/mnt/disk1` |
+| **Disque 2 (Hot/Performant)** | Samsung SSD 870 EVO (`S758NX0W713130Z`) | 4 To SSD SATA (ext4) | Tier `/mnt/storage-hot` (Immich, Forgejo) | `mp1` → `/mnt/ssd-hot-raw` |
 
 <Warning>
-Le disque Seagate ST3000DM001 est statistiquement plus sujet aux pannes selon les études de référence (Backblaze). L'intégration de nouveaux disques supplémentaires dans le pool permettra de mettre en place de la redondance.
+Le disque Seagate ST3000DM001 est statistiquement plus sujet aux pannes selon les études de référence (Backblaze). L'intégration ultérieure de nouveaux HDD supplémentaires dans le pool permettra de mettre en place de la redondance.
 </Warning>
 
 ## Stockage — architecture MergerFS
 
 ```mermaid
 graph TB
-    subgraph DISK ["💾 Support Physique (Pass-through mp0)"]
-        PHYS_DISK["/dev/disk/by-id/ata-APPLE_HDD_ST3000DM001 (ext4)"]
-        MP0["/mnt/disk1 (Mountpoint passthrough Host -> LXC 100)"]
+    subgraph DISK ["💾 Support Physique (Passthrough SATA Proxmox Host -> LXC 100)"]
+        PHYS_HDD["HDD 3To Seagate/Apple (/dev/disk/by-id/ata-APPLE_HDD_ST3000DM001)"]
+        MP0["/mnt/disk1 (Mountpoint passthrough mp0)"]
+        PHYS_SSD["SSD 4To Samsung 870 EVO (/dev/disk/by-id/ata-Samsung_SSD_870_EVO_4TB)"]
+        MP1["/mnt/ssd-hot-raw (Mountpoint passthrough mp1)"]
     end
 
     subgraph FUSE ["📂 Pool FUSE & Points de Montage (IMS-NAS)"]
         MPOOL["/mnt/storage (fuse.mergerfs, category.create=mfs, inodecalc=path-hash)"]
-        HOT["/mnt/storage-hot (bind-mount -> /mnt/disk1/hot)"]
+        HOT["/mnt/storage-hot (bind-mount -> /mnt/ssd-hot-raw)"]
     end
 
     subgraph EXPORTS ["📤 Partages Réseau"]
@@ -76,9 +76,10 @@ graph TB
         SMB_SHARE["SMB (192.168.1.50/storage)\nUtilisateur: cmolotkoff (LAN)"]
     end
 
-    PHYS_DISK --> MP0
+    PHYS_HDD --> MP0
+    PHYS_SSD --> MP1
     MP0 --> MPOOL
-    MP0 --> HOT
+    MP1 --> HOT
 
     MPOOL --> NFS_RW
     MPOOL --> NFS_RO
@@ -88,7 +89,7 @@ graph TB
     classDef disk fill:#2c3e50,stroke:#34495e,color:#fff;
     classDef fuse fill:#0F6E56,stroke:#16A085,color:#fff;
     classDef export fill:#1a2b3c,stroke:#0F6E56,color:#fff;
-    class PHYS_DISK,MP0 disk;
+    class PHYS_HDD,PHYS_SSD,MP0,MP1 disk;
     class MPOOL,HOT fuse;
     class NFS_RW,NFS_RO,SMB_SHARE export;
 ```
@@ -136,7 +137,7 @@ graph TB
 
 | Propriété | Valeur |
 |---|---|
-| **Partage** | `smb://{ips.nasLan}/storage` |
+| **Partage** | `smb://`{ips.nasLan}`/storage` |
 | **Utilisateur** | `cmolotkoff` |
 
 <Note>

@@ -71,7 +71,7 @@ sequenceDiagram
 
     2. **Si bascule temporaire d'urgence sur le Mac Mini 2014 (Standby)** :
        - Démarrer le Mac Mini dans le rack [Labrax](/infrastructure/labrax).
-       - Vérifier la connectivité réseau et l'accès SSH sur le port `4242` (`ssh -p 4242 cmolotkoff@{ips.macmini}`).
+       - Vérifier la connectivité réseau et l'accès SSH sur le port `4242` (`ssh -p 4242 cmolotkoff@100.64.0.7`).
   </Step>
 
   <Step title="Phase 2 — Restauration de la VM 104 (IMS-Coolify) depuis PBS">
@@ -79,11 +79,11 @@ sequenceDiagram
 
     <CodeGroup>
       ```bash Restauration Proxmox CLI
-      # Se connecter au nouvel hôte Proxmox ({ips.pveLan})
+      # Se connecter au nouvel hôte Proxmox (192.168.1.41)
       mkdir -p /mnt/recovery-pbs
 
       # Monter le stockage du datastore en NFSv3 (vers=3 obligatoire)
-      mount -t nfs -o vers=3 {ips.nasLan}:/mnt/storage/backups /mnt/recovery-pbs
+      mount -t nfs -o vers=3 192.168.1.50:/mnt/storage/backups /mnt/recovery-pbs
 
       # Restaurer la VM Coolify (104)
       qmrestore /mnt/recovery-pbs/dump/vzdump-qemu-104-*.vma.zst 104 --storage local-lvm
