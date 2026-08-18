@@ -3,6 +3,25 @@ title: "Changelog"
 description: "Chronologie du projet de migration Mac Mini → MS-01"
 ---
 
+## Semaine du 18/08/2026 — Récapitulatif hebdomadaire
+
+Bascule du tier `storage-hot` sur un SSD 4 To dédié et identification d'un bug de filtrage IP sur le middleware Traefik `vpn-only`. Voici ce qui a livré cette semaine.
+
+### 🆕 Nouveautés
+
+- **Tier `storage-hot` sur SSD 4 To dédié** — Les données applicatives chaudes d'Immich et Forgejo tournent désormais sur un SSD Samsung 870 EVO 4 To raccordé en SATA natif sur le contrôleur ASM1166 du MS-01. Le tier dispose de 3,6 To utiles (443 Go utilisés, 3,0 To libres). Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
+- **934 Go libérés sur le HDD principal** — La suppression de l'ancienne copie post-migration a libéré 934 Go sur `/mnt/disk1`, restaurant de la marge sur le pool capacitif.
+
+### 🔧 Améliorations
+
+- **Procédure de bascule d'un tier NFS formalisée** — La séquence exacte de désexport NFS, remontage bind, réexport et remontage côté VM Coolify est désormais documentée pas-à-pas. Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
+- **Comportement du contrôleur ASM1166 documenté** — Confirmation qu'un branchement ou débranchement SATA à chaud est instable sous Linux : l'extinction du host est obligatoire avant toute manipulation. Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
+- **Grafana bascule sur SSO Authentik OIDC** — En contournement du bug `vpn-only`, l'accès à `monitoring.ims-world.fr` est désormais sécurisé par le SSO central Authentik au lieu du filtrage par plage IP Tailscale. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
+
+### 🐛 Corrections
+
+- **Bug identifié sur le middleware Traefik `vpn-only`** — Le `docker-proxy` (userland-proxy) réécrit l'IP source de chaque requête entrante avec l'adresse de la passerelle bridge Docker (`10.0.1.1`), ce qui déclenche un HTTP 403 systématique du middleware `ipAllowList`. Une fenêtre de maintenance est planifiée pour tester `"userland-proxy": false`. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
+
 ## Semaine du 17/08/2026 — Récapitulatif hebdomadaire
 
 Sept nouveaux services en production, le transcodage matériel Jellyfin activé, deux mises à niveau de Coolify et un gros nettoyage de stockage. Voici ce qui a livré cette semaine.
