@@ -35,6 +35,14 @@ Sept nouveaux services en production, le transcodage matériel Jellyfin activé,
 
 - **Diagnostic d'inodes MergerFS fiabilisé** — La règle formalisée dans l'ADR-007 corrige les faux résultats d'inodes virtuels FUSE/MergerFS : tout diagnostic de hardlink doit s'effectuer en SSH direct sur le point de montage physique. Voir [ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
 
+## 18/08/2026 — Bascule du Tier Storage-Hot sur SSD 4To Dédié (SATA)
+
+### 🆕 Nouveautés & Stockage
+
+- **Bascule réussie du tier `storage-hot` sur SSD 4To dédié** — Migration de `storage-hot` (données applicatives chaudes d'Immich et Forgejo) depuis un bind-mount HDD vers un SSD Samsung 870 EVO 4To raccordé en SATA natif sur le contrôleur ASM1166 du MS-01.
+- **Libération de 934 Go sur le HDD principal** — La suppression de l'ancienne copie après validation a libéré 934 Go sur `/mnt/disk1`. Le tier `storage-hot` dispose désormais de 3.6 To utiles (443 Go utilisés, 3.0 To libres).
+- **Enseignements système & contrôleur ASM1166** — Confirmation que le contrôleur ASM1166 exige l'extinction du host avant toute connexion/déconnexion SATA (hotplug instable sous Linux). Inscription de la procédure exacte (désexport NFS `exportfs -u`, `mount --bind`, `exportfs -r`, `systemctl daemon-reload` et `umount -f` côté client VM Coolify). Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
+
 ## 17/08/2026 — Migration PhotoPrism sur MS-01 & SSO OIDC
 
 ### 🆕 Nouveautés

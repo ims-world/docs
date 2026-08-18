@@ -18,6 +18,7 @@ import { ips, hardware } from "/snippets/variables.mdx";
 | **CPU** | {hardware.ms01Cpu} (iGPU Iris Xe intégrée) |
 | **RAM** | {hardware.ms01Ram} |
 | **Stockage NVMe** | {hardware.ms01Storage} (LVM-Thin `local-lvm`) |
+| **Disques SATA** | HDD 3To Apple/Seagate (Passthrough `mp0`) + SSD 4To (Passthrough `mp1` — `storage-hot`) |
 | **OS** | Proxmox VE 9.2.3 |
 | **Accès Admin GUI** | `https://{ips.pveLan}:8006` |
 | **Comptes** | `cmolotkoff@pam` (nominatif), `root@pam` en break-glass local |
@@ -30,12 +31,13 @@ graph TD
         CPU["12 Cores / 16 Threads"]
         RAM["31 GiB RAM"]
         NVME["930 Go NVMe (LVM-Thin: local-lvm)"]
-        HDD["Disque 3To Apple/Seagate (Passthrough mp0)"]
+        HDD["HDD 3To SATA Apple/Seagate (Passthrough mp0)"]
+        SSD["SSD 4To SATA (Passthrough mp1 — storage-hot)"]
     end
 
     subgraph PVE ["🖥️ Proxmox VE 9.2.3"]
         subgraph LXC100 ["IMS-NAS (LXC 100)"]
-            NAS_RES["2 Cores | 1 Go RAM | mp0 Passthrough HDD"]
+            NAS_RES["2 Cores | 1 Go RAM | mp0 HDD + mp1 SSD 4To"]
         end
         subgraph LXC103 ["IMS-PBS (LXC 103)"]
             PBS_RES["2 Cores | 1 Go RAM | Datastore NFS"]
@@ -48,11 +50,12 @@ graph TD
     CPU --> PVE
     RAM --> PVE
     NVME --> VM104
-    HDD -->|Passthrough mp0| LXC100
+    HDD -->|Passthrough mp0 (SATA)| LXC100
+    SSD -->|Passthrough mp1 (SATA)| LXC100
 
     classDef hw fill:#2c3e50,stroke:#34495e,color:#fff;
     classDef vm fill:#0F6E56,stroke:#16A085,color:#fff;
-    class CPU,RAM,NVME,HDD hw;
+    class CPU,RAM,NVME,HDD,SSD hw;
     class LXC100,LXC103,VM104 vm;
 ```
 

@@ -100,7 +100,7 @@ graph TB
                   ├── backups/
                   ├── homeflix/
                   └── photoprism-data/
-/mnt/storage-hot  bind mount → /mnt/disk1/hot (destiné à basculer sur SSD dédié)
+/mnt/storage-hot  bind mount → /mnt/ssd-hot-raw (SSD SATA 4To dédié, passthrough mp1 — 🟢 Production Active)
                   ├── immich-data/
                   └── forgejo-data/
 ```
@@ -114,10 +114,10 @@ graph TB
 | Montage NFS (VM Coolify) | Point de Montage NAS (LXC 100) | Usage & Types de Données | Objectif & Comportement Matériel |
 |---|---|---|---|
 | **`/mnt/nas-storage`** | `/mnt/storage` | **Stockage Capacitif / Froid** : Médias HomeFlix (films, séries), archives photo, documents personnels et sauvegardes PBS (`/mnt/storage/backups`). | Optimisé pour le **stockage de masse** et la lecture séquentielle sur HDD. |
-| **`/mnt/nas-hot`** | `/mnt/storage-hot` | **Données Chaudes / I/O Intensif** : Bases de données applicatives, métadonnées Immich (`immich-data`), dépôts Git Forgejo (`forgejo-data`). | Optimisé pour la **latence et les IOPS**. Actuellement sur `/mnt/disk1/hot`, prêt à être basculé vers un SSD dédié. |
+| **`/mnt/nas-hot`** | `/mnt/storage-hot` | **Données Chaudes / I/O Intensif** : Assets Immich (`immich-data`), dépôts Git Forgejo (`forgejo-data`). *(Remarque : Les bases de données Postgres/MariaDB résident directement sur le SSD NVMe local de la VM Coolify)*. | Optimisé pour la **latence et les IOPS**. Basculé avec succès le 18/08/2026 vers le **SSD SATA 4To dédié** (`/mnt/ssd-hot-raw`). |
 
 <Info>
-**Avantage Majeur d'Architecture** : En isolant le réseau NFS dès le départ (`/mnt/nas-hot` vs `/mnt/nas-storage`), le futur basculement du dossier physique `/mnt/storage-hot` vers un SSD haute performance s'effectuera sur le NAS **sans aucune reconfiguration ni modification des volumes Docker** dans la VM Coolify.
+**Succès d'Architecture** : En isolant le réseau NFS dès le départ (`/mnt/nas-hot` vs `/mnt/nas-storage`), la bascule physique de `/mnt/storage-hot` vers le SSD 4To dédié s'est effectuée sur le LXC NAS **sans aucune reconfiguration ni modification des volumes Docker** dans la VM Coolify.
 </Info>
 
 <Tip>

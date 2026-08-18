@@ -25,8 +25,8 @@ Cette page recense l'ensemble des **chantiers techniques restants et tâches d'a
 ### 4. 🎬 Passthrough GPU (iGPU Intel Iris Xe) — 🟢 Effectué
 - **Statut** : iGPU Intel Iris Xe attribuée en passthrough PCIe (`hostpci0`) à la VM Coolify (VM 104) pour le transcodage matériel QuickSync (H.264/HEVC/AV1) de Jellyfin. Voir [Proxmox Host](/infrastructure/proxmox-host#gpu-igpu-iris-xe-passthrough-vm-coolify).
 
-### 5. ⚡ Intégration du SSD 4To (Phase 4 Stockage)
-- **Tâche** : Installer le SSD SATA 4To dans l'emplacement dédié du rack [Labrax](/infrastructure/labrax) et faire basculer le pool `/mnt/storage-hot` (bases de données Immich, Forgejo, Authentik) du HDD Seagate vers le SSD.
+### 5. ⚡ Intégration du SSD 4To (Phase 4 Stockage) — 🟢 Effectué
+- **Statut** : Bascule effectuée avec succès le 18/08/2026. Le tier `storage-hot` (`immich-data`, `forgejo-data`) a été migré du HDD principal vers le SSD Samsung 870 EVO 4To raccordé en SATA sur le contrôleur ASM1166 (passthrough `mp1` → LXC 100), libérant 934 Go sur le HDD. Voir [IMS-NAS](/infrastructure/ims-nas#logique-de-découpage--stockage-capacitif-vs-données-chaudes) et la [Chronologie](/history/chronologie#18082026--bascule-du-tier-storage-hot-sur-ssd-4to-dédié-sata).
 
 ### 6. 🔑 Sécurisation des Credentials OVH du Proxy Traefik
 - **Tâche** : Extraire les identifiants d'API OVH (challenge DNS-01 Let's Encrypt) du fichier docker-compose clair et les basculer dans un fichier d'environnement restreint (`.env`).
