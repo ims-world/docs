@@ -168,7 +168,7 @@ graph TB
       </Card>
       <Card title="Grafana (Monitoring)" icon="chart-line" href="/services/monitoring">
         **Domaine** : `monitoring.ims-world.fr`
-        **Protection** : Middleware `vpn-only` + SSO Authentik OIDC
+        **Protection** : SSO Authentik OIDC (Middleware `vpn-only` retiré suite à l'ADR-009)
       </Card>
     </CardGroup>
   </Tab>

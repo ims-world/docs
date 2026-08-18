@@ -31,8 +31,8 @@ Cette page recense l'ensemble des **chantiers techniques restants et tâches d'a
 ### 6. 🔑 Sécurisation des Credentials OVH du Proxy Traefik
 - **Tâche** : Extraire les identifiants d'API OVH (challenge DNS-01 Let's Encrypt) du fichier docker-compose clair et les basculer dans un fichier d'environnement restreint (`.env`).
 
-### 7. 🔒 Audit de Sécurité Middleware `vpn-only` — 🟢 Effectué
-- **Statut** : Étanchéité du middleware `vpn-only` validée sur l'ensemble de la stack (qBittorrent, Radarr, Sonarr, Prowlarr) — accès restreint au Tailnet 100.64.0.0/10 et bloqué depuis le WAN (403 Forbidden). Voir [Traefik Proxy](/reseau/traefik-proxy).
+### 7. 🔒 Fenêtre de Maintenance `userland-proxy: false` & Restauration IP Source (ADR-009)
+- **Tâche** : En raison du composant `docker-proxy` qui masque les IP clientes en `10.0.1.1`, le middleware `vpn-only` bloque les utilisateurs légitimes. Planifier une fenêtre de maintenance pour tester `"userland-proxy": false` dans `/etc/docker/daemon.json` sur la VM Coolify et valider la connectivité inter-conteneurs (`br-*`). En cas de casse, généraliser le SSO/Forward-Auth Authentik sur la stack d'administration media. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
 
 ### 8. 🏷️ Renommage Éventuel du Domaine Control Plane VPN
 - **Tâche** : Évaluer le renommage de `vpn.ims-world.fr` vers un nom plus représentatif (ex: `controlplane.ims-world.fr`), en prenant en compte la reconfiguration obligatoire de tous les appareils enregistrés sur le Tailnet.

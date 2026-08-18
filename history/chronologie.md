@@ -42,6 +42,7 @@ Sept nouveaux services en production, le transcodage matériel Jellyfin activé,
 - **Bascule réussie du tier `storage-hot` sur SSD 4To dédié** — Migration de `storage-hot` (données applicatives chaudes d'Immich et Forgejo) depuis un bind-mount HDD vers un SSD Samsung 870 EVO 4To raccordé en SATA natif sur le contrôleur ASM1166 du MS-01.
 - **Libération de 934 Go sur le HDD principal** — La suppression de l'ancienne copie après validation a libéré 934 Go sur `/mnt/disk1`. Le tier `storage-hot` dispose désormais de 3.6 To utiles (443 Go utilisés, 3.0 To libres).
 - **Enseignements système & contrôleur ASM1166** — Confirmation que le contrôleur ASM1166 exige l'extinction du host avant toute connexion/déconnexion SATA (hotplug instable sous Linux). Inscription de la procédure exacte (désexport NFS `exportfs -u`, `mount --bind`, `exportfs -r`, `systemctl daemon-reload` et `umount -f` côté client VM Coolify). Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
+- **Publication de l'ADR-009 (Bug `docker-proxy` / `vpn-only`)** — Découverte de la substitution systématique de l'IP source d'origine par l'IP passerelle bridge Docker (`10.0.1.1`) provoquant un blocage HTTP 403 du middleware Traefik `vpn-only`. Grafana basculé sur le SSO Authentik OIDC et inscription d'une fenêtre de maintenance pour tester `"userland-proxy": false`. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
 
 ## 17/08/2026 — Migration PhotoPrism sur MS-01 & SSO OIDC
 

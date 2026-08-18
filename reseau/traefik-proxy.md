@@ -128,6 +128,11 @@ http:
           - "100.64.0.0/10"
 ```
 
+<Warning>
+**Avertissement d'Architecture — Bug `docker-proxy` (`10.0.1.1`)** :
+En raison du composant `userland-proxy` activé par défaut par Docker sur l'hôte, Traefik perçoit l'intégralité des requêtes entrantes avec l'IP source de la passerelle Docker bridge (`10.0.1.1`), masquant l'IP cliente réelle (`100.64.0.x`). En conséquence, le middleware `vpn-only` renvoie systématiquement une erreur **HTTP 403 Forbidden** à tous les utilisateurs. Grafana a été basculé sur le SSO Authentik OIDC pour contourner ce problème. Voir l'[ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
+</Warning>
+
 Appliqué sur : qBittorrent, Prowlarr, Radarr, Sonarr (label `traefik.http.routers.<x>.middlewares=vpn-only@file`).
 
 ### Double Verrouillage & Limites de Sécurité Réelle
