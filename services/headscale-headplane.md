@@ -40,7 +40,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 | Propriété | Valeur |
 |---|---|
-| **Domaine** | `{domains.headscale}` |
+| **Domaine** | {domains.headscale} |
 | **Versions** | `headscale/headscale:v0.28.0` + `ghcr.io/tale/headplane:0.6.2` |
 | **Base de Données** | SQLite |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |

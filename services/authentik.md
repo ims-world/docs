@@ -36,7 +36,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 | Propriété | Valeur |
 |---|---|
-| **Domaine** | `{domains.sso}` |
+| **Domaine** | {domains.sso} |
 | **Rôle** | Provider d'Identité Centralisé (SSO / OIDC + WebAuthn 2FA) |
 | **Base de Données** | PostgreSQL |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |

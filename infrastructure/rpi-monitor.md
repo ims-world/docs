@@ -49,7 +49,7 @@ Un bouton poussoir raccordé aux GPIOs du Raspberry Pi permet d'interagir direct
 | **Écran Secondaire** | **Module OLED 0.91 pouces** (`128x32`, affichage blanc/bleu) | Affichage direct des métriques de statut et uptime. |
 | **Carte Mère** | Raspberry Pi 3B+ (Broadcom BCM2837B0 quad-core 1.4GHz, 1 Go RAM) | Exécute le script de rotation et le navigateur Chromium headless. |
 | **Bouton de Contrôle** | Bouton poussoir GPIO avec LED | Appui court = Change source / Appui long 3s = Éteint l'écran. |
-| **Réseau & Tailnet** | Ethernet RJ45 + Client Tailscale (`{ips.rpi}`) | Hostname Tailnet: `ims-rpi-monitor` |
+| **Réseau & Tailnet** | Ethernet RJ45 + Client Tailscale ({ips.rpi}) | Hostname Tailnet: `ims-rpi-monitor` |
 | **Statut** | <Badge color="green">🟢 Production</Badge> | Affichage Kiosk |
 
 ---

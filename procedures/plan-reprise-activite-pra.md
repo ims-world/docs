@@ -92,7 +92,7 @@ sequenceDiagram
     </CodeGroup>
 
     <Check>
-      La VM Coolify redémarre automatiquement avec son IP statique (`{ips.coolifyLan}`). Le reverse proxy Traefik v3.7 reprend le routage du trafic dès son démarrage.
+      La VM Coolify redémarre automatiquement avec son IP statique ({ips.coolifyLan}). Le reverse proxy Traefik v3.7 reprend le routage du trafic dès son démarrage.
     </Check>
   </Step>
 

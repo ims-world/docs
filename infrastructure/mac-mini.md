@@ -24,7 +24,7 @@ Le **Mac Mini 2014** a été l'hôte principal de l'infrastructure jusqu'à sa *
 | **Processeur** | Intel Core i5 Dual-Core |
 | **Stockage** | SSD SATA 256 Go |
 | **Réseau LAN** | Ethernet Gigabit `192.168.1.x` |
-| **Tailscale IP** | `{ips.macmini}` |
+| **Tailscale IP** | {ips.macmini} |
 | **Hostname Tailnet** | `macmini-standby` / `coolify-old.ims-world.fr` |
 | **Port SSH Réel** | **`4242`** (port `22` occupé par Endlessh tarpit) |
 | **Statut** | <Badge color="amber">🟡 Standby Chaud</Badge> |

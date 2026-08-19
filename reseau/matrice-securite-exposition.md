@@ -187,7 +187,10 @@ graph TB
 ## 🔒 Règles de Sécurité Impératives
 
 <Warning>
-**Port SSH 4242** : Le serveur SSH réel écoute sur le port **4242**. Le port 22 est occupé par **Endlessh** (tarpit piège à bots). Ne jamais ouvrir le port 22 ou 4242 vers le WAN public.
+**Politique d'Isolation SSH Système — Ports 22 & 4242 Fermés sur le WAN** :
+Le serveur SSH d'administration système écoute sur le port **4242** (le port 22 étant occupé par **Endlessh** comme tarpit piège à bots).
+**Aucune redirection de port SSH d'administration n'existe sur la Bbox.** L'accès SSH système (MS-01, LXC NAS, VM Coolify, Mac Mini) est **strictement impossible depuis l'Internet public**. Il exige une connexion au **LAN local (`192.168.1.0/24`)** ou d'être authentifié sur le **VPN Overlay Tailscale (`100.64.0.0/10`)**.
+Seul le port **`2222`** (dédié aux opérations Git SSH de Forgejo) est redirigé depuis le WAN. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
 </Warning>
 
 <Warning>

@@ -39,7 +39,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 | Propriété | Valeur |
 |---|---|
-| **Domaine** | `{domains.vaultwarden}` |
+| **Domaine** | {domains.vaultwarden} |
 | **Rôle** | Gestionnaire de Mots de Passe Chiffré |
 | **Base de Données** | SQLite (mode Write-Ahead Log WAL) |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |

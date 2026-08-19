@@ -30,7 +30,7 @@ Datastore de sauvegarde déduplicée pour les VM/LXC applicatifs (VM Coolify en 
 | **Type** | LXC Debian 12, **privilégié** (requis pour montage NFS direct) |
 | **CPU / RAM** | 2 cores / 1024 MB |
 | **Réseau** | `vmbr0` ({ips.pbsLan}/24) + `vmbr1` (10.10.10.3/24) + client Tailscale dédié |
-| **Accès Tailscale** | `{ips.pbs}`, hostname `ims-pve-103-pbs` |
+| **Accès Tailscale** | {ips.pbs}, hostname `ims-pve-103-pbs` |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 <Note>
