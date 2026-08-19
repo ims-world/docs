@@ -3,6 +3,27 @@ title: "Changelog & Historique"
 description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
+<Update label="Semaine du 13/08/2026 au 19/08/2026" description="Récapitulatif hebdomadaire : PhotoPrism, Forgejo, tier SSD & fiabilité GPU">
+  ### ✨ Nouveaux services
+  - **[PhotoPrism](/services/photoprism)** est disponible sur `studio.ims-world.fr`. Votre bibliothèque photo et studio d'archivage RAW sont hébergés en interne, avec restauration confirmée de 24 565 photos et dépôt WebDAV pour l'ingestion.
+  - **[Forgejo](/services/forgejo)** est en production sur `forge.ims-world.fr`. Vous pouvez héberger vos dépôts Git, issues et Pull Requests avec SSO Authentik, plus un miroir de sauvegarde automatique depuis GitHub. Le clonage SSH est accessible depuis n'importe quel réseau via `ssh://git@forge.ims-world.fr:2222/…`.
+  - **[Patrimo](/services/patrimo)** est en ligne sur `patrimo.ims-world.fr` avec déploiement continu à chaque push.
+  - **[Zipline](/services/zipline)** est disponible sur `share.ims-world.fr` pour le partage de fichiers, les captures ShareX et le raccourcissement de liens, avec connexion SSO.
+  - **[Stirling PDF](/services/stirling-pdf)** est publié sur `pdf.ims-world.fr`. Vous disposez d'une boîte à outils PDF (fusion, découpe, conversion, OCR) en mode *stateless* : aucun document n'est conservé après traitement. L'accès est protégé par SSO Authentik.
+
+  ### 🔧 Mises à jour
+  - **Coolify** est passé en v4.3.2 puis v4.3.6 : gestion améliorée des webhooks Git et des builds Compose. Une [procédure de secours](/infrastructure/vm-coolify#procédure-post-mise-à-jour-coolify-perte-ihm) est documentée si l'accès à `coolify.ims-world.fr` est perdu après une mise à jour.
+  - **Migration terminée vers le MS-01** : l'ensemble des services applicatifs tourne désormais sur le nouveau serveur. Le [Mac Mini 2014](/infrastructure/mac-mini) bascule officiellement en Standby Chaud de secours.
+  - **Tier de stockage `storage-hot` sur SSD dédié** : les données chaudes d'Immich, Forgejo et consorts sont déplacées sur un SSD 4 To dédié. Vous gagnez 3 To d'espace libre et de meilleures performances. Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
+  - **Nettoyage HomeFlix** : environ 330 Go d'espace libéré sur le NAS après audit des fichiers orphelins. La disponibilité passe de 791 Go à 1,1 To. Voir [HomeFlix](/services/homeflix).
+  - **Accélération matérielle Jellyfin** : le passthrough complet de l'iGPU vers la VM Coolify est officialisé. Les transcodes atteignent 29,7× le temps réel. Voir [ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe).
+
+  ### 🐛 Corrections
+  - **Jellyfin & Sonarr rétablis après incident GPU** : la perte du périphérique `/dev/dri` au redémarrage a été corrigée et un correctif préventif est en place pour éviter toute récidive lors des mises à jour du noyau. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri).
+  - **Grafana accessible en SSO** : suite à un blocage HTTP 403 identifié sur le middleware `vpn-only`, Grafana bascule sur la connexion SSO Authentik OIDC. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
+  - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
+</Update>
+
 <Update label="19/08/2026" description="Incident GPU Passthrough (/dev/dri) & Métapaquet Kernels">
   ### 🚨 Incident Rétabli
   - **Disparition de `/dev/dri` au redémarrage complet** — Résolution d'un dysfonctionnement au boot de la VM Coolify provoquant l'échec de Jellyfin et Sonarr avec l'erreur `error gathering device information while adding custom device "/dev/dri": no such file or directory`.
