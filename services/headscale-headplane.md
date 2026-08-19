@@ -40,13 +40,18 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 | Propriété | Valeur |
 |---|---|
-| **Domaine** | {domains.headscale} |
+| **URL Coordination (Public)** | `https://vpn.ims-world.fr` *(Public WAN — serveur de coordination Tailscale)* |
+| **URL Admin Headplane (Tailnet Only)** | `https://admin.vpn.ims-world.fr/admin` *(Tailscale Only — **`/admin` obligatoire**)* |
 | **Versions** | `headscale/headscale:v0.28.0` + `ghcr.io/tale/headplane:0.6.2` |
-| **Base de Données** | SQLite |
+| **Base de Données** | SQLite (`db.sqlite`) |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `i136ix2bmrrbeovnyrh1o72w` |
 | **Chemin sur la VM** | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
+
+<Warning>
+**Suffixe de Chemin `/admin` Obligatoire** : L'application web Headplane est compilée avec le base path `/admin`. Accéder à `https://admin.vpn.ims-world.fr/` sans le suffixe renvoie un HTTP **404 Not Found** (car Headplane n'enregistre aucune route sur la racine `/`). L'URL exacte d'administration est **`https://admin.vpn.ims-world.fr/admin`**.
+</Warning>
 
 ---
 

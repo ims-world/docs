@@ -114,9 +114,14 @@ Contrairement aux autres services (Environment Variables Coolify avec option "Is
 
 ---
 
-## Middleware `vpn-only` — Services Restreints à Tailscale
+## Provider File Centralisé `vpn-only.yaml` — Services Restreints au Tailnet
 
-Fichier dynamique séparé (pas géré par les labels Docker), à recréer manuellement sur toute nouvelle install :
+<Check>
+**Fix Validé CIS Docker Benchmark (`"userland-proxy": false`)** :
+En désactivant le proxy userland Docker (`"userland-proxy": false` dans `/etc/docker/daemon.json`), Docker s'appuie nativement sur les règles iptables `DNAT` + `MASQUERADE` et le paramètre noyau `net.ipv4.route_localnet`. Ce mécanisme de durcissement préserve l'adresse IP source réelle du client (WAN, LAN ou Tailnet `100.64.0.0/10`) sans masquage en `10.0.1.1`. Voir l'[ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
+</Check>
+
+L'ensemble des routeurs et des définitions de services `vpn-only` est centralisé dans le fichier dynamique du provider File Traefik : `/data/coolify/proxy/dynamic/vpn-only.yaml` (surveillé en hot-reload automatique).
 
 ```yaml
 # /data/coolify/proxy/dynamic/vpn-only.yaml
@@ -126,47 +131,106 @@ http:
       ipAllowList:
         sourceRange:
           - "100.64.0.0/10"
+    admin-gzip:
+      compress: {}
+
+  routers:
+    grafana-admin:
+      rule: "Host(`monitoring.ims-world.fr`)"
+      entryPoints: [https]
+      service: grafana-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    qbit-admin:
+      rule: "Host(`qbit.ims-world.fr`)"
+      entryPoints: [https]
+      service: qbit-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    sonarr-admin:
+      rule: "Host(`sonarr.ims-world.fr`)"
+      entryPoints: [https]
+      service: sonarr-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    radarr-admin:
+      rule: "Host(`radarr.ims-world.fr`)"
+      entryPoints: [https]
+      service: radarr-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    prowlarr-admin:
+      rule: "Host(`prowlarr.ims-world.fr`)"
+      entryPoints: [https]
+      service: prowlarr-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    coolify-admin:
+      rule: "Host(`coolify.ims-world.fr`)"
+      entryPoints: [https]
+      service: coolify-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    headplane-admin:
+      rule: "Host(`admin.vpn.ims-world.fr`)"
+      entryPoints: [https]
+      service: headplane-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+  services:
+    grafana-admin:
+      loadBalancer:
+        servers:
+          - url: "http://grafana-rrw19kmye6gng961igtzqpgw:3000"
+
+    qbit-admin:
+      loadBalancer:
+        servers:
+          - url: "http://gluetun-w39uebmcnse7yctsft8hzed8:8080"
+
+    sonarr-admin:
+      loadBalancer:
+        servers:
+          - url: "http://sonarr-w39uebmcnse7yctsft8hzed8:8989"
+
+    radarr-admin:
+      loadBalancer:
+        servers:
+          - url: "http://radarr-w39uebmcnse7yctsft8hzed8:7878"
+
+    prowlarr-admin:
+      loadBalancer:
+        servers:
+          - url: "http://prowlarr-w39uebmcnse7yctsft8hzed8:9696"
+
+    coolify-admin:
+      loadBalancer:
+        servers:
+          - url: "http://coolify:8080"
+
+    headplane-admin:
+      loadBalancer:
+        servers:
+          - url: "http://headplane-i136ix2bmrrbeovnyrh1o72w:3000"
 ```
 
-<Warning>
-**Avertissement d'Architecture — Bug `docker-proxy` (`10.0.1.1`)** :
-En raison du composant `userland-proxy` activé par défaut par Docker sur l'hôte, Traefik perçoit l'intégralité des requêtes entrantes avec l'IP source de la passerelle Docker bridge (`10.0.1.1`), masquant l'IP cliente réelle (`100.64.0.x`). En conséquence, le middleware `vpn-only` renvoie systématiquement une erreur **HTTP 403 Forbidden** à tous les utilisateurs. Grafana a été basculé sur le SSO Authentik OIDC pour contourner ce problème. Voir l'[ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
-</Warning>
-
-Appliqué sur : qBittorrent, Prowlarr, Radarr, Sonarr (label `traefik.http.routers.<x>.middlewares=vpn-only@file`).
-
-### Double Verrouillage & Limites de Sécurité Réelle
-
-La restriction d'accès aux services privés (qBittorrent, Sonarr, Radarr, Prowlarr) s'appuie sur une **double barrière de sécurité** :
-
-1. **Masquage au niveau DNS (OVH Override `127.0.0.1`)** :
-   - Les sous-domaines privés sont configurés dans la zone DNS OVH pour pointer vers `127.0.0.1` (loopback). Un client public WAN qui effectue une résolution DNS ne découvre pas l'IP publique Bbox.
-   - *Limite* : Le DNS n'étant pas une frontière réseau, un attaquant connaissant l'IP publique Bbox et forçant le header HTTP `Host` en HTTPS interroge tout de même le proxy Traefik.
-
-2. **Filtrage applicatif au niveau Proxy (Middleware `ipAllowList`)** :
-   - Le middleware Traefik `vpn-only` contrôle l'IP source de la requête HTTP entrante. Si l'IP ne fait pas partie de la plage du Tailnet (`100.64.0.0/10`), Traefik rejette immédiatement la connexion avec une **HTTP 403 Forbidden**.
-
-<Note>
-**Piste de Durcissement Niveau 4 (Roadmap)** : Pour une étanchéité absolue indépendante de la couche HTTP (évitant qu'une requête WAN atteigne Traefik), il est préconisé soit de binder l'écoute de ces services uniquement sur l'IP Tailscale de la VM (`100.64.0.4`), soit de bloquer les ports au niveau du pare-feu Proxmox (Layer 4). Voir [Roadmap](/procedures/roadmap).
-</Note>
-
 ---
 
-## Règle Réseau Multi-Interfaces — `traefik.docker.network`
+## ⚠️ Règle d'Or de Routage : UI Coolify vs Dynamic File Provider
 
 <Warning>
-Pour tout service attaché à **plusieurs réseaux Docker**, le label `traefik.docker.network=coolify` est indispensable — sans lui, Traefik ne sait pas quelle IP utiliser malgré un port explicitement défini. Symptôme : `service error: port is missing` dans les logs `coolify-proxy`.
-</Warning>
+**Gestion des Domaines d'Administration Privés** :
 
----
+- **Services Publics ou avec SSO OIDC Natif** (Immich, Vaultwarden, Forgejo) : Renseigner le domaine dans le champ *Domains* de l'UI Coolify. Coolify génère automatiquement le routeur Traefik.
+- **Services Privés `vpn-only`** (Coolify, Headplane, qBittorrent, Sonarr, Radarr, Prowlarr, Grafana) : **Laisser le champ Domains VIDE dans l'UI Coolify** et déclarer le router/service exclusivement dans `/data/coolify/proxy/dynamic/vpn-only.yaml`.
 
-## ⚠️ Règle d'Or de Routage : UI Coolify vs Labels Compose Manuels
-
-<Warning>
-**Règle de Routage Traefik & Coolify** : 
-
-L'astuce d'utilisation du champ *Domains* dans l'UI Coolify (*"laisser Coolify gérer le routeur Traefik"*) est **exclusivement réservée aux services standards sans middleware sur-mesure** (sans `vpn-only`, sans forward-auth).
-
-Dès qu'un service nécessite un middleware Traefik spécifique (ex: filtrage d'accès IP `vpn-only` pour les services Tailscale-only), **il faut impérativement ré-expliciter les labels Traefik manuellement dans le fichier Compose (`docker-compose.yml`) et laisser le champ Domains vide dans l'UI Coolify**. Sinon, Coolify génère un routeur automatique parallèle sans middleware, ce qui ré-expose publiquement le service.
+Si un domaine privé est saisi dans l'UI Coolify, Coolify génère un routeur automatique parallèle sans le middleware `vpn-only`, créant une concurrence de routeurs non déterministe qui peut ré-exposer le service publiquement.
 </Warning>
 

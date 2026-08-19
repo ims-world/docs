@@ -1,64 +1,178 @@
 ---
-title: "ADR-009 — Bug du Middleware Traefik vpn-only lié au userland-proxy Docker"
-description: "Masquage des IP sources par le proxy Docker utilisateur (10.0.1.1) et stratégies d'atténuation"
-icon: "shield-exclamation"
+title: "ADR-009 — Isolation Réseau des Services d'Administration (vpn-only & userland-proxy)"
+description: "Décision d'architecture pour le durcissement du réseau Docker (CIS Benchmark) et la centralisation des accès privés via Traefik File Provider"
+icon: "shield-check"
 iconType: "duotone"
 ---
 
 ## Statut
-<Badge color="amber">🟡 En Analyse & Contournement Applicatif</Badge> *(2026-08-18)*
+<Badge color="green">🟢 Implémenté & Validé</Badge> *(Août 2026)*
 
 ---
 
 ## Contexte
 
-Le middleware Traefik `vpn-only` (`ipAllowList: 100.64.0.0/10`, défini dans `/data/coolify/proxy/dynamic/vpn-only.yaml`) vise à restreindre l'accès à certaines interfaces privées (`qbit`, `radarr`, `sonarr`, `prowlarr`, `monitoring`) aux seuls clients connectés au réseau VPN Overlay Tailscale (`100.64.0.0/10`).
+L'architecture du homelab IMS-WORLD exige la possibilité de restreindre l'accès à un ensemble de services d'administration et d'infrastructures sensibles (`coolify`, `headplane`, `qbit`, `sonarr`, `radarr`, `prowlarr`, `monitoring`) aux seuls clients connectés au réseau privé Overlay Tailscale/Headscale (`100.64.0.0/10`), tout en conservant d'autres services (Immich, PhotoPrism, HomeFlix Jellyfin, Vaultwarden, Authentik) accessibles sur l'Internet public.
 
-Le 18 août 2026, un dysfonctionnement a été identifié : **le middleware bloque systématiquement 100% des requêtes entrantes (y compris les requêtes légitimes émanant du Tailnet)** en renvoyant une réponse **HTTP 403 Forbidden (9 octets)**.
-
----
-
-## Cause Racine (Root Cause)
-
-Le démon Docker sur l'hôte (VM Coolify) utilise par défaut le composant **`userland-proxy`** (`docker-proxy`) pour transférer le trafic des ports publiés (80/443). 
-
-1. `docker-proxy` accepte la connexion TCP sur l'interface de l'hôte (ex: `tailscale0` ou `vmbr0`).
-2. Au lieu de faire du NAT direct au niveau du noyau (iptables) qui préserverait l'IP d'origine (`100.64.0.x`), `docker-proxy` ouvre une **seconde connexion TCP séparée** vers le conteneur `coolify-proxy` (Traefik).
-3. Cette connexion est sourcée avec l'adresse IP de la passerelle du bridge Docker (ex: **`10.0.1.1`** pour le réseau bridge Coolify `br-765ae81efc77`).
-4. **Conséquence** : Dans `docker logs coolify-proxy`, Traefik évalue `ClientAddr: 10.0.1.1` pour l'intégralité des requêtes HTTP/HTTPS entrantes, quelle que soit leur provenance réelle (Tailnet, LAN ou WAN).
-
-### Preuves Diagnostic
-- `curl -v https://monitoring.ims-world.fr` → **HTTP 403 Forbidden** (corps de 9 octets, signature exacte de Traefik `ipAllowList`).
-- `tcpdump -i tailscale0` → Le paquet réseau sous-jacent arrive bien avec l'IP source client `100.64.0.3`.
-- `docker logs coolify-proxy` → Traefik enregistre `ClientAddr: 10.0.1.1` et rejette la requête car `10.0.1.1` n'est pas inclus dans la plage `100.64.0.0/10`.
+Initialement, un middleware Traefik `vpn-only` (`ipAllowList: 100.64.0.0/10`) avait été configuré, mais s'avérait **inopérant** : l'intégralité des requêtes HTTP/HTTPS arrivait au conteneur Traefik avec l'adresse IP de la passerelle Docker bridge (`10.0.1.1`), déclenchant un rejet HTTP 403 y compris pour les utilisateurs légitimes du VPN.
 
 ---
 
-## Décisions & Stratégie d'Atténuation
+## Décision d'Architecture
 
-### 1. Retrait immédiat de `vpn-only` sur Grafana (`monitoring.ims-world.fr`)
-Pour rétablir l'accès à Grafana sans compromettre la sécurité, le middleware `vpn-only` a été retiré de son routeur et l'accès a été sécurisé par **l'authentification SSO OIDC Authentik** (`auth.ims-world.fr`).
+### 1. Durcissement du Démon Docker (`"userland-proxy": false`)
+Nous avons décidé de désactiver le proxy applicatif en espace utilisateur de Docker en inscrivant `"userland-proxy": false` dans `/etc/docker/daemon.json` sur la VM IMS-Coolify (VM 104).
 
-### 2. Maintien temporaire sur la Stack Media (`qbit`, `radarr`, `sonarr`, `prowlarr`)
-Le middleware `vpn-only` est conservé pour le moment sur la stack media. Les services restent protégés par leurs authentifications applicatives natives (formulaire/mot de passe/clé API), mais le filtrage d'IP réseau par ipAllowList demeure inopérant tant que `userland-proxy` intercepte le trafic.
+**Validation Sécurité CIS Docker Benchmark** :
+Cette modification n'est pas un contournement applicatif ou un hack temporaire, mais **la recommandation officielle de sécurité du CIS Docker Benchmark** (*Section 2.12 — Disable userland proxy*). En désactivant le `userland-proxy`, Docker bascule l'intégralité du routage sur les mécanismes natifs du noyau Linux :
+- Règles **iptables DNAT + MASQUERADE**.
+- Activation du paramètre noyau **`net.ipv4.route_localnet`**.
 
-### 3. Report de la modification système `"userland-proxy": false`
-La désactivation globale du proxy utilisateur dans `/etc/docker/daemon.json` (`"userland-proxy": false`) permettrait à iptables de préserver les IP sources d'origine. Cependant, cette modification a été **reportée à une fenêtre de maintenance dédiée** car elle exige :
-- Un redémarrage complet du démon Docker de la VM Coolify (coupure momentanée de tous les conteneurs).
-- Une vérification approfondie post-redémarrage de la connectivité inter-conteneurs sur la vingtaine de réseaux bridges Docker (`br-*`).
+Ce mécanisme préserve l'adresse IP source réelle du client (WAN, LAN ou Tailnet) sur l'interface de Traefik, tout en gérant de manière fluide les flux loopback et inter-conteneurs (hairpin NAT).
+
+```json
+// /etc/docker/daemon.json
+{
+  "log-driver": "json-file",
+  "log-opts": { "max-size": "10m", "max-file": "3" },
+  "default-address-pools": [{"base":"10.0.0.0/8","size":24}],
+  "userland-proxy": false
+}
+```
+
+### 2. Routage Centralisé via Traefik File Provider (`vpn-only.yaml`)
+Pour éliminer les concurrences de routeurs provoquées par l'orchestrateur Coolify (qui écrase les labels middlewares sur les ressources de type "Service"), l'intégralité des routeurs et des définitions de services `vpn-only` est centralisée dans un unique fichier dynamique du provider File de Traefik : `/data/coolify/proxy/dynamic/vpn-only.yaml`.
+
+- Les sous-domaines d'administration sont **retirés du champ "Domains" de l'UI Coolify** pour éviter tout routeur généré automatiquement en parallèle.
+- Le conteneur `coolify-proxy` conserve sa topologie en **mode bridge standard** sans modifier son attachement aux ~20 réseaux Docker isolés.
+- Les routeurs Traefik pointent directement vers les conteneurs cibles via le DNS interne Docker (`http://<nom-conteneur>:<port>`).
+
+```yaml
+# /data/coolify/proxy/dynamic/vpn-only.yaml
+http:
+  middlewares:
+    vpn-only:
+      ipAllowList:
+        sourceRange:
+          - 100.64.0.0/10
+    admin-gzip:
+      compress: {}
+
+  routers:
+    grafana-admin:
+      rule: "Host(`monitoring.ims-world.fr`)"
+      entryPoints: [https]
+      service: grafana-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    qbit-admin:
+      rule: "Host(`qbit.ims-world.fr`)"
+      entryPoints: [https]
+      service: qbit-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    sonarr-admin:
+      rule: "Host(`sonarr.ims-world.fr`)"
+      entryPoints: [https]
+      service: sonarr-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    radarr-admin:
+      rule: "Host(`radarr.ims-world.fr`)"
+      entryPoints: [https]
+      service: radarr-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    prowlarr-admin:
+      rule: "Host(`prowlarr.ims-world.fr`)"
+      entryPoints: [https]
+      service: prowlarr-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    coolify-admin:
+      rule: "Host(`coolify.ims-world.fr`)"
+      entryPoints: [https]
+      service: coolify-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+    headplane-admin:
+      rule: "Host(`admin.vpn.ims-world.fr`)"
+      entryPoints: [https]
+      service: headplane-admin
+      middlewares: [vpn-only, admin-gzip]
+      tls: {certResolver: letsencrypt}
+
+  services:
+    grafana-admin:
+      loadBalancer:
+        servers:
+          - url: "http://grafana-rrw19kmye6gng961igtzqpgw:3000"
+
+    qbit-admin:
+      loadBalancer:
+        servers:
+          - url: "http://gluetun-w39uebmcnse7yctsft8hzed8:8080"
+
+    sonarr-admin:
+      loadBalancer:
+        servers:
+          - url: "http://sonarr-w39uebmcnse7yctsft8hzed8:8989"
+
+    radarr-admin:
+      loadBalancer:
+        servers:
+          - url: "http://radarr-w39uebmcnse7yctsft8hzed8:7878"
+
+    prowlarr-admin:
+      loadBalancer:
+        servers:
+          - url: "http://prowlarr-w39uebmcnse7yctsft8hzed8:9696"
+
+    coolify-admin:
+      loadBalancer:
+        servers:
+          - url: "http://coolify:8080"
+
+    headplane-admin:
+      loadBalancer:
+        servers:
+          - url: "http://headplane-i136ix2bmrrbeovnyrh1o72w:3000"
+```
+
+### 3. Découplage Headscale / Headplane (2 URLs Distinctes)
+Pour résoudre l'incompatibilité entre le serveur de coordination VPN et l'interface d'administration web :
+- **`vpn.ims-world.fr`** (Public WAN) : Conservé publiquement sans middleware `vpn-only` pour permettre l'initialisation des connexions Tailscale des clients distants avant l'établissement du tunnel.
+- **`https://admin.vpn.ims-world.fr/admin`** (Tailnet Only) : Interface d'administration Headplane restreinte au Tailnet.
+  - Résolution split-horizon via l'enregistrement Headscale `dns.extra_records` (`admin.vpn.ims-world.fr` → `100.64.0.4`).
+  - **Le suffixe de chemin `/admin` est OBLIGATOIRE** car Headplane est compilé avec le base path `/admin` et renvoie une erreur 404 sur la racine `/`.
 
 ---
 
-## Plan d'Action (Roadmap)
+## Alternatives Envisagées & Rejetées
 
-<Steps>
-  <Step title="Vérification Formelle Stack Media">
-    Tester l'impact exact du blocage sur les interfaces web de qBittorrent, Sonarr, Prowlarr et Radarr.
-  </Step>
-  <Step title="Fenêtre de Maintenance userland-proxy">
-    Tester `"userland-proxy": false` dans `/etc/docker/daemon.json` sur la VM Coolify et contrôler les tables iptables + la connectivité inter-services.
-  </Step>
-  <Step title="Alternative SSO/Forward-Auth (Option de Secours)">
-    Si la désactivation de `userland-proxy` provoque des régressions sur les bridges Docker, généraliser l'authentification Forward-Auth Authentik sur les 4 services d'administration media.
-  </Step>
-</Steps>
+### 1. Mode Réseau Host sur Traefik (`network_mode: host`)
+- **Rejetée** : Augmente de manière inacceptable la surface d'attaque de Traefik en cas de compromission (accès direct à tous les services écoutant sur `127.0.0.1` de l'hôte). Exige de retirer Traefik du réseau `coolify`, risquant de rompre la résolution des 20 réseaux isolés.
+
+### 2. Second Traefik Dédié en Sidecar Tailscale
+- **Rejetée** : Entraîne le maintien de deux conteneurs supplémentaires, la duplication de la gestion des certificats ACME et du challenge DNS-01, pour une complexité injustifiée alors que la désactivation de `userland-proxy` couvre l'intégralité des besoins.
+
+### 3. ForwardAuth Authentik Généralisé (sans fix réseau)
+- **Rejetée** : Tailscale fournissant déjà une authentification forte basée sur l'identité matérielle (clés WireGuard), l'ajout de 5 Outposts/Providers Authentik sur la stack de téléchargement aurait apporté une complexité disproportionnée pour une protection redondante.
+
+### 4. Labels Traefik directement dans les Compose managés par Coolify
+- **Rejetée** : Coolify écrase silencieusement la clé `middlewares` des routeurs générés automatiquement pour les ressources de type "Service". L'utilisation de priorités explicites sur des routeurs concurrents produit un comportement non déterministe sous Traefik.
+
+---
+
+## Conséquences & Bénéfices
+
+- **Sécurité en Profondeur (CIS Benchmark)** : Préservation absolue de l'IP source réelle sans dépendre d'un proxy userland fragile.
+- **Zéro Concurrence de Routeurs** : La suppression du domaine dans l'UI Coolify garantit que Traefik applique exclusivement les règles centralisées du fichier `vpn-only.yaml`.
+- **Hot-Reload Instantané** : Toute modification de `vpn-only.yaml` est prise en compte instantanément par Traefik sans aucun redémarrage du proxy.
+- **Ressources Système Optimisées** : Suppression des processus `docker-proxy` en arrière-plan.

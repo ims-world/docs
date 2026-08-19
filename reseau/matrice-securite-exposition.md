@@ -19,9 +19,9 @@ L'infrastructure IMS-WORLD applique le principe de **moindre privilège** et de 
 
 Avant de répertorier chaque service applicatif, l'infrastructure est découpée en **3 zones d'isolation étanches** :
 
-1. **Zone 1 — Public WAN (Internet)** : Services ouverts sur le Web (`auth.ims-world.fr`, `vault.ims-world.fr`, `photos.ims-world.fr`, `homeflix.ims-world.fr`, `videoclub.ims-world.fr`). Accessibles via HTTPS sur les ports 80/443 de la Bbox, protégés par Traefik, Let's Encrypt et Authentik SSO.
-2. **Zone 2 — Tailnet Overlay (VPN Restreint `100.64.0.0/10`)** : Services privés d'administration applicative (`qbit`, `radarr`, `sonarr`, `prowlarr`, `monitoring`, `headplane`). Résolution masquée (OVH `127.0.0.1`) et filtrés par le middleware Traefik `vpn-only` (**HTTP 403 Forbidden** hors du Tailnet).
-3. **Zone 3 — Administration LAN & Bridge NFS Isolé (`192.168.1.0/24` & `10.10.10.0/24`)** : Interfaces de gestion bas niveau des hyperviseurs et stockage (GUI Proxmox 8006, PBS GUI 8007, SMB 445, NFS 2049). Totalement fermées à l'Internet public.
+1. **Zone 1 — Public WAN (Internet)** : Services ouverts sur le Web (`auth.ims-world.fr`, `vault.ims-world.fr`, `photos.ims-world.fr`, `homeflix.ims-world.fr`, `videoclub.ims-world.fr`). Accessibles via HTTPS sur les ports 80/443 de la Bbox, protégés par Traefik, Let's Encrypt et Authentik SSO. (Seul le port TCP 2222 pour Forgejo Git SSH est redirigé depuis le WAN).
+2. **Zone 2 — Tailnet Overlay (VPN Restreint `100.64.0.0/10`)** : Services privés d'administration applicative (`qbit`, `radarr`, `sonarr`, `prowlarr`, `monitoring`, `headplane`). Filtrés par le provider file Traefik `vpn-only.yaml` (**HTTP 403 Forbidden** hors du Tailnet).
+3. **Zone 3 — Administration LAN & Tailnet Direct (`192.168.1.0/24` & `100.64.0.0/10`)** : Interfaces de gestion bas niveau des hyperviseurs et accès SSH système (Proxmox GUI 8006, PBS GUI 8007, SSH 4242/22, SMB 445, NFS 2049). **Accès SSH directement possible depuis le LAN ou depuis le Tailnet** (`100.64.0.x`). Totalement fermés à l'Internet public.
 
 ```mermaid
 graph TB
@@ -32,24 +32,25 @@ graph TB
 
     subgraph ZONE_TAILNET ["🔐 Zone 2 — Tailnet Overlay (Headscale 100.64.0.0/10)"]
         VPN_USERS["Appareils Authentifiés Tailnet"]
-        MIDDLEWARE_VPN["Traefik Middleware: vpn-only (ipAllowList)"]
+        MIDDLEWARE_VPN["Traefik Provider File: vpn-only.yaml"]
     end
 
-    subgraph ZONE_LAN ["🏠 Zone 3 — LAN Interne & Virtual Bridges (192.168.1.0/24 & 10.10.10.0/24)"]
-        ADMIN_LAN["Admin SSH (Port 4242) / GUI Proxmox (8006)"]
-        NFS_ISO["Bridge vmbr1 Isolé (Trafic NFS Interne Guests)"]
+    subgraph ZONE_LAN ["🏠 Zone 3 — Administration System (LAN 192.168.1.x & Tailnet Direct 100.64.0.x)"]
+        ADMIN_LAN["Admin SSH (Port 4242/22) / GUI Proxmox (8006) / PBS (8007)"]
+        NFS_ISO["Bridge vmbr1 Isolé (Trafic NFS Interne Guests 10.10.10.0/24)"]
     end
 
-    subgraph SERVICES ["🐳 Services Applicatifs Docker (VM 104)"]
+    subgraph SERVICES ["🐳 Services Applicatifs Docker (VM 104) & Hôtes"]
         PUB_APPS["Authentik (auth) / Vaultwarden (vault) / Immich (photos) / Jellyfin (homeflix)"]
         PRIV_APPS["qBittorrent (qbit) / Radarr / Sonarr / Prowlarr / Grafana (monitoring)"]
-        ADMIN_NODES["Host PVE (41) / NAS LXC (50) / PBS LXC (51)"]
+        ADMIN_NODES["Host PVE (100.64.0.9) / NAS LXC (10.10.10.1) / PBS LXC (100.64.0.2) / VM 104 (100.64.0.4)"]
     end
 
     PUBLIC_USERS --> HTTPS_443
     HTTPS_443 --> PUB_APPS
 
     VPN_USERS --> MIDDLEWARE_VPN
+    VPN_USERS -.->|Accès SSH Direct & GUIs| ADMIN_LAN
     MIDDLEWARE_VPN --> PRIV_APPS
 
     ADMIN_LAN --> ADMIN_NODES
@@ -150,33 +151,38 @@ graph TB
   </Tab>
   <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">
     <CardGroup cols={2}>
+      <Card title="Coolify Dashboard" icon="server" href="/infrastructure/vm-coolify">
+        **Domaine** : `coolify.ims-world.fr`
+        **Protection** : `vpn-only.yaml` Traefik File Provider (`100.64.0.0/10`)
+      </Card>
       <Card title="Headplane Admin" icon="sliders" href="/services/headscale-headplane">
-        **URL** : `vpn.ims-world.fr/admin`
-        **Protection** : Middleware Traefik `vpn-only` (`100.64.0.0/10`)
+        **URL** : `https://admin.vpn.ims-world.fr/admin` *(**`/admin` obligatoire**)*
+        **Protection** : `vpn-only.yaml` + Split-Horizon MagicDNS (`100.64.0.4`)
       </Card>
       <Card title="qBittorrent" icon="download" href="/services/homeflix">
         **Domaine** : `qbit.ims-world.fr`
-        **Protection** : Middleware `vpn-only` + Kill-switch VPN Gluetun
+        **Protection** : `vpn-only.yaml` + Kill-switch VPN Gluetun
       </Card>
       <Card title="Radarr & Sonarr" icon="tv" href="/services/homeflix">
         **Domaines** : `radarr.ims-world.fr` / `sonarr.ims-world.fr`
-        **Protection** : Middleware `vpn-only` + Auth Formulaire
+        **Protection** : `vpn-only.yaml` + Auth Formulaire
       </Card>
       <Card title="Prowlarr" icon="magnifying-glass" href="/services/homeflix">
         **Domaine** : `prowlarr.ims-world.fr`
-        **Protection** : Middleware `vpn-only` + API Keys
+        **Protection** : `vpn-only.yaml` + API Keys
       </Card>
       <Card title="Grafana (Monitoring)" icon="chart-line" href="/services/monitoring">
         **Domaine** : `monitoring.ims-world.fr`
-        **Protection** : SSO Authentik OIDC (Middleware `vpn-only` retiré suite à l'ADR-009)
+        **Protection** : `vpn-only.yaml` + SSO Authentik OIDC
       </Card>
     </CardGroup>
   </Tab>
-  <Tab title="🏠 Zone 3 — Administration LAN & NFS Isolé">
+  <Tab title="🏠 Zone 3 — Administration LAN & Tailnet Direct">
     | Service / Nœud | Adresse / Port | Exposition | Méthode d'Authentification |
     |---|---|---|---|
-    | **Proxmox VE GUI** | `{ips.pveLan}:8006` | 🏠 LAN / Tailnet | PAM / Compte `cmolotkoff` |
-    | **PBS Web GUI** | `{ips.pbsLan}:8007` | 🏠 LAN / Tailnet | Auth PBS `cmolotkoff@pbs` |
+    | **SSH Système** | Ports `4242` / `22` | 🏠 LAN / 🔐 Tailnet | Clés SSH Ed25519 (0 accès WAN Bbox) |
+    | **Proxmox VE GUI** | `{ips.pveLan}:8006` / `100.64.0.9:8006` | 🏠 LAN / 🔐 Tailnet | PAM / Compte `cmolotkoff` |
+    | **PBS Web GUI** | `{ips.pbsLan}:8007` / `100.64.0.2:8007` | 🏠 LAN / 🔐 Tailnet | Auth PBS `cmolotkoff@pbs` |
     | **NAS SMB** | `{ips.nasLan}:445` | 🏠 LAN Only | Auth SMB `cmolotkoff` |
     | **NAS NFS** | `10.10.10.1:2049` | 🔒 `vmbr1` Isolé | Subnet IP `10.10.10.0/24` |
   </Tab>

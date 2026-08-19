@@ -5,7 +5,7 @@ icon: "shield-exclamation"
 iconType: "duotone"
 ---
 
-<Badge color="amber">🟡 Contourné via SSO OIDC & Roadmap en cours</Badge> *(2026-08-18)*
+<Badge color="green">🟢 Résolu & Implémenté via CIS Benchmark</Badge> *(2026-08-19)*
 
 ---
 

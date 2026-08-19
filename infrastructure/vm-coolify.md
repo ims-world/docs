@@ -152,14 +152,32 @@ sudo usermod -aG docker cmolotkoff
 
 ---
 
-## ⚠️ Règle d'Or : Routage Traefik Coolify vs Labels Manuels
+## 🔒 Configuration du Démon Docker (`/etc/docker/daemon.json`)
+
+<Check>
+**Durcissement Sécurité CIS Docker Benchmark (`"userland-proxy": false`)** :
+Pour préserver l'adresse IP source réelle du client (WAN, LAN ou Tailnet `100.64.0.0/10`) sans masquage en `10.0.1.1` et permettre le fonctionnement du filtrage `vpn-only`, le proxy userland Docker est désactivé. Docker s'appuie sur le mécanisme natif du noyau Linux (iptables `DNAT` + `MASQUERADE` + `net.ipv4.route_localnet`). Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
+</Check>
+
+```json
+// /etc/docker/daemon.json
+{
+  "log-driver": "json-file",
+  "log-opts": { "max-size": "10m", "max-file": "3" },
+  "default-address-pools": [{"base":"10.0.0.0/8","size":24}],
+  "userland-proxy": false
+}
+```
+
+---
+
+## ⚠️ Règle d'Or : Routage Dynamic File Provider (`vpn-only.yaml`) vs UI Coolify
 
 <Warning>
-**Règle de Routage Traefik & Coolify** : 
+**Gestion des Domaines d'Administration Privés** :
 
-L'astuce d'utilisation du champ *Domains* dans l'UI Coolify (*"laisser Coolify gérer le routeur Traefik"*) est **exclusivement réservée aux services standards sans middleware sur-mesure** (sans `vpn-only`, sans forward-auth).
-
-Dès qu'un service nécessite un middleware Traefik spécifique (ex: filtrage d'accès IP `vpn-only` pour les services Tailscale-only), **il faut impérativement ré-expliciter les labels Traefik manuellement dans le fichier Compose (`docker-compose.yml`) et laisser le champ Domains vide dans l'UI Coolify**. Sinon, Coolify génère un routeur automatique parallèle sans middleware, ce qui ré-expose publiquement le service.
+- **Services Publics / OIDC** : Renseigner le sous-domaine dans le champ *Domains* de l'UI Coolify.
+- **Services Privés `vpn-only`** (Coolify, Headplane, qBittorrent, Sonarr, Radarr, Prowlarr, Grafana) : **Laisser le champ Domains VIDE dans l'UI Coolify** et déclarer le routeur et le service dans `/data/coolify/proxy/dynamic/vpn-only.yaml`.
 </Warning>
 
 ---

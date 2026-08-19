@@ -44,6 +44,9 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
   <Card title="Déploiement d'un Nouveau Service Coolify" icon="cube" href="/procedures/deploiement-service">
     Check-list de déploiement Docker Compose, attribution d'UUID, configuration du réseau et masquage DNS.
   </Card>
+  <Card title="Sécuriser un Service avec vpn-only" icon="shield-check" href="/procedures/securiser-service-vpn-only">
+    Procédure pas-à-pas pour isoler un sous-domaine d'administration sur le réseau privé Tailscale via vpn-only.yaml.
+  </Card>
   <Card title="Sécuriser une App avec Authentik Outpost" icon="shield-keyhole" href="/procedures/securiser-application-authentik-forward-auth">
     Procédure complète pour protéger une application web sans SSO natif via Traefik et l'Outpost Proxy Authentik.
   </Card>

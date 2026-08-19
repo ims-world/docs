@@ -73,8 +73,8 @@ import { ips, domains } from "/snippets/variables.mdx";
 graph TB
     subgraph INGRESS ["🌐 Accès Web & Reverse Proxy (Tailnet Only)"]
         CLIENT_VPN["Client Tailnet (100.64.0.x)"]
-        TRAEFIK["Traefik v3.7 (vpn-only@file)"]
-        AUTHENTIK["Authentik SSO (auth.ims-world.fr)"]
+        TRAEFIK["Traefik v3.7 (vpn-only.yaml File Provider)"]
+        AUTHENTIK["Authentik SSO (auth.ims-world.fr OIDC)"]
     end
 
     subgraph CENTRAL_STACK ["📊 Stack Centrale Monitoring (VM 104 Docker)"]

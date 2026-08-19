@@ -142,13 +142,18 @@ graph TB
 |---|---|---|---|
 | **Jellyfin** | `homeflix.ims-world.fr` | 🌐 Zone 1 (Public WAN) | Serveur de streaming vidéo (accélération iGPU Haswell/Iris Xe) |
 | **Jellyseerr** | `videoclub.ims-world.fr` | 🌐 Zone 1 (Public WAN) | Portail de demande de films/séries |
-| **qBittorrent** | `qbit.ims-world.fr` | 🔐 Zone 2 (Tailnet Only) | Client de téléchargement torrent routé via Gluetun |
-| **Prowlarr** | `prowlarr.ims-world.fr` | 🔐 Zone 2 (Tailnet Only) | Gestionnaire centralisé d'indexeurs |
-| **Radarr** | `radarr.ims-world.fr` | 🔐 Zone 2 (Tailnet Only) | Automation & gestion de la bibliothèque de films |
-| **Sonarr** | `sonarr.ims-world.fr` | 🔐 Zone 2 (Tailnet Only) | Automation & gestion de la bibliothèque de séries |
+| **qBittorrent** | `qbit.ims-world.fr` | 🔐 Zone 2 (`vpn-only.yaml`) | Client torrent routé via Gluetun (`network_mode: service:gluetun`) |
+| **Prowlarr** | `prowlarr.ims-world.fr` | 🔐 Zone 2 (`vpn-only.yaml`) | Gestionnaire centralisé d'indexeurs |
+| **Radarr** | `radarr.ims-world.fr` | 🔐 Zone 2 (`vpn-only.yaml`) | Automation & gestion de la bibliothèque de films |
+| **Sonarr** | `sonarr.ims-world.fr` | 🔐 Zone 2 (`vpn-only.yaml`) | Automation & gestion de la bibliothèque de séries |
 | **Gluetun** | Interne | 🏠 Interne | Client VPN ProtonVPN WireGuard avec kill-switch mécanique pour qBit |
 | **Recyclarr** | Interne | 🏠 Interne | Synchronisation automatique quotidienne des profils de qualité TRaSH-Guides (04h00) |
 | **Autoheal** | Interne | 🏠 Interne | Surveillance et redémarrage automatique de qBittorrent si la liaison VPN Gluetun tombe |
+
+<Note>
+**Routage `vpn-only.yaml` & Netns Gluetun** :
+Les sous-domaines `qbit`, `prowlarr`, `radarr` et `sonarr` sont **retirés du champ Domains de l'UI Coolify** et déclarés exclusivement dans `/data/coolify/proxy/dynamic/vpn-only.yaml`. Pour qBittorrent (`network_mode: service:gluetun`), le service Traefik pointe directement vers le conteneur `gluetun` (port 8080) qui héberge l'espace de nommage réseau.
+</Note>
 
 ---
 

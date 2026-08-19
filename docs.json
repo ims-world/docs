@@ -129,6 +129,7 @@
               "procedures/catalogue-procedures",
               "procedures/commandes-urgence",
               "procedures/deploiement-service",
+              "procedures/securiser-service-vpn-only",
               "procedures/securiser-application-authentik-forward-auth",
               "procedures/sauvegarde-manuelle-coolify",
               "procedures/depannage-courant",
