@@ -24,8 +24,8 @@ Cette page constitue la **vue consolidée de l'architecture de sauvegarde et de 
 ### 2. Règle d'Anti-Circularité
 Le NAS (LXC 100) et PBS (LXC 103) ne sont **jamais** sauvegardés dans le datastore PBS qu'ils hébergent ou gèrent eux-mêmes. Leurs sauvegardes s'effectuent via l'utilitaire `vzdump` directement de l'hôte Proxmox vers le stockage NVMe local (`local` / `/var/lib/vz/dump/`).
 
-### 3. Transparence NFS `hard` & Pause de Service
-Le conteneur NAS (LXC 100) est sauvegardé en mode `--mode stop` à 05h00, provoquant un arrêt propre d'environ 10 secondes. Grâce à la configuration des montages NFS en mode `hard` sur les clients (VM Coolify, HomeFlix), toute lecture/écriture en cours (stream Jellyfin, téléchargement qBittorrent) est mise en pause puis reprise automatiquement au redémarrage du NAS, sans corruption ni erreur visible.
+### 3. Exclusions de Sauvegarde & Stabilité NFS
+Le conteneur NAS (**LXC 100**) est **exclu des sauvegardes automatiques quotidiennes**. Le redémarrage de LXC 100 réinitialise l'instance FUSE MergerFS, ce qui invalide définitivement les descripteurs de fichiers NFS (`Stale filehandle`) côté VM Coolify. La sauvegarde de la LXC 100 (rootfs 8 Go quasiment statique) s'effectue uniquement de manière manuelle avant toute opération de maintenance en `--mode stop`. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-stale-nfs-filehandle-jellyfin-mergerfs).
 
 ---
 
@@ -33,14 +33,14 @@ Le conteneur NAS (LXC 100) est sauvegardé en mode `--mode stop` à 05h00, provo
 
 | Heure | Job | Emplacement | Détail & Comportement |
 |---|---|---|---|
-| **02:00** | Backup PBS — VM 104 (Coolify) | Host Proxmox → PBS (NFS) | Mode Snapshot, incrémental dédupliqué après le premier run complet |
-| **03:00** | Backup local — LXC 103 (PBS) | Host Proxmox → Storage `local` (NVMe) | Mode Snapshot, rootfs uniquement (8 Go alloués, pas de mountpoint) |
+| **02:00** | Backup PBS — VM 104 (Coolify) | Host Proxmox → PBS (NFS) | Mode Snapshot, incrémental dédupliqué |
+| **03:00** | Backup local — LXC 103 (PBS) | Host Proxmox → Storage `local` (NVMe) | Mode Snapshot, rootfs uniquement (8 Go alloués) |
 | **04:00** | Verify PBS | LXC PBS (103) | Vérification d'intégrité anti-corruption du datastore PBS |
-| **05:00** | Backup local — LXC 100 (NAS) | Host Proxmox → Storage `local` (NVMe) | **Mode Stop** (~10s d'arrêt propre du NAS, décalé volontairement) |
 | **~04:00** | Sync mirrors GitHub (Forgejo) | VM Coolify | Synchronisation automatique des dépôts miroirs secondaires |
+| **Manual** | Backup local — LXC 100 (NAS) | Host Proxmox → Storage `local` (NVMe) | **Manuel uniquement** (`--mode stop` lors des maintenances) |
 
 <Info>
-**Décalage du LXC 100 à 05:00** : Isolé à 05h00 pour séparer la coupure temporaire des autres traitements. Le mode `stop` effectue un arrêt propre (filesystem synchronisé et démonté proprement avant archivage). Les clients NFS en mode `hard` gèrent l'interruption de quelques secondes de manière totalement transparente.
+**Exclusion de LXC 100 de la Chronologie Nocturne** : Le job de sauvegarde automatique `backup-6b92bcb1-ad11` sur LXC 100 a été désactivé pour éliminer les invalidations NFS intempestives sur Jellyfin, HomeFlix et PhotoPrism.
 </Info>
 
 ---
@@ -55,7 +55,7 @@ vzdump 104 --storage pbs-coolify --mode snapshot
 ```
 - **Storage** : `pbs-coolify` (datastore PBS via NFS, forcé en NFSv3 — voir l'[ADR-003](/history/adr/adr-003-partitionnement-stockage-nfs)).
 
-### 2. Sauvegarde Locale NVMe — LXC 100 (NAS) et LXC 103 (PBS)
+### 2. Sauvegarde Locale NVMe — LXC 103 (PBS) & LXC 100 (NAS Manuel)
 
 ```bash
 # LXC 100 (NAS) — Mode STOP obligatoire

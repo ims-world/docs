@@ -150,6 +150,36 @@ L'accès SMB est configuré sur l'utilisateur `cmolotkoff` pour la gestion simpl
 **`smartd` et `hd-idle` ne peuvent PAS tourner dans ce LXC** — le passthrough mountpoint ne donne pas accès au device bloc brut nécessaire à ces outils. Les deux tournent sur le **host**. Voir [Dépannage courant](/procedures/depannage-courant) pour le détail de cette découverte.
 </Warning>
 
+## Sauvegardes & Stratégie d'Exclusion Proxmox (vzdump)
+
+<Warning>
+**Exclusion de Sauvegarde Quotidienne Automatique** : Le conteneur LXC 100 est **volontairement exclu des sauvegardes automatiques quotidiennes**. Chaque arrêt de la LXC 100 réinitialise l'instance FUSE MergerFS et invalide définitivement les descripteurs de fichiers NFS (`Stale filehandle`) côté VM Coolify. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-stale-nfs-filehandle-jellyfin-mergerfs).
+</Warning>
+
+### 1. Incompatibilité avec le Mode Snapshot
+Le `--mode snapshot` de `vzdump` ne peut pas être utilisé sur la LXC 100 : le gel (*freeze*) du système de fichiers s'exécute sur l'ensemble du *mount namespace* du conteneur et bloque indéfiniment à cause de la présence du point de montage FUSE MergerFS (`mp0`), même lorsque `backup=0` est configuré.
+
+### 2. Directive `backup=0` Obligatoire
+Les deux points de montage doivent impérativement conserver la directive `backup=0` sur l'hôte MS-01 pour éviter d'embarquer les téraoctets de données dans le stockage système `local-lvm` lors des sauvegardes manuelles :
+```bash
+# Vérification / Correction sur le host MS-01
+sudo pct set 100 -mp0 /mnt/disk1,mp=/mnt/disk1,backup=0
+sudo pct set 100 -mp1 /dev/disk/by-id/ata-Samsung_SSD_870_EVO_4TB_S758NX0W713130Z,mp=/mnt/ssd-hot-raw,backup=0
+```
+
+### 3. Procédure Post-Redémarrage ou Sauvegarde du NAS (LXC 100)
+En dehors d'un redémarrage complet de l'hôte MS-01 (où l'ordre de boot PVE gère la séquence), tout redémarrage isolé ou sauvegarde manuelle de la LXC 100 exige l'enchaînement suivant :
+1. **Sauvegarde Manuelle Préalable** : `vzdump 100 --mode stop --compress zstd --storage local`.
+2. **Exécution des modifications / Redémarrage LXC 100**.
+3. **Reboot Obligatoire de Proxmox Backup Server (LXC 103)** :
+   ```bash
+   # Redémarrage obligatoire pour réinitialiser le datastore NFS PBS
+   pct reboot 103
+   ```
+4. **Redémarrage Recommandé de la VM IMS-Coolify (VM 104)** :
+   - *Idéalement* : Redémarrer proprement la VM Coolify (`qm reboot 104` ou `sudo reboot` dans la VM).
+   - *A minima* : Redémarrer les conteneurs clients du NAS (`docker restart jellyfin sonarr radarr prowlarr photoprism`).
+
 ## Documents associés
 
 <CardGroup cols={2}>

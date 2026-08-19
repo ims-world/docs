@@ -24,6 +24,13 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
+<Update label="19/08/2026" description="Incident Stale NFS Filehandle Jellyfin & Optimization Backup LXC 100">
+  ### 🚨 Incident Rétabli & Arbitrage Sauvegardes
+  - **Échecs de lecture Jellyfin post-vzdump** — Résolution des échecs de lecture vidéo causés par l'invalidation irréversible des descripteurs NFS (`Stale filehandle`) lors du redémarrage quotidien de MergerFS FUSE par le job de sauvegarde `vzdump --mode stop` de la LXC 100 (`ims-nas`).
+  - **Désactivation du Backup Automatique LXC 100** — Suppression du job automatique quotidien. La sauvegarde du rootfs (8 Go statique) est désormais uniquement manuelle avant maintenance.
+  - **Correction d'urgence `backup=0` sur `mp1`** — Ajout de la directive `backup=0` sur le point de montage `mp1` (SSD 4 To) pour éliminer tout risque de saturation du stockage local de Proxmox (`local-lvm`). Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-stale-nfs-filehandle-jellyfin-mergerfs).
+</Update>
+
 <Update label="19/08/2026" description="Incident GPU Passthrough (/dev/dri) & Métapaquet Kernels">
   ### 🚨 Incident Rétabli
   - **Disparition de `/dev/dri` au redémarrage complet** — Résolution d'un dysfonctionnement au boot de la VM Coolify provoquant l'échec de Jellyfin et Sonarr avec l'erreur `error gathering device information while adding custom device "/dev/dri": no such file or directory`.

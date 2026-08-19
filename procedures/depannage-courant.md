@@ -305,3 +305,35 @@ Une mise à jour automatique du noyau Ubuntu (`unattended-upgrades`) sans le mé
     ```
   </Step>
 </Steps>
+
+## Stockage NFS & MergerFS (VM Coolify)
+
+### <Badge color="red">NFS</Badge> Erreur "Stale filehandle" / Échec de Lecture Jellyfin post-Reboot NAS
+
+<Warning>
+Tout redémarrage de la LXC 100 (`ims-nas`) réinitialise l'instance FUSE MergerFS, ce qui invalide définitivement les descripteurs de fichiers NFS (`Stale filehandle`) détenus par la VM Coolify sur `/mnt/nas-storage`. Le client NFS noyau ne peut pas auto-récupérer. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-stale-nfs-filehandle-jellyfin-mergerfs).
+</Warning>
+
+<Steps>
+  <Step title="Reboot Obligatoire de PBS (LXC 103 — Hôte Proxmox MS-01)">
+    ```bash
+    # Redémarrer obligatoirement le LXC PBS pour réinitialiser le datastore NFS
+    pct reboot 103
+    ```
+  </Step>
+
+  <Step title="Redémarrage / Remontage de la VM Coolify (VM 104)">
+    ```bash
+    # Idéalement : Redémarrer proprement la VM Coolify (Hôte MS-01)
+    qm reboot 104
+
+    # A minima (depuis la VM 104) : Démontage forcé & restart conteneurs
+    sudo umount -f /mnt/nas-storage && sudo mount -a
+    docker restart jellyfin sonarr radarr prowlarr photoprism
+    ```
+  </Step>
+
+  <Step title="Fix Préventif (Désactiver la Sauvegarde Quotidienne LXC 100)">
+    Désactiver ou supprimer tout job de sauvegarde automatique `vzdump` planifié sur la LXC 100 (`ims-nas`).
+  </Step>
+</Steps>

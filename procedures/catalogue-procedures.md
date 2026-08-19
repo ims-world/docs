@@ -47,6 +47,9 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
   <Card title="Sécuriser une App avec Authentik Outpost" icon="shield-keyhole" href="/procedures/securiser-application-authentik-forward-auth">
     Procédure complète pour protéger une application web sans SSO natif via Traefik et l'Outpost Proxy Authentik.
   </Card>
+  <Card title="Sauvegarde Manuelle de Coolify" icon="cube" href="/procedures/sauvegarde-manuelle-coolify">
+    Guide de sauvegarde à chaud via Proxmox NVMe/PBS, dumps SQL applicatifs et résolution du piège PBS namespace not found.
+  </Card>
   <Card title="Dépannage Courant & Pièges Vécus" icon="wrench" href="/procedures/depannage-courant">
     Base de connaissances des pannes résolues (droits Linux ACL, sockets containerd, double routeur Traefik).
   </Card>

@@ -130,6 +130,7 @@
               "procedures/commandes-urgence",
               "procedures/deploiement-service",
               "procedures/securiser-application-authentik-forward-auth",
+              "procedures/sauvegarde-manuelle-coolify",
               "procedures/depannage-courant",
               "procedures/ajout-nouveau-disque",
               "procedures/plan-reprise-activite-pra",
@@ -172,6 +173,7 @@
             "group": "Post-Mortems & Incidents",
             "icon": "triangle-exclamation",
             "pages": [
+              "history/incidents/2026-08-19-stale-nfs-filehandle-jellyfin-mergerfs",
               "history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri",
               "history/incidents/2026-08-18-blocage-traefik-vpn-only-docker-proxy"
             ]
