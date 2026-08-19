@@ -80,11 +80,12 @@ qm reboot 104
 ### 6. Installation des Pilotes dans la VM (Image Ubuntu Cloud)
 
 <Warning>
-**Absence de `/dev/dri/`** : L'iGPU apparaît sur le bus PCI de la VM (`lspci`), mais le dossier `/dev/dri/` n'existe pas. Le module `i915` est absent de l'image Cloud minimale d'Ubuntu 24.04 (`linux-modules-extra` non installé par défaut).
+**Absence de `/dev/dri/` & Métapaquet Générique Requis** : L'iGPU apparaît sur le bus PCI de la VM (`lspci`), mais le dossier `/dev/dri/` n'existe pas. Le module `i915` est absent de l'image Cloud minimale d'Ubuntu 24.04 (`linux-modules-extra` non installé par défaut). **Il faut impérativement installer le métapaquet générique `linux-modules-extra-generic`** (et non une version figée `$(uname -r)`) afin que les mises à jour automatiques du noyau (`unattended-upgrades`) conservent le module `i915` lors des futurs redémarrages. Voir l'[Fiche Incident Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri).
 </Warning>
 
 ```bash
-sudo apt install -y linux-modules-extra-$(uname -r) linux-firmware intel-media-va-driver-non-free
+sudo apt update
+sudo apt install -y linux-modules-extra-generic linux-firmware intel-media-va-driver-non-free
 sudo modprobe i915
 ```
 

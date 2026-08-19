@@ -289,5 +289,9 @@ graph TB
     - **Hardware acceleration** : `Intel QuickSync (QSV)`
     - **Device** : `/dev/dri/renderD128`
     - **Décodage & Encodage** : Cocher H.264 et HEVC.
+
+    <Warning>
+    **En cas d'erreur `/dev/dri: no such file or directory` au démarrage** : Si Jellyfin refuse de démarrer post-reboot avec une erreur de périphérique `/dev/dri`, le module `i915` est absent pour la nouvelle version du noyau Ubuntu. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri) et la [Procédure de Dépannage](/procedures/depannage-courant#échec-démarrage-jellyfin---devdri-no-such-file-or-directory).
+    </Warning>
   </Accordion>
 </AccordionGroup>

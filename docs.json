@@ -158,6 +158,26 @@
         ]
       },
       {
+        "tab": "Historique & Post-Mortems",
+        "groups": [
+          {
+            "group": "Traçabilité & Gouvernance",
+            "icon": "clock-rotate-left",
+            "pages": [
+              "history/chronologie"
+            ]
+          },
+          {
+            "group": "Post-Mortems & Incidents",
+            "icon": "triangle-exclamation",
+            "pages": [
+              "history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri",
+              "history/incidents/2026-08-18-blocage-traefik-vpn-only-docker-proxy"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "Glossaire",
         "groups": [
           {
@@ -165,19 +185,6 @@
             "icon": "book",
             "pages": [
               "history/glossaire"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Historique",
-        "groups": [
-          {
-            "group": "Traçabilité & Gouvernance",
-            "icon": "clock-rotate-left",
-            "pages": [
-              "history/chronologie",
-              "history/comment-fonctionne-cette-doc"
             ]
           }
         ]

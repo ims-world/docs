@@ -268,3 +268,40 @@ Un LXC avec passthrough (`mp0`) a accès au filesystem monté, mais **pas au dev
 </Warning>
 
 **Solution** : faire tourner `smartd`/`hd-idle` sur le **host**, jamais dans le LXC. Toujours valider par le comportement réel (`hdparm -C`), pas seulement `systemctl status`.
+
+## GPU Passthrough (VM Coolify)
+
+### <Badge color="red">GPU</Badge> Échec Démarrage Jellyfin — `/dev/dri: no such file or directory` (Disparition Pilote post-Reboot)
+
+<Warning>
+Une mise à jour automatique du noyau Ubuntu (`unattended-upgrades`) sans le métapaquet `linux-modules-extra-generic` installe l'image du nouveau noyau (`linux-image-6.8.0-138-generic`) sans le module `i915` (qui réside dans `linux-modules-extra`). Au redémarrage complet, le noyau 138 démarre mais sans le pilote DRM → `/dev/dri/renderD128` n'existe plus. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri).
+</Warning>
+
+<Steps>
+  <Step title="Diagnostic Rapide (depuis la VM Coolify)">
+    ```bash
+    # 1. Vérifier si l'iGPU est présente sur le bus PCI
+    lspci -nnk | grep -A3 -i "VGA\|Display"
+
+    # 2. Confirmer l'absence du module i915 pour la version noyau active
+    find /lib/modules/$(uname -r) -iname "i915*"
+    ```
+  </Step>
+
+  <Step title="Rétablissement à Chaud (0 Reboot)">
+    ```bash
+    # Installer les modules pour le noyau courant et charger i915
+    sudo apt update && sudo apt install -y linux-modules-extra-$(uname -r)
+    sudo modprobe i915
+    ls -la /dev/dri   # doit afficher card0 et renderD128
+    ```
+  </Step>
+
+  <Step title="Fix Préventif Définitif">
+    ```bash
+    # Installer le métapaquet générique pour automatiser les futurs noyaux
+    sudo apt install -y linux-modules-extra-generic
+    sudo apt autoremove --purge
+    ```
+  </Step>
+</Steps>

@@ -54,6 +54,14 @@ Sept nouveaux services en production, le transcodage matériel Jellyfin activé,
 
 - **Diagnostic d'inodes MergerFS fiabilisé** — La règle formalisée dans l'ADR-007 corrige les faux résultats d'inodes virtuels FUSE/MergerFS : tout diagnostic de hardlink doit s'effectuer en SSH direct sur le point de montage physique. Voir [ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
 
+## 19/08/2026 — Incident GPU Passthrough (/dev/dri) & Métapaquet linux-modules-extra-generic
+
+### 🚨 Incident & Rétablissement
+
+- **Disparition de `/dev/dri` au redémarrage complet** — Résolution d'un dysfonctionnement au boot de la VM Coolify provoquant l'échec de Jellyfin et Sonarr avec l'erreur `error gathering device information while adding custom device "/dev/dri": no such file or directory`.
+- **Cause racine identifiée** : La mise à jour automatique en arrière-plan (`unattended-upgrades`) vers le noyau Ubuntu `6.8.0-138-generic` n'avait pas tiré le paquet `linux-modules-extra` correspondant (qui contient le pilote `i915`), car l'installation initiale s'était faite "à la version" spécifique sans le métapaquet générique.
+- **Rétablissement & Fix Préventif** : Rétablissement à chaud sans reboot via `apt install linux-modules-extra-$(uname -r)` + `modprobe i915`, puis installation préventive du métapaquet générique `linux-modules-extra-generic` pour automatiser les futurs redémarrages noyau. Publication de la fiche de post-mortem. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri).
+
 ## 18/08/2026 — Bascule du Tier Storage-Hot sur SSD 4To Dédié (SATA)
 
 ### 🆕 Nouveautés & Stockage

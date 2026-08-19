@@ -146,6 +146,10 @@ sudo usermod -aG docker cmolotkoff
 Être dans le groupe `docker` équivaut en pratique à un accès root sur la machine. Acceptable ici (seul admin), à garder en tête si un autre utilisateur devait accéder à cette VM.
 </Warning>
 
+<Info>
+**Maintenance Noyau Ubuntu & GPU Passthrough** : Pour éviter que les mises à jour automatiques du noyau (`unattended-upgrades`) ne suppriment le pilote DRM `i915` (`/dev/dri`), le métapaquet **`linux-modules-extra-generic`** doit rester installé. Nettoyage préventif des noyaux orphelins via `sudo apt autoremove --purge`. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri).
+</Info>
+
 ---
 
 ## ⚠️ Règle d'Or : Routage Traefik Coolify vs Labels Manuels
