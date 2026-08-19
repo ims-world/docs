@@ -1,271 +1,106 @@
 ---
-title: "Changelog"
-description: "Chronologie du projet de migration Mac Mini → MS-01"
+title: "Changelog & Historique"
+description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
-## Semaine du 18/08/2026 — Récapitulatif hebdomadaire
-
-Bascule du tier `storage-hot` sur un SSD 4 To dédié et identification d'un bug de filtrage IP sur le middleware Traefik `vpn-only`. Voici ce qui a livré cette semaine.
-
-### 🆕 Nouveautés
-
-- **Tier `storage-hot` sur SSD 4 To dédié** — Les données applicatives chaudes d'Immich et Forgejo tournent désormais sur un SSD Samsung 870 EVO 4 To raccordé en SATA natif sur le contrôleur ASM1166 du MS-01. Le tier dispose de 3,6 To utiles (443 Go utilisés, 3,0 To libres). Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
-- **934 Go libérés sur le HDD principal** — La suppression de l'ancienne copie post-migration a libéré 934 Go sur `/mnt/disk1`, restaurant de la marge sur le pool capacitif.
-
-### 🔧 Améliorations
-
-- **Procédure de bascule d'un tier NFS formalisée** — La séquence exacte de désexport NFS, remontage bind, réexport et remontage côté VM Coolify est désormais documentée pas-à-pas. Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
-- **Comportement du contrôleur ASM1166 documenté** — Confirmation qu'un branchement ou débranchement SATA à chaud est instable sous Linux : l'extinction du host est obligatoire avant toute manipulation. Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
-- **Grafana bascule sur SSO Authentik OIDC** — En contournement du bug `vpn-only`, l'accès à `monitoring.ims-world.fr` est désormais sécurisé par le SSO central Authentik au lieu du filtrage par plage IP Tailscale. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
-
-### 🐛 Corrections
-
-- **Bug identifié sur le middleware Traefik `vpn-only`** — Le `docker-proxy` (userland-proxy) réécrit l'IP source de chaque requête entrante avec l'adresse de la passerelle bridge Docker (`10.0.1.1`), ce qui déclenche un HTTP 403 systématique du middleware `ipAllowList`. Une fenêtre de maintenance est planifiée pour tester `"userland-proxy": false`. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
-
-## Semaine du 17/08/2026 — Récapitulatif hebdomadaire
-
-Sept nouveaux services en production, le transcodage matériel Jellyfin activé, deux mises à niveau de Coolify et un gros nettoyage de stockage. Voici ce qui a livré cette semaine.
-
-### 🆕 Nouveautés
-
-- **Transcodage matériel Jellyfin (QuickSync)** — HomeFlix accélère désormais le transcodage H.264, HEVC et AV1 sur l'iGPU Intel Iris Xe, avec un débit validé à 29,7× le temps réel. La lecture consomme beaucoup moins de CPU et supporte plus de flux simultanés. Voir [HomeFlix](/services/homeflix).
-- **PhotoPrism migré sur MS-01** — Bibliothèque photo & studio d'archivage RAW en ligne sur `studio.ims-world.fr`, avec restauration confirmée de 24 565 photos et ingestion RAW via WebDAV documentée. Voir [PhotoPrism](/services/photoprism).
-- **Forgejo en production** — Forge Git self-hosted sur `forge.ims-world.fr`, avec SSO Authentik OIDC natif et accès SSH Git accessible partout via le port `2222`. GitHub reste principal, Forgejo joue le miroir de sécurité. Voir [Forgejo](/services/forgejo).
-- **Patrimo en production** — Application Node.js déployée sur `patrimo.ims-world.fr` en mode *Application Coolify Git Build*, avec déploiement continu à chaque push GitHub. Voir [Patrimo](/services/patrimo).
-- **Zipline en production** — Plateforme de partage de fichiers et de captures d'écran (compatible ShareX) sur `share.ims-world.fr`, avec SSO Authentik OIDC natif. Voir [Zipline](/services/zipline).
-- **Stirling PDF en production** — Boîte à outils PDF (fusion, découpe, conversion, OCR) sur `pdf.ims-world.fr`, en mode *stateless* : aucun document conservé après traitement. Voir [Stirling PDF](/services/stirling-pdf).
-- **Uptime Kuma en production** — Statuspage et monitoring actif sur `status.ims-world.fr`, avec alerting push vers mobile via Ntfy en quelques secondes en cas de panne. Voir [Uptime Kuma](/services/uptime-kuma).
-- **IT-Tools en production** — Boîte à outils développeur (générateurs, convertisseurs, utilitaires réseau) sur `tools.ims-world.fr`. Voir [IT-Tools](/services/it-tools).
-- **Immich en production** — Médiathèque photo & vidéo self-hosted sur `photos.ims-world.fr`, avec sauvegarde automatique iOS/Android, recherche par IA (CLIP) et reconnaissance faciale. Démarre à 61 880 assets indexés. Voir [Immich](/services/immich).
-
-### 🔧 Améliorations
-
-- **Décommissionnement officiel du Mac Mini 2014** — L'ancien serveur principal Mac Mini 2014 a été officiellement déconnecté de la production ce 17/08/2026 suite à la migration réussie de l'ensemble des services applicatifs (PhotoPrism, Immich, Authentik, etc.) sur le nouveau MS-01. Il bascule officiellement en mode Standby Chaud de secours. Voir [Mac Mini 2014](/infrastructure/mac-mini).
-- **Coolify mis à niveau en v4.3.6** — Deux montées de version successives cette semaine (v4.3.2 puis v4.3.6). Une procédure de secours `docker restart coolify-proxy` est désormais documentée pour rétablir l'IHM en cas de perte post-update. Voir [VM IMS-Coolify](/infrastructure/vm-coolify).
-- **Politique de sauvegarde formalisée** — Nouvelle page consolidant la chronologie nocturne, les sauvegardes `vzdump` validées et les contournements FUSE/MergerFS. Voir [Politique de Sauvegarde](/infrastructure/politique-sauvegardes).
-- **~330 Go libérés sur le NAS** — Un audit des orphelins `downloads/` de HomeFlix a permis de porter l'espace disponible de 791 Go à 1.1 To. Voir [Détection & Nettoyage des Orphelins](/services/homeflix#detection--nettoyage-des-orphelins-downloads-audit--script-inodes).
-- **SSO Authentik étendu** — Forward-Auth ajouté sur Stirling PDF, Uptime Kuma et IT-Tools ; SSO OIDC natif sur Forgejo, Zipline et Immich. Toute requête vers ces domaines exige désormais une session Authentik valide. Voir [Outpost Proxy & Forward-Auth Traefik](/services/authentik#outpost-proxy--forward-auth-traefik).
-- **Matrice RBAC Authentik** — Une matrice croisée permet désormais de savoir au premier coup d'œil quel groupe (`admins`, `membres`, `invites`, etc.) peut atteindre quel service. Voir [Matrice des Rôles & Droits d'Accès](/reseau/matrice-securite-exposition#matrice-des-rles--droits-daccs-rbac-authentik).
-- **VM Coolify en CPU mode `host`** — Le CPU physique Intel i5-12600H est désormais exposé intégralement à la VM Coolify. Les binaires natifs Node.js exigeant `x86-64-v2` (comme `sharp`) démarrent sans contournement. Voir [ADR-005](/history/adr/adr-005-cpu-vm-coolify-mode-host).
-- **Passthrough GPU iGPU Iris Xe formalisé (ADR-008)** — Le passthrough PCI de l'iGPU vers la VM Coolify passe en configuration officielle : chipset `q35`, `linux-modules-extra` Ubuntu Cloud et validation Jellyfin QSV. Voir [ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe).
-- **Procédure d'import manuel Radarr/Sonarr** — Documentation de la résolution des fichiers bloqués avec `Unable to parse file`. Voir [Résolution des Imports Manuels Bloqués](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
-
-### 🐛 Corrections
-
-- **Diagnostic d'inodes MergerFS fiabilisé** — La règle formalisée dans l'ADR-007 corrige les faux résultats d'inodes virtuels FUSE/MergerFS : tout diagnostic de hardlink doit s'effectuer en SSH direct sur le point de montage physique. Voir [ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
-
-## 19/08/2026 — Incident GPU Passthrough (/dev/dri) & Métapaquet linux-modules-extra-generic
-
-### 🚨 Incident & Rétablissement
-
-- **Disparition de `/dev/dri` au redémarrage complet** — Résolution d'un dysfonctionnement au boot de la VM Coolify provoquant l'échec de Jellyfin et Sonarr avec l'erreur `error gathering device information while adding custom device "/dev/dri": no such file or directory`.
-- **Cause racine identifiée** : La mise à jour automatique en arrière-plan (`unattended-upgrades`) vers le noyau Ubuntu `6.8.0-138-generic` n'avait pas tiré le paquet `linux-modules-extra` correspondant (qui contient le pilote `i915`), car l'installation initiale s'était faite "à la version" spécifique sans le métapaquet générique.
-- **Rétablissement & Fix Préventif** : Rétablissement à chaud sans reboot via `apt install linux-modules-extra-$(uname -r)` + `modprobe i915`, puis installation préventive du métapaquet générique `linux-modules-extra-generic` pour automatiser les futurs redémarrages noyau. Publication de la fiche de post-mortem. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri).
-
-## 18/08/2026 — Bascule du Tier Storage-Hot sur SSD 4To Dédié (SATA)
-
-### 🆕 Nouveautés & Stockage
-
-- **Bascule réussie du tier `storage-hot` sur SSD 4To dédié** — Migration de `storage-hot` (données applicatives chaudes d'Immich et Forgejo) depuis un bind-mount HDD vers un SSD Samsung 870 EVO 4To raccordé en SATA natif sur le contrôleur ASM1166 du MS-01.
-- **Libération de 934 Go sur le HDD principal** — La suppression de l'ancienne copie après validation a libéré 934 Go sur `/mnt/disk1`. Le tier `storage-hot` dispose désormais de 3.6 To utiles (443 Go utilisés, 3.0 To libres).
-- **Enseignements système & contrôleur ASM1166** — Confirmation que le contrôleur ASM1166 exige l'extinction du host avant toute connexion/déconnexion SATA (hotplug instable sous Linux). Inscription de la procédure exacte (désexport NFS `exportfs -u`, `mount --bind`, `exportfs -r`, `systemctl daemon-reload` et `umount -f` côté client VM Coolify). Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
-- **Publication de l'ADR-009 (Bug `docker-proxy` / `vpn-only`)** — Découverte de la substitution systématique de l'IP source d'origine par l'IP passerelle bridge Docker (`10.0.1.1`) provoquant un blocage HTTP 403 du middleware Traefik `vpn-only`. Grafana basculé sur le SSO Authentik OIDC et inscription d'une fenêtre de maintenance pour tester `"userland-proxy": false`. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
-
-## 17/08/2026 — Migration PhotoPrism sur MS-01 & SSO OIDC
-
-### 🆕 Nouveautés
-
-- **PhotoPrism en production sur MS-01** — Migration réussie de la bibliothèque photo & studio d'archivage RAW sur `studio.ims-world.fr` (UUID Coolify `yfotvbtkqj8cqw5alox6gfpr`). Le domaine d'origine a été conservé à l'identique pour réutiliser le client OIDC Authentik `photo-prism` sans casser les redirections. Restauration confirmée de **24 565 photos** via dump/restore SQL MariaDB 11.8.8. Voir [PhotoPrism](/services/photoprism).
-- **Architecture de stockage hybride** — Les originaux RAW (`originals/`, ~574 Go) et les métadonnées manuelles YAML (`storage/sidecar/`, 42 Go) résident sur le pool capacitif NFS HDD (`storage`), tandis que la base de données MariaDB tourne sur un **volume nommé Docker local** (`photoprism-mariadb-data`) sur le SSD de la VM Coolify pour garantir des I/O optimales. Voir [Architecture de Stockage](/services/photoprism#architecture-de-stockage-nfs-vs-volume-nomme-docker).
-- **Ingestion de photos RAW via WebDAV** — Documentation de la procédure de dépôt de fichiers RAW via le serveur WebDAV natif de PhotoPrism (`/import/` et `/originals/`), avec pas-à-pas macOS/Windows, gestion des identifiants et commande CLI `photoprism import`. Voir [Ingestion de Photos & WebDAV](/services/photoprism#ingestion-de-photos--webdav).
-
-### 🔧 Améliorations & Maintenance
-
-- **Mise à niveau de Coolify en v4.3.6 & Workaround IHM** — Montée en version de l'orchestrateur Coolify vers la v4.3.6. Documentation de la procédure de secours `docker restart coolify-proxy` requise pour rétablir l'accès à `coolify.ims-world.fr` en cas de perte de liaison IHM post-update. Voir [VM IMS-Coolify](/infrastructure/vm-coolify#procédure-post-mise-à-jour-coolify-perte-ihm).
-- **Enrichissement de l'ADR-001 (Abandon de Beszel & Dualité LGTM/Dozzle)** — Révision de l'ADR-001 pour officialiser l'abandon définitif de Beszel au profit de la stack unifiée LGTM (Grafana/Loki/Alloy) pour la métrologie et l'alerting, tout en maintenant Dozzle (`logs.ims-world.fr`) pour le live-tailing léger des logs conteneurs en 1 clic. Voir [ADR-001 — Stack Monitoring LGTM & Maintien de Dozzle](/history/adr/adr-001-stack-monitoring-lgtm).
-- **Formalisation de la Politique de Sauvegarde & Tâches Planifiées** — Publication de la page d'infrastructure consolidant la chronologie nocturne (02h-05h), les sauvegardes `vzdump` validées des LXC 100 & 103, les contournements FUSE/MergerFS (`--mode stop`) et les règles d'anti-circularité. Voir [Politique de Sauvegarde](/infrastructure/politique-sauvegardes).
-- **Adoption de l'ADR-008 (GPU Passthrough iGPU Intel Iris Xe & Validations)** — Formalisation du passthrough PCI complet de l'iGPU via VFIO/IOMMU vers la VM Coolify, passage obligatoire au chipset `q35`, paquets Ubuntu Cloud `linux-modules-extra` et validation Jellyfin QSV à 29.7x le temps réel. Voir [ADR-008 — GPU Passthrough](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe), [Host Proxmox](/infrastructure/proxmox-host#gpu-igpu-iris-xe--passthrough-vm-coolify) et [HomeFlix](/services/homeflix#accélération-matérielle-gpu-intel-quicksync-qsv--validé).
-
-## 16/08/2026 — Audit Hardlinks HomeFlix, Nettoyage NAS (~330 Go) & ADR-007
-
-### 🔧 Améliorations & Maintenance
-
-- **Audit & Nettoyage des Orphelins `downloads/`** — Résolution d'un problème d'accumulation de fichiers orphelins dans `downloads/` causé par la suppression de contenus dans Radarr/Sonarr sans suppression du torrent qBittorrent associé. Un script de scan par comparaison d'inodes réels a permis de libérer **~330 Go d'espace disque** (disponibilité portée de 791 Go à 1.1 To). Voir [Détection & Nettoyage des Orphelins](/services/homeflix#detection--nettoyage-des-orphelins-downloads-audit--script-inodes).
-- **Formalisation de l'ADR-007 (MergerFS `inodecalc=path-hash`)** — Documentation de la règle d'or pour le diagnostic d'inodes et de hardlinks : les calculs d'inodes virtuels par FUSE/MergerFS faussant les résultats via `/mnt/storage` ou NFS, tout diagnostic de hardlink doit s'effectuer en SSH direct sur le LXC NAS 100 sur le point de montage du disque physique (`/mnt/disk1/`). Voir [ADR-007 — Calcul d'Inodes MergerFS](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
-- **Procédure de résolution des imports manuels bloqués** — Documentation de la procédure d'import manuel pour les fichiers au nom générique bloqués avec l'erreur `Unable to parse file` dans Radarr/Sonarr. Voir [Résolution des Imports Manuels Bloqués](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
-
-## Semaine du 14/08/2026 — Forgejo, Patrimo, Zipline & Coolify v4.3.2
-
-### 🆕 Nouveautés
-
-- **Forgejo en production** — Une forge Git self-hosted est en ligne sur `forge.ims-world.fr` pour héberger dépôts, issues et Pull Requests, avec miroir de sauvegarde automatique de dépôts GitHub (`sentryx`, `FailyBanDiscordBot`, `my_printf`, `MonitoringServer`, `Intra-IMS`, `default-ansible`). GitHub reste la plateforme principale de développement, Forgejo joue le rôle de miroir de sécurité secondaire. Voir [Forgejo](/services/forgejo).
-- **Git SSH accessible depuis n'importe où** — Le trafic Git SSH sort par un port dédié `2222` exposé en NAT direct sur la Bbox (`git clone ssh://git@forge.ims-world.fr:2222/...`), sans VPN obligatoire. Le port SSH système du homelab reste isolé sur `4242`. Voir [ADR-006 — Exposition du port SSH Forgejo](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
-- **SSO Authentik OIDC natif sur Forgejo** — La connexion à `forge.ims-world.fr` passe directement par le SSO central `auth.ims-world.fr` en OIDC natif. Les inscriptions publiques directes sont fermées (`DISABLE_REGISTRATION=true`) : l'accès passe par Authentik ou par un compte local provisionné. Voir [Authentification & SSO OIDC](/services/forgejo#1-authentification--sso-oidc).
-- **Patrimo en production (Application Coolify Git Build)** — Projet personnel Node.js déployé sur `patrimo.ims-world.fr`. Contrairement aux *Services Coolify* statiques, Patrimo est configuré en **Application Coolify** avec déploiement continu automatisé à chaque push GitHub via la GitHub App Coolify. La base de données PostgreSQL utilise un volume nommé Docker interne (`/var/lib/docker/volumes/`), exclu du périmètre de sauvegarde PBS en raison de son statut non-critique actuel. Voir [Patrimo](/services/patrimo).
-- **Zipline en production** — Une plateforme de partage de fichiers, d'hébergement de captures d'écran (compatible ShareX) et de raccourcissement de liens est en ligne sur `share.ims-world.fr`. Les téléversements automatisés depuis un poste de travail passent par l'API Zipline avec jeton d'accès. Voir [Zipline](/services/zipline).
-- **SSO Authentik OIDC natif sur Zipline** — La connexion à `share.ims-world.fr` passe directement par le SSO central `auth.ims-world.fr` via OIDC natif, sans middleware Forward-Auth. Voir [Sécurité & Authentification](/services/zipline#sécurité--authentification).
-
-### 🔧 Améliorations
-
-- **Mise à niveau de Coolify en v4.3.2** — L'orchestrateur principal hébergé sur la VM 104 a été mis à niveau en version **v4.3.2**, apportant des améliorations de stabilité sur la gestion des Webhooks Git et des builds Compose. Voir [VM IMS-Coolify](/infrastructure/vm-coolify).
-- **VM Coolify en CPU mode `host` (x86-64-v2)** — Le CPU physique Intel i5-12600H de l'hôte MS-01 est désormais exposé intégralement à la VM Coolify (VMID 104) à la place du profil générique `kvm64`. Les binaires natifs Node.js qui exigent les instructions `x86-64-v2` (comme `sharp` pour l'optimisation d'images) démarrent sans contournement, et les performances vectorielles sont au maximum. Voir [ADR-005 — CPU VM Coolify en mode host](/history/adr/adr-005-cpu-vm-coolify-mode-host).
-- **Matrice des rôles & droits d'accès (RBAC Authentik)** — Une matrice croisée documente désormais le périmètre d'accès applicatif des 5 groupes Authentik (`authentik Admins`, `admins`, `membres`, `invites`, `authentik Read-only`) pour chaque service exposé du homelab. Concrètement, on sait au premier coup d'œil qui peut atteindre quoi. Voir [Matrice des Rôles & Droits d'Accès (RBAC Authentik)](/reseau/matrice-securite-exposition#matrice-des-rles--droits-daccs-rbac-authentik).
-- **Relais mail Forgejo via Resend** — Les notifications transactionnelles de Forgejo (invitations, alertes de dépôt) partent via le relais SMTP Resend (`forgejo@ims-world.fr`), aligné sur le reste des services du homelab. Voir [Forgejo — Fiche Service](/services/forgejo#fiche-service).
-
-## Semaine du 13/08/2026 — Stirling PDF, boîte à outils PDF self-hosted
-
-### 🆕 Nouveautés
-
-- **Stirling PDF en production** — Une boîte à outils PDF complète est en ligne sur `pdf.ims-world.fr` pour la fusion, la découpe, la conversion et l'édition de documents PDF, avec OCR intégré via Tesseract v5. Le service est *stateless* : aucun document utilisateur n'est conservé après traitement. Voir [Stirling PDF](/services/stirling-pdf).
-- **SSO Authentik sur Stirling PDF** — L'accès à `pdf.ims-world.fr` passe par le SSO central `auth.ims-world.fr`. L'authentification native de Stirling PDF est désactivée (`DOCKER_ENABLE_SECURITY=false`) pour éviter une double mire de connexion. Voir [Sécurité & Authentification](/services/stirling-pdf#sécurité--authentification).
-
-### 🔧 Améliorations
-
-- **Forward-Auth Authentik étendu à Stirling PDF** — L'Outpost Proxy Authentik (`ak-outpost-ims-outpost:9000`) s'intercale via le middleware Traefik en amont de Stirling PDF, qui n'a pas d'authentification native activée. Toute requête vers `pdf.ims-world.fr` exige une session Authentik valide avant d'atteindre l'interface. Voir [Outpost Proxy & Forward-Auth Traefik](/services/authentik#outpost-proxy--forward-auth-traefik).
-
-## Semaine du 11/08/2026 — Statuspage Uptime Kuma & boîte à outils IT-Tools
-
-### 🆕 Nouveautés
-
-- **Uptime Kuma en production** — Une statuspage et un moteur de monitoring actif sont en ligne sur `status.ims-world.fr`. Uptime Kuma surveille en HTTP et en TCP la disponibilité des services publics et internes du homelab, avec accès protégé par SSO Authentik. Voir [Uptime Kuma](/services/uptime-kuma).
-- **Alerting Uptime Kuma → Ntfy** — Les incidents détectés par Uptime Kuma déclenchent des notifications push sur mobile via Ntfy, avec des templates distincts pour les états *down* et *recovered*. Concrètement, une panne de service remonte sur le téléphone en quelques secondes. Voir [Alerting & Templates Ntfy](/services/uptime-kuma#alerting--templates-ntfy-liquidjs).
-- **IT-Tools en production** — Une boîte à outils développeur et IT (générateurs, convertisseurs, utilitaires réseau) est disponible sur `tools.ims-world.fr`, protégée par le SSO Authentik. Voir [IT-Tools](/services/it-tools).
-
-### 🔧 Améliorations
-
-- **Forward-Auth Authentik étendu à Uptime Kuma & IT-Tools** — L'Outpost Proxy d'Authentik (`ak-outpost-ims-outpost:9000`) s'intercale via le middleware Traefik en amont des deux nouvelles interfaces, qui n'ont pas d'authentification native. Toute requête vers `status.ims-world.fr` ou `tools.ims-world.fr` exige une session Authentik valide avant d'atteindre l'application. Voir [Outpost Proxy & Forward-Auth Traefik](/services/authentik#outpost-proxy--forward-auth-traefik).
-
-## Semaine du 11/08/2026 — Immich, médiathèque photo & vidéo self-hosted
-
-### 🆕 Nouveautés
-
-- **Immich en production** — Une médiathèque photo et vidéo self-hosted est en ligne sur `photos.ims-world.fr`, avec sauvegarde automatique depuis les applications mobiles iOS et Android (v3.x). La bibliothèque démarre avec 61 880 assets déjà indexés. Voir [Immich](/services/immich).
-- **Recherche par IA (CLIP) & reconnaissance faciale** — Le moteur Machine Learning d'Immich permet la recherche sémantique en langage naturel (« plage au coucher du soleil ») et le regroupement automatique des visages, sans dépendre d'un service cloud externe. Voir [Composants & Stockage](/services/immich#composants--stockage).
-- **SSO Authentik sur Immich** — L'authentification passe par le SSO central `auth.ims-world.fr` (OIDC), en plus de l'authentification native Immich pour les comptes techniques. Voir [Fiche Service](/services/immich#fiche-service).
-
-### 🔧 Améliorations
-
-- **Matrice de sécurité mise à jour** — Immich rejoint la Zone 1 (Public WAN) de la matrice d'exposition, aux côtés d'Authentik, Vaultwarden et HomeFlix, avec accès HTTPS protégé par Traefik et Let's Encrypt. Voir [Matrice de Sécurité & d'Exposition](/reseau/matrice-securite-exposition).
-- **Cartographie Coolify mise à jour** — La liste des services orchestrés sur la VM Coolify inclut désormais Immich et son UUID de déploiement. Voir [VM IMS-Coolify](/infrastructure/vm-coolify).
-
-## Semaine du 10/08/2026 — Notifications push, logs live & Forward-Auth Authentik
-
-### 🆕 Nouveautés
-
-- **Ntfy en production** — Un serveur de notifications push est en ligne sur `ntfy.ims-world.fr`, accessible depuis le web et les applications mobiles Android/iOS via le topic `ims-alerts`. Il sert de point de sortie unique pour les alertes du homelab. Voir [Ntfy — Notifications Push](/services/ntfy).
-- **Dozzle en production** — Une interface de logs Docker en direct est disponible sur `logs.ims-world.fr` pour visualiser en temps réel les logs de tous les conteneurs de la VM Coolify. L'accès est protégé par Authentik (Forward-Auth Outpost). Voir [Dozzle — Logs Docker en Direct](/services/dozzle).
-- **Alerting Grafana → Ntfy** — Grafana pousse désormais ses alertes vers Ntfy via un contact point Webhook, avec des payloads distincts pour les états *firing* et *resolved*. Les notifications arrivent sur mobile en priorité 4 (alerte) ou 3 (résolution). Voir [Alerting & Contact Point Ntfy](/services/monitoring#alerting--contact-point-ntfy).
-
-### 🔧 Améliorations
-
-- **Forward-Auth Authentik pour les apps sans SSO** — L'Outpost Proxy embarqué d'Authentik (`ak-outpost-ims-outpost:9000`) s'intercale via le middleware Traefik `forwardAuth` en amont des applications qui n'ont pas d'authentification native. Dozzle est le premier consommateur : toute requête vers `logs.ims-world.fr` exige une session Authentik valide avant d'atteindre l'interface. Le filtrage des accès se pilote depuis la console Authentik (*Applications → Outposts / Policies*). Voir [Outpost Proxy & Forward-Auth Traefik](/services/authentik#outpost-proxy--forward-auth-traefik).
-
-## Semaine du 10/08/2026 — Stack Monitoring LGTM en production
-
-### 🆕 Nouveautés
-
-- **Stack Monitoring LGTM disponible** — Grafana, Loki et Prometheus sont en ligne sur `monitoring.ims-world.fr` pour la métrologie et la centralisation des logs de tout le homelab. L'interface est accessible depuis le tailnet, via connexion SSO Authentik. Voir [Stack Monitoring (LGTM)](/services/monitoring).
-- **Collecte unifiée via Grafana Alloy** — Un agent Grafana Alloy tourne sur chaque hôte surveillé et pousse métriques et logs vers la stack en `remote-write`, sans configuration à maintenir côté serveur. Voir [Composants & Fonctionnement](/services/monitoring#composants--fonctionnement).
-- **SSO Authentik OIDC sur Grafana** — La connexion à Grafana passe par le bouton *Sign in with authentik*. Trois rôles RBAC sont provisionnés côté Authentik : `Grafana Admins` (Admin), `Grafana Editors` (Éditeur) et `Grafana Viewers` (Lecteur). L'inscription libre est désactivée (`GF_USERS_ALLOW_SIGN_UP=false`) et un compte admin local reste disponible en secours. Voir [Intégration SSO Authentik OIDC](/services/monitoring#2-intégration-sso-authentik-oidc).
-
-### 🔧 Améliorations
-
-- **Isolation réseau du monitoring** — `monitoring.ims-world.fr` est masqué en DNS OVH (résolution `127.0.0.1` côté public) et filtré par Traefik au tailnet `100.64.0.0/10`. Concrètement, l'interface n'est joignable que via le VPN. Voir [Masquage DNS & Isolation Réseau](/services/monitoring#1-masquage-dns--isolation-réseau).
-- **Matrice de sécurité étendue au monitoring** — Grafana rejoint la Zone 2 (Tailnet Overlay) de la matrice d'exposition, aux côtés de qBittorrent, Radarr, Sonarr, Prowlarr et Headplane. La cartographie des 3 zones de confiance est à jour. Voir [Matrice de Sécurité & d'Exposition](/reseau/matrice-securite-exposition).
-- **Règle d'or de routage Traefik/Coolify formalisée** — Une nouvelle section documente quand utiliser le champ *Domains* de l'UI Coolify et quand ré-expliciter les labels Traefik manuellement dans le `docker-compose.yml`. Dès qu'un service utilise un middleware sur-mesure (`vpn-only`, forward-auth), il faut laisser le champ Domains vide côté Coolify pour éviter qu'un routeur automatique parallèle ne ré-expose le service publiquement. Voir [Règle d'Or de Routage](/reseau/traefik-proxy#️-règle-dor-de-routage--ui-coolify-vs-labels-compose-manuels).
-
-## Semaine du 06/08/2026 — Audit sécurité `vpn-only` validé & RBAC Authentik
-
-### 🆕 Nouveautés
-
-- **Groupes & rôles RBAC sur Authentik** — Trois groupes officiels encadrent désormais l'accès aux applications : `admins` (superuser système), `membres` (famille & amis, accès complet à Vaultwarden, HomeFlix, etc.) et `invites` (accès restreint aux outils de divertissement). Chaque nouveau compte est automatiquement rattaché au groupe `membres` à la création. Voir [Authentik — Groupes & Rôles RBAC](/services/authentik#-groupes--rôles-rbac).
-- **Procédure d'invitation utilisateur pas-à-pas** — Un parcours documenté permet de générer un lien d'invitation unique depuis Authentik, de l'envoyer par email via Resend (`no-reply@ims-world.fr`) et de laisser l'invité créer son compte lui-même, avec affectation automatique des droits. Voir [Authentik — Inviter un nouvel utilisateur](/services/authentik#-procédure--inviter-un-nouvel-utilisateur).
-
-### 🔧 Améliorations
-
-- **Durcissement Vaultwarden** — Les inscriptions de nouveaux comptes sont désormais fermées sur `vault.ims-world.fr` (`SIGNUPS_ALLOWED=false`) une fois le coffre-fort initialisé, ce qui bloque toute création de compte non autorisée. Le panneau d'administration `/admin` est en plus restreint au tailnet (`100.64.0.0/10`) via le middleware Traefik `vpn-only` : concrètement, il n'est plus joignable depuis l'Internet public, uniquement via le VPN. Voir [Vaultwarden — Politique de Sécurité & Durcissement](/services/vaultwarden#🛡️-politique-de-sécurité--durcissement-hardening).
-- **Étanchéité `vpn-only` confirmée sur la stack HomeFlix** — L'audit du middleware `vpn-only` est terminé : qBittorrent, Radarr, Sonarr et Prowlarr sont accessibles uniquement depuis le tailnet (`100.64.0.0/10`) et renvoient `403 Forbidden` depuis le WAN public. Concrètement, ces interfaces d'administration restent joignables via le VPN sans risque d'exposition publique. Voir [Traefik Proxy](/reseau/traefik-proxy) et [Matrice de Sécurité](/reseau/matrice-securite-exposition).
-- **Double verrouillage confirmé sur les services privés** — La protection combine un masquage DNS OVH (les sous-domaines privés pointent vers `127.0.0.1`, donc l'IP publique Bbox n'est pas révélée par une résolution DNS) et un filtrage applicatif Traefik (`ipAllowList` restreint à `100.64.0.0/10`). Une requête WAN qui contournerait le DNS est tout de même rejetée en `403 Forbidden` par le proxy. Voir [Traefik Proxy](/reseau/traefik-proxy#double-verrouillage--limites-de-sécurité-réelle).
-- **Roadmap mise à jour** — L'étape « Audit de Sécurité Middleware `vpn-only` » est marquée comme effectuée. Une piste de durcissement Layer 4 (bind Tailscale ou règles pare-feu Proxmox) est identifiée pour rendre les services privés totalement injoignables depuis le WAN, même au niveau TCP. Voir [Roadmap](/procedures/roadmap).
-
-Le reste de l'infrastructure et des services publics (Authentik, Vaultwarden, HomeFlix, Headscale/Headplane) tourne en état stable depuis les livraisons de la semaine précédente.
-
-## Semaine du 05/08/2026 — Transcodage matériel HomeFlix
-
-### 🆕 Nouveautés
-
-- **Transcodage matériel Jellyfin (QuickSync)** — L'iGPU Intel Iris Xe du MS-01 est désormais attribuée en passthrough PCIe à la VM Coolify. HomeFlix (Jellyfin) accélère le transcodage H.264, HEVC et AV1 en matériel, ce qui réduit fortement la charge CPU pendant la lecture et permet plus de flux simultanés. Voir [Host Proxmox](/infrastructure/proxmox-host#gpu-igpu-iris-xe-passthrough-vm-coolify) et [HomeFlix](/services/homeflix).
-
-### 🔧 Améliorations
-
-- **Roadmap mise à jour** — L'étape « Passthrough GPU » est marquée comme effectuée sur la roadmap du projet. Voir [Roadmap](/procedures/roadmap).
-
-## Semaine du 04/08/2026 — Résilience matérielle & monitoring hors-bande
-
-### 🆕 Nouveautés
-
-- **Afficheur Kiosk Raspberry Pi 3B+** — Un Raspberry Pi 3B+ dédié pilote l'affichage physique du rack Labrax via un écran principal Wisecoco 7.84" (1280x400) et un second écran OLED 0.91" (128x32) encastrés dans un module 2U 3D. Un navigateur headless fait tourner en boucle la bannière IMS et des pages web en mode lisibilité, contrôlé par un bouton poussoir GPIO (appui court = change source, long 3s = éteint). Voir [Raspberry Pi 3B+ & Écrans](/infrastructure/rpi-monitor).
-- **Désinstallation définitive de Cap** — Abandon de l'expérimentation du service d'enregistrement d'écran Cap, retiré du homelab.
-
-### 🔧 Améliorations
-
-- **Module 3D imprimable pour le Raspberry Pi** — La fiche du Raspberry Pi 3B+ référence le modèle MakerWorld « Screen module for 10-inch rack — Raspberry Pi 2U », avec ses rendus CAD 3D (vue de façade et vue isométrique intérieure). Voir [Raspberry Pi 3B+ & Écrans](/infrastructure/rpi-monitor).
-- **Tarpit SSH sur le Mac Mini** — Le port 22 du Mac Mini pointe désormais vers Endlessh (tarpit anti-bot) pour piéger les scans automatisés. L'accès SSH légitime passe par le port `4242`.
-- **Résolution DNS de l'ancien Coolify** — L'ancienne instance Coolify du Mac Mini reste joignable via `coolify-old.ims-world.fr` grâce à un enregistrement DNS dans Headscale, le temps de la phase de validation post-cutover.
-- **Matrice de sécurité interactive** — La cartographie des zones de confiance (WAN public, LAN, tailnet, admin) est désormais présentée sous forme d'onglets navigables avec cartes cliquables vers chaque service et sa politique d'exposition. Voir [Matrice de Sécurité & d'Exposition](/reseau/matrice-securite-exposition).
-- **Arbre de décision de dépannage** — La page de dépannage inclut désormais un diagramme interactif qui guide symptôme par symptôme vers la cause probable et sa solution. Voir [Dépannage courant](/procedures/depannage-courant).
-
-## Semaine du 03/08/2026 — Stabilisation post-cutover
-
-### 🆕 Nouveautés
-
-- **VPN self-hosted disponible** — L'accès distant au tailnet passe désormais par notre propre control plane, avec une interface d'administration web pour gérer utilisateurs, clés et appareils. Voir [Headscale + Headplane](/services/headscale-headplane).
-- **Portail de demandes HomeFlix** — Jellyseerr est en ligne sur `videoclub.ims-world.fr` pour demander films et séries directement, en complément du streaming sur `homeflix.ims-world.fr`. Voir [HomeFlix](/services/homeflix).
-
-### 🔧 Améliorations
-
-- **Traefik mis à jour en v3.7** — Le reverse proxy public a été passé de la v3.6.23 à la v3.7 pendant le cutover, sans interruption perceptible côté utilisateur.
-- **Certificats renouvelés automatiquement** — Le renouvellement des certificats HTTPS est de nouveau fonctionnel sur tous les domaines publics après la mise en place du challenge DNS-01. Plus d'avertissements de certificats expirés.
-- **SSO Authentik consolidé** — L'identité centrale (`auth.ims-world.fr`) est désormais servie depuis la nouvelle infrastructure, avec le branding par domaine préservé pour chaque service.
-
-### 🐛 Corrections
-
-- **HomeFlix : téléchargements qBittorrent** — Les erreurs d'accès à l'interface qBittorrent derrière le proxy sont corrigées ; le WebUI est de nouveau accessible normalement.
-- **Headscale : reconnexion des appareils** — La boucle de reconnexion OIDC constatée en début de bascule est résolue ; tous les appareils du tailnet se reconnectent sans intervention.
-## 🎉 02/08/2026 — Cutover complet
-
-Les 4 services essentiels (Authentik, Vaultwarden, HomeFlix, Headscale/Headplane) sont basculés en production sur le MS-01. Port-forward Bbox corrigé et basculé. Découverte structurelle majeure : le port-forward route tout le trafic public d'un coup, pas de bascule partielle possible (voir [Traefik Proxy](/reseau/traefik-proxy)).
-
-Cascade de 8 blocages résolus dans la même session : accès console (Chrome), SSH manquant, label réseau Traefik manquant, port-forward mal ciblé, cache DNS transitoire, crash-loop OIDC Headscale, certificats DNS-01 en cours de négociation, warning cosmétique Coolify.
-
-Mise à jour Traefik v3.6.23 → v3.7 effectuée en avance sur le planning, sans incident réel.
-
-## 01/08/2026 — Préparation Headscale (Phases A-C)
-
-Migration de données complète (config, `noise_private.key`, base SQLite) — tous les utilisateurs et appareils confirmés présents. Décision actée de ne pas tester via sous-domaine `-ng` (le `server_url` de Headscale est une identité, pas un routage). Piège du dossier fantôme rencontré une 3ème fois, avec complication inédite (nécessité de recréer le container).
-
-Expérimentation du service Cap testée puis abandonnée définitivement (service retiré du homelab).
-
-## 31/07/2026 — DNS-01 et mise à jour Traefik
-
-Configuration du challenge DNS-01 (OVH) sur le proxy MS-01 — 3 blocages résolus (email ACME manquant, permissions `acme.json`, panne du résolveur DNS OVH contournée via `8.8.8.8`). Découverte que la vraie prod (Mac Mini) souffrait du même problème de renouvellement de certificat depuis 5 jours, corrigé par la même occasion.
-
-## 30/07/2026 — HomeFlix migré et validé
-
-Migration la plus critique du projet : 1.6 To, 426 hardlinks préservés, 9 services. Vérification pré-migration avec `rdfind`. Restructuration stockage (config/cache sur SSD, médias sur NAS). Grand troubleshooting qBittorrent (3 fausses pistes avant la cause réelle : `HostHeaderValidation`). Piège `du` vs `df` découvert et documenté.
-
-## 28/07/2026 — Vaultwarden migré et validé
-
-Découverte du piège `config.json` à domaine figé. Technique d'accès facilité via ACL POSIX mise en place pour la suite du projet.
-
-## 23/07/2026 — Authentik migré et validé
-
-Premier service stateful migré. Protocole de migration affiné à cette occasion (dump/restore Postgres, découverte du branding par domaine et de l'emplacement réel des médias `/data/media`).
-
-## Mi-juillet 2026 — Infrastructure de base
-
-Déploiement complet du socle Proxmox : LXC NAS (MergerFS + NFS + SMB), LXC PBS (Proxmox Backup Server, datastore via NFS), VM Coolify (Docker + Coolify 4.1.2). Autostart et ordre de boot validés par reboot réel. Décision stratégique majeure : migrer seulement 4 services essentiels avant cutover anticipé, plutôt que la stack complète (~15 services) — réduit la fenêtre de risque et la contrainte disque mono-HDD.
-
-<Info>
-Journaux de session complets et détaillés disponibles séparément pour l'historique exhaustif (diagnostics pas-à-pas, commandes exactes, fausses pistes explorées). Cette page résume les décisions et jalons, pas le détail opérationnel.
-</Info>
+<Update label="19/08/2026" description="Incident GPU Passthrough (/dev/dri) & Métapaquet Kernels">
+  ### 🚨 Incident Rétabli
+  - **Disparition de `/dev/dri` au redémarrage complet** — Résolution d'un dysfonctionnement au boot de la VM Coolify provoquant l'échec de Jellyfin et Sonarr avec l'erreur `error gathering device information while adding custom device "/dev/dri": no such file or directory`.
+  - **Cause racine identifiée** : La mise à jour automatique en arrière-plan (`unattended-upgrades`) vers le noyau Ubuntu `6.8.0-138-generic` n'avait pas tiré le paquet `linux-modules-extra` correspondant (qui contient le pilote `i915`).
+  - **Rétablissement & Fix Préventif** : Rétablissement à chaud sans reboot via `apt install linux-modules-extra-$(uname -r)` + `modprobe i915`, puis installation préventive du métapaquet générique `linux-modules-extra-generic` pour automatiser les futurs redémarrages noyau. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri).
+</Update>
+
+<Update label="18/08/2026" description="Tier Storage-Hot SSD 4To & ADR-009">
+  ### ⚡ Stockage & Sécurité
+  - **Bascule réussie du tier `storage-hot` sur SSD 4To dédié** — Migration de `storage-hot` (données applicatives chaudes d'Immich et Forgejo) depuis un bind-mount HDD vers un SSD Samsung 870 EVO 4To raccordé en SATA natif sur le contrôleur ASM1166 du MS-01.
+  - **Libération de 934 Go sur le HDD principal** — La suppression de l'ancienne copie après validation a libéré 934 Go sur `/mnt/disk1`. Le tier `storage-hot` dispose désormais de 3.6 To utiles (443 Go utilisés, 3.0 To libres). Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
+  - **Procédure de bascule d'un tier NFS formalisée** — Documentation pas-à-pas de la séquence exacte (désexport NFS `exportfs -u`, remontage bind `mount --bind`, réexport `exportfs -r`, `systemctl daemon-reload` et `umount -f` côté client VM Coolify).
+  - **Enseignements système & contrôleur ASM1166** — Confirmation que le contrôleur ASM1166 exige l'extinction du host avant toute connexion/déconnexion SATA (hotplug instable sous Linux).
+  - **Publication de l'ADR-009 (Bug `docker-proxy` / `vpn-only`)** — Découverte de la substitution systématique de l'IP source d'origine par l'IP passerelle bridge Docker (`10.0.1.1`) provoquant un blocage HTTP 403 du middleware Traefik `vpn-only`. Grafana basculé sur le SSO Authentik OIDC et inscription d'une fenêtre de maintenance pour tester `"userland-proxy": false`. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
+</Update>
+
+<Update label="17/08/2026" description="PhotoPrism, Décommissionnement Mac Mini & ADR-008">
+  ### 📸 PhotoPrism & Décommissionnement
+  - **PhotoPrism en production sur MS-01** — Migration réussie de la bibliothèque photo & studio d'archivage RAW sur `studio.ims-world.fr` (UUID Coolify `yfotvbtkqj8cqw5alox6gfpr`). Restauration confirmée de **24 565 photos** via dump/restore SQL MariaDB 11.8.8. Voir [PhotoPrism](/services/photoprism).
+  - **Architecture de stockage hybride PhotoPrism** — Les originaux RAW (`originals/`, ~574 Go) et métadonnées YAML (`storage/sidecar/`, 42 Go) résident sur le pool capacitif NFS HDD (`storage`), tandis que MariaDB tourne sur un volume nommé Docker local (`photoprism-mariadb-data`) sur le SSD de la VM Coolify.
+  - **Ingestion RAW via WebDAV** — Documentation de la procédure de dépôt via WebDAV (`/import/` et `/originals/`) et commande CLI `photoprism import`.
+  - **Décommissionnement officiel du Mac Mini 2014** — L'ancien serveur principal Mac Mini 2014 a été officiellement déconnecté de la production suite à la migration réussie de l'ensemble des services applicatifs sur le MS-01. Il bascule en mode Standby Chaud de secours. Voir [Mac Mini 2014](/infrastructure/mac-mini).
+  - **Mise à niveau de Coolify en v4.3.6 & Workaround IHM** — Montée en version vers v4.3.6. Documentation de la procédure de secours `docker restart coolify-proxy` requise pour rétablir l'accès à `coolify.ims-world.fr` en cas de perte de liaison IHM post-update. Voir [VM IMS-Coolify](/infrastructure/vm-coolify#procédure-post-mise-à-jour-coolify-perte-ihm).
+  - **Enrichissement de l'ADR-001 (Abandon de Beszel & Dualité LGTM/Dozzle)** — Officialisation de l'abandon de Beszel au profit de la stack LGTM (Grafana/Loki/Alloy) et maintien de Dozzle (`logs.ims-world.fr`). Voir [ADR-001](/history/adr/adr-001-stack-monitoring-lgtm).
+  - **Adoption de l'ADR-008 (GPU Passthrough)** — Formalisation du passthrough PCI complet de l'iGPU Iris Xe via VFIO/IOMMU vers la VM Coolify, passage au chipset `q35` et validation Jellyfin QSV à 29.7x le temps réel. Voir [ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe).
+  - **Formalisation de la Politique de Sauvegarde** — Publication de la page consolidant la chronologie nocturne (02h-05h), les sauvegardes `vzdump` validées des LXC 100 & 103, les contournements FUSE/MergerFS (`--mode stop`) et les règles d'anti-circularité. Voir [Politique de Sauvegarde](/infrastructure/politique-sauvegardes).
+</Update>
+
+<Update label="16/08/2026" description="Audit Hardlinks HomeFlix, Nettoyage NAS (~330 Go) & ADR-007">
+  ### 🧹 Stockage & Diagnostic
+  - **Audit & Nettoyage des Orphelins `downloads/`** — Résolution d'un problème d'accumulation de fichiers orphelins dans `downloads/` causé par la suppression de contenus dans Radarr/Sonarr sans suppression du torrent qBittorrent associé. Un script de scan par comparaison d'inodes réels a permis de libérer **~330 Go d'espace disque** (disponibilité portée de 791 Go à 1.1 To). Voir [HomeFlix](/services/homeflix#detection--nettoyage-des-orphelins-downloads-audit--script-inodes).
+  - **Formalisation de l'ADR-007 (MergerFS `inodecalc=path-hash`)** — Documentation de la règle d'or pour le diagnostic d'inodes et de hardlinks : les calculs d'inodes virtuels par FUSE/MergerFS faussant les résultats via `/mnt/storage` ou NFS, tout diagnostic de hardlink doit s'effectuer en SSH direct sur le LXC NAS 100 sur le point de montage physique (`/mnt/disk1/`). Voir [ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
+  - **Procédure d'import manuel Radarr/Sonarr** — Documentation de la résolution des fichiers bloqués avec `Unable to parse file`. Voir [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
+</Update>
+
+<Update label="14/08/2026" description="Forgejo, Patrimo, Zipline & Coolify v4.3.2">
+  ### 🚀 Nouveaux Services & CPU Host Mode
+  - **Forgejo en production** — Forge Git self-hosted sur `forge.ims-world.fr` pour héberger dépôts, issues et Pull Requests, avec miroir de sauvegarde automatique de dépôts GitHub (`sentryx`, `FailyBanDiscordBot`, `my_printf`, `MonitoringServer`, `Intra-IMS`, `default-ansible`). SSO Authentik OIDC natif. Voir [Forgejo](/services/forgejo).
+  - **Git SSH accessible partout (ADR-006)** — Trafic Git SSH sortant par le port dédié `2222` en NAT Bbox direct (`git clone ssh://git@forge.ims-world.fr:2222/...`). Port SSH système préservé sur `4242`. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
+  - **Patrimo en production** — Application Node.js sur `patrimo.ims-world.fr` en mode *Application Coolify Git Build* avec déploiement continu à chaque push GitHub. Voir [Patrimo](/services/patrimo).
+  - **Zipline en production** — Plateforme de partage de fichiers, captures d'écran (compatible ShareX) et raccourcissement de liens sur `share.ims-world.fr` avec SSO Authentik OIDC natif. Voir [Zipline](/services/zipline).
+  - **VM Coolify en CPU mode `host` (ADR-005)** — Le CPU i5-12600H est exposé intégralement à la VM Coolify (`x86-64-v2`). Les binaires natifs exigeant `sharp` démarrant sans contournement. Voir [ADR-005](/history/adr/adr-005-cpu-vm-coolify-mode-host).
+  - **Mise à niveau de Coolify en v4.3.2** — Amélioration de la gestion des Webhooks Git et des builds Compose.
+  - **Relais mail Forgejo via Resend** — Notifications transactionnelles via `forgejo@ims-world.fr`.
+</Update>
+
+<Update label="13/08/2026" description="Stirling PDF en production">
+  ### 📄 Outillage PDF Stateless
+  - **Stirling PDF en production** — Boîte à outils PDF (fusion, découpe, conversion, OCR Tesseract v5) sur `pdf.ims-world.fr`, en mode *stateless* (aucun document conservé après traitement). Authentification native désactivée (`DOCKER_ENABLE_SECURITY=false`). Voir [Stirling PDF](/services/stirling-pdf).
+  - **Forward-Auth Authentik étendu** — L'Outpost Proxy Authentik (`ak-outpost-ims-outpost:9000`) s'intercale via Traefik en amont de Stirling PDF. Voir [Authentik](/services/authentik#outpost-proxy--forward-auth-traefik).
+</Update>
+
+<Update label="11/08/2026" description="Statuspage Uptime Kuma, IT-Tools & Immich">
+  ### 📊 Monitoring, Tools & Médiathèque Photo
+  - **Uptime Kuma & Alerting Ntfy** — Statuspage et monitoring actif sur `status.ims-world.fr` avec notifications push mobiles instantanées via Ntfy (templates LiquidJS pour états *down* et *recovered*). Voir [Uptime Kuma](/services/uptime-kuma).
+  - **IT-Tools en production** — Boîte à outils développeur (générateurs, convertisseurs, utilitaires réseau) sur `tools.ims-world.fr`. Voir [IT-Tools](/services/it-tools).
+  - **Forward-Auth Authentik étendu** — Outpost Proxy Authentik configuré en amont de Uptime Kuma et IT-Tools.
+  - **Immich en production** — Médiathèque photo & vidéo self-hosted sur `photos.ims-world.fr` avec sauvegarde automatique iOS/Android, recherche IA (CLIP) et reconnaissance faciale (61 880 assets indexés). Voir [Immich](/services/immich).
+</Update>
+
+<Update label="10/08/2026" description="Ntfy, Dozzle & Stack Monitoring LGTM">
+  ### 🔔 Push Alerts, Logs Live & Stack LGTM
+  - **Ntfy en production** — Serveur de notifications push sur `ntfy.ims-world.fr` (`ims-alerts`) servant de point de sortie unique pour toutes les alertes du homelab. Voir [Ntfy](/services/ntfy).
+  - **Dozzle en production** — Viewer de logs Docker en direct sur `logs.ims-world.fr` protégé par Forward-Auth Authentik. Voir [Dozzle](/services/dozzle).
+  - **Stack Monitoring LGTM** — Grafana, Loki et Prometheus sur `monitoring.ims-world.fr` avec agent Grafana Alloy en `remote-write` et SSO Authentik OIDC (`Grafana Admins`, `Editors`, `Viewers`). Voir [Monitoring](/services/monitoring).
+  - **Alerting Grafana → Ntfy** — Webhook contact point poussant les alertes *firing* (priorité 4) et *resolved* (priorité 3) sur mobile.
+  - **Règle d'or de routage Traefik/Coolify formalisée** — Documentation de l'obligation de laisser le champ *Domains* vide dans l'UI Coolify dès qu'un service utilise un middleware sur-mesure (`vpn-only`, forward-auth) pour éviter l'exposition publique par un routeur parallèle automatique. Voir [Traefik Proxy](/reseau/traefik-proxy#️-règle-dor-de-routage--ui-coolify-vs-labels-compose-manuels).
+</Update>
+
+<Update label="06/08/2026" description="Audit sécurité vpn-only & RBAC Authentik">
+  ### 🔐 Sécurité & Droits d'Accès
+  - **Groupes & Rôles RBAC Authentik** — Structuration des 3 groupes (`admins`, `membres`, `invites`) et procédure d'invitation par email Resend (`no-reply@ims-world.fr`). Voir [Authentik](/services/authentik#-groupes--rôles-rbac).
+  - **Durcissement Vaultwarden** — Fermeture des inscriptions (`SIGNUPS_ALLOWED=false`) et restriction de l'URL `/admin` au Tailnet (`100.64.0.0/10`) via le middleware Traefik `vpn-only`. Voir [Vaultwarden](/services/vaultwarden#🛡️-politique-de-sécurité--durcissement-hardening).
+  - **Étanchéité `vpn-only` sur Stack HomeFlix** — Confirmation du renvoi HTTP `403 Forbidden` depuis le WAN sur qBittorrent, Radarr, Sonarr et Prowlarr.
+</Update>
+
+<Update label="04/08/2026 - 05/08/2026" description="Passthrough GPU Jellyfin, RPi 3B+ & Tarpit SSH">
+  ### 🎬 GPU Passthrough & Hardware Rack
+  - **Transcodage matériel Jellyfin (QuickSync)** — Attribution PCIe de l'iGPU Intel Iris Xe à la VM Coolify. HomeFlix accélère le H.264/HEVC/AV1 avec charge CPU minimale. Voir [HomeFlix](/services/homeflix).
+  - **Afficheur Kiosk Raspberry Pi 3B+** — Écran principal Wisecoco 7.84" (1280x400) et OLED 0.91" (128x32) dans un module 2U 3D pour le rack Labrax. Bouton poussoir GPIO (court = switch source, long 3s = extinction). Voir [Raspberry Pi 3B+](/infrastructure/rpi-monitor).
+  - **Tarpit SSH Endlessh sur Mac Mini** — Port 22 routé vers Endlessh pour piéger les scans anti-bots (SSH légitime déplacé sur le port 4242).
+  - **DNS de secours Mac Mini** — Enregistrement Headscale `coolify-old.ims-world.fr` conservé pendant la validation post-cutover.
+  - **Matrice de sécurité interactive & Arbre de dépannage** — Publication des onglets interactifs de sécurité et du logigramme de dépannage.
+</Update>
+
+<Update label="02/08/2026" description="Cutover complet sur MS-01">
+  ### 🎉 Cutover de Production
+  - **Bascule en production des 4 services majeurs** (Authentik, Vaultwarden, HomeFlix, Headscale/Headplane) du Mac Mini vers l'hyperviseur MS-01.
+  - **Port-forward Bbox** — Bascule du bloc de redirections et découverte de l'impossibilité de bascule partielle (tout le trafic public bascule d'un coup).
+  - **Cascade de 8 blocages résolus** : Accès console Chrome, SSH manquant, label réseau Traefik manquant, port-forward mal ciblé, cache DNS transitoire, crash-loop OIDC Headscale, certificats DNS-01 Let's Encrypt, warning cosmétique Coolify.
+  - **Mise à niveau Traefik** : Passage de Traefik v3.6.23 à v3.7 sans interruption.
+</Update>
+
+<Update label="15/07/2026 - 31/07/2026" description="Socle Proxmox, Challenge DNS-01 & Migrations Fichiers">
+  ### 🏗️ Socle d'Infrastructure & Migrations de Masse
+  - **Challenge DNS-01 OVH (31/07)** — Configuration du challenge DNS-01 (OVH) sur Traefik MS-01 pour les certificats HTTPS jokers. Résolution du blocage de renouvellement sur le Mac Mini.
+  - **Migration HomeFlix 1.6 To (30/07)** — Transfert de 1.6 To avec préservation des 426 hardlinks (`rdfind`). Restructuration du stockage (config/cache sur SSD, médias sur NAS). Résolution du problème WebUI qBittorrent (`HostHeaderValidation`). Découverte et documentation du piège `du` vs `df`.
+  - **Migration Vaultwarden (28/07)** — Découverte du piège `config.json` à domaine figé et mise en place de la gestion des droits par ACL POSIX.
+  - **Migration Authentik (23/07)** — Premier service stateful migré (dump/restore Postgres, branding par domaine et médias `/data/media`).
+  - **Déploiement du Socle Proxmox (Mi-juillet)** — Déploiement complet du socle Proxmox VE 9.2.3 : LXC 100 NAS (MergerFS + NFS + SMB), LXC 103 PBS (Proxmox Backup Server, datastore NFS), VM 104 Coolify (Docker + Coolify 4.1.2). Autostart et ordre de boot (NAS order=1 → PBS order=2 → Coolify order=3) validés par reboot physique.
+</Update>
