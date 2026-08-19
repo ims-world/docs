@@ -59,7 +59,7 @@ sequenceDiagram
   </Step>
 
   <Step title="Restreindre les Droits d'Accès (Politique RBAC)">
-    1. Éditer l'application créée dans **Applications → Applications → <NomApp>**.
+    1. Éditer l'application créée dans **Applications → Applications → `<NomApp>`**.
     2. Aller dans l'onglet **Policy / Group Bindings → Bind existing policy / group**.
     3. Sélectionner le ou les groupes autorisés :
        - `authentik Admins` / `admins` pour les outils d'administration pure (Dozzle, Uptime Kuma).
