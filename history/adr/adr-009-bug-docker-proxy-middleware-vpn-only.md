@@ -20,15 +20,11 @@ Initialement, un middleware Traefik `vpn-only` (`ipAllowList: 100.64.0.0/10`) av
 
 ## Décision d'Architecture
 
-### 1. Durcissement du Démon Docker (`"userland-proxy": false`)
-Nous avons décidé de désactiver le proxy applicatif en espace utilisateur de Docker en inscrivant `"userland-proxy": false` dans `/etc/docker/daemon.json` sur la VM IMS-Coolify (VM 104).
+### 1. Les Deux Piliers Réseau de Préservation de l'IP Source
+La préservation de l'adresse IP source réelle du client jusqu'au conteneur Traefik repose sur deux configurations réseau complémentaires et indissociables :
 
-**Validation Sécurité CIS Docker Benchmark** :
-Cette modification n'est pas un contournement applicatif ou un hack temporaire, mais **la recommandation officielle de sécurité du CIS Docker Benchmark** (*Section 2.12 — Disable userland proxy*). En désactivant le `userland-proxy`, Docker bascule l'intégralité du routage sur les mécanismes natifs du noyau Linux :
-- Règles **iptables DNAT + MASQUERADE**.
-- Activation du paramètre noyau **`net.ipv4.route_localnet`**.
-
-Ce mécanisme préserve l'adresse IP source réelle du client (WAN, LAN ou Tailnet) sur l'interface de Traefik, tout en gérant de manière fluide les flux loopback et inter-conteneurs (hairpin NAT).
+#### Volet A — Durcissement du Démon Docker (`"userland-proxy": false`)
+Nous avons désactivé le proxy applicatif userland de Docker dans `/etc/docker/daemon.json`. Conforme au **CIS Docker Benchmark (Section 2.12)**, Docker bascule l'intégralité du routage sur les mécanismes natifs du noyau Linux (iptables `DNAT` + `MASQUERADE` et paramètre `net.ipv4.route_localnet`), éliminant la substitution d'IP par le relais `docker-proxy` (`10.0.1.1`).
 
 ```json
 // /etc/docker/daemon.json
@@ -38,6 +34,13 @@ Ce mécanisme préserve l'adresse IP source réelle du client (WAN, LAN ou Tailn
   "default-address-pools": [{"base":"10.0.0.0/8","size":24}],
   "userland-proxy": false
 }
+```
+
+#### Volet B — Désactivation du SNAT Tailscale (`--snat-subnet-routes=false`)
+Par défaut, le démon `tailscaled` applique une règle `MASQUERADE` dans la chaîne iptables `ts-postrouting` basée sur le `fwmark 0x40000/0xff0000` dès qu'un paquet entrant sur `tailscale0` est réorienté (DNAT) vers le bridge réseau de Docker (`coolify`). Pour empêcher Tailscale de masquer l'IP du client avec l'IP du bridge lors du traversée de frontière réseau, la configuration suivante est appliquée :
+
+```bash
+sudo tailscale set --snat-subnet-routes=false
 ```
 
 ### 2. Routage Centralisé via Traefik File Provider (`vpn-only.yaml`)

@@ -31,8 +31,9 @@ Cette page recense l'ensemble des **chantiers techniques restants et tâches d'a
 ### 6. 🔑 Sécurisation des Credentials OVH du Proxy Traefik
 - **Tâche** : Extraire les identifiants d'API OVH (challenge DNS-01 Let's Encrypt) du fichier docker-compose clair et les basculer dans un fichier d'environnement restreint (`.env`).
 
-### 7. 🔒 Configuration `userland-proxy: false` & Restauration IP Source (ADR-009) — 🟢 Effectué
-- **Statut** : Implémenté et validé le 19/08/2026. La désactivation de `userland-proxy` dans `/etc/docker/daemon.json` (durcissement recommandé par le CIS Docker Benchmark) a restauré les IP sources réelles via les règles kernel iptables `DNAT` + `MASQUERADE`. L'intégralité des 7 services d'administration est sécurisée de manière étanche via le provider file `/data/coolify/proxy/dynamic/vpn-only.yaml`. Voir l'[ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
+### 7. 🔒 Configuration `userland-proxy: false` & SNAT Tailscale Bypass (ADR-009) — 🟢 Effectué
+- **Statut** : Implémenté et validé les 19-20/08/2026. La désactivation de `userland-proxy` dans `/etc/docker/daemon.json` (CIS Docker Benchmark) et l'exécution de `sudo tailscale set --snat-subnet-routes=false` ont restauré la préservation absolue des IP sources réelles (`100.64.0.x`) jusqu me conteneur Traefik.
+- **Point de contrôle futur** : Valider formellement la persistance de `--snat-subnet-routes=false` lors du prochain redémarrage à froid de maintenance du serveur physique MS-01. Voir [Post-Mortem 18-20/08/2026](/history/incidents/2026-08-18-blocage-traefik-vpn-only-docker-proxy).
 
 ### 8. 🏷️ Renommage Éventuel du Domaine Control Plane VPN
 - **Tâche** : Évaluer le renommage de `vpn.ims-world.fr` vers un nom plus représentatif (ex: `controlplane.ims-world.fr`), en prenant en compte la reconfiguration obligatoire de tous les appareils enregistrés sur le Tailnet.

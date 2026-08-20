@@ -117,8 +117,10 @@ Contrairement aux autres services (Environment Variables Coolify avec option "Is
 ## Provider File Centralisé `vpn-only.yaml` — Services Restreints au Tailnet
 
 <Check>
-**Fix Validé CIS Docker Benchmark (`"userland-proxy": false`)** :
-En désactivant le proxy userland Docker (`"userland-proxy": false` dans `/etc/docker/daemon.json`), Docker s'appuie nativement sur les règles iptables `DNAT` + `MASQUERADE` et le paramètre noyau `net.ipv4.route_localnet`. Ce mécanisme de durcissement préserve l'adresse IP source réelle du client (WAN, LAN ou Tailnet `100.64.0.0/10`) sans masquage en `10.0.1.1`. Voir l'[ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
+**Préservation de l'IP Source Client (CIS Benchmark & Tailscale SNAT Bypass)** :
+Pour garantir que Traefik perçoive la véritable adresse IP du client (`100.64.0.x`), deux réglages sont appliqués :
+1. **Docker** : `"userland-proxy": false` dans `/etc/docker/daemon.json` (durcissement recommandation CIS Benchmark Section 2.12).
+2. **Tailscale** : `sudo tailscale set --snat-subnet-routes=false` (désactivation du SNAT `ts-postrouting` sur le trafic DNAT'é vers les bridges Docker). Voir l'[ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
 </Check>
 
 L'ensemble des routeurs et des définitions de services `vpn-only` est centralisé dans le fichier dynamique du provider File Traefik : `/data/coolify/proxy/dynamic/vpn-only.yaml` (surveillé en hot-reload automatique).

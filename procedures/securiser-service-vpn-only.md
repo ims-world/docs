@@ -98,3 +98,21 @@ Elle applique l'architecture centralisée validée dans l'[ADR-009](/history/adr
     ```
   </Step>
 </Steps>
+
+---
+
+## 🛠️ Dépannage Réseau (En cas de 403 Forbidden persistant depuis le Tailnet)
+
+Si l'accès est rejeté en **HTTP 403** même pour un utilisateur authentifié sur le Tailnet post-reboot :
+
+1. **Vérifier le statut SNAT Tailscale** :
+   ```bash
+   sudo tailscale status --json | grep -i snat
+   # Si "SNATSubnetRoutes": true -> Exécuter :
+   sudo tailscale set --snat-subnet-routes=false
+   ```
+2. **Vérifier l'arrivée des paquets intacts sur l'interface VPN** :
+   ```bash
+   sudo tcpdump -i tailscale0 port 443
+   ```
+   *Si `tcpdump` affiche votre vraie IP Tailscale (`100.64.0.x`) mais que Traefik reçoit `10.0.1.1`*, le masquage survient dans les règles NAT `POSTROUTING`. Se référer au [Post-Mortem du 18-20/08/2026](/history/incidents/2026-08-18-blocage-traefik-vpn-only-docker-proxy).

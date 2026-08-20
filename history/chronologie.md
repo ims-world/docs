@@ -24,11 +24,12 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
-<Update label="19/08/2026" description="Isolation Réseau vpn-only & Durcissement Docker (CIS Benchmark)">
-  ### 🛡️ Refonte Réseau & Durcissement Sécurité (ADR-009)
-  - **Durcissement Démon Docker (`"userland-proxy": false`)** — Application de la recommandation officielle du **CIS Docker Benchmark** sur la VM Coolify. Basculement natif du noyau Linux (iptables `DNAT` + `MASQUERADE` + `net.ipv4.route_localnet`), restaurant la préservation absolue de l'adresse IP source réelle du client (WAN, LAN ou Tailnet `100.64.0.0/10`) sans proxy applicatif userland.
+<Update label="19/08/2026 - 20/08/2026" description="Isolation Réseau vpn-only, CIS Benchmark & Bypass SNAT Tailscale">
+  ### 🛡️ Refonte Réseau & Résolution Double Incident vpn-only (ADR-009)
+  - **Durcissement Démon Docker (`"userland-proxy": false`)** — Application de la recommandation officielle du **CIS Docker Benchmark** sur la VM Coolify. Basculement natif du noyau Linux (iptables `DNAT` + `MASQUERADE` + `net.ipv4.route_localnet`), éliminant la substitution d'IP par le binaire `docker-proxy`.
+  - **Bypass du SNAT Tailscale (`--snat-subnet-routes=false`)** — Résolution du 2nd bug apparu post-reboot MS-01 en désactivant le masquage automatique `ts-postrouting` de Tailscale sur le trafic forwardé vers le bridge Docker (`coolify`).
   - **Provider File Centralisé Traefik (`vpn-only.yaml`)** — Isolation réseau étanche et centralisée des 7 services d'administration (`coolify`, `headplane`, `qbit`, `sonarr`, `radarr`, `prowlarr`, `monitoring`) dans `/data/coolify/proxy/dynamic/vpn-only.yaml`. Retrait des domaines dans l'UI Coolify pour éliminer les concurrences de routeurs.
-  - **Découplage Headscale / Headplane** — Séparation de `vpn.ims-world.fr` (public WAN, coordination Tailscale) et `https://admin.vpn.ims-world.fr/admin` (privé Tailnet avec suffixe `/admin` obligatoire et résolution split-horizon `100.64.0.4`). Voir l'[ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only) et la procédure [Sécuriser un Service avec vpn-only](/procedures/securiser-service-vpn-only).
+  - **Découplage Headscale / Headplane** — Séparation de `vpn.ims-world.fr` (public WAN, coordination Tailscale) et `https://admin.vpn.ims-world.fr/admin` (privé Tailnet avec suffixe `/admin` obligatoire et résolution split-horizon `100.64.0.4`). Voir l'[ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only) et le [Post-Mortem du 18-20/08/2026](/history/incidents/2026-08-18-blocage-traefik-vpn-only-docker-proxy).
 </Update>
 
 <Update label="19/08/2026" description="Incident Stale NFS Filehandle Jellyfin & Optimization Backup LXC 100">

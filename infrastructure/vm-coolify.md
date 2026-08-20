@@ -152,21 +152,26 @@ sudo usermod -aG docker cmolotkoff
 
 ---
 
-## 🔒 Configuration du Démon Docker (`/etc/docker/daemon.json`)
+## 🔒 Réglages Réseau & Sécurité Système (Préservation IP Source)
 
 <Check>
-**Durcissement Sécurité CIS Docker Benchmark (`"userland-proxy": false`)** :
-Pour préserver l'adresse IP source réelle du client (WAN, LAN ou Tailnet `100.64.0.0/10`) sans masquage en `10.0.1.1` et permettre le fonctionnement du filtrage `vpn-only`, le proxy userland Docker est désactivé. Docker s'appuie sur le mécanisme natif du noyau Linux (iptables `DNAT` + `MASQUERADE` + `net.ipv4.route_localnet`). Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
+**Les 2 Piliers Réseau vpn-only (CIS Benchmark & Tailscale SNAT Bypass)** :
+Pour préserver l'adresse IP source réelle des clients (`100.64.0.x`) jusqu me conteneur Traefik sans masquage en `10.0.1.1`, la VM Coolify exige deux configurations système impératives :
 </Check>
 
 ```json
-// /etc/docker/daemon.json
+// 1. /etc/docker/daemon.json (CIS Docker Benchmark Section 2.12)
 {
   "log-driver": "json-file",
   "log-opts": { "max-size": "10m", "max-file": "3" },
   "default-address-pools": [{"base":"10.0.0.0/8","size":24}],
   "userland-proxy": false
 }
+```
+
+```bash
+# 2. Configuration du démon Tailscale (Désactivation du SNAT automatique ts-postrouting)
+sudo tailscale set --snat-subnet-routes=false
 ```
 
 ---
