@@ -62,8 +62,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Chemin sur la VM** | `/data/coolify/services/w39uebmcnse7yctsft8hzed8/` |
 | **VPN & Kill-Switch** | ProtonVPN WireGuard (`qmcgaw/gluetun:v3.40.0` avec Port-Forwarding) |
 | **Accélération Matérielle** | Passthrough iGPU Intel Iris Xe (QuickSync Haswell / QSV) |
-| **Profils Qualité** | TRaSH-Guides sync quotidien (Recyclarr 04h00) |
-| **Stockage NFS Shared** | `/mnt/nas-storage/homeflix/` (Hardlinks garantis sur même volume) |
+| **Composants Principaux** | Jellyfin + **Jellyseerr v3.4.1** + Radarr + Sonarr + Prowlarr + qBittorrent |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 ---

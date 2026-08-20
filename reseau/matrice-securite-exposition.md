@@ -67,6 +67,78 @@ graph TB
 
 ---
 
+## 📐 Schémas de Flux Détaillés par Cas d'Exposition
+
+<Tabs>
+  <Tab title="🌐 Cas 1 — Trafic WAN (Internet Public)">
+    ```mermaid
+    graph LR
+        CLIENT_WAN["🌐 Client WAN (Internet)"] -->|HTTPS 443| BBOX["Bbox (Port-Forward 80/443)"]
+        BBOX -->|DNAT iptables| TRAEFIK["Traefik Proxy (VM 104)"]
+
+        TRAEFIK -->|Domaine Public Zone 1| APP_PUB["Immich / Vaultwarden / Jellyfin / Authentik"]
+        TRAEFIK -->|Domaine Privé Zone 2| VPN_ONLY{"Middleware vpn-only.yaml"}
+
+        VPN_ONLY -->|IP source != 100.64.0.0/10| REJECT["🛑 HTTP 403 Forbidden"]
+        APP_PUB -->|Session Validée| OK_200["✅ Accès Autorisé (200 OK)"]
+
+        classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
+        classDef err fill:#b91c1c,stroke:#dc2626,color:#fff;
+        classDef ok fill:#0F6E56,stroke:#16A085,color:#fff;
+        class CLIENT_WAN,BBOX,TRAEFIK wan;
+        class REJECT err;
+        class OK_200 ok;
+    ```
+    - **Filtrage WAN** : Tout accès vers un sous-domaine de Zone 2 (`qbit`, `coolify`, `monitoring`, etc.) depuis l'Internet public est intercepté par Traefik et immédiatement rejeté en **HTTP 403 Forbidden**.
+    - **Port SSH Git** : Seul le port TCP `2222` (Forgejo Git SSH) est transféré directement vers le conteneur Forgejo sans passer par Traefik.
+  </Tab>
+
+  <Tab title="🔐 Cas 2 — Trafic Tailnet Overlay (Tailscale 100.64.0.0/10)">
+    ```mermaid
+    graph LR
+        CLIENT_TS["🔐 Appareil Tailnet (100.64.0.x)"] -->|Tunnel WireGuard| TS_IF["Interface tailscale0"]
+        TS_IF -->|snat-subnet-routes=false| KERNEL["Kernel iptables DNAT"]
+
+        KERNEL -->|IP 100.64.0.x Préservée| TRAEFIK["Traefik Proxy (vpn-only.yaml)"]
+        KERNEL -.->|Accès Direct SSH / GUIs| ADMIN_SYS["SSH (4242/22) / PVE GUI (8006) / PBS GUI (8007)"]
+
+        TRAEFIK -->|IP source == 100.64.0.0/10| APPS_PRIV["Coolify / Headplane / qBit / Arrs / Grafana"]
+        APPS_PRIV --> OK_TS["✅ HTTP 200 OK / OIDC SSO"]
+        ADMIN_SYS --> OK_ADMIN["🔑 Access Admin OK"]
+
+        classDef vpn fill:#F97316,stroke:#FB923C,color:#fff;
+        classDef ok fill:#0F6E56,stroke:#16A085,color:#fff;
+        class CLIENT_TS,TS_IF,KERNEL,TRAEFIK vpn;
+        class OK_TS,OK_ADMIN ok;
+    ```
+    - **Préservation d'IP Source** : Grâce à `userland-proxy: false` et `tailscale set --snat-subnet-routes=false`, Traefik voit l'adresse IP réelle du client (`100.64.0.x`) et autorise l'accès.
+    - **Accès Direct Administration** : L'accès SSH (ports 4242/22) et les consoles web Proxmox VE (8006) et PBS (8007) sont joignables directement via l'IP Tailscale des nœuds.
+  </Tab>
+
+  <Tab title="🏠 Cas 3 — Administration LAN & Bridge NFS Isolé (192.168.1.x & 10.10.10.x)">
+    ```mermaid
+    graph LR
+        PC_LAN["🏠 PC LAN (192.168.1.x)"] -->|LAN Direct| HOST_PVE["Proxmox Host MS-01 (41 / 4242 / 8006)"]
+        PC_LAN -->|LAN Direct| NAS_SMB["NAS SMB (50 / 445)"]
+        PC_LAN -->|LAN Direct| PBS_GUI["PBS GUI (51 / 8007)"]
+
+        subgraph VMBR1 ["🔒 Bridge NFS & Télémétrie (vmbr1 - 10.10.10.0/24)"]
+            COOL_VM["VM Coolify (10.10.10.2)"] <==>|Montage NFSv3 / NFSv4| NAS_LXC["LXC NAS (10.10.10.1)"]
+            PBS_LXC["LXC PBS (10.10.10.3)"] <==>|Sauvegardes NFS| NAS_LXC
+        end
+
+        classDef lan fill:#1a2b3c,stroke:#F97316,color:#fff;
+        classDef iso fill:#0F6E56,stroke:#16A085,color:#fff;
+        class PC_LAN,HOST_PVE,NAS_SMB,PBS_GUI lan;
+        class COOL_VM,NAS_LXC,PBS_LXC iso;
+    ```
+    - **Réseau Physiquement Isolé** : Le LAN physique (`192.168.1.0/24`) donne un accès d'administration direct sans passer par le VPN.
+    - **Stockage NFS Étanche** : Le trafic NFS et la télémétrie transitent exclusivement par le bridge virtuel interne `vmbr1` (`10.10.10.0/24`), totalement inaccessible depuis le LAN physique ou le WAN.
+  </Tab>
+</Tabs>
+
+---
+
 ## 🛡️ Matrice d'Exposition par Zone de Confiance
 
 <Tabs>

@@ -54,3 +54,12 @@ Cette page recense l'ensemble des **chantiers techniques restants et tâches d'a
 
 ### 13. 🧹 Décommissionnement Définitif du Mac Mini
 - **Tâche** : Une fois la période de validation post-cutover achevée et l'ensemble des 11 services secondaires migrés, procéder au retrait propre du Mac Mini 2014 du réseau et retirer les `extra_records` dans Headscale (`coolify-old.ims-world.fr`).
+
+### 14. 🔔 Notifications Nativités Proxmox VE & PBS
+- **Tâche** : Configurer les cibles de notification natifs (*Notification Targets*) sur Proxmox VE (MS-01) et Proxmox Backup Server (LXC 103) pour recevoir les comptes-rendus d'exécution des jobs de sauvegarde `vzdump` / `pbs` et les alertes d'état système vers Ntfy / Mail.
+
+### 15. 📦 Scan Automatique des Mises à Jour Docker (Diun)
+- **Tâche** : Déployer **Diun** (*Docker Image Update Notifier*) sur la VM Coolify pour surveiller les registres Docker et émettre une alerte Webhook instantanée dès qu'une nouvelle version d'image conteneurisée est disponible.
+
+### 16. 🛡️ Dashboard Sécurité CrowdSec / Fail2ban
+- **Tâche** : Déployer un tableau de bord de supervision de sécurité pour agréger les logs de détection d'intrusions (CrowdSec / Fail2ban), visualiser la cartographie des IPs bannies et suivre les métriques d'attaques subies par le reverse proxy Traefik.

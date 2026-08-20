@@ -5,7 +5,7 @@ icon: "shield-keyhole"
 iconType: "duotone"
 ---
 
-<Badge color="amber">🟡 En attente de validation (Non testé sur un nouveau service)</Badge>
+<Badge color="green">🟢 Procédure Standard Validée</Badge>
 
 ## Objectif
 

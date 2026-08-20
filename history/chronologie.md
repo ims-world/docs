@@ -24,6 +24,15 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
+<Update label="20/08/2026" description="Mises à Jour Applicatives & Avancement Châssis Labrax">
+  ### 📦 Mises à Jour Applicatives
+  - **Coolify v4.3.9** — Mise à niveau du moteur d'orchestration applicatif sur la VM 104.
+  - **Jellyseerr v3.4.1** — Mise à jour du portail de requêtes média de la stack HomeFlix (`videoclub.ims-world.fr`).
+
+  ### 🖨️ Hardware & Châssis 3D Labrax
+  - **Impression 3D Châssis Terminée** — L'impression 3D de l'intégralité des pièces du châssis rackable 10" Labrax s'est achevée avec succès cette nuit. L'étape suivante concerne le montage physique et l'intégration des composants.
+</Update>
+
 <Update label="19/08/2026 - 20/08/2026" description="Isolation Réseau vpn-only, CIS Benchmark & Bypass SNAT Tailscale">
   ### 🛡️ Refonte Réseau & Résolution Double Incident vpn-only (ADR-009)
   - **Durcissement Démon Docker (`"userland-proxy": false`)** — Application de la recommandation officielle du **CIS Docker Benchmark** sur la VM Coolify. Basculement natif du noyau Linux (iptables `DNAT` + `MASQUERADE` + `net.ipv4.route_localnet`), éliminant la substitution d'IP par le binaire `docker-proxy`.

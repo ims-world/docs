@@ -25,6 +25,7 @@ iconType: "duotone"
 |---|---|
 | **Modèle Original 3D** | Projet [Lab Rax — A 3D Printable Modular 10" Rack System (The DIY Life)](https://the-diy-life.com/introducing-lab-rax-a-3d-printable-modular-10-rack-system/) |
 | **Structure** | Châssis modulable 10" 3D-printé (PETG/PLA+ gris renforcé avec poignées supérieures) |
+| **Statut Impression 3D** | <Badge color="green">🟢 Impression 3D Terminée (20/08)</Badge> — Montage physique & assemblage des modules en cours |
 | **Panneaux Latéraux** | Acrylique teinté noir profond (encastré dans les fentes intérieures du plastique) |
 | **Refroidissement Supérieur** | Ventilateur Noctua NF-A12x25 G2 PWM chromax.black (extraction d'air chaud par le haut) |
 | **Distribution Électrique** | Multiprise rackée à l'arrière (PDU 230V) alimentant : (1) PicoPSU-160-XT + LEICKE 150W 12V (disques & ventilateur Noctua G2), (2) bloc d'alimentation Switch NETGEAR, (3) bloc d'alimentation MS-01, (4) alim secteur Mac Mini |

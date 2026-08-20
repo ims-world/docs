@@ -26,7 +26,7 @@ Héberge Coolify et l'ensemble de la stack applicative (Authentik, Vaultwarden, 
 | **CPU / RAM** | 6 cores (mode CPU `host` — `x86-64-v2`) / 18 Go RAM |
 | **Disque** | 128 Go NVMe |
 | **Réseau** | `vmbr0` (192.168.1.52/24) + `vmbr1` (10.10.10.2/24) + client Tailscale dédié |
-| **Tailscale** | `100.64.0.4`, hostname `ims-pve-104-coolify` |
+| **Version Coolify** | `v4.3.9` |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 ## Coolify & Architecture Docker
