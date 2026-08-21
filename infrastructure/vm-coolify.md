@@ -4,7 +4,7 @@ description: "Serveur d'orchestration Docker et Reverse Proxy Traefik de product
 icon: "box"
 iconType: "duotone"
 last_reviewed: "2026-08-17"
-app_version: "v4.3.6"
+app_version: "v4.3.9"
 ---
 
 <Badge color="green">🟢 Production Active (VM 104)</Badge>
@@ -156,7 +156,7 @@ sudo usermod -aG docker cmolotkoff
 
 <Check>
 **Les 2 Piliers Réseau vpn-only (CIS Benchmark & Tailscale SNAT Bypass)** :
-Pour préserver l'adresse IP source réelle des clients (`100.64.0.x`) jusqu me conteneur Traefik sans masquage en `10.0.1.1`, la VM Coolify exige deux configurations système impératives :
+Pour préserver l'adresse IP source réelle des clients (`100.64.0.x`) jusqu'au conteneur Traefik sans masquage en `10.0.1.1`, la VM Coolify exige deux configurations système impératives :
 </Check>
 
 ```json

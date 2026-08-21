@@ -57,10 +57,6 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Rétention Métriques/Logs** | **1 An** (Prometheus TSDB `--storage.tsdb.retention.time=1y`) & **30j** (Loki `retention_period: 720h`) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
-<Warning>
-**Grafana 13.1.3 est requis**, pas une version antérieure. La fonctionnalité "Custom Payload" du contact point Webhook (utilisée pour formater les notifications Ntfy) n'existe qu'à partir de **Grafana 12.0** — absente en 11.x. Ne pas downgrade sans vérifier ce point.
-</Warning>
-
 <Info>
 **Extrapolation Rétention 1 An** : La taille TSDB constatée sur 30 jours est de **464 Mo**. L'extrapolation sur 1 an représente environ **5 à 6 Go** de stockage, ce qui est tout à fait négligeable sur le stockage SSD 4 To de la VM Coolify.
 </Info>
@@ -205,40 +201,21 @@ Prometheus scrape les métriques de Traefik sur `coolify-proxy:8080`.
 
 ## Alerting & Contact Point Ntfy
 
-Grafana gère l'évaluation des règles d'alerte et transmet les notifications push à **[Ntfy](/services/ntfy)** via un contact point Webhook.
+Grafana gère l'évaluation des règles d'alerte et transmet directement les notifications push à **[Ntfy](/services/ntfy)** via un contact point Webhook.
 
 ### 1. Configuration du Contact Point Webhook
-- **URL** : `https://ntfy.ims-world.fr`
+- **URL Cible** : `https://ntfy.ims-world.fr/ims-alerts`
 - **Méthode HTTP** : `POST`
 - **Header d'autorisation** : `Bearer <token_ntfy_grafana>`
-- **Custom Payload (Grafana ≥ 12.0)** :
-```json
-{{ $msg := "" }}
-{{ range .Alerts }}{{ $msg = printf "%s%s (%s)\n" $msg .Annotations.summary .Labels.host }}{{ end }}
-{{ if eq .Status "firing" }}{
-  "topic": "ims-alerts",
-  "title": {{ printf "%s" .CommonLabels.alertname | data.ToJSON }},
-  "message": {{ $msg | data.ToJSON }},
-  "priority": 4,
-  "tags": ["rotating_light"],
-  "click": {{ .ExternalURL | data.ToJSON }}
-}
-{{ else }}{
-  "topic": "ims-alerts",
-  "title": {{ printf "Résolu: %s" .CommonLabels.alertname | data.ToJSON }},
-  "message": {{ $msg | data.ToJSON }},
-  "priority": 3,
-  "tags": ["white_check_mark"]
-}
-{{ end }}
-```
+- **Canal de Diffusion** : Topic `ims-alerts` (push direct sur mobiles et notifications web).
 
 ### 2. Règles d'Alerte Grafana (Group `default`)
 
-| Règle | Requête PromQL (Instant) | Condition | Pending | No data state |
+| Règle | Requête PromQL (Instant) | Condition | Pending | Description & Action |
 |---|---|---|---|---|
-| **CPU élevé** | `100 - (avg by (host) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)` | > 90% | 5m | Normal |
-| **RAM élevée** | `(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100` | > 90% | 5m | Normal |
-| **Disque plein** | `(1 - node_filesystem_avail_bytes{fstype!~"tmpfs\|overlay"} / node_filesystem_size_bytes) * 100` | > 85% | 10m | Normal |
-| **Host down** | `time() - timestamp(node_load1) > 120` | > 120s | 1m | Normal |
-| **Container crash-loop** | `changes(container_start_time_seconds{image!="", host="ims-coolify"}[15m])` | > 2 | 0s | Normal |
+| **Disque SMART dégradé** | `smartmon_device_smart_healthy == 0` | Passage de 1 à 0 (`== 0`) | 0s | **Alerte Urgente** : Déclenchement immédiat avec mention explicite du nom et modèle du disque défaillant (`device` / `model`). |
+| **CPU élevé** | `100 - (avg by (host) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)` | > 90% | 5m | Alerte de charge processeur soutenue sur 5 minutes. |
+| **RAM élevée** | `(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100` | > 90% | 5m | Alerte de saturation mémoire physique. |
+| **Disque plein** | `(1 - node_filesystem_avail_bytes{fstype!~"tmpfs\|overlay"} / node_filesystem_size_bytes) * 100` | > 85% | 10m | Alerte d'espace disque disponible critique. |
+| **Host down** | `time() - timestamp(node_load1) > 120` | > 120s | 1m | Alerte d'absence de métriques / nœud injoignable. |
+| **Container crash-loop** | `changes(container_start_time_seconds{image!="", host="ims-coolify"}[15m])` | > 2 | 0s | Alerte de redémarrages en boucle d'un conteneur Docker. |
