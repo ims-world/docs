@@ -132,4 +132,7 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
   <Card title="Ingestion & Import WebDAV (PhotoPrism)" icon="folder-cloud" href="/services/photoprism#ingestion-de-photos--webdav">
     Dépôt direct de fichiers RAW via WebDAV (`/import/`), gestion des identifiants et commande d'importation forcée.
   </Card>
+  <Card title="Purger un Bannissement IP Home Assistant" icon="house-signal" href="/services/home-assistant#reverse-proxy--traefik">
+    Procédure de déblocage et suppression du fichier `ip_bans.yaml` en cas d'auto-ban provoqué par le hairpin NAT local.
+  </Card>
 </CardGroup>

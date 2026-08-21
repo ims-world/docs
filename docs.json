@@ -99,6 +99,7 @@
               "services/authentik",
               "services/vaultwarden",
               "services/homeflix",
+              "services/home-assistant",
               "services/headscale-headplane",
               "services/monitoring",
               "services/ntfy",

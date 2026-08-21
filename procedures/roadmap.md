@@ -66,3 +66,9 @@ Cette page recense l'ensemble des **chantiers techniques restants et tâches d'a
 
 ### 17. 🎬 Visibilité Temps Réel des Flux Jellyfin (Exporteur Dédié)
 - **Tâche** : Sélectionner et déployer un conteneur exporteur Prometheus dédié à Jellyfin (`jellyfin-exporter`) sur la VM Coolify pour remonter la métrologie en temps réel des lectures actives (sessions de transcodage vs direct play, utilisateurs connectés, codecs et débits).
+
+### 18. 📻 Home Assistant — Réactivation Intégration Alexa Devices
+- **Tâche** : Surveiller le correctif upstream de l'issue Home Assistant Core [#154618](https://github.com/home-assistant/core/issues/154618) (`AttributeError: 'NoneType' object has no attribute 'get'` dans `aioamazondevices`) et réactiver l'intégration `alexa_devices` une fois la version corrigée publiée.
+
+### 19. 🔌 Home Assistant — Passthrough USB Dongle Zigbee/Z-Wave
+- **Tâche** : Lors de l'acquisition d'un dongle USB Zigbee/Z-Wave, procéder au passthrough matériel Proxmox (`qm set 104 -usbX`) sur la VM 104 et mapper le périphérique dans le compose Home Assistant via `/dev/serial/by-id/...`. Voir [Home Assistant](/services/home-assistant).

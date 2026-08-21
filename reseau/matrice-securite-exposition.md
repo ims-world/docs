@@ -159,6 +159,11 @@ graph TB
         **Auth** : Authentification native Jellyfin
         **Protection** : DNS-01 TLS, Transcodage iGPU Iris Xe
       </Card>
+      <Card title="Home Assistant" icon="house-signal" href="/services/home-assistant">
+        **Domaine** : `home.ims-world.fr`
+        **Auth** : Auth native HA + 2FA TOTP (Flow OAuth2 App Companion)
+        **Protection** : Traefik DNS-01 TLS, trusted_proxies configuration
+      </Card>
       <Card title="Jellyseerr" icon="film" href="/services/homeflix">
         **Domaine** : `videoclub.ims-world.fr`
         **Auth** : SSO / Auth Jellyfin

@@ -24,7 +24,10 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
-<Update label="21/08/2026" description="Refonte Complète & Monitoring Avancé (SMART, Uptime Kuma, Dashboards)">
+<Update label="21/08/2026" description="Déploiement Home Assistant (Smart Home), Monitoring Avancé & Dashboards">
+  ### 🏠 Domotique & Smart Home (Home Assistant)
+  - **Déploiement de Home Assistant 2025.10.2** — Déploiement en conteneur Docker pur sur la VM 104 (`ims-coolify`) avec publication publique sur `home.ims-world.fr`. Authentification native HA + 2FA TOTP pour préserver la compatibilité OAuth2 avec l'application mobile *Companion App*. Voir [Home Assistant](/services/home-assistant).
+
   ### 📊 Métrologie & Supervision Avancée (Stack LGTM)
   - **Monitoring SMART Bare-Metal (`ms01-pve`)** — Déploiement du *textfile collector* Node Exporter alimenté par `smartmon.sh` (cron 5 min) pour remonter la santé SMART, températures et heures de vol des disques physiques (`nvme0n1`, `sda` SSD, `sdb` HDD) avec respect strict du spin-down (`smartctl -n standby`).
   - **Scrape Uptime Kuma (Pull) & Métriques SSL** — Ingestion des métriques d'Uptime Kuma (`/metrics` Basic Auth) avec calcul des SLO 24h/7j/30j et suivi d'expiration des certificats SSL/TLS.
