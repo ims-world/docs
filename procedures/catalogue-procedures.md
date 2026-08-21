@@ -16,8 +16,11 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
 ## 🚨 1. Urgence, Secours & Reprise d'Activité (PRA)
 
 <CardGroup cols={2}>
-  <Card title="Plan de Reprise d'Activité (PRA)" icon="triangle-exclamation" href="/procedures/plan-reprise-activite-pra">
-    Procédure étape par étape pour reconstruire l'infrastructure complète en cas de sinistre physique majeur.
+  <Card title="Plan de Reprise d'Activité (PRA / DRP)" icon="shield-virus" href="/procedures/plan-reprise-activite-pra">
+    Stratégie globale de résilience, matrice RTO/RPO et procédures de basculement de secours.
+  </Card>
+  <Card title="Simulation Crash NVMe & Restauration DRP" icon="skull-crossbones" href="/procedures/simulation-crash-restauration">
+    Runbook théorique de restauration à froid d'urgence de la VM Coolify depuis PBS suite à un crash NVMe (avec avertissement).
   </Card>
   <Card title="Commandes d'Urgence Break-Glass" icon="bolt" href="/procedures/commandes-urgence">
     Aide-mémoire des commandes de secours SSH, déblocage des accès et redémarrage des composants critiques.

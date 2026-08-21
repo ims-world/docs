@@ -173,15 +173,21 @@ Prometheus scrape les métriques de Traefik sur `coolify-proxy:8080`.
 
 ### Galerie des Tableaux de Bord
 
-````carousel
-![Vue d'ensemble des Dashboards et Tags](/assets/grafana-dashboards-list.png)
-<!-- slide -->
-![Dashboard Master Vue d'ensemble — IMS-WORLD](/assets/grafana-dashboard-overview.png)
-<!-- slide -->
-![Dashboard Traefik — Reverse Proxy](/assets/grafana-dashboard-traefik.png)
-<!-- slide -->
-![Dashboard Gestion des disques & SMART](/assets/grafana-dashboard-disks.png)
-````
+<Frame caption="Dashboard Master — Vue d'ensemble IMS-WORLD">
+  ![Dashboard Master Vue d'ensemble — IMS-WORLD](/assets/grafana-dashboard-overview.png)
+</Frame>
+
+<Frame caption="Dashboard — Gestion des disques & Santé SMART">
+  ![Dashboard Gestion des disques & SMART](/assets/grafana-dashboard-disks.png)
+</Frame>
+
+<Frame caption="Dashboard — Traefik Reverse Proxy Engine">
+  ![Dashboard Traefik — Reverse Proxy](/assets/grafana-dashboard-traefik.png)
+</Frame>
+
+<Frame caption="Inventaire des Dashboards Grafana & Tags">
+  ![Vue d'ensemble des Dashboards et Tags](/assets/grafana-dashboards-list.png)
+</Frame>
 
 ---
 

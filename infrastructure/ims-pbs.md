@@ -91,6 +91,24 @@ graph LR
     class NAS_NFS,HDD nas;
 ```
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant PVE as Proxmox VE (MS-01)
+    participant VM as VM 104 (Coolify)
+    participant PBS as PBS Engine (LXC 103)
+    participant NAS as LXC NAS 100 (MergerFS / NFS)
+
+    PVE->>VM: Initialisation QEMU Guest Agent Snapshot (02h00)
+    VM-->>PVE: Freeze Filesystem & State Ready
+    PVE->>PBS: Stream Chunks Déduplicatifs (Proxmox Backup Client API)
+    PBS->>PBS: Hachage SHA-256 & Déduplication au bloc
+    PBS->>NAS: Écriture Chunks NFSv3 (/mnt/pbs-datastore via vmbr1)
+    NAS-->>PBS: Confirmation Sync Espace Stockage
+    PBS-->>PVE: Job Status Success (Backup Chunk Verified)
+    PVE->>VM: Unfreeze Filesystem
+```
+
 | Propriété | Valeur |
 |---|---|
 | **Nom** | `pve-backups` |

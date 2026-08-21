@@ -45,6 +45,8 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `i5ae953riutbot9afjcboptb` |
 | **Chemin sur la VM** | `/data/coolify/services/i5ae953riutbot9afjcboptb/` |
+| **Volumes & Stockage** | `/var/lib/docker/volumes/i5ae953riutbot9afjcboptb_vaultwarden-data/_data` |
+| **Moniteur Disponibilité** | [Surveillance Uptime Kuma (`status.ims-world.fr`)](https://status.ims-world.fr) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 ---
