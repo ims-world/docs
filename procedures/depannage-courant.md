@@ -337,3 +337,22 @@ Tout redémarrage de la LXC 100 (`ims-nas`) réinitialise l'instance FUSE Merger
     Désactiver ou supprimer tout job de sauvegarde automatique `vzdump` planifié sur la LXC 100 (`ims-nas`).
   </Step>
 </Steps>
+
+## Supervision & Métrologie (LGTM / Uptime Kuma / SMART)
+
+### <Badge color="amber">Monitoring</Badge> Erreur Prometheus Uptime Kuma `/metrics` après création d'une étiquette
+
+<Warning>
+Ajouter un tag dans Uptime Kuma plante l'exporteur `/metrics` avec l'erreur `Added label X is not included in initial labelset`.
+</Warning>
+
+```bash
+# Se connecter à la VM Coolify et redémarrer le conteneur Uptime Kuma
+docker restart uptime-kuma-il53bmpdybmss5q14sfy0umm
+```
+
+### <Badge color="amber">SMART</Badge> Disques d'un hôte absents du dashboard "Gestion des disques"
+
+<Info>
+Le script `smartmon.sh` utilise `smartctl -n standby`. Si un HDD (`sda`/`sdb`) est en veille (spin-down), sa lecture est volontairement ignorée pour ne pas le réveiller (`smartmon_device_active = 0`). Le disque réapparaîtra automatiquement dès qu'il repassera en état actif.
+</Info>

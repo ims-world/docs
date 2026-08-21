@@ -24,6 +24,14 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
+<Update label="21/08/2026" description="Refonte Complète & Monitoring Avancé (SMART, Uptime Kuma, Dashboards)">
+  ### 📊 Métrologie & Supervision Avancée (Stack LGTM)
+  - **Monitoring SMART Bare-Metal (`ms01-pve`)** — Déploiement du *textfile collector* Node Exporter alimenté par `smartmon.sh` (cron 5 min) pour remonter la santé SMART, températures et heures de vol des disques physiques (`nvme0n1`, `sda` SSD, `sdb` HDD) avec respect strict du spin-down (`smartctl -n standby`).
+  - **Scrape Uptime Kuma (Pull) & Métriques SSL** — Ingestion des métriques d'Uptime Kuma (`/metrics` Basic Auth) avec calcul des SLO 24h/7j/30j et suivi d'expiration des certificats SSL/TLS.
+  - **Rétention 1 An Prometheus** — Passage de la rétention TSDB de 30 jours à **1 an** (`--storage.tsdb.retention.time=1y`) pour un coût de stockage estimé à ~5-6 Go/an.
+  - **Nouveaux Dashboards Grafana Exécutifs** — Publication de 4 nouveaux dashboards de production : *Vue d'ensemble — IMS-WORLD*, *Uptime Kuma - Overview*, *Gestion des disques*, et *Traefik — Reverse Proxy*. Correction des labels sur le template *Node Exporter Full* (ID `1860`). Voir [Stack Monitoring](/services/monitoring).
+</Update>
+
 <Update label="20/08/2026" description="Mises à Jour Applicatives & Avancement Châssis Labrax">
   ### 📦 Mises à Jour Applicatives
   - **Coolify v4.3.9** — Mise à niveau du moteur d'orchestration applicatif sur la VM 104.

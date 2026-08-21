@@ -144,29 +144,39 @@ Un simple ping ICMP confirme que la machine physique est allumée, mais ne garan
 
 ---
 
-## Stockage & Politique de Sécurité
+## 📥 Exportation des Métriques vers Prometheus (Scrape Pull)
 
-### 1. Authentification Forward-Auth Authentik
-Uptime Kuma ne disposant pas de support OIDC natif, l'accès à `status.ims-world.fr` est sécurisé par l'outpost Forward-Auth Authentik. Pour la configuration détaillée de l'outpost, voir la fiche [Authentik](/services/authentik#outpost-proxy--forward-auth).
+Exceptionnellement à l'architecture globale "Push Remote-Write", Uptime Kuma est scrapé en mode **Pull** par le serveur Prometheus central via son endpoint natif `/metrics`.
+
+### 1. Authentification Basic Auth (`uptime-kuma-api-key.txt`)
+Prometheus s'authentifie sur Uptime Kuma via Basic Auth. La clé d'API est stockée dans `config/uptime-kuma-api-key.txt` et montée en volume lecture seule (`:ro`) dans le conteneur Prometheus (`/etc/prometheus/secrets/kuma-api-key`).
 
 ```yaml
-labels:
-  - 'traefik.http.middlewares.authentik-kuma.forwardauth.address=http://ak-outpost-ims-outpost:9000/outpost.goauthentik.io/auth/traefik'
-  - traefik.http.middlewares.authentik-kuma.forwardauth.trustForwardHeader=true
-  - 'traefik.http.middlewares.authentik-kuma.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-uid'
-  - traefik.http.routers.uptime-kuma.middlewares=authentik-kuma@docker
+# config/prometheus.yml
+  - job_name: 'uptime-kuma'
+    basic_auth:
+      username: 'uptimekuma'
+      password_file: /etc/prometheus/secrets/kuma-api-key
+    static_configs:
+      - targets: ['uptime-kuma-il53bmpdybmss5q14sfy0umm:3001']
 ```
 
-<Info>
-Dans le Provider Authentik correspondant, la variable **External host** est configurée sur `https://status.ims-world.fr`.
-</Info>
+### 2. Métriques Disponibles & Dashboard Grafana
+- `monitor_status` : Statut binaire de chaque moniteur (1 = Up, 0 = Down).
+- `monitor_response_time_seconds` : Latence de réponse HTTP/TCP en secondes.
+- `monitor_uptime_ratio` : Taux de disponibilité calculé sur 24h, 7j et 30j.
+- `monitor_cert_days_remaining` : Nombre de jours restants avant l'expiration du certificat SSL/TLS.
+- `monitor_cert_is_valid` : Validité du certificat SSL (1 = Valide, 0 = Expiré/Invalide).
 
-### 2. Bug Connus — Export Metrics Prometheus
+Ces métriques alimentent directement le dashboard Grafana dédié **Uptime Kuma - Overview** ainsi que le dashboard master **Vue d'ensemble — IMS-WORLD**. Voir la fiche [Monitoring LGTM](/services/monitoring).
 
 <Warning>
-**Bug `Added label X is not included in initial labelset`** : Ajouter une nouvelle étiquette (tag) dans Uptime Kuma alors que l'export Prometheus `/metrics` est actif fait planter le serveur d'export de métriques.
+**Bug de Création d'Étiquettes (Tag)** : Ajouter une nouvelle étiquette (tag) dans l'IHM Uptime Kuma pendant que le conteneur tourne casse temporairement l'export `/metrics` (`Added label X is not included in initial labelset`).
 
-**Contournement** : Exécuter `docker restart <container_uptime_kuma>` après toute création d'étiquette. Cela relance l'export sans impacter les moniteurs ni les alertes Ntfy.
+**Solution** : Exécuter un redémarrage du conteneur après toute création d'étiquette :
+```bash
+docker restart uptime-kuma-il53bmpdybmss5q14sfy0umm
+```
 </Warning>
 
 ---

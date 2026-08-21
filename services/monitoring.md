@@ -1,9 +1,9 @@
 ---
 title: "Stack Monitoring (LGTM)"
-description: "Grafana, Loki, Prometheus & Grafana Alloy — métriques & centralisation de logs"
+description: "Grafana, Loki, Prometheus & Grafana Alloy — métriques, centralisation de logs & monitoring SMART"
 icon: "chart-line"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
+last_reviewed: "2026-08-21"
 app_version: "v13.1.3"
 ---
 
@@ -53,8 +53,8 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `rrw19kmye6gng961igtzqpgw` |
 | **Chemin sur la VM** | `/data/coolify/services/rrw19kmye6gng961igtzqpgw/` |
-| **Mode d'Ingestion** | **Push Remote-Write** (les 5 agents Alloy poussent vers le serveur) |
-| **Rétention Métriques/Logs** | 30 jours (Prometheus TSDB `--storage.tsdb.retention.time=30d` & Loki `retention_period: 720h`) |
+| **Mode d'Ingestion** | **Push Remote-Write** (Alloy) + **Pull Scrape** (Uptime Kuma & Traefik) |
+| **Rétention Métriques/Logs** | **1 An** (Prometheus TSDB `--storage.tsdb.retention.time=1y`) & **30j** (Loki `retention_period: 720h`) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 <Warning>
@@ -62,12 +62,12 @@ import { ips, domains } from "/snippets/variables.mdx";
 </Warning>
 
 <Info>
-**Historique d'Architecture** : La stack LGTM remplace définitivement Beszel pour l'observabilité globale du homelab tout en conservant Dozzle pour le live-tailing. Voir l'[ADR-001 — Stack Monitoring LGTM](/history/adr/adr-001-stack-monitoring-lgtm).
+**Extrapolation Rétention 1 An** : La taille TSDB constatée sur 30 jours est de **464 Mo**. L'extrapolation sur 1 an représente environ **5 à 6 Go** de stockage, ce qui est tout à fait négligeable sur le stockage SSD 4 To de la VM Coolify.
 </Info>
 
 ---
 
-## Architecture & Topologie (Push Remote-Write)
+## Architecture & Topologie
 
 ```mermaid
 graph TB
@@ -79,24 +79,26 @@ graph TB
 
     subgraph CENTRAL_STACK ["📊 Stack Centrale Monitoring (VM 104 Docker)"]
         GRAFANA["Grafana v13.1.3 (Port 3000)"]
-        PROMETHEUS["Prometheus v3.1.0 (Port 9090 — Remote Write)"]
+        PROMETHEUS["Prometheus v3.1.0 (Port 9090 — TSDB 1y)"]
         LOKI["Loki v3.3.2 (Port 3100 — Log Push)"]
     end
 
-    subgraph AGENTS ["⚙️ Agents Grafana Alloy (5 Hôtes Surveillés)"]
-        MS01_ALLOY["MS-01 Host Bare Metal (Alloy systemd)"]
+    subgraph SCRAPE_PULL ["📥 Scraping Pull Prometheus"]
+        KUMA["Uptime Kuma (/metrics Basic Auth)"]
+        TRAEFIK_METRICS["Traefik Proxy Engine (:8080)"]
+    end
+
+    subgraph AGENTS ["⚙️ Agents Grafana Alloy & Textfile Collectors"]
+        MS01_ALLOY["MS-01 Bare Metal (Alloy + smartmon.sh Cron 5m)"]
         NAS_ALLOY["LXC 100 IMS-NAS (Alloy systemd)"]
         PBS_ALLOY["LXC 103 IMS-PBS (Alloy systemd)"]
-        COOL_ALLOY["VM 104 IMS-Coolify (Alloy root systemd + cAdvisor + Traefik metrics)"]
+        COOL_ALLOY["VM 104 IMS-Coolify (Alloy + cAdvisor Docker)"]
         RPI_ALLOY["Raspberry Pi Kiosk (Alloy systemd)"]
     end
 
     CLIENT_VPN -->|HTTPS| TRAEFIK
     TRAEFIK --> GRAFANA
-    GRAFANA <-->|SSO OIDC| AUTHENTIK
-    GRAFANA -->|Query| PROMETHEUS
-    GRAFANA -->|Query LogQL| LOKI
-    GRAFANA -.->|Webhook Alerting| NTFY_EXT["Ntfy (ntfy.ims-world.fr)"]
+    GRAFANA --> AUTHENTIK
 
     MS01_ALLOY -->|Push LAN 192.168.1.52:9090/3100| PROMETHEUS
     MS01_ALLOY -->|Push LAN| LOKI
@@ -113,44 +115,91 @@ graph TB
     COOL_ALLOY -->|Push Local 10.10.10.2:9090/3100| PROMETHEUS
     COOL_ALLOY -->|Push Local| LOKI
 
-    classDef web fill:#F97316,stroke:#FB923C,color:#fff;
-    classDef central fill:#0F6E56,stroke:#16A085,color:#fff;
-    classDef agent fill:#1a2b3c,stroke:#F97316,color:#fff;
-    classDef ext fill:#333,stroke:#777,color:#fff,stroke-dasharray: 5 5;
-    class CLIENT_VPN,TRAEFIK,AUTHENTIK web;
-    class GRAFANA,PROMETHEUS,LOKI central;
-    class MS01_ALLOY,NAS_ALLOY,PBS_ALLOY,COOL_ALLOY,RPI_ALLOY agent;
-    class NTFY_EXT ext;
+    PROMETHEUS -.->|Scrape /metrics| KUMA
+    PROMETHEUS -.->|Scrape :8080| TRAEFIK_METRICS
 ```
 
+### 1. IngestionHybride : Push Remote-Write + Pull Uptime Kuma/Traefik
+
+- **Push Remote-Write (Alloy)** : Les 5 agents Alloy poussent leurs métriques (`prometheus.remote_write`) et leurs logs (`loki.write`) directement vers la stack centrale via le LAN ou le bridge isolé `vmbr1`. La télémétrie ne transite **jamais par Tailscale**.
+- **Pull Uptime Kuma (Exception)** : Prometheus scrape l'endpoint natif `/metrics` d'Uptime Kuma via Basic Auth.
+  - La clé API est stockée dans `config/uptime-kuma-api-key.txt` et montée en volume `:ro` dans le conteneur Prometheus (`/etc/prometheus/secrets/kuma-api-key`).
+  - **Métriques lues** : `monitor_status`, `monitor_response_time_seconds`, `monitor_uptime_ratio`, `monitor_cert_days_remaining`, `monitor_cert_is_valid`.
+
+<Warning>
+**Bug de Création de Tag Uptime Kuma** : La création d'une étiquette (tag) dans l'IHM Uptime Kuma pendant que le conteneur tourne casse temporairement l'export `/metrics`.
+**Fix** : Exécuter un redémarrage du conteneur après toute création d'étiquette :
+```bash
+docker restart uptime-kuma-il53bmpdybmss5q14sfy0umm
+```
+</Warning>
+
+### 2. Monitoring SMART des Disques Physiques (`ms01-pve`)
+
+Seul l'hôte Proxmox bare-metal a un accès matériel direct aux disques physiques (`nvme0n1`, `sda` SSD Samsung 870 EVO, `sdb` HDD Apple/Seagate). Les conteneurs LXC (NAS, PBS) ne remontent pas le numéro de série SMART.
+
+- **Méthode** : *textfile collector* Node Exporter via Alloy, alimenté par le script communautaire `smartmon.sh` exécuté toutes les 5 minutes par cron.
+- **Règle de Cron (`/etc/cron.d/smartmon`)** :
+  ```bash
+  PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  */5 * * * * root /usr/local/bin/smartmon.sh > /var/lib/node_exporter/textfile_collector/smartmon.prom.$$ && mv /var/lib/node_exporter/textfile_collector/smartmon.prom.$$ /var/lib/node_exporter/textfile_collector/smartmon.prom
+  ```
+
 <Info>
-**Décision d'architecture clé : Push, pas Pull.** Chaque agent Alloy (5 hôtes) pousse ses métriques (`prometheus.remote_write`) et ses logs (`loki.write`) vers le serveur central via le LAN ou le réseau isolé `vmbr1`. Le port HTTP d'Alloy (12345) reste strictly local. La télémétrie ne transite **jamais par Tailscale**, ce qui garantit que la collecte continue même en cas de coupure du control plane Headscale ou du Tailnet.
+**Respect du Spin-Down des Disques** : Le script `smartmon.sh` utilise nativement `smartctl -n standby`. Si un disque HDD (`sda`/`sdb`) est en veille, le script **saute la lecture SMART sans réveiller le disque** (`smartmon_device_active = 0`). Cela préserve le mode veille configuré (30 min d'inactivité).
 </Info>
 
+### 3. Métriques Traefik & Formatage des Services
+
+Prometheus scrape les métriques de Traefik sur `coolify-proxy:8080`.
+
+<Warning>
+**Formatage des Noms de Services Coolify** : Les noms de services générés par Coolify contiennent des hashes et suffixes variables (ex. `https-N-<hash>-`, `@docker`, `@file`). Les dashboards Grafana utilisent une expression régulière `label_replace` en deux passes pour nettoyer ces libellés et afficher des noms lisibles.
+</Warning>
+
+### 4. Healthchecks Docker Nfs
+
+```yaml
+  prometheus:
+    healthcheck:
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:9090/-/healthy']
+  loki:
+    healthcheck:
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3100/ready']
+  grafana:
+    healthcheck:
+      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1']
+```
+
 ---
 
-## Composants & Dashboards
+## Dashboards Grafana
 
-### 1. Hôtes Surveillés par Grafana Alloy
+### Galerie des Tableaux de Bord
 
-| Hôte | Type | Adresse de Push Utilisée | Label `host` | Source des Logs & Métriques |
-|---|---|---|---|---|
-| **Host Proxmox (MS-01)** | Bare metal | `192.168.1.52:9090 / 3100` (LAN) | `ms01-pve` | `unix` exporter + systemd journal |
-| **IMS-NAS** | LXC 100 unprivileged | `10.10.10.2:9090 / 3100` (vmbr1) | `ims-nas` | `unix` exporter + systemd journal |
-| **IMS-PBS** | LXC 103 unprivileged | `10.10.10.2:9090 / 3100` (vmbr1) | `ims-pbs` | `unix` exporter + systemd journal |
-| **IMS-Coolify** | VM 104 Docker | `10.10.10.2:9090 / 3100` (Local) | `ims-coolify` | `unix` exporter + systemd journal + cAdvisor Docker + logs conteneurs + métriques Traefik |
-| **Raspberry Pi** | Bare metal ARM | `192.168.1.52:9090 / 3100` (LAN) | `rpi-kiosk` | `unix` exporter + systemd journal |
+````carousel
+![Vue d'ensemble des Dashboards et Tags](/assets/grafana-dashboards-list.png)
+<!-- slide -->
+![Dashboard Master Vue d'ensemble — IMS-WORLD](/assets/grafana-dashboard-overview.png)
+<!-- slide -->
+![Dashboard Traefik — Reverse Proxy](/assets/grafana-dashboard-traefik.png)
+<!-- slide -->
+![Dashboard Gestion des disques & SMART](/assets/grafana-dashboard-disks.png)
+````
 
 ---
 
-### 2. Dashboards Installés
+### Inventaire des Dashboards en Production
 
-| Dashboard | Origine | Contenu |
+| Dashboard | Source | Description & Indicateurs Clés |
 |---|---|---|
-| **Node Exporter Full** | Grafana.com ID `1860` | Vue par hôte : CPU/RAM/disque/réseau, filtrable par `Nodename`/`Instance` |
-| **Docker monitoring** | Grafana.com ID `15798` + 4 panels custom | Vue globale containers + panels sur-mesure CPU/RAM/Réseau/Disk par container |
-| **Traefik Standalone** | Grafana.com ID `17346` | Requêtes par entrypoint, Apdex, codes HTTP, services les plus lents/demandés |
-| **Logs — Vue d'ensemble** | Custom (`dashboards/logs-overview.json`) | Flux de logs filtrable (`$host`/`$job`/`$container`/`$level`), volumes et erreurs |
+| **Vue d'ensemble — IMS-WORLD** | Custom | **Master Dashboard Exécutif** : Statut global des services (Uptime Kuma), taux de stockage, santé SMART disques, certificats SSL `<30j`, matrice CPU/RAM/Disque par hôte. |
+| **Gestion des disques** | Custom | **Capacité & Santé Disques** : Taux d'occupation global, capacité totale/libre (6.27 TiB / 3.81 TiB), répartition Froid/Chaud, tendance 90j, I/O, inventaire physique, santé SMART et températures. |
+| **Traefik — Reverse Proxy** | Custom | **Trafic Web & Proxy Engine** : Requêtes/s globales, taux d'erreurs 4xx/5xx (fenêtre 15m pour lisser le bruit), connexions ouvertes, top 10 services les plus demandés, latences. |
+| **Uptime Kuma - Overview** | Custom | **Disponibilité Applicative** : Statut des 17 services, temps de réponse, validité et jours restants des certificats SSL, SLO (24h/7j/30j), historique chronologique des coupures. |
+| **Node Exporter Full** | Grafana ID `1860` (Fixé) | **Vue Système par Hôte** : CPU, mémoire, I/O disque, réseau. *Note : Variables corrigées pour matcher les vrais labels (`job=integrations/unix`, `host=`).* |
+| **Docker monitoring** | Grafana ID `15798` + Custom | **Métriques Conteneurs** : Consommation CPU/RAM/Network par conteneur Docker via cAdvisor. |
+| **Logs — Vue d'ensemble** | Custom (`logs-overview.json`) | **Explorateur de Logs Loki** : Filtrable par `$host`, `$job`, `$container` et `$level` (ERROR, WARN, INFO). |
 
 ---
 
@@ -193,61 +242,3 @@ Grafana gère l'évaluation des règles d'alerte et transmet les notifications p
 | **Disque plein** | `(1 - node_filesystem_avail_bytes{fstype!~"tmpfs\|overlay"} / node_filesystem_size_bytes) * 100` | > 85% | 10m | Normal |
 | **Host down** | `time() - timestamp(node_load1) > 120` | > 120s | 1m | Normal |
 | **Container crash-loop** | `changes(container_start_time_seconds{image!="", host="ims-coolify"}[15m])` | > 2 | 0s | Normal |
-
----
-
-## Exploitation & Procédures
-
-<AccordionGroup>
-  <Accordion title="Procédure : Ajouter un Nouvel Hôte à Surveiller (Alloy)">
-    <Steps>
-      <Step title="Installation d'Alloy via apt">
-        ```bash
-        sudo apt install -y gpg
-        sudo mkdir -p /etc/apt/keyrings
-        sudo wget -O /etc/apt/keyrings/grafana.asc https://apt.grafana.com/gpg-full.key
-        sudo chmod 644 /etc/apt/keyrings/grafana.asc
-        echo "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
-        sudo apt-get update && sudo apt-get install -y alloy
-        ```
-      </Step>
-      <Step title="Configuration & Démarrage">
-        Editer `/etc/alloy/config.alloy` avec les endpoints de push (`10.10.10.2` ou `192.168.1.52`), puis :
-        ```bash
-        sudo usermod -aG adm,systemd-journal alloy
-        sudo systemctl restart alloy && sudo systemctl enable alloy
-        ```
-      </Step>
-    </Steps>
-  </Accordion>
-
-  <Accordion title="Procédure : Créer une Nouvelle Règle d'Alerte Grafana → Ntfy">
-    <Steps>
-      <Step title="Création de la règle">
-        Dans Grafana : **Alerting → Alert rules → New alert rule**, saisir la requête PromQL en mode **Instant**.
-      </Step>
-      <Step title="Configuration du No Data State">
-        Régler "No data state" sur **Normal** pour éviter les fausses alertes sur requêtes saines vides.
-      </Step>
-      <Step title="Attribution du Contact Point">
-        Sélectionner le contact point Webhook **Ntfy alerting**.
-      </Step>
-    </Steps>
-  </Accordion>
-
-  <Accordion title="Requêtes PromQL & LogQL Utiles">
-    **PromQL — Nettoyage des suffixes UUID Coolify sur les conteneurs** :
-    ```promql
-    label_replace(
-      sum by (name) (rate(container_cpu_usage_seconds_total{image!="", host="ims-coolify"}[5m])) * 100,
-      "short_name", "$1", "name", "^(.+?)(-[a-z0-9]{20,})?$"
-    )
-    ```
-
-    **LogQL — Journal Systemd & Conteneurs Docker** :
-    ```logql
-    {host="ms01-pve"}                               # Tous les logs du host Proxmox
-    {host="ims-coolify", job="docker-containers"}   # Tous les logs des conteneurs Docker
-    ```
-  </Accordion>
-</AccordionGroup>

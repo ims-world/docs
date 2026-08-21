@@ -61,5 +61,8 @@ Cette page recense l'ensemble des **chantiers techniques restants et tâches d'a
 ### 15. 📦 Scan Automatique des Mises à Jour Docker (Diun)
 - **Tâche** : Déployer **Diun** (*Docker Image Update Notifier*) sur la VM Coolify pour surveiller les registres Docker et émettre une alerte Webhook instantanée dès qu'une nouvelle version d'image conteneurisée est disponible.
 
-### 16. 🛡️ Dashboard Sécurité CrowdSec / Fail2ban
-- **Tâche** : Déployer un tableau de bord de supervision de sécurité pour agréger les logs de détection d'intrusions (CrowdSec / Fail2ban), visualiser la cartographie des IPs bannies et suivre les métriques d'attaques subies par le reverse proxy Traefik.
+### 16. 🛡️ Dashboard Sécurité CrowdSec / Fail2ban (🟡 Bloqué — En attente d'installation CrowdSec)
+- **Tâche** : Déployer un tableau de bord de supervision de sécurité pour agréger les logs de détection d'intrusions (CrowdSec / Fail2ban), visualiser la cartographie des IPs bannies et suivre les métriques d'attaques subies par le reverse proxy Traefik. *(Bloqué à ce jour : CrowdSec n'est pas encore installé sur l'infrastructure).*
+
+### 17. 🎬 Visibilité Temps Réel des Flux Jellyfin (Exporteur Dédié)
+- **Tâche** : Sélectionner et déployer un conteneur exporteur Prometheus dédié à Jellyfin (`jellyfin-exporter`) sur la VM Coolify pour remonter la métrologie en temps réel des lectures actives (sessions de transcodage vs direct play, utilisateurs connectés, codecs et débits).
