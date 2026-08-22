@@ -53,6 +53,9 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
   <Card title="Sécuriser une App avec Authentik Outpost" icon="shield-keyhole" href="/procedures/securiser-application-authentik-forward-auth">
     Procédure complète pour protéger une application web sans SSO natif via Traefik et l'Outpost Proxy Authentik.
   </Card>
+  <Card title="Intégrer un Service avec Authentik OIDC SSO" icon="key" href="/procedures/integration-service-authentik-oidc">
+    Guide pas-à-pas et dictionnaire complet des URLs de redirection (Redirect URIs / Callbacks) par application.
+  </Card>
   <Card title="Sauvegarde Manuelle de Coolify" icon="cube" href="/procedures/sauvegarde-manuelle-coolify">
     Guide de sauvegarde à chaud via Proxmox NVMe/PBS, dumps SQL applicatifs et résolution du piège PBS namespace not found.
   </Card>

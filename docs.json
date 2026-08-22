@@ -128,6 +128,7 @@
               "procedures/deploiement-service",
               "procedures/securiser-service-vpn-only",
               "procedures/securiser-application-authentik-forward-auth",
+              "procedures/integration-service-authentik-oidc",
               "procedures/sauvegarde-manuelle-coolify",
               "procedures/depannage-courant",
               "procedures/ajout-nouveau-disque",
