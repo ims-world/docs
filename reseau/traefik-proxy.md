@@ -126,17 +126,19 @@ Pour garantir que Traefik perçoive la véritable adresse IP du client (`100.64.
 L'ensemble des routeurs et des définitions de services `vpn-only` est centralisé dans le fichier dynamique du provider File Traefik : `/data/coolify/proxy/dynamic/vpn-only.yaml` (surveillé en hot-reload automatique).
 
 ```yaml
-# /data/coolify/proxy/dynamic/vpn-only.yaml
+# Fichier dynamique Traefik : /data/coolify/proxy/dynamic/vpn-only.yaml
 http:
   middlewares:
     vpn-only:
       ipAllowList:
         sourceRange:
           - "100.64.0.0/10"
+          - "192.168.1.0/24"   # Accès LAN direct & Hairpin NAT Bbox
     admin-gzip:
       compress: {}
 
   routers:
+    # Exemple de routeur prive filtré
     grafana-admin:
       rule: "Host(`monitoring.ims-world.fr`)"
       entryPoints: [https]
@@ -144,83 +146,16 @@ http:
       middlewares: [vpn-only, admin-gzip]
       tls: {certResolver: letsencrypt}
 
-    qbit-admin:
-      rule: "Host(`qbit.ims-world.fr`)"
-      entryPoints: [https]
-      service: qbit-admin
-      middlewares: [vpn-only, admin-gzip]
-      tls: {certResolver: letsencrypt}
-
-    sonarr-admin:
-      rule: "Host(`sonarr.ims-world.fr`)"
-      entryPoints: [https]
-      service: sonarr-admin
-      middlewares: [vpn-only, admin-gzip]
-      tls: {certResolver: letsencrypt}
-
-    radarr-admin:
-      rule: "Host(`radarr.ims-world.fr`)"
-      entryPoints: [https]
-      service: radarr-admin
-      middlewares: [vpn-only, admin-gzip]
-      tls: {certResolver: letsencrypt}
-
-    prowlarr-admin:
-      rule: "Host(`prowlarr.ims-world.fr`)"
-      entryPoints: [https]
-      service: prowlarr-admin
-      middlewares: [vpn-only, admin-gzip]
-      tls: {certResolver: letsencrypt}
-
-    coolify-admin:
-      rule: "Host(`coolify.ims-world.fr`)"
-      entryPoints: [https]
-      service: coolify-admin
-      middlewares: [vpn-only, admin-gzip]
-      tls: {certResolver: letsencrypt}
-
-    headplane-admin:
-      rule: "Host(`admin.vpn.ims-world.fr`)"
-      entryPoints: [https]
-      service: headplane-admin
-      middlewares: [vpn-only, admin-gzip]
-      tls: {certResolver: letsencrypt}
+    # ... autres routeurs d'administration vpn-only (coolify, qbit, radarr, sonarr, prowlarr, logs...)
 
   services:
+    # Exemple de service pointant vers le conteneur interne Docker
     grafana-admin:
       loadBalancer:
         servers:
           - url: "http://grafana-rrw19kmye6gng961igtzqpgw:3000"
 
-    qbit-admin:
-      loadBalancer:
-        servers:
-          - url: "http://gluetun-w39uebmcnse7yctsft8hzed8:8080"
-
-    sonarr-admin:
-      loadBalancer:
-        servers:
-          - url: "http://sonarr-w39uebmcnse7yctsft8hzed8:8989"
-
-    radarr-admin:
-      loadBalancer:
-        servers:
-          - url: "http://radarr-w39uebmcnse7yctsft8hzed8:7878"
-
-    prowlarr-admin:
-      loadBalancer:
-        servers:
-          - url: "http://prowlarr-w39uebmcnse7yctsft8hzed8:9696"
-
-    coolify-admin:
-      loadBalancer:
-        servers:
-          - url: "http://coolify:8080"
-
-    headplane-admin:
-      loadBalancer:
-        servers:
-          - url: "http://headplane-i136ix2bmrrbeovnyrh1o72w:3000"
+    # ... autres services d'administration vpn-only
 ```
 
 ---

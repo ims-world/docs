@@ -179,11 +179,6 @@ graph TB
         **Auth** : Compte/Token local (Exposition WAN assumée pour push mobile)
         **Protection** : `signup=false`, `default_access=deny-all`
       </Card>
-      <Card title="Dozzle Logs" icon="list" href="/services/dozzle">
-        **Domaine** : `logs.ims-world.fr`
-        **Auth** : Authentik Forward-Auth Outpost Traefik
-        **Protection** : Session SSO obligatoire en amont du proxy
-      </Card>
       <Card title="Immich Photos" icon="images" href="/services/immich">
         **Domaine** : `photos.ims-world.fr`
         **Auth** : Native & SSO Authentik OIDC
@@ -251,6 +246,10 @@ graph TB
       <Card title="Grafana (Monitoring)" icon="chart-line" href="/services/monitoring">
         **Domaine** : `monitoring.ims-world.fr`
         **Protection** : `vpn-only.yaml` + SSO Authentik OIDC
+      </Card>
+      <Card title="Dozzle Logs" icon="list" href="/services/dozzle">
+        **Domaine** : `logs.ims-world.fr`
+        **Protection** : `vpn-only.yaml` File Provider (`100.64.0.0/10` + `192.168.1.0/24`)
       </Card>
     </CardGroup>
   </Tab>

@@ -119,3 +119,23 @@ Headscale est un control plane qui coordonne des connexions WireGuard peer-to-pe
 |---|---|---|
 | `noise_private.key` | Identité cryptographique du serveur Headscale | Tous les clients verraient un "nouveau serveur" non reconnu |
 | `db.sqlite` | Base SQLite des nœuds, utilisateurs et clés d'accès | Perte instantanée de tous les appareils enregistrés |
+
+---
+
+## 🌐 Enregistrements DNS Split-Horizon (`extra_records`)
+
+Pour garantir que les sous-domaines d'administration privés restreints à **`vpn-only`** soient résolus directement vers l'IP Tailscale du proxy (`100.64.0.4`) sans rebondir sur le DNS public Internet (Hairpin NAT Bbox), ils sont déclarés dans la section `extra_records` de Headscale :
+
+```yaml
+# Fichier hôte sur la VM Coolify : /data/coolify/services/i136ix2bmrrbeovnyrh1o72w/config/config.yaml
+# (Ou directement depuis l'interface Web Headplane)
+dns:
+  extra_records:
+    - name: "coolify.ims-world.fr"
+      type: "A"
+      value: "100.64.0.4"
+    - name: "logs.ims-world.fr"
+      type: "A"
+      value: "100.64.0.4"
+    # ... autres sous-domaines d'administration vpn-only
+```

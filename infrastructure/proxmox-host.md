@@ -154,7 +154,7 @@ L'iGPU Intel Iris Xe du processeur i5-12600H est attribuée en passthrough PCIe 
 
 ## 🛡️ Sécurité & Protection Host Bare-Metal (Fail2ban)
 
-Le service **Fail2ban** (`fail2ban.service`) s'exécute nativement et exclusivement sur l'hôte physique MS-01 (`ms01-pve`) afin d'intercepter les attaques d'intrusion et de tenter de bloquer les adresses IP malveillantes au niveau du pare-feu du noyau Linux (`iptables` / `nftables`).
+Le service **Fail2ban** (`fail2ban.service`) s'exécute exclusivement sur l'hôte physique MS-01 (`ms01-pve`) afin d'intercepter les attaques d'intrusion et de tenter de bloquer les adresses IP malveillantes au niveau du pare-feu du noyau Linux (`iptables` / `nftables`).
 
 <Info>
 **Périmètre de Protection** : Fail2ban est déployé uniquement sur le **host MS-01** (pas sur les VM/LXC comme Coolify). Il protège l'accès physique d'administration à l'hypervisor (ports SSH `4242` / `22`).

@@ -45,17 +45,19 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `ejdn7jiuwiyixrmp8nffjkcj` |
 | **Chemin sur la VM** | `/data/coolify/services/ejdn7jiuwiyixrmp8nffjkcj/` |
-| **Exposition** | Publique, protégée par **Authentik Forward-Auth Outpost** |
+| **Exposition** | **VPN-Only** (Restreint au Tailnet `100.64.0.0/10` & LAN `192.168.1.0/24` via `vpn-only.yaml`) |
 | **Accès Socket Docker** | Monté en **lecture seule** (`/var/run/docker.sock:ro`) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 ---
 
-## Sécurité (Authentik Forward-Auth)
+## Sécurité & Isolation Réseau (`vpn-only`)
 
-Dozzle ne possédant pas de système d'authentification natif, l'accès à `logs.ims-world.fr` est sécurisé en amont au niveau du reverse proxy Traefik via l'**Outpost Forward-Auth Authentik** (`ak-outpost-ims-outpost:9000`). 
+Dozzle ne possédant pas de système d'authentification natif, l'accès à `logs.ims-world.fr` est sécurisé au niveau du reverse proxy Traefik via le provider file centralisé **`vpn-only.yaml`** (filtrage `ipAllowList: [100.64.0.0/10, 192.168.1.0/24]`).
 
-Toute requête est interceptée par Traefik et nécessite une session Authentik active avant d'atteindre l'interface Dozzle. Pour le détail du fonctionnement de l'Outpost Proxy, consulter la fiche [Authentik](/services/authentik#outpost-proxy--forward-auth).
+<Check>
+**Isolation Étanche (HTTP 403 Forbidden sur le WAN)** : Tout accès depuis l'Internet public (4G/5G mobile hors VPN) est immédiatement bloqué en HTTP 403. Pour le détail de l'isolation et du DNS split-horizon Headscale (`extra_records`), voir la procédure [Sécuriser un Service avec vpn-only](/procedures/securiser-service-vpn-only).
+</Check>
 
 ---
 

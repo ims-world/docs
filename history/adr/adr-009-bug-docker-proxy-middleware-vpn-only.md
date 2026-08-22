@@ -58,6 +58,7 @@ http:
       ipAllowList:
         sourceRange:
           - 100.64.0.0/10
+          - 192.168.1.0/24
     admin-gzip:
       compress: {}
 
