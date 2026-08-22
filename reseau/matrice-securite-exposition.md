@@ -21,7 +21,7 @@ Avant de répertorier chaque service applicatif, l'infrastructure est découpée
 
 1. **Zone 1 — Public WAN (Internet)** : Services ouverts sur le Web (`auth.ims-world.fr`, `vault.ims-world.fr`, `photos.ims-world.fr`, `homeflix.ims-world.fr`, `videoclub.ims-world.fr`). Accessibles via HTTPS sur les ports 80/443 de la Bbox, protégés par Traefik, Let's Encrypt et Authentik SSO. (Seul le port TCP 2222 pour Forgejo Git SSH est redirigé depuis le WAN).
 2. **Zone 2 — Tailnet Overlay (VPN Restreint `100.64.0.0/10`)** : Services privés d'administration applicative (`qbit`, `radarr`, `sonarr`, `prowlarr`, `monitoring`, `headplane`). Filtrés par le provider file Traefik `vpn-only.yaml` (**HTTP 403 Forbidden** hors du Tailnet).
-3. **Zone 3 — Administration LAN & Tailnet Direct (`192.168.1.0/24` & `100.64.0.0/10`)** : Interfaces de gestion bas niveau des hyperviseurs et accès SSH système (Proxmox GUI 8006, PBS GUI 8007, SSH 4242/22, SMB 445, NFS 2049). **Accès SSH directement possible depuis le LAN ou depuis le Tailnet** (`100.64.0.x`). Totalement fermés à l'Internet public.
+3. **Zone 3 — Administration LAN & Tailnet Direct (`192.168.1.0/24` & `100.64.0.0/10`)** : Interfaces de gestion bas niveau des hyperviseurs et accès SSH système (Proxmox GUI 8006, PBS GUI 8007, SSH 22, SMB 445, NFS 2049). **Accès SSH directement possible depuis le LAN ou depuis le Tailnet** (`100.64.0.x`). Totalement fermés à l'Internet public.
 
 ```mermaid
 graph TB
@@ -255,7 +255,7 @@ graph TB
   <Tab title="🏠 Zone 3 — Administration LAN & Tailnet Direct">
     | Service / Nœud | Adresse / Port | Exposition | Méthode d'Authentification |
     |---|---|---|---|
-    | **SSH Système** | Ports `4242` / `22` | 🏠 LAN / 🔐 Tailnet | Clés SSH Ed25519 (0 accès WAN Bbox) |
+    | **SSH Système** | Port `22` | 🏠 LAN / 🔐 Tailnet | Clés SSH Ed25519 (0 accès WAN Bbox) |
     | **Proxmox VE GUI** | `{ips.pveLan}:8006` / `100.64.0.9:8006` | 🏠 LAN / 🔐 Tailnet | PAM / Compte `cmolotkoff` |
     | **PBS Web GUI** | `{ips.pbsLan}:8007` / `100.64.0.2:8007` | 🏠 LAN / 🔐 Tailnet | Auth PBS `cmolotkoff@pbs` |
     | **NAS SMB** | `{ips.nasLan}:445` | 🏠 LAN Only | Auth SMB `cmolotkoff` |
@@ -268,8 +268,8 @@ graph TB
 ## 🔒 Règles de Sécurité Impératives
 
 <Warning>
-**Politique d'Isolation SSH Système — Ports 22 & 4242 Fermés sur le WAN** :
-Le serveur SSH d'administration système écoute sur le port **4242** (le port 22 étant occupé par **Endlessh** comme tarpit piège à bots).
+**Politique d'Isolation SSH Système — Port 22 Fermé sur le WAN** :
+Le serveur SSH d'administration système écoute sur le port **22**.
 **Aucune redirection de port SSH d'administration n'existe sur la Bbox.** L'accès SSH système (MS-01, LXC NAS, VM Coolify, Mac Mini) est **strictement impossible depuis l'Internet public**. Il exige une connexion au **LAN local (`192.168.1.0/24`)** ou d'être authentifié sur le **VPN Overlay Tailscale (`100.64.0.0/10`)**.
 Seul le port **`2222`** (dédié aux opérations Git SSH de Forgejo) est redirigé depuis le WAN. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
 </Warning>

@@ -27,19 +27,15 @@ Le **Mac Mini 2014** a été l'hôte principal de l'infrastructure jusqu'à sa *
 | **Réseau LAN** | Ethernet Gigabit `192.168.1.x` |
 | **Tailscale IP** | {ips.macmini} |
 | **Hostname Tailnet** | `macmini-standby` / `coolify-old.ims-world.fr` |
-| **Port SSH Réel** | **`4242`** (port `22` occupé par Endlessh tarpit) |
+| **Port SSH** | **`22`** (SSH standard administration) |
 | **Statut** | <Badge color="amber">🟡 Standby Chaud</Badge> |
 
-## Particularités & Piège SSH (Endlessh)
+## Accès SSH & Administration
 
-<Warning>
-**Piège du port SSH 22** : Le port 22 standard sur le Mac Mini est volontairement routé vers **Endlessh** (tarpit anti-bot qui piège les scans automatisés en leur envoyant des bannières SSH infinies).
-
-Pour vous connecter en SSH au Mac Mini, spécifier impérativement le port **`4242`** :
+Connexion SSH directe depuis le LAN ou le Tailnet :
 ```bash
-ssh -p 4242 cmolotkoff@100.64.0.7
+ssh cmolotkoff@100.64.0.7
 ```
-</Warning>
 
 ## Rôle de Secours & Redirection DNS
 

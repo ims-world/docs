@@ -108,7 +108,7 @@ graph TB
 | `Forgejo_SSH` | 2222 | 2222 | VM Coolify ({ips.coolifyLan}) |
 
 <Warning>
-**Politique d'Isolation SSH Système — Port 22/4242 Fermé sur le WAN** :
+**Politique d'Isolation SSH Système — Port 22 Fermé sur le WAN** :
 Aucune règle de port-forward SSH d'administration système n'existe sur le routeur Bbox. L'accès SSH d'administration (MS-01, LXC NAS, VM Coolify, Mac Mini) est **strictement inaccessible depuis l'Internet public**. Il nécessite d'être physiquement connecté au **LAN local (`192.168.1.0/24`)** ou d'être authentifié sur le **VPN Overlay Tailscale (`100.64.0.0/10`)**.
 Seul le port **`2222`** (dédié aux opérations de `git clone`/`git push` SSH sur Forgejo) est exposé publiquement via Bbox. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
 </Warning>
@@ -133,7 +133,6 @@ extra_records:
 
 | Composant | Rôle |
 |---|---|
-| **CrowdSec** | Détection et filtrage des comportements malveillants |
-| **Fail2ban** | Bannissement dynamique d'IP sur le **Host Bare-Metal MS-01** (protection SSH port 4242/22 via `iptables`/`nftables`) |
-| **Endlessh** | Tarpit anti-bot sur le port 22 (accès SSH légitime sur le port **4242**) |
+| **CrowdSec** | Détection d'intrusions L3/L4/L7, WAF AppSec & Plugin Bouncer Traefik (Stream Fail-Open) |
+| **Fail2ban** | Bannissement dynamique d'IP sur le **Host Bare-Metal MS-01** (protection SSH port 22 via `iptables`/`nftables`) |
 | **Firewall Proxmox (Roadmap)** | Filtrage 3 niveaux (Host → Datacenter → Guest) en cours de déploiement |
