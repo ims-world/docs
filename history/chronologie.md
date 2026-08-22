@@ -24,9 +24,14 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
-<Update label="21/08/2026" description="Déploiement Home Assistant (Smart Home), Monitoring Avancé & Dashboards">
-  ### 🏠 Domotique & Smart Home (Home Assistant)
-  - **Déploiement de Home Assistant 2025.10.2** — Déploiement en conteneur Docker pur sur la VM 104 (`ims-coolify`) avec publication publique sur `home.ims-world.fr`. Authentification native HA + 2FA TOTP pour préserver la compatibilité OAuth2 avec l'application mobile *Companion App*. Voir [Home Assistant](/services/home-assistant).
+<Update label="22/08/2026" description="Déploiement Détection d'Intrusions CrowdSec, Plugin Bouncer Traefik & Web UI Shield">
+  ### 🛡️ Sécurité & Détection d'Intrusions (CrowdSec)
+  - **Déploiement de l'Agent CrowdSec v1.7.8 & WAF AppSec** — Activation du moteur de détection L3/L4/L7 sur la VM 104 (`ims-coolify`). Configuration de l'acquisition des logs Docker (`acquis.yaml`), du pare-feu applicatif AppSec (Virtual Patching inband), et création des allowlists de protection anti-auto-ban (`tailscale` `100.64.0.0/10` et `home-lan` `192.168.1.0/24`).
+  - **Integration du Plugin Bouncer Traefik v1.6.0** — Activation du filtrage dynamique en mode `stream` (sync 60s) sur les entrypoints HTTP/HTTPS avec garantie fail-open (`updateMaxFailure: -1`).
+  - **Déploiement de l'Interface Web Shield (`shield.ims-world.fr`)** — Publication de la console de gestion locale CrowdSec Web UI protégée en `vpn-only` + SSO Authentik OIDC (rôle `ADMIN` strict). Voir [CrowdSec & Shield](/services/crowdsec).
+</Update>
+
+<Update label="21/08/2026" description="Refonte Complète & Monitoring Avancé (SMART, Uptime Kuma, Dashboards)">
 
   ### 📊 Métrologie & Supervision Avancée (Stack LGTM)
   - **Monitoring SMART Bare-Metal (`ms01-pve`)** — Déploiement du *textfile collector* Node Exporter alimenté par `smartmon.sh` (cron 5 min) pour remonter la santé SMART, températures et heures de vol des disques physiques (`nvme0n1`, `sda` SSD, `sdb` HDD) avec respect strict du spin-down (`smartctl -n standby`).

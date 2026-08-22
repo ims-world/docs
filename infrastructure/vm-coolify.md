@@ -45,7 +45,7 @@ graph TD
             VAULT["Vaultwarden"]
             HOMEFLIX["HomeFlix Stack (9 containers)"]
             HEADSCALE["Headscale + Headplane"]
-            HA["Home Assistant Core 2025.10.2 (Smart Home)"]
+            CROWDSEC["CrowdSec Agent v1.7.8 + Shield Web UI"]
         end
 
         subgraph NFS_MNT ["📁 Points de Montage NFS (via 10.10.10.1)"]

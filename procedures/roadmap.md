@@ -61,14 +61,8 @@ Cette page recense l'ensemble des **chantiers techniques restants et tâches d'a
 ### 15. 📦 Scan Automatique des Mises à Jour Docker (Diun)
 - **Tâche** : Déployer **Diun** (*Docker Image Update Notifier*) sur la VM Coolify pour surveiller les registres Docker et émettre une alerte Webhook instantanée dès qu'une nouvelle version d'image conteneurisée est disponible.
 
-### 16. 🛡️ Dashboard Sécurité CrowdSec / Fail2ban (🟡 Bloqué — En attente d'installation CrowdSec)
-- **Tâche** : Déployer un tableau de bord de supervision de sécurité pour agréger les logs de détection d'intrusions (CrowdSec / Fail2ban), visualiser la cartographie des IPs bannies et suivre les métriques d'attaques subies par le reverse proxy Traefik. *(Bloqué à ce jour : CrowdSec n'est pas encore installé sur l'infrastructure).*
+### 16. 🛡️ Détection d'Intrusions CrowdSec, Plugin Traefik & Web UI Shield (🟢 Effectué le 22/08/2026)
+- **Tâche** : Déployer le moteur de détection CrowdSec v1.7.8 sur la VM Coolify, le plugin bouncer Traefik (mode stream, fail-open `updateMaxFailure: -1`), l'AppSec WAF (196 règles inband), les allowlists anti-auto-ban (`tailscale` et `home-lan`), et l'interface Web d'administration Shield (`shield.ims-world.fr`). Voir [CrowdSec & Shield](/services/crowdsec).
 
 ### 17. 🎬 Visibilité Temps Réel des Flux Jellyfin (Exporteur Dédié)
 - **Tâche** : Sélectionner et déployer un conteneur exporteur Prometheus dédié à Jellyfin (`jellyfin-exporter`) sur la VM Coolify pour remonter la métrologie en temps réel des lectures actives (sessions de transcodage vs direct play, utilisateurs connectés, codecs et débits).
-
-### 18. 📻 Home Assistant — Réactivation Intégration Alexa Devices
-- **Tâche** : Surveiller le correctif upstream de l'issue Home Assistant Core [#154618](https://github.com/home-assistant/core/issues/154618) (`AttributeError: 'NoneType' object has no attribute 'get'` dans `aioamazondevices`) et réactiver l'intégration `alexa_devices` une fois la version corrigée publiée.
-
-### 19. 🔌 Home Assistant — Passthrough USB Dongle Zigbee/Z-Wave
-- **Tâche** : Lors de l'acquisition d'un dongle USB Zigbee/Z-Wave, procéder au passthrough matériel Proxmox (`qm set 104 -usbX`) sur la VM 104 et mapper le périphérique dans le compose Home Assistant via `/dev/serial/by-id/...`. Voir [Home Assistant](/services/home-assistant).

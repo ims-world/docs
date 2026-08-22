@@ -108,6 +108,23 @@ command:
 Le résolveur DNS recommandé par OVH (`213.251.128.1:53`) est tombé en panne, confirmé injoignable depuis 3 machines différentes. Contournement : `8.8.8.8` seul dans la liste. À revérifier périodiquement pour réintégrer le résolveur OVH.
 </Warning>
 
+---
+
+## 🛡️ Plugin Bouncer CrowdSec (Sécurité Globale Entrypoints)
+
+Traefik intègre le plugin officiel **`crowdsec-bouncer-traefik-plugin` v1.6.0** appliqué **globalement sur les entrypoints HTTP et HTTPS** pour contrôler le trafic entrant avant transmission aux conteneurs applicatifs :
+
+```yaml
+# Arguments de commande Traefik (statique)
+command:
+  - '--entrypoints.http.http.middlewares=crowdsec-bouncer@file'
+  - '--entrypoints.https.http.middlewares=crowdsec-bouncer@file'
+```
+
+- **Mode d'Opération** : `stream` (synchronisation des décisions toutes les 60s, zéro latence par requête HTTP).
+- **Politique de Secours (Fail-Open)** : Variable `updateMaxFailure: -1` explicitement définie pour garantir qu'aucune interruption de service ne survienne si l'agent CrowdSec s'arrête (fail-open validé par test réel).
+- **Règle de Redéploiement** : En cas de modification de la configuration du plugin, exécuter impérativement `docker compose -f /data/coolify/proxy/docker-compose.yml up -d --force-recreate` sur la VM 104. Voir la fiche [CrowdSec](/services/crowdsec).
+
 <Warning>
 Contrairement aux autres services (Environment Variables Coolify avec option "Is Secret"), les credentials OVH du proxy sont actuellement **en clair** dans le `docker-compose.yml` — limitation propre à cette partie de Coolify. À sécuriser via un `.env` séparé (voir [Roadmap](/procedures/roadmap)).
 </Warning>

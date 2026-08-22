@@ -159,11 +159,6 @@ graph TB
         **Auth** : Authentification native Jellyfin
         **Protection** : DNS-01 TLS, Transcodage iGPU Iris Xe
       </Card>
-      <Card title="Home Assistant" icon="house-signal" href="/services/home-assistant">
-        **Domaine** : `home.ims-world.fr`
-        **Auth** : Auth native HA + 2FA TOTP (Flow OAuth2 App Companion)
-        **Protection** : Traefik DNS-01 TLS, trusted_proxies configuration
-      </Card>
       <Card title="Jellyseerr" icon="film" href="/services/homeflix">
         **Domaine** : `videoclub.ims-world.fr`
         **Auth** : SSO / Auth Jellyfin
@@ -250,6 +245,10 @@ graph TB
       <Card title="Dozzle Logs" icon="list" href="/services/dozzle">
         **Domaine** : `logs.ims-world.fr`
         **Protection** : `vpn-only.yaml` File Provider (`100.64.0.0/10` + `192.168.1.0/24`)
+      </Card>
+      <Card title="CrowdSec Shield" icon="shield-check" href="/services/crowdsec">
+        **Domaine** : `shield.ims-world.fr`
+        **Protection** : `vpn-only.yaml` + SSO Authentik OIDC (Rôle ADMIN)
       </Card>
     </CardGroup>
   </Tab>

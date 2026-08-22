@@ -34,6 +34,9 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
   <Card title="Politique de Sauvegarde & Tâches Planifiées" icon="shield-check" href="/infrastructure/politique-sauvegardes">
     Vue d'ensemble de la protection des données, chronologie nocturne, règle d'anti-circularité et backups vzdump local.
   </Card>
+  <Card title="Administrer & Débannir avec CrowdSec (cscli / Shield)" icon="shield-check" href="/services/crowdsec#acces-rapides--administration">
+    Commandes CLI `cscli` pour gérer les décisions de ban, vérifier les allowlists anti-auto-ban et accéder à l'UI Shield.
+  </Card>
 </CardGroup>
 
 ---
@@ -134,8 +137,5 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
   </Card>
   <Card title="Ingestion & Import WebDAV (PhotoPrism)" icon="folder-cloud" href="/services/photoprism#ingestion-de-photos--webdav">
     Dépôt direct de fichiers RAW via WebDAV (`/import/`), gestion des identifiants et commande d'importation forcée.
-  </Card>
-  <Card title="Purger un Bannissement IP Home Assistant" icon="house-signal" href="/services/home-assistant#reverse-proxy--traefik">
-    Procédure de déblocage et suppression du fichier `ip_bans.yaml` en cas d'auto-ban provoqué par le hairpin NAT local.
   </Card>
 </CardGroup>
