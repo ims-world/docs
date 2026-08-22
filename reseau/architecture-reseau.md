@@ -134,6 +134,6 @@ extra_records:
 | Composant | Rôle |
 |---|---|
 | **CrowdSec** | Détection et filtrage des comportements malveillants |
-| **Fail2ban** | Bannissement dynamique d'IP via `nftables` |
+| **Fail2ban** | Bannissement dynamique d'IP sur le **Host Bare-Metal MS-01** (protection SSH port 4242/22 via `iptables`/`nftables`) |
 | **Endlessh** | Tarpit anti-bot sur le port 22 (accès SSH légitime sur le port **4242**) |
 | **Firewall Proxmox (Roadmap)** | Filtrage 3 niveaux (Host → Datacenter → Guest) en cours de déploiement |

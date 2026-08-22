@@ -22,6 +22,7 @@ Le **Mac Mini 2014** a été l'hôte principal de l'infrastructure jusqu'à sa *
 |---|---|
 | **Matériel** | Apple Mac Mini (Late 2014) |
 | **Processeur** | Intel Core i5 Dual-Core |
+| **Mémoire RAM** | **16 Go** DDR3 |
 | **Stockage** | SSD SATA 256 Go |
 | **Réseau LAN** | Ethernet Gigabit `192.168.1.x` |
 | **Tailscale IP** | {ips.macmini} |

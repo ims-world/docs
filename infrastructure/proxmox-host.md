@@ -149,3 +149,27 @@ L'iGPU Intel Iris Xe du processeur i5-12600H est attribuée en passthrough PCIe 
 - **[HomeFlix / Jellyfin](/services/homeflix#accélération-matérielle-gpu-intel-quicksync-qsv--validé)** : <Badge color="green">🟢 Validé en Production (29.7x)</Badge> — QuickSync QSV opérationnel (`hevc_qsv` / `h264_qsv`), transcodage à 29.7x le temps réel.
 - **[PhotoPrism](/services/photoprism#accélération-gpu-ffmpeg--statut-transcodage-igpu-iris-xe)** : <Badge color="orange">⚠️ Transcodage Vidéo Partiel</Badge> — Variable `PHOTOPRISM_INIT: 'intel tensorflow'` requise pour installer les paquets VA-API/QSV (évite la retombée sur `libx264` CPU).
 - **[Immich](/services/immich#décision-darchitecture--accélération-gpu--openvino-ia--smart-search)** : <Badge color="gray">⚙️ Écarté (Maintien CPU)</Badge> — Support OpenVINO écarté pour éviter la complexité de stack, l'indexation initiale du stock photo (61 880 assets) étant déjà achevée.
+
+---
+
+## 🛡️ Sécurité & Protection Host Bare-Metal (Fail2ban)
+
+Le service **Fail2ban** (`fail2ban.service`) s'exécute nativement et exclusivement sur l'hôte physique MS-01 (`ms01-pve`) afin d'intercepter les attaques d'intrusion et de tenter de bloquer les adresses IP malveillantes au niveau du pare-feu du noyau Linux (`iptables` / `nftables`).
+
+<Info>
+**Périmètre de Protection** : Fail2ban est déployé uniquement sur le **host MS-01** (pas sur les VM/LXC comme Coolify). Il protège l'accès physique d'administration à l'hypervisor (ports SSH `4242` / `22`).
+</Info>
+
+### Commandes CLI Usuelles d'Administration
+
+```bash
+# Vérifier le statut du service Fail2ban et les prisons actives
+sudo systemctl status fail2ban
+sudo fail2ban-client status
+
+# Inspecter les adresses IP actuellement bannies sur la prison SSH
+sudo fail2ban-client status sshd
+
+# Débannir manuellement une adresse IP (ex: auto-ban accidentel)
+sudo fail2ban-client set sshd unbanip <ADRESSE_IP>
+```
