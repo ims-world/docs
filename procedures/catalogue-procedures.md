@@ -53,6 +53,9 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
   <Card title="Sécuriser un Service avec vpn-only" icon="shield-check" href="/procedures/securiser-service-vpn-only">
     Procédure pas-à-pas pour isoler un sous-domaine d'administration sur le réseau privé Tailscale via vpn-only.yaml.
   </Card>
+  <Card title="Ajouter un Équipement sur Headscale" icon="network-wired" href="/procedures/ajout-machine-headscale">
+    Procédure d'enrôlement VPN Tailnet : Profil Utilisateur Classique (OIDC SSO) vs Profil Nœud Infrastructure (Pre-Auth Key).
+  </Card>
   <Card title="Sécuriser une App avec Authentik Outpost" icon="shield-keyhole" href="/procedures/securiser-application-authentik-forward-auth">
     Procédure complète pour protéger une application web sans SSO natif via Traefik et l'Outpost Proxy Authentik.
   </Card>
