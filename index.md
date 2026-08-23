@@ -75,7 +75,7 @@ graph TB
             VM_COOLIFY["IMS-Coolify (VM 104 — 192.168.1.52)"]
         end
 
-        subgraph NODE2 ["Nœud 2 — Apple Mac Mini (192.168.1.42 / 100.64.0.5)"]
+        subgraph NODE2 ["Nœud 2 — Apple Mac Mini (192.168.1.42 / 100.64.0.6)"]
             MAC_MINI["Proxmox VE 9.2.11 (pve-macmini)"]
         end
 

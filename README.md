@@ -53,7 +53,7 @@ flowchart TB
             end
         end
 
-        subgraph NODE2 ["Nœud 2 — Apple Mac Mini (192.168.1.42 / 100.64.0.5)"]
+        subgraph NODE2 ["Nœud 2 — Apple Mac Mini (192.168.1.42 / 100.64.0.6)"]
             MAC_MINI["Mac Mini (pve-macmini — 192.168.1.42)"]
         end
 

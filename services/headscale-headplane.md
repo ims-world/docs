@@ -75,7 +75,7 @@ graph TB
     end
 
     subgraph TAILNET_NODES ["📱 Nœuds du Tailnet WireGuard (100.64.0.0/10)"]
-        MAC["Mac Mini Cluster (100.64.0.5)"]
+        MAC["Mac Mini Cluster (100.64.0.6)"]
         PVE["Proxmox Host MS-01 (100.64.0.9)"]
         PBS["PBS Storage (100.64.0.2)"]
         COOL["Coolify VM (100.64.0.4)"]
