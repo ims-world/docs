@@ -71,12 +71,6 @@ graph TD
     class MNT_STOR,MNT_HOT nfs;
 ```
 
-| Propriété | Valeur |
-|---|---|
-| **Version** | 4.1.2 |
-| **URL** | `https://coolify.ims-world.fr` |
-| **Accès legacy Mac Mini** | `http://coolify-old.ims-world.fr:8000` (temporaire, période de validation) |
-
 ## Cartographie des services Coolify (UUIDs & Chemins)
 
 | Service | UUID Coolify | Chemin d'accès sur la VM | Statut |
@@ -86,6 +80,7 @@ graph TD
 | **HomeFlix** (Jellyfin/Sonarr/Radarr/Prowlarr/qBit/Gluetun) | `w39uebmcnse7yctsft8hzed8` | `/data/coolify/services/w39uebmcnse7yctsft8hzed8/` | <Badge color="green">🟢 Production</Badge> |
 | **Headscale + Headplane** | `i136ix2bmrrbeovnyrh1o72w` | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` | <Badge color="green">🟢 Production</Badge> |
 | **Monitoring LGTM** (Grafana/Loki/Prometheus) | `rrw19kmye6gng961igtzqpgw` | `/data/coolify/services/rrw19kmye6gng961igtzqpgw/` | <Badge color="green">🟢 Production</Badge> |
+| **CrowdSec + Shield** (WAF AppSec & Agent) | `8bqmp4lkzgfoooqx0wrndfkt` | `/data/coolify/services/8bqmp4lkzgfoooqx0wrndfkt/` | <Badge color="green">🟢 Production</Badge> |
 | **Ntfy** (Push Notifications) | `j5akn2e9pr6g7c2pjvdj78w0` | `/data/coolify/services/j5akn2e9pr6g7c2pjvdj78w0/` | <Badge color="green">🟢 Production</Badge> |
 | **Dozzle** (Logs Docker Live) | `ejdn7jiuwiyixrmp8nffjkcj` | `/data/coolify/services/ejdn7jiuwiyixrmp8nffjkcj/` | <Badge color="green">🟢 Production</Badge> |
 | **Immich** (Médiathèque Photo/Vidéo IA) | `p3ujda5c7sc8nf4j9zzd8lck` | `/data/coolify/services/p3ujda5c7sc8nf4j9zzd8lck/` | <Badge color="green">🟢 Production</Badge> |

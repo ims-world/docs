@@ -1,6 +1,6 @@
 ---
 title: "IMS-NAS (LXC 100)"
-description: "Serveur de stockage central — NFS v4, ZFS Passthrough & SMB"
+description: "Serveur de stockage central — NFS v3/v4, MergerFS Pool (ext4) & SMB"
 icon: "hard-drive"
 iconType: "duotone"
 last_reviewed: "2026-08-12"

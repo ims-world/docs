@@ -3,6 +3,7 @@ title: "Matrice de Sécurité & d'Exposition"
 description: "Cartographie centralisée des zones de confiance, de l'exposition publique, du filtrage et de l'authentification"
 icon: "shield-check"
 iconType: "duotone"
+last_reviewed: "2026-08-23"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";

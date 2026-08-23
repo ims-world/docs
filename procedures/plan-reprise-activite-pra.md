@@ -16,7 +16,7 @@ Ce Plan de Reprise d'Activité (PRA) a été conçu et documenté selon les spé
 <Check>
 **Couverture & Stratégie de Sauvegarde (Mise à jour Août 2026)** :
 - <Badge color="green">🟢 VM 104 (IMS-Coolify)</Badge> : **Sauvegardée & Restaurable** — Backup quotidien automatisé à 02:00 dans PBS via NFSv3 (`pbs-coolify`).
-- <Badge color="green">🟢 LXC 100 (IMS-NAS)</Badge> : **Sauvegardé & Restaurable** — Backup `vzdump` local NVMe quotidien à 05:00 (`--mode stop`).
+- <Badge color="amber">🟡 LXC 100 (IMS-NAS)</Badge> : **Sauvegarde Manuelle Uniquement** — Exclu des backups automatiques quotidiens (prévention de l'incident `stale filehandle` NFS). Sauvegarde `--mode stop` manuelle avant opérations de maintenance.
 - <Badge color="green">🟢 LXC 103 (IMS-PBS)</Badge> : **Sauvegardé & Restaurable** — Backup `vzdump` local NVMe quotidien à 03:00 (`--mode snapshot`).
 
 *Voir la [Politique de Sauvegarde & Tâches Planifiées](/infrastructure/politique-sauvegardes) pour le détail de la chronologie et de l'anti-circularité.*

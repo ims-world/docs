@@ -4,7 +4,7 @@ description: "Serveur VPN Tailscale self-hosted et son interface Web d'administr
 icon: "network-wired"
 iconType: "duotone"
 last_reviewed: "2026-08-12"
-app_version: "v0.24.2 / v0.4.0"
+app_version: "v0.28.0 / v0.6.2"
 ---
 
 import TailscaleTable from "/snippets/tailscale-table.mdx";

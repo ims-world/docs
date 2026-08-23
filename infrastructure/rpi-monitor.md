@@ -81,8 +81,9 @@ graph TD
     BROWSER --> MAIN_DISP
     SCRIPT -->|Uptime & Statut| OLED_DISP
 
-    classDef rpi fill:#F97316,stroke:#FB923C,color:#fff;
-    classDef disp fill:#2c3e50,stroke:#34495e,color:#fff;
-    class SCRIPT,BROWSER,GPIO rpi;
-    class MAIN_DISP,OLED_DISP disp;
-```
+---
+
+## 📊 Supervision & Agent Alloy (Stack LGTM)
+
+Le Raspberry Pi 3B+ héberge également un agent **Alloy systemd** (`rpi-alloy`) connecté au serveur central de métrologie LGTM sur le MS-01 :
+- **Push Métriques & Logs** : Collecte des métriques système (CPU, RAM, température SoC BCM2837B0) et transmission en Remote-Write vers Prometheus (`10.10.10.2`) et Loki. Voir la fiche [Stack Monitoring](/services/monitoring).
