@@ -40,7 +40,7 @@ graph TB
         HEADSCALE_SRV["Headscale Control Plane\n(vpn.ims-world.fr)"]
         PBS_TS["PBS Client (100.64.0.2)"]
         COOL_TS["Coolify Client (100.64.0.4)"]
-        MAC_TS["Mac Mini Standby (100.64.0.7)"]
+        MAC_TS["Mac Mini Cluster (100.64.0.5)"]
         PVE_TS["PVE Host (100.64.0.9)"]
         RPI_TS["Raspberry Pi Kiosk (100.64.0.12)"]
     end

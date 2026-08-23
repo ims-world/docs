@@ -155,7 +155,8 @@
               "history/adr/adr-006-exposition-port-ssh-forgejo-bbox",
               "history/adr/adr-007-calcul-inodes-mergerfs-path-hash",
               "history/adr/adr-008-passthrough-gpu-igpu-iris-xe",
-              "history/adr/adr-009-bug-docker-proxy-middleware-vpn-only"
+              "history/adr/adr-009-bug-docker-proxy-middleware-vpn-only",
+              "history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster"
             ]
           }
         ]

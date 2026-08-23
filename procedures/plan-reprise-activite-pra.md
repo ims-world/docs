@@ -71,7 +71,7 @@ sequenceDiagram
 
     2. **Si bascule temporaire d'urgence sur le Mac Mini 2014 (Standby)** :
        - Démarrer le Mac Mini dans le rack [Labrax](/infrastructure/labrax).
-       - Vérifier la connectivité réseau et l'accès SSH sur le port `4242` (`ssh -p 4242 cmolotkoff@100.64.0.7`).
+       - Vérifier la connectivité réseau et l'accès SSH (`ssh cmolotkoff@100.64.0.5`).
   </Step>
 
   <Step title="Phase 2 — Restauration de la VM 104 (IMS-Coolify) depuis PBS">

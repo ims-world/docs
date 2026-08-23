@@ -67,11 +67,19 @@ graph TB
         MIDDLEWARE_VPN["Traefik Middleware vpn-only"]
     end
 
-    subgraph PVE_CLUSTER ["🖥️ Hyperviseur Proxmox MS-01 (192.168.1.41)"]
-        PVE_HOST["Proxmox VE 9.2.3 Host (192.168.1.41)"]
-        NAS_LXC["IMS-NAS (LXC 100 — 192.168.1.50)"]
-        PBS_LXC["IMS-PBS (LXC 103 — 192.168.1.51)"]
-        VM_COOLIFY["IMS-Coolify (VM 104 — 192.168.1.52)"]
+    subgraph PVE_CLUSTER ["🖥️ Cluster Proxmox VE ims-cluster (v9.2.11 — Quorum 2/2)"]
+        subgraph NODE1 ["Nœud 1 (Leader) — Minisforum MS-01 (192.168.1.41 / 100.64.0.9)"]
+            PVE_HOST["Proxmox VE 9.2.11 (pve)"]
+            NAS_LXC["IMS-NAS (LXC 100 — 192.168.1.50)"]
+            PBS_LXC["IMS-PBS (LXC 103 — 192.168.1.51)"]
+            VM_COOLIFY["IMS-Coolify (VM 104 — 192.168.1.52)"]
+        end
+
+        subgraph NODE2 ["Nœud 2 — Apple Mac Mini (192.168.1.42 / 100.64.0.5)"]
+            MAC_MINI["Proxmox VE 9.2.11 (pve-macmini)"]
+        end
+
+        PVE_HOST <==>|Corosync Cluster Link / pvecm| MAC_MINI
     end
 
     subgraph ISO_NET ["🔒 Bridge NFS Isolé (vmbr1: 10.10.10.0/24)"]
@@ -80,8 +88,7 @@ graph TB
         NFS_VM["Montage VM Coolify (10.10.10.2)"]
     end
 
-    subgraph SATELLITES ["🗄️ Nœuds Satellites & Display"]
-        MAC_MINI["Mac Mini Standby (100.64.0.7)"]
+    subgraph SATELLITES ["🗄️ Nœud Satellite & Display"]
         RPI_MON["Raspberry Pi Kiosk (100.64.0.12)"]
     end
 
@@ -99,14 +106,13 @@ graph TB
     PVE_HOST -.-> PBS_LXC
 
     RPI_MON -.-> PVE_HOST
-    MAC_MINI -.-> BBOX
 
     classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
     classDef vpn fill:#F97316,stroke:#FB923C,color:#fff;
     classDef host fill:#1a2b3c,stroke:#F97316,color:#fff;
     class USERS,DNS_OVH,BBOX wan;
     class VPN_CLIENTS,HEADPLANE vpn;
-    class PVE_HOST,NAS_LXC,PBS_LXC,VM_COOLIFY host;
+    class PVE_HOST,MAC_MINI,NAS_LXC,PBS_LXC,VM_COOLIFY host;
 ```
 
 ## État Actuel des Composants

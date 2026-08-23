@@ -24,6 +24,15 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
+<Update label="23/08/2026" description="Cluster Proxmox VE ims-cluster (Mac Mini + MS-01) & Durcissement Fail2ban Ntfy">
+  ### 🖥️ Cluster Proxmox VE (`ims-cluster`)
+  - **Création du Cluster Proxmox VE à 2 Nœuds** — Alignement de la version Proxmox VE en **9.2.11** sur le MS-01 et installation sur le Mac Mini 2012 (`pve-macmini.ims-world.fr`). Création du cluster `ims-cluster` et jointure du Mac Mini (Quorum 2/2 votes, réplication des comptes PAM et clés SSH). Voir [Mac Mini](/infrastructure/mac-mini) et [MS-01 Proxmox Host](/infrastructure/proxmox-host).
+  - **Décision d'Architecture ADR-010** — Retrait de la migration du port SSH (port 22 conservé sur tous les nœuds) et maintien du hostname `pve` sur le MS-01 pour prévenir toute casse Corosync/PMXCFS du cluster. Voir [ADR-010](/history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster).
+
+  ### 🛡️ Harmonisation & Durcissement Fail2ban (3 Hôtes)
+  - **Déploiement Harmonisé Fail2ban & Alertes Ntfy** — Déploiement d'instances Fail2ban indépendantes sur les 3 hôtes (MS-01, Mac Mini et VM Coolify). Configuration du `jail.local` avec escalade progressive (`1h` à `1 semaine`), prison `recidive` (3 bannes en 24h ➔ 1 semaine) et transmission des alertes SSH en direct sur le topic Ntfy **`ims-alerts`**.
+</Update>
+
 <Update label="22/08/2026" description="Déploiement Détection d'Intrusions CrowdSec, Plugin Bouncer Traefik & Web UI Shield">
   ### 🛡️ Sécurité & Détection d'Intrusions (CrowdSec)
   - **Déploiement de l'Agent CrowdSec v1.7.8 & WAF AppSec** — Activation du moteur de détection L3/L4/L7 sur la VM 104 (`ims-coolify`). Configuration de l'acquisition des logs Docker (`acquis.yaml`), du pare-feu applicatif AppSec (Virtual Patching inband), et création des allowlists de protection anti-auto-ban (`tailscale` `100.64.0.0/10` et `home-lan` `192.168.1.0/24`).

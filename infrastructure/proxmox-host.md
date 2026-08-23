@@ -19,7 +19,8 @@ import { ips, hardware } from "/snippets/variables.mdx";
 | **RAM** | {hardware.ms01Ram} |
 | **Stockage NVMe** | {hardware.ms01Storage} (LVM-Thin `local-lvm`) |
 | **Disques SATA** | HDD 3To Apple/Seagate (Passthrough `mp0`) + SSD 4To (Passthrough `mp1` — `storage-hot`) |
-| **OS** | Proxmox VE 9.2.3 |
+| **OS** | **Proxmox VE 9.2.11** (Aligné avec Mac Mini) |
+| **Cluster Proxmox** | Leader Nœud 1 du cluster **`ims-cluster`** (2/2 votes, Quorate: Yes) |
 | **Accès Admin GUI** | `https://`{ips.pveLan}`:8006` |
 | **Comptes** | `cmolotkoff@pam` (nominatif), `root@pam` en break-glass local |
 
@@ -35,7 +36,7 @@ graph TD
         SSD["SSD 4To SATA (Passthrough mp1 — storage-hot)"]
     end
 
-    subgraph PVE ["🖥️ Proxmox VE 9.2.3"]
+    subgraph PVE ["🖥️ Proxmox VE 9.2.11 (pve — Nœud 1 Cluster ims-cluster)"]
         subgraph LXC100 ["IMS-NAS (LXC 100)"]
             NAS_RES["2 Cores | 1 Go RAM | mp0 HDD + mp1 SSD 4To"]
         end
@@ -152,24 +153,26 @@ L'iGPU Intel Iris Xe du processeur i5-12600H est attribuée en passthrough PCIe 
 
 ---
 
-## 🛡️ Sécurité & Protection Host Bare-Metal (Fail2ban)
+## 🛡️ Sécurité & Protection Host Bare-Metal (Fail2ban & Ntfy)
 
-Le service **Fail2ban** (`fail2ban.service`) s'exécute exclusivement sur l'hôte physique MS-01 (`ms01-pve`) afin d'intercepter les attaques d'intrusion et de tenter de bloquer les adresses IP malveillantes au niveau du pare-feu du noyau Linux (`iptables` / `nftables`).
+Le service **Fail2ban** (`fail2ban.service`) est déployé et harmonisé sur l'hôte physique MS-01, le Mac Mini (`pve-macmini`) et la VM Coolify (`ims-coolify`). Il intercepte les tentatives d'intrusion SSH et bloque les IPs malveillantes via `iptables` / `nftables`.
 
 <Info>
-**Périmètre de Protection** : Fail2ban est déployé uniquement sur le **host MS-01** (pas sur les VM/LXC comme Coolify). Il protège l'accès physique d'administration à l'hyperviseur (port SSH `22`).
+**Architecture Harmonisée (3 Hôtes)** : Fail2ban s'exécute sur 3 instances indépendantes (MS-01, Mac Mini, VM Coolify). Chaque hôte utilise `/etc/fail2ban/jail.local` avec escalade de ban progressive (`1h` à `1 semaine`), prison `recidive` (3 bans en 24h ➔ 1 semaine) et alertes instantanées transmises au topic Ntfy **`ims-alerts`** avec un jeton d'accès scopé.
 </Info>
 
 ### Commandes CLI Usuelles d'Administration
 
 ```bash
-# Vérifier le statut du service Fail2ban et les prisons actives
+# Vérifier le statut du service Fail2ban et les prisons actives (sshd + recidive)
 sudo systemctl status fail2ban
 sudo fail2ban-client status
 
-# Inspecter les adresses IP actuellement bannies sur la prison SSH
+# Inspecter les adresses IP actuellement bannies sur la prison SSH ou récidive
 sudo fail2ban-client status sshd
+sudo fail2ban-client status recidive
 
 # Débannir manuellement une adresse IP (ex: auto-ban accidentel)
 sudo fail2ban-client set sshd unbanip <ADRESSE_IP>
+sudo fail2ban-client set recidive unbanip <ADRESSE_IP>
 ```

@@ -201,3 +201,9 @@ docker restart coolify-proxy
 L'interface web redevient immédiatement disponible après cette commande.
 </Warning>
 
+---
+
+## 🛡️ Sécurité système Fail2ban & Alertes Ntfy
+
+La VM Coolify intègre l'instance **Fail2ban** (`fail2ban.service`) harmonisée avec les hôtes physiques MS-01 et Mac Mini (`jail.local` avec escalade de ban `1h` à `1 semaine`, prison `recidive` pour 3 bans en 24h et alertes SSH Ntfy en direct sur `ims-alerts`).
+

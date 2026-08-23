@@ -1,63 +1,97 @@
 ---
-title: "Mac Mini 2014 (Hôte Standby)"
-description: "Ancien hôte de production — serveur de secours, agent Tailnet et fallback"
+title: "Mac Mini (Nœud 2 Cluster ims-cluster)"
+description: "Second nœud du cluster Proxmox VE — Hyperviseur physique de secours et support de basculement"
 icon: "apple"
 iconType: "duotone"
-last_reviewed: "2026-08-17"
+last_reviewed: "2026-08-23"
 ---
 
-import { ips } from "/snippets/variables.mdx";
+import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="amber">🟡 Standby Chaud (Déconnecté le 17/08/2026)</Badge>
-
-## Rôle & Emplacement
+<Badge color="green">🟢 Production Active (Nœud 2 Cluster)</Badge>
 
 <Info>
-Le **Mac Mini 2014** a été l'hôte principal de l'infrastructure jusqu'à sa **déconnexion officielle le 17 août 2026**, suite à la migration réussie de la totalité des services (PhotoPrism, Immich, Authentik, etc.) sur le nouveau MS-01. Il est conservé en **mode Standby chaud** dans le rack [Labrax](/infrastructure/labrax) pour servir de nœud de secours et de fallback en cas de panne physique de l'hyperviseur principal.
+Le **Mac Mini 2012** (Macmini6,1/6,2) constitue le **second nœud d'hypervision physique** du cluster Proxmox VE (`ims-cluster`). Il apporte de la tolérance de panne et héberge les conteneurs de haute disponibilité en cas de maintenance du nœud principal MS-01.
 </Info>
 
-## Fiche Technique
+---
+
+## Fiche Technique & Spécifications Matérielles
 
 | Propriété | Valeur |
 |---|---|
-| **Matériel** | Apple Mac Mini (Late 2014) |
-| **Processeur** | Intel Core i5 Dual-Core |
+| **Modèle Matériel** | Apple Mac Mini (Late 2012 — Macmini6,1/6,2) |
+| **Processeur (CPU)** | Intel Core i5 Dual-Core (4 threads) |
 | **Mémoire RAM** | **16 Go** DDR3 |
-| **Stockage** | SSD SATA 256 Go |
-| **Réseau LAN** | Ethernet Gigabit `192.168.1.x` |
-| **Tailscale IP** | {ips.macmini} |
-| **Hostname Tailnet** | `macmini-standby` / `coolify-old.ims-world.fr` |
-| **Port SSH** | **`22`** (SSH standard administration) |
-| **Statut** | <Badge color="amber">🟡 Standby Chaud</Badge> |
+| **Stockage Système** | SSD SATA Apple `SM0256F` (256 Go) |
+| **Carte Réseau** | Gigabit Ethernet Broadcom `tg3` (Support Linux natif) |
+| **OS / Hyperviseur** | **Proxmox VE 9.2.11** (Noyau 6.8+ Debian 13 Trixie) |
+| **Cluster Proxmox** | Membre actif du cluster **`ims-cluster`** (2/2 votes, Quorate: Yes) |
+| **Hostname FQDN** | `pve-macmini.ims-world.fr` |
+| **IP LAN Native** | `192.168.1.42` |
+| **IP Tailscale VPN** | {ips.macmini} (`pve-macmini`) |
+| **Compte Admin SSH** | `cmolotkoff` (Clés SSH Ed25519, `sudo` NOPASSWD, Port 22) |
+| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
-## Accès SSH & Administration
+---
 
-Connexion SSH directe depuis le LAN ou le Tailnet :
-```bash
-ssh cmolotkoff@100.64.0.7
+## Installation & Déploiement Proxmox VE
+
+### 1. Caractéristiques de l'Installation
+- **Architecture EFI Native** : Pas de puce de sécurité Apple T2, démarrage EFI natif sans patch de noyau nécessaire.
+- **Dépôts Proxmox** : Suppression des dépôts payants `pve-enterprise.sources` et `ceph.sources` (format deb822 Debian Trixie `.sources`) et activation du dépôt gratuit `pve-no-subscription`.
+- **Mise à Jour** : Alignement strict sur la version **Proxmox VE 9.2.11** (identique au MS-01).
+
+### 2. Intégration au Cluster (`ims-cluster`)
+- Le Mac Mini a rejoint le cluster Proxmox VE créé sur le MS-01 via la commande `pvecm add`.
+- **Partage de Configuration Cluster** : Synchronisation automatique des comptes utilisateur (`/etc/pve/user.cfg`), des rôles RBAC (`cmolotkoff@pam`) et des clés SSH autorisées entre les deux hyperviseurs.
+
+---
+
+## 🛡️ Sécurité & Protection Host (Fail2ban & Ntfy)
+
+Comme sur le host MS-01 et la VM Coolify, un service **Fail2ban** (`fail2ban.service`) local a été déployé et durci dans `/etc/fail2ban/jail.local` pour intercepter les tentatives d'intrusion SSH :
+
+```ini
+[DEFAULT]
+bantime  = 1h
+findtime = 10m
+maxretry = 5
+
+bantime.increment = true
+bantime.factor    = 2
+bantime.maxtime   = 1w
+
+action = %(action_)s
+         ntfy
+
+[recidive]
+enabled   = true
+mode      = normal
+banaction = %(banaction_allports)s
+bantime   = 1w
+findtime  = 1d
+maxretry  = 3
 ```
 
-## Rôle de Secours & Redirection DNS
+- **Politique d'Escalade** : Durée de bannissement progressive (1h ➔ 2h ➔ 4h... jusqu'à 1 semaine).
+- **Prison Récidivistes (`recidive`)** : 3 bannes en 24h entraînent un bannissement d'une semaine sur tous les ports.
+- **Alertes Ntfy** : Chaque bannissement déclenche une alerte instantanée vers le topic `ims-alerts` via l'action `/etc/fail2ban/action.d/ntfy.conf` avec un jeton d'accès scopé.
 
-Pendant la phase de validation post-cutover, l'accès à l'ancienne instance Coolify du Mac Mini est conservé via l'enregistrement DNS intermédiaire dans [Headscale](/services/headscale-headplane) :
+---
 
-```yaml
-extra_records:
-  - name: "coolify-old.ims-world.fr"
-    value: "{ips.macmini}"
-```
+## Rôle & Prochaines Étape
 
-## Procédure de Bascule d'Urgence (Fallback)
+- **Support de Basculement** : Utilisé comme nœud récepteur pour la migration à chaud/à froid de conteneurs et VM.
+- **Feuille de Route** : Installation du conteneur **LXC Home Assistant** (mode bridge direct `vmbr0` pour la découverte mDNS/SSDP) et déploiement du **QDevice Corosync** sur le Raspberry Pi pour sécuriser le quorum.
 
-En cas de crash physique majeur de l'hyperviseur MS-01 :
-<Steps>
-  <Step title="Vérification de l'alimentation">
-    S'assurer que le Mac Mini est sous tension dans le rack [Labrax](/infrastructure/labrax).
-  </Step>
-  <Step title="Reprise du Port Forward Bbox">
-    Rediriger le port-forwarding de la Bbox (ports 80 & 443) vers l'IP LAN du Mac Mini.
-  </Step>
-  <Step title="Démarrage des conteneurs secours">
-    Relancer les conteneurs Docker de secours archivés sur le SSD du Mac Mini.
-  </Step>
-</Steps>
+---
+
+<CardGroup cols={2}>
+  <Card title="Hyperviseur Principal (MS-01)" icon="server" href="/infrastructure/proxmox-host">
+    Fiche technique et administration du nœud 1 de ims-cluster.
+  </Card>
+  <Card title="Politique de Sauvegarde" icon="shield-check" href="/infrastructure/politique-sauvegardes">
+    Sauvegardes PBS et protection des VM/LXC du cluster.
+  </Card>
+</CardGroup>

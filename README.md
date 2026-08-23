@@ -35,40 +35,37 @@ flowchart TB
         PF["Port Forward (80/443 NAT)"]
     end
 
-    subgraph PROXMOX ["🖥️ Hyperviseur Principal — Minisforum MS-01 (Proxmox VE 9.2.3)"]
-        subgraph VMBR0 ["Bridge LAN (vmbr0: 192.168.1.0/24)"]
-            PVE_HOST["Proxmox Host (192.168.1.41)"]
+    subgraph PROXMOX_CLUSTER ["🖥️ Cluster Proxmox VE ims-cluster (v9.2.11 — Quorum 2/2)"]
+        subgraph NODE1 ["Nœud 1 (Leader) — Minisforum MS-01 (192.168.1.41 / 100.64.0.9)"]
+            PVE_HOST["Proxmox Host (pve — 192.168.1.41)"]
+            
+            subgraph VMBR1 ["Bridge Isolé NFS (vmbr1: 10.10.10.0/24)"]
+                direction LR
+                NAS_ISO["NAS FUSE (10.10.10.1)"]
+                PBS_ISO["PBS (10.10.10.3)"]
+                COOL_ISO["Coolify VM (10.10.10.2)"]
+            end
+
+            subgraph GUESTS ["Guests de Production (MS-01)"]
+                LXC_NAS["IMS-NAS (LXC 100 — 192.168.1.50)"]
+                LXC_PBS["IMS-PBS (LXC 103 — 192.168.1.51)"]
+                VM_COOLIFY["IMS-Coolify (VM 104 — 192.168.1.52)"]
+            end
         end
 
-        subgraph VMBR1 ["Bridge Isolé NFS (vmbr1: 10.10.10.0/24)"]
-            direction LR
-            NAS_ISO["NAS FUSE (10.10.10.1)"]
-            PBS_ISO["PBS (10.10.10.3)"]
-            COOL_ISO["Coolify VM (10.10.10.2)"]
+        subgraph NODE2 ["Nœud 2 — Apple Mac Mini (192.168.1.42 / 100.64.0.5)"]
+            MAC_MINI["Mac Mini (pve-macmini — 192.168.1.42)"]
         end
 
-        subgraph GUESTS ["Guests de Production"]
-            LXC_NAS["IMS-NAS (LXC 100)\n192.168.1.50\nMergerFS + NFS + SMB"]
-            LXC_PBS["IMS-PBS (LXC 103)\n192.168.1.51\nProxmox Backup Server"]
-            VM_COOLIFY["IMS-Coolify (VM 104)\n192.168.1.52\nDocker + Traefik v3.7"]
-        end
-
-        subgraph DOCKER_STACK ["Stack Applicative Docker (VM 104)"]
-            TRAEFIK["Traefik Reverse Proxy\n(DNS-01 OVH)"]
-            AUTH["Authentik SSO\n(auth.ims-world.fr)"]
-            VAULT["Vaultwarden\n(vault.ims-world.fr)"]
-            HOMEFLIX["HomeFlix Stack\n(Jellyfin + *arr + qBit)"]
-            HEADSCALE["Headscale / Headplane\n(vpn.ims-world.fr)"]
-        end
+        PVE_HOST <==>|Corosync Cluster Link / pvecm| MAC_MINI
     end
 
     subgraph TAILNET ["🔐 Tailnet VPN (Headscale 100.64.0.0/10)"]
         CLIENTS["Appareils Distants (100.64.0.x)"]
     end
 
-    subgraph STANDBY ["🟡 Infrastructure Historique / Standby"]
-        MAC_MINI["Mac Mini 2014\n(100.64.0.7 — standby)"]
-        RPI["Raspberry Pi 3B+\n(Monitoring)"]
+    subgraph SATELLITES ["📺 Affichage & Kiosk"]
+        RPI["Raspberry Pi 3B+ Kiosk (100.64.0.12)"]
     end
 
     %% Connexions WAN et Réseau
