@@ -3,8 +3,8 @@ title: "Dozzle — Logs Docker en Direct"
 description: "Visualisation live des logs de tous les containers Docker, protégée par Authentik"
 icon: "list"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
-app_version: "v10.6.15"
+last_reviewed: "2026-08-24"
+app_version: "v10.7.4"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -41,23 +41,25 @@ import { ips, domains } from "/snippets/variables.mdx";
 |---|---|
 | **Domaine** | `logs.ims-world.fr` |
 | **Rôle** | Consultation instantanée des logs Docker (VM IMS-Coolify) |
-| **Version** | `amir20/dozzle:v10.6.15` |
+| **Version** | `amir20/dozzle:v10.7.4` |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `ejdn7jiuwiyixrmp8nffjkcj` |
 | **Chemin sur la VM** | `/data/coolify/services/ejdn7jiuwiyixrmp8nffjkcj/` |
-| **Exposition** | **VPN-Only** (Restreint au Tailnet `100.64.0.0/10` & LAN `192.168.1.0/24` via `vpn-only.yaml`) |
+| **Exposition & Sécurité** | **VPN-Only + SSO Authentik** (Filtrage IP `100.64.0.0/10` & `192.168.1.0/24` + Forward-Auth) |
 | **Accès Socket Docker** | Monté en **lecture seule** (`/var/run/docker.sock:ro`) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 ---
 
-## Sécurité & Isolation Réseau (`vpn-only`)
+## Sécurité & Authentification (VPN-Only + SSO Authentik)
 
-Dozzle ne possédant pas de système d'authentification natif, l'accès à `logs.ims-world.fr` est sécurisé au niveau du reverse proxy Traefik via le provider file centralisé **`vpn-only.yaml`** (filtrage `ipAllowList: [100.64.0.0/10, 192.168.1.0/24]`).
+L'accès à `logs.ims-world.fr` est sécurisé à deux niveaux complémentaires :
+1. **Isolation Réseau (`vpn-only`)** : Filtrage IP au niveau du reverse proxy Traefik via `/data/coolify/proxy/dynamic/vpn-only.yaml`.
+2. **Authentification SSO Authentik (`authentik-dozzle@docker`)** : Authentification obligatoire avant d'accéder à l'interface de logs Dozzle.
 
-<Check>
-**Isolation Étanche (HTTP 403 Forbidden sur le WAN)** : Tout accès depuis l'Internet public (4G/5G mobile hors VPN) est immédiatement bloqué en HTTP 403. Pour le détail de l'isolation et du DNS split-horizon Headscale (`extra_records`), voir la procédure [Sécuriser un Service avec vpn-only](/procedures/securiser-service-vpn-only).
-</Check>
+<Info>
+**Priorité du Routeur File Provider** : Dozzle étant déclaré dans `vpn-only.yaml` (provider **file**), son routeur Traefik s'applique prioritairement sur les labels Docker. Le middleware SSO y est explicitement rattaché sous la forme `authentik-dozzle@docker`. Voir le [Post-Mortem d'Incident du 24/08/2026](/history/incidents/2026-08-24-bypass-sso-dozzle-traefik-file-provider).
+</Info>
 
 ---
 

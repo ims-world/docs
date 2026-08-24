@@ -121,6 +121,26 @@ Elle applique l'architecture centralisée validée dans l'[ADR-009](/history/adr
   </Step>
 </Steps>
 
+<Warning>
+**⚠️ RÈGLE DE PRIORITÉ TRAEFIK : COMBINAISON VPN-ONLY + SSO AUTHENTIK**
+
+Si un service est déclaré dans `vpn-only.yaml` (provider **file**) ET nécessite également une protection SSO Authentik (Forward-Auth ou OIDC), **les labels Docker du conteneur seront totalement ignorés par Traefik** au profit du routeur du provider File.
+
+Pour activer le SSO sur un service sous `vpn-only.yaml`, il faut **explicitement ajouter le middleware Authentik avec le suffixe `@docker`** dans la liste des middlewares du routeur `vpn-only.yaml` :
+```yaml
+dozzle-admin:
+  rule: Host(`logs.ims-world.fr`)
+  entryPoints:
+    - https
+  service: dozzle-admin
+  middlewares:
+    - vpn-only
+    - admin-gzip
+    - authentik-dozzle@docker   # <--- Obligatoire : référence le middleware défini côté provider Docker
+```
+Voir le [Post-Mortem d'Incident du 24/08/2026](/history/incidents/2026-08-24-bypass-sso-dozzle-traefik-file-provider).
+</Warning>
+
 ---
 
 ## 🛠️ Dépannage Réseau (En cas de 403 Forbidden persistant)
