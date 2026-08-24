@@ -10,9 +10,9 @@
   },
   "favicon": "/assets/favicon.svg",
   "colors": {
-    "primary": "#F97316",
-    "light": "#FB923C",
-    "dark": "#C2410C"
+    "primary": "#FF6B00",
+    "light": "#FF8800",
+    "dark": "#D45500"
   },
   "navbar": {
     "links": [
@@ -204,6 +204,7 @@
             "group": "Post-Mortems & Incidents",
             "icon": "triangle-exclamation",
             "pages": [
+              "history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr",
               "history/incidents/2026-08-19-stale-nfs-filehandle-jellyfin-mergerfs",
               "history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri",
               "history/incidents/2026-08-18-blocage-traefik-vpn-only-docker-proxy"

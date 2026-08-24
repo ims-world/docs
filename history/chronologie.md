@@ -24,6 +24,11 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
+<Update label="24/08/2026" description="Incident DNS Wildcard Shadowing sur share.ims-world.fr & Nettoyage Enregistrements ACME TXT">
+  ### 🐛 Incident & Post-Mortem DNS
+  - **Résolution de l'Incident DNS `share.ims-world.fr` (Zipline)** — Diagnostic et correction de l'erreur `503 No Available Server` causée par le masquage silencieux du wildcard DNS `*.ims-world.fr` par des enregistrements `_acme-challenge.share` TXT résiduels dans la zone OVH. Nettoyage préventif des résidus ACME sur l'ensemble de la zone. Voir le [Post-Mortem du 24/08/2026](/history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr).
+</Update>
+
 <Update label="23/08/2026" description="Cluster Proxmox VE ims-cluster (Mac Mini + MS-01) & Durcissement Fail2ban Ntfy">
   ### 🖥️ Cluster Proxmox VE (`ims-cluster`)
   - **Création du Cluster Proxmox VE à 2 Nœuds** — Alignement de la version Proxmox VE en **9.2.11** sur le MS-01 et installation sur le Mac Mini 2012 (`pve-macmini.ims-world.fr`). Création du cluster `ims-cluster` et jointure du Mac Mini (Quorum 2/2 votes, réplication des comptes PAM et clés SSH). Voir [Mac Mini](/infrastructure/mac-mini) et [MS-01 Proxmox Host](/infrastructure/proxmox-host).
