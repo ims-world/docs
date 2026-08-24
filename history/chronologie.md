@@ -24,7 +24,10 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
-<Update label="24/08/2026" description="Incident DNS Wildcard Shadowing sur share.ims-world.fr & Nettoyage Enregistrements ACME TXT">
+<Update label="24/08/2026" description="Migration Authentik v2026.8.0 & Incident DNS Wildcard Shadowing">
+  ### 🔑 Mises à jour Applicatives
+  - **Montée de Version Authentik `2026.5.0` ➔ `2026.8.0`** — Migration réussie du serveur SSO, du worker et réconciliation forcée du conteneur Outpost proxy (`ak-outpost-ims-outpost`). Procédure de redéploiement et piège du socket Docker documentés sur [Authentik](/services/authentik#montées-de-version--réconciliation-des-outposts-upgrade-202680).
+
   ### 🐛 Incident & Post-Mortem DNS
   - **Résolution de l'Incident DNS `share.ims-world.fr` (Zipline)** — Diagnostic et correction de l'erreur `503 No Available Server` causée par le masquage silencieux du wildcard DNS `*.ims-world.fr` par des enregistrements `_acme-challenge.share` TXT résiduels dans la zone OVH. Nettoyage préventif des résidus ACME sur l'ensemble de la zone. Voir le [Post-Mortem du 24/08/2026](/history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr).
 </Update>

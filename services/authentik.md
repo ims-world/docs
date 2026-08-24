@@ -3,8 +3,8 @@ title: "Authentik"
 description: "SSO / OIDC — provider d'identité central"
 icon: "key"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
-app_version: "2024.12.3"
+last_reviewed: "2026-08-24"
+app_version: "2026.8.0"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -136,3 +136,36 @@ Le filtrage des accès des applications en Forward-Auth ne se fait pas dans le f
     À la validation, le compte est créé et rattaché automatiquement au groupe par défaut (`membres`).
   </Step>
 </Steps>
+
+---
+
+## 🔄 Montées de Version & Réconciliation des Outposts (Upgrade 2026.8.0)
+
+<Badge color="green">🟢 Upgrade 2026.5.0 → 2026.8.0 Validé (24/08/2026)</Badge>
+
+### ⚠️ Piège d'Architecture : Outposts Docker Managés
+
+Les outposts configurés en **Local Docker Connection** (`ims-outpost`) ne sont pas définis dans le `docker-compose.yml` principal de Coolify. Ils sont créés et gérés dynamiquement par Authentik via le socket Docker de l'hôte (`/var/run/docker.sock`).
+
+<Warning>
+**Désalignement de version des Outposts** : Un simple bump du tag dans le `docker-compose.yml` (`authentik-server` et `authentik-worker`) ne redéploie pas automatiquement les conteneurs outpost (`ak-outpost-*`). Un redémarrage du worker seul ne suffit pas toujours à forcer la réconciliation.
+</Warning>
+
+### 🛠️ Procédure de Réconciliation Obligatoire Post-Upgrade
+
+En cas d'alerte de version désalignée sous **Applications ➔ Outposts** (ex: `ims-outpost` restant en 2026.5.0 alors que le serveur est en 2026.8.0) :
+
+```bash
+# 1. Vérifier la version de l'image de l'outpost
+docker ps -a --format '{{.Names}}\t{{.Image}}\t{{.Status}}' | grep -i outpost
+
+# 2. Stopper et supprimer le conteneur outpost stateless (sans risque de perte de données)
+docker stop ak-outpost-ims-outpost
+docker rm ak-outpost-ims-outpost
+
+# 3. Redémarrer server + worker pour forcer Authentik à ré-instancier l'outpost à jour
+docker restart authentik-server-k5mxvc2r6c4zlb6j3d443h7b authentik-worker-k5mxvc2r6c4zlb6j3d443h7b
+```
+
+Au redémarrage, Authentik détecte l'absence du conteneur outpost et ré-instancie immédiatement `ak-outpost-ims-outpost` sur l'image alignée `ghcr.io/goauthentik/proxy:2026.8.0`.
+
