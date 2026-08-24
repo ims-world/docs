@@ -1,116 +1,147 @@
 ---
 title: "Feuille de Route & Liste TODO"
-description: "Chantiers techniques prioritaires, roadmap de résilience et backlog d'évolution de l'infrastructure"
+description: "Suivi centralisé des chantiers prioritaires, roadmap de résilience et backlog d'évolution de l'infrastructure"
 icon: "list-check"
 iconType: "duotone"
-last_reviewed: "2026-08-23"
+last_reviewed: "2026-08-24"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
+<Badge color="green">🟢 Mis à Jour le 24/08/2026</Badge>
+
 <Info>
-Cette page recense l'ensemble de la **feuille de route technique et de la liste TODO** d'évolution de l'infrastructure homelab IMS-WORLD (sécurité, résilience, matériel et nouveaux services).
+Cette page constitue le **journal central de suivi des chantiers et de la feuille de route** du homelab IMS-WORLD. Elle regroupe l'ensemble des tâches ouvertes classées par domaine d'intervention (Résilience, Sécurité, Supervision, Nouveaux Services, Matériel) ainsi que l'historique des jalons réalisés.
 </Info>
 
 ---
 
-## 🔴 1. Chantiers Critiques & Haute Priorité (Résilience & Quorum)
+## 📊 Matrice d'Avancement des Chantiers
 
-### 1.1 🖥️ Quorum Cluster & QDevice Corosync (Raspberry Pi 3B+)
-- **Constat** : Le cluster Proxmox VE `ims-cluster` comporte 2 nœuds (MS-01 et Mac Mini). Sans un troisième vote de quorum, la panne de l'un des deux hôtes entraîne la perte de quorum sur le nœud survivant.
-- **Tâche** : Déployer le démon **QDevice Corosync** (`corosync-qnetd` / port TCP `5403`) sur le Raspberry Pi 3B+ (`ims-rpi-monitor`) pour accorder le 3ᵉ vote d'arbitrage et sécuriser le quorum en cas de coupure de l'un des deux hyperviseurs.
+| Domaine | Chantier | Priorité | Hôte Cible | Statut |
+|---|---|---|---|---|
+| **Résilience & Quorum** | QDevice Corosync 3ᵉ vote | <Badge color="red">🔴 Priorité 1</Badge> | Raspberry Pi 3B+ | ⏳ En attente |
+| **Résilience & Alerting** | Supervision & Alerting hors-MS-01 | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / RPi / VPS | ⏳ En attente |
+| **Supervision & Métrologie** | Agent Alloy systemd sur Mac Mini | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini (`100.64.0.6`) | ⏳ En attente |
+| **Alerting** | Notifications Ntfy sur échec backup | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 / PBS | ⏳ En attente |
+| **Sécurité** | Credentials OVH dans fichier `.env` | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify Proxy) | ⏳ En attente |
+| **Sécurité** | DMZ & Bastion SSH d'administration | <Badge color="blue">🟦 À Évaluer</Badge> | Réseau / DMZ | 💡 Étude |
+| **Sécurité** | Firewall Proxmox VE 3 niveaux | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 & Mac Mini | ⏳ En attente |
+| **Sécurité** | Intel vPro / AMT (Gestion Out-of-Band) | <Badge color="blue">🟦 À Évaluer</Badge> | MS-01 Bare-Metal | 💡 Étude |
+| **Docker & Hygiène** | Pinning des tags Docker (suppression `:latest`) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify) | ⏳ En attente |
+| **Docker & Hygiène** | Scan & Alertes mises à jour (Diun Ntfy) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify) | ⏳ En attente |
+| **Supervision** | Exporteur Prometheus Jellyfin | <Badge color="blue">🟦 Nouveaux Services</Badge> | VM 104 (Coolify) | ⏳ En attente |
+| **UX & Proxy** | Pages d'erreur custom Traefik (404/502/503/504) | <Badge color="blue">🟦 Nouveaux Services</Badge> | Traefik Proxy | ⏳ En attente |
+| **Nouveaux Services** | DNS Secondaire (AdGuard Home / Pi-hole) | <Badge color="blue">🟦 Nouveaux Services</Badge> | Mac Mini / RPi | ⏳ En attente |
+| **Nouveaux Services** | Compression & Optimisation d'Images (Imgcompress) | <Badge color="blue">🟦 Nouveaux Services</Badge> | VM 104 (Coolify) | ⏳ En attente |
+| **Stockage** | Migration stockage Zipline vers SSD 4To | <Badge color="amber">🟡 Moyen Terme</Badge> | LXC 100 / VM 104 | ⏳ En attente |
+| **Forge Git** | Synchronisation credentials miroirs GitHub | <Badge color="amber">🟡 Moyen Terme</Badge> | Forgejo (VM 104) | ⏳ En attente |
+| **Matériel & Rack** | Extension physique du rack Labrax 10" | <Badge color="amber">🟡 Moyen Terme</Badge> | Rack Physique | ⏳ En attente |
+| **Stockage** | Extension capacitive HDD 4To / 8To Neuf | <Badge color="blue">🟦 À Évaluer</Badge> | NAS LXC 100 | 💡 Achat futur |
+| **Sécurité** | Détection d'intrusions NIDS & Sentryx | <Badge color="blue">🟦 À Évaluer</Badge> | Réseau / VM 104 | 💡 Étude |
 
-### 1.2 🚨 Résilience & Monitoring d'Uptime Hors-Hôte (Panne MS-01)
-- **Constat** : Toute la stack de supervision (Prometheus, Grafana, Loki, Uptime Kuma, Ntfy) est actuellement hébergée sur la VM 104 de l'hôte MS-01. Si le MS-01 subit une coupure électrique ou matérielle totale, aucune alerte ne peut être émise.
-- **Tâche** : Déployer un mécanisme d'alerting léger hors-hôte (sur le Mac Mini, le Raspberry Pi ou un micro VPS externe) pour surveiller l'état du MS-01 et émettre une alerte push si l'hyperviseur principal s'éteint.
+---
 
-### 1.3 🔔 Notifications Ntfy sur Échec des Sauvegardes Proxmox VE / PBS
-- **Tâche** : Configurer les cibles de notification natifs (*Notification Targets*) sur Proxmox VE (MS-01) et Proxmox Backup Server (LXC 103) pour envoyer une alerte Ntfy automatique immédiate sur le topic `ims-alerts` en cas d'échec d'un job de sauvegarde `vzdump` ou `pbs`.
+## 🔴 1. Chantiers Critiques & Haute Priorité (Quorum & Résilience)
+
+### 1.1 🖥️ Quorum Cluster & QDevice Corosync (Raspberry Pi 3B+) <Badge color="red">🔴 Priorité 1</Badge>
+- **Constat** : Le cluster Proxmox VE `ims-cluster` comporte 2 nœuds (MS-01 et Mac Mini). Sans un troisième vote d'arbitrage, la perte de l'un des deux hôtes entraîne la perte de quorum sur le nœud survivant.
+- **Tâche** : Déployer le démon **QDevice Corosync** (`corosync-qnetd` / port TCP `5403`) sur le Raspberry Pi 3B+ (`ims-rpi-monitor`) pour accorder le 3ᵉ vote d'arbitrage et sécuriser le quorum en cas d'extinction de l'un des deux hyperviseurs.
+
+### 1.2 🚨 Supervision & Alerting d'Uptime Hors-Hôte (Panne MS-01) <Badge color="red">🔴 Priorité 1</Badge>
+- **Constat** : Toute la stack de supervision (Prometheus, Grafana, Loki, Uptime Kuma, Ntfy) est hébergée sur la VM 104 du MS-01. Si le MS-01 subit une panne matérielle ou électrique totale, aucune alerte ne peut être émise.
+- **Tâche** : Déployer un mécanisme d'alerting léger hors-hôte (sur le Mac Mini, le Raspberry Pi ou un micro VPS externe) pour surveiller la joignabilité du MS-01 et envoyer une alerte push si l'hôte principal s'éteint.
+
+### 1.3 🔔 Notifications Ntfy sur Échec des Sauvegardes Proxmox VE / PBS <Badge color="amber">🟡 Moyen Terme</Badge>
+- **Tâche** : Configurer les cibles de notification natifs (*Notification Targets*) sur Proxmox VE (MS-01) et Proxmox Backup Server (LXC 103) pour émettre une alerte Ntfy automatique immédiate sur le topic `ims-alerts` en cas d'échec d'un job de sauvegarde `vzdump` ou `pbs`.
 
 ---
 
 ## 🔒 2. Sécurité & Durcissement Système
 
-### 2.1 🔑 Masquage des Credentials OVH du Proxy Traefik
-- **Tâche** : Extraire les identifiants d'API OVH (challenge DNS-01 Let's Encrypt) du fichier `/data/coolify/proxy/docker-compose.yml` et les basculer dans un fichier `.env` restreint (`chmod 600`).
+### 2.1 🔑 Credentials OVH du Proxy Traefik dans Fichier `.env` <Badge color="amber">🟡 Moyen Terme</Badge>
+- **Tâche** : Extraire les identifiants d'API OVH (DNS-01 Let's Encrypt) du fichier `/data/coolify/proxy/docker-compose.yml` et les placer dans un fichier d'environnement restreint (`.env` avec `chmod 600`).
 
-### 2.2 🏰 Exploration d'une DMZ & Bastion SSH
-- **Tâche** : Évaluer et concevoir l'architecture d'un bastion d'administration SSH isolé en DMZ pour verrouiller et auditer les accès système distants.
+### 2.2 🏰 Exploration d'une DMZ & Bastion SSH <Badge color="blue">🟦 À Évaluer</Badge>
+- **Tâche** : Étudier l'architecture d'un bastion d'administration SSH isolé en DMZ pour centraliser, authentifier et auditer l'ensemble des accès shell d'infrastructures distants.
 
-### 2.3 🛡️ Activation du Firewall Proxmox VE 3 Niveaux
-- **Tâche** : Configurer le pare-feu natif de Proxmox VE (niveau Nœud ➔ Datacenter ➔ Guest) sur le MS-01 et le Mac Mini, en définissant des règles strictes sur les bridges `vmbr0` et `vmbr1`.
+### 2.3 🛡️ Activation du Firewall Proxmox VE 3 Niveaux <Badge color="amber">🟡 Moyen Terme</Badge>
+- **Tâche** : Activer et configurer le pare-feu natif de Proxmox VE (Nœud ➔ Datacenter ➔ Guest) sur MS-01 et Mac Mini avec règles d'étanchéité sur les bridges `vmbr0` et `vmbr1`.
 
-### 2.4 ⚙️ Configuration & Gestion Out-of-Band (Intel vPro / AMT)
-- **Tâche** : Configurer la technologie d'aménagement à distance Intel vPro / AMT sur le Minisforum MS-01 pour permettre la prise de main KVM matérielle bas niveau même lorsque le système d'exploitation est éteint.
-
----
-
-## 🐳 3. Hygiène Docker, Services & Monitoring
-
-### 3.1 🏷️ Pinning des Tags Docker (Suppression des Tags `:latest`)
-- **Constat** : Certaines applications utilisent le tag générique `:latest` (Stirling PDF, Zipline).
-- **Tâche** : Figer l'intégralité des images Docker sur des versions sémantiques précises (SemVer) pour éviter toute rupture imprévue lors des redémarrages.
-
-### 3.2 📦 Scan & Alertes des Mises à Jour Docker (Diun)
-- **Tâche** : Déployer **Diun** (*Docker Image Update Notifier*) sur la VM Coolify pour surveiller les registres Docker et émettre une alerte Webhook instantanée sur Ntfy dès qu'une version stable est publiée.
-
-### 3.3 🎬 Exporteur Prometheus Dédié Jellyfin (`jellyfin-exporter`)
-- **Tâche** : Déployer un conteneur exporteur Prometheus dédié à Jellyfin sur la VM Coolify pour alimenter Grafana avec les métriques en temps réel des lectures actives (transcodage vs direct play, débits).
-
-### 3.4 🖼️ Pages d'Erreur & Indisponibilité Custom sur Traefik
-- **Tâche** : Configurer des middlewares de gestion d'erreur Traefik (`errors`) pour servir des pages d'erreur HTML/CSS personnalisées aux couleurs de la marque en cas de 404 (Introuvable) ou 502/503/504 (Service en maintenance).
+### 2.4 ⚙️ Configuration Out-of-Band Intel vPro / AMT <Badge color="blue">🟦 À Évaluer</Badge>
+- **Tâche** : Configurer le module d'aménagement à distance Intel vPro / AMT sur le Minisforum MS-01 pour conserver la prise de main KVM matérielle bas niveau même OS éteint.
 
 ---
 
-## 🆕 4. Nouveaux Services & Projets d'Évolution
+## 🐳 3. Supervision, Hygiène Docker & Métrologie
 
-### 4.1 🛡️ Serveur DNS Secondaire (AdGuard Home / Pi-hole)
-- **Tâche** : Déployer une instance secondaire AdGuard Home ou Pi-hole (sur le Mac Mini ou le Raspberry Pi) pour fournir une résolution DNS locale redondante avec filtrage publicitaire et protection anti-tracking.
+### 3.1 🏷️ Pinning des Tags Docker (Suppression des Tags `:latest`) <Badge color="amber">🟡 Moyen Terme</Badge>
+- **Tâche** : Figer les images Docker sur des versions sémantiques précises (SemVer) pour Stirling PDF et Zipline afin d'éliminer le risque de rupture accidentelle lors d'un `docker pull`.
 
-### 4.2 🖼️ Service d'Optimisation & Compression d'Images (Imgcompress)
-- **Tâche** : Déployer une solution d'optimisation et de compression d'images automatisée (Imgcompress ou équivalent) pour réduire la taille des visuels avant intégration sur les plateformes.
+### 3.2 📊 Extension de l'Agent Alloy sur le Mac Mini (`pve-macmini`) <Badge color="red">🔴 Priorité 1</Badge>
+- **Constat** : Le Mac Mini est désormais le Nœud 2 actif du cluster `ims-cluster`. Son système doit remonter ses métriques et logs vers la stack LGTM.
+- **Tâche** : Déployer l'agent **Grafana Alloy** en service systemd sur le Mac Mini (`100.64.0.6`) pour collecter les métriques système (CPU, RAM, disques, températures) et les transmettre en Remote-Write vers Prometheus (`10.10.10.2`) et Loki. Voir [Stack Monitoring](/services/monitoring).
 
-### 4.3 💾 Migration du Stockage Zipline vers le Tier SSD `storage-hot`
-- **Tâche** : Basculer le dossier d'assets et d'envois temporaires de Zipline depuis le stockage HDD principal vers le SSD 4To Samsung 870 EVO (`/mnt/storage-hot`) pour accélérer le traitement des uploads ShareX.
+### 3.3 📦 Scan & Alertes des Mises à Jour Docker (Diun) <Badge color="amber">🟡 Moyen Terme</Badge>
+- **Tâche** : Déployer **Diun** (*Docker Image Update Notifier*) sur la VM Coolify pour surveiller les registres Docker et pousser une notification Webhook sur Ntfy dès qu'une version stable est publiée.
 
-### 4.4 🐙 Synchronisation des Credentials Miroirs GitHub (Forgejo)
-- **Tâche** : Configurer les jetons d'accès et identifiants de synchronisation automatique sur les 6 dépôts miroirs GitHub hébergés sur l'instance Forgejo.
+### 3.4 🎬 Exporteur Prometheus Dédié Jellyfin (`jellyfin-exporter`) <Badge color="blue">🟦 Nouveaux Services</Badge>
+- **Tâche** : Déployer `jellyfin-exporter` sur la VM Coolify pour remonter à Grafana les métriques en temps réel des lectures actives (sessions transcodées vs direct play, débits, codecs).
+
+### 3.5 🖼️ Pages d'Erreur & Indisponibilité Custom Traefik <Badge color="blue">🟦 Nouveaux Services</Badge>
+- **Tâche** : Configurer les middlewares d'erreur Traefik (`errors`) pour servir des pages d'erreur HTML/CSS personnalisées aux couleurs IMS en cas de HTTP 404 ou 502/503/504.
+
+---
+
+## 🆕 4. Nouveaux Services & Projets Applicatifs
+
+### 4.1 🛡️ Serveur DNS Secondaire (AdGuard Home / Pi-hole) <Badge color="blue">🟦 Nouveaux Services</Badge>
+- **Tâche** : Déployer une instance DNS locale secondaire (sur Mac Mini ou RPi) pour garantir la résolution DNS interne et le filtrage publicitaire même en cas de maintenance du MS-01.
+
+### 4.2 🖼️ Compression & Optimisation d'Images (Imgcompress) <Badge color="blue">🟦 Nouveaux Services</Badge>
+- **Tâche** : Déployer une solution d'optimisation automatisée d'images (Imgcompress ou équivalent) pour réduire le poids des visuels avant intégration.
+
+### 4.3 💾 Migration Stockage Zipline vers Tier SSD `storage-hot` <Badge color="amber">🟡 Moyen Terme</Badge>
+- **Tâche** : Migrer le répertoire de stockage Zipline du HDD vers le SSD 4To Samsung 870 EVO (`/mnt/storage-hot`) pour accélérer le traitement des uploads ShareX.
+
+### 4.4 🐙 Sync Credentials GitHub (Forgejo) <Badge color="amber">🟡 Moyen Terme</Badge>
+- **Tâche** : Configurer les jetons d'accès et identifiants de synchronisation automatique sur les 6 dépôts miroirs GitHub hébergés sur Forgejo.
 
 ---
 
 ## 🗄️ 5. Matériel, Physique & Stockage Long Terme
 
-### 5.1 🛠️ Finalisation de l'Extension du Rack Labrax 10"
+### 5.1 🛠️ Extension Rack Labrax 10" <Badge color="amber">🟡 Moyen Terme</Badge>
 - **Tâche** : Achever le montage physique et le câblage propre de l'extension de châssis 10 pouces du rack [Labrax](/infrastructure/labrax).
 
-### 5.2 💾 Achat & Extension Capacitive NAS (HDD 4To / 8To Neuf)
-- **Tâche** : Acquérir et installer un disque dur HDD supplémentaire pour étendre le pool de stockage capacitif et/ou mettre en place un miroir de parité sur le NAS.
+### 5.2 💾 Achat HDD 4To / 8To Neuf <Badge color="blue">🟦 À Évaluer</Badge>
+- **Tâche** : Acquérir un disque dur HDD supplémentaire pour étendre le pool capacitif et/ou instaurer un miroir de parité sur le NAS.
 
-### 5.3 🔍 Surveillance d'Intrusion Réseau (NIDS / Sentryx)
-- **Tâche** : Évaluer l'intégration d'une sonde de détection d'intrusions réseau (NIDS) et la mise en service du projet Sentryx.
+### 5.3 🔍 Sonde NIDS / Sentryx <Badge color="blue">🟦 À Évaluer</Badge>
+- **Tâche** : Évaluer la mise en service d'une sonde de détection d'intrusions réseau (NIDS) et du projet Sentryx.
 
 ---
 
-## 🟢 6. Chantiers Récents Effectués & Archivés
+## 🟢 6. Chantiers Récents Effectués & Archives
 
 <AccordionGroup>
-  <Accordion title="📊 Stack Monitoring LGTM (Grafana / Loki / Prometheus / Alloy) — 10-21/08/2026">
-    Déploiement de la stack complète LGTM sur la VM Coolify (UUID `rrw19kmye6gng961igtzqpgw`), avec agents Alloy systemd sur MS-01, VM Coolify, LXC NAS, LXC PBS et Raspberry Pi Kiosk. Intégration du monitoring SMART bare-metal et création de 4 dashboards exécutifs Grafana.
+  <Accordion title="🖥️ Cluster Proxmox VE ims-cluster & Fail2ban Harmonisé — 23/08/2026">
+    Installation de Proxmox VE 9.2.11 sur Mac Mini, création du cluster à 2 nœuds `ims-cluster` (Quorum 2/2 votes), formalisation de l'ADR-010 et déploiement harmonisé de Fail2ban avec alertes Ntfy sur MS-01, Mac Mini et VM Coolify. Voir [Mac Mini](/infrastructure/mac-mini) et [ADR-010](/history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster).
   </Accordion>
 
   <Accordion title="🛡️ Détection d'Intrusions CrowdSec v1.7.8 & WAF AppSec — 22/08/2026">
-    Déploiement de l'agent CrowdSec, du plugin bouncer Traefik (mode stream fail-open `updateMaxFailure: -1`), du WAF AppSec (196 règles inband), des allowlists `tailscale`/`home-lan` et de l'IHM locale **Shield** (`shield.ims-world.fr`).
+    Déploiement de l'agent CrowdSec, du plugin bouncer Traefik (mode stream fail-open `updateMaxFailure: -1`), du WAF AppSec (196 règles inband), des allowlists `tailscale`/`home-lan` et de l'IHM locale **Shield** (`shield.ims-world.fr`). Voir [CrowdSec](/services/crowdsec).
   </Accordion>
 
-  <Accordion title="🖥️ Création du Cluster Proxmox VE ims-cluster & Fail2ban — 23/08/2026">
-    Installation de Proxmox VE 9.2.11 sur Mac Mini, création du cluster à 2 nœuds `ims-cluster` (Quorum 2/2 votes), formalisation de l'ADR-010 et déploiement harmonisé de Fail2ban avec alertes Ntfy sur 3 hôtes.
+  <Accordion title="📊 Stack Monitoring LGTM (Grafana / Loki / Prometheus / Alloy) — 10-21/08/2026">
+    Déploiement de la stack complète LGTM sur la VM Coolify (UUID `rrw19kmye6gng961igtzqpgw`), avec agents Alloy systemd sur MS-01, VM Coolify, LXC NAS, LXC PBS et Raspberry Pi Kiosk. Intégration du monitoring SMART bare-metal et création de 4 dashboards exécutifs Grafana. Voir [Monitoring](/services/monitoring).
   </Accordion>
 
   <Accordion title="🔒 Mode SNAT Tailscale Bypass & CIS Docker Benchmark (ADR-009) — 19-20/08/2026">
-    Désactivation de `userland-proxy` et exécution de `--snat-subnet-routes=false` pour la préservation absolue des IP sources réelles `100.64.0.x` sous Traefik.
+    Désactivation de `userland-proxy` et exécution de `--snat-subnet-routes=false` pour la préservation absolue des IP sources réelles `100.64.0.x` sous Traefik. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
   </Accordion>
 
   <Accordion title="⚡ Passthrough GPU Iris Xe & Tier Stockage SSD 4To — 18/08/2026">
-    Passthrough iGPU Intel Iris Xe sur VM 104 pour transcodage QuickSync Jellyfin et bascule du tier chaud `/mnt/storage-hot` (Immich, Forgejo) sur le SSD 4To Samsung 870 EVO.
+    Passthrough iGPU Intel Iris Xe sur VM 104 pour transcodage QuickSync Jellyfin et bascule du tier chaud `/mnt/storage-hot` (Immich, Forgejo) sur le SSD 4To Samsung 870 EVO. Voir [IMS-NAS](/infrastructure/ims-nas).
   </Accordion>
 </AccordionGroup>

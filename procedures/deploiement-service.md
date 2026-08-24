@@ -1,6 +1,8 @@
 ---
 title: "Protocole de Déploiement d'un Service"
 description: "Méthodologie standardisée d'installation, de validation et de mise en production d'un service"
+icon: "cube"
+iconType: "duotone"
 ---
 
 ## Philosophie & Standard de Déploiement

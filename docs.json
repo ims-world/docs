@@ -120,21 +120,50 @@
         "tab": "Procédures & PRA",
         "groups": [
           {
-            "group": "Guides Opérationnels",
-            "icon": "wrench",
+            "group": "Urgence & Diagnostic",
+            "icon": "bolt",
             "pages": [
               "procedures/catalogue-procedures",
               "procedures/commandes-urgence",
+              "procedures/depannage-courant"
+            ]
+          },
+          {
+            "group": "Exploitation & Déploiement",
+            "icon": "gears",
+            "pages": [
               "procedures/deploiement-service",
+              "procedures/sauvegarde-manuelle-coolify",
+              "procedures/ajout-nouveau-disque"
+            ]
+          },
+          {
+            "group": "Sécurité & Authentification",
+            "icon": "shield-lock",
+            "pages": [
               "procedures/securiser-service-vpn-only",
               "procedures/securiser-application-authentik-forward-auth",
               "procedures/integration-service-authentik-oidc",
-              "procedures/ajout-machine-headscale",
-              "procedures/sauvegarde-manuelle-coolify",
-              "procedures/depannage-courant",
-              "procedures/ajout-nouveau-disque",
+              "procedures/ajout-machine-headscale"
+            ]
+          },
+          {
+            "group": "Reprise d'Activité (PRA)",
+            "icon": "shield-alert",
+            "pages": [
               "procedures/plan-reprise-activite-pra",
-              "procedures/simulation-crash-restauration",
+              "procedures/simulation-crash-restauration"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Feuille de Route",
+        "groups": [
+          {
+            "group": "Suivi & Backlog Homelab",
+            "icon": "list-check",
+            "pages": [
               "procedures/roadmap"
             ]
           }

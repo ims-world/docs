@@ -1,6 +1,8 @@
 ---
 title: "Ajout d'un nouveau disque"
 description: "Extension du pool storage (HDD) ou du pool hot (SSD)"
+icon: "hard-drive"
+iconType: "duotone"
 ---
 
 <Warning>
