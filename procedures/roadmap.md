@@ -32,6 +32,7 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 | **Docker & Hygiène** | Scan & Alertes mises à jour (Diun Ntfy) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify) | ⏳ En attente |
 | **Supervision** | Exporteur Prometheus Jellyfin | <Badge color="blue">🟦 Nouveaux Services</Badge> | VM 104 (Coolify) | ⏳ En attente |
 | **UX & Proxy** | Pages d'erreur custom Traefik (404/502/503/504) | <Badge color="blue">🟦 Nouveaux Services</Badge> | Traefik Proxy | ⏳ En attente |
+| **Proxy & Ingress** | PoC & Évaluation Caddy v2 (xcaddy + CrowdSec + OVH) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify Proxy) | 💡 Étude / PoC |
 | **Nouveaux Services** | DNS Secondaire (AdGuard Home / Pi-hole) | <Badge color="blue">🟦 Nouveaux Services</Badge> | Mac Mini / RPi | ⏳ En attente |
 | **Nouveaux Services** | Compression & Optimisation d'Images (Imgcompress) | <Badge color="blue">🟦 Nouveaux Services</Badge> | VM 104 (Coolify) | ⏳ En attente |
 | **Stockage** | Migration stockage Zipline vers SSD 4To | <Badge color="amber">🟡 Moyen Terme</Badge> | LXC 100 / VM 104 | ⏳ En attente |
@@ -97,6 +98,10 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 
 ### 3.5 🖼️ Pages d'Erreur & Indisponibilité Custom Traefik <Badge color="blue">🟦 Nouveaux Services</Badge>
 - **Tâche** : Configurer les middlewares d'erreur Traefik (`errors`) pour servir des pages d'erreur HTML/CSS personnalisées aux couleurs IMS en cas de HTTP 404 ou 502/503/504.
+
+### 3.6 ⚡ PoC & Évaluation de Caddy v2 (Remplacement Proxy Traefik v3) <Badge color="blue">🟦 À Évaluer — Étude PoC</Badge>
+- **Constat** : Caddy v2 offre une empreinte mémoire très faible (~30 Mo RAM), une configuration synthétique via `Caddyfile` (éliminant la verbosité des labels Docker et la complexité des priorités File vs Docker Provider) et est proposé comme alternative officielle dans Coolify v4.
+- **Tâche** : Réaliser un PoC de build d'une image custom Caddy (`xcaddy` avec plugins `caddy-dns/ovh` et `caddy-crowdsec-bouncer`), tester la réécriture du `Caddyfile` avec filtres `vpn-only` + `forward_auth` Authentik, et évaluer la bascule du proxy dans Coolify.
 
 ---
 
