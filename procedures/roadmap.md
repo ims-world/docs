@@ -22,7 +22,7 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 |---|---|---|---|---|
 | **Résilience & Quorum** | QDevice Corosync 3ᵉ vote | <Badge color="red">🔴 Priorité 1</Badge> | Raspberry Pi 3B+ | ⏳ En attente |
 | **Résilience & Alerting** | Supervision & Alerting hors-MS-01 | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / RPi / VPS | ⏳ En attente |
-| **Supervision & Métrologie** | Agent Alloy systemd sur Mac Mini | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini (`100.64.0.6`) | ⏳ En attente |
+| **Supervision & Métrologie** | Agent Alloy systemd sur Mac Mini | <Badge color="green">🟢 Effectué</Badge> | Mac Mini (`100.64.0.6`) | ✅ 24/08/2026 |
 | **Alerting** | Notifications Ntfy sur échec backup | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 / PBS | ⏳ En attente |
 | **Sécurité** | Credentials OVH dans fichier `.env` | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify Proxy) | ⏳ En attente |
 | **Sécurité** | DMZ & Bastion SSH d'administration | <Badge color="blue">🟦 À Évaluer</Badge> | Réseau / DMZ | 💡 Étude |
@@ -36,6 +36,13 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 | **Nouveaux Services** | Compression & Optimisation d'Images (Imgcompress) | <Badge color="blue">🟦 Nouveaux Services</Badge> | VM 104 (Coolify) | ⏳ En attente |
 | **Stockage** | Migration stockage Zipline vers SSD 4To | <Badge color="amber">🟡 Moyen Terme</Badge> | LXC 100 / VM 104 | ⏳ En attente |
 | **Forge Git** | Synchronisation credentials miroirs GitHub | <Badge color="amber">🟡 Moyen Terme</Badge> | Forgejo (VM 104) | ⏳ En attente |
+| **Nouveaux Services** | Homepage (Dashboard de navigation unifié) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
+| **Sécurité Applicative** | Strix / Usestrix (Analyse de sécurité & dépendances) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
+| **Sécurité Code** | Semgrep App (Analyse statique de code SAST) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
+| **Nouveaux Services** | Dawarish (Suivi & timeline de géolocalisation) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
+| **Nouveaux Services** | Keep It Shot (Gestion & OCR de captures d'écran) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
+| **Nouveaux Services** | Cap.so / Cap io (Studio d'enregistrement d'écran vidéo) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
+| **IA & Sécurité** | Cyber Strike IA (Simulation d'attaques cyber IA) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
 | **Matériel & Rack** | Extension physique du rack Labrax 10" | <Badge color="amber">🟡 Moyen Terme</Badge> | Rack Physique | ⏳ En attente |
 | **Stockage** | Extension capacitive HDD 4To / 8To Neuf | <Badge color="blue">🟦 À Évaluer</Badge> | NAS LXC 100 | 💡 Achat futur |
 | **Sécurité** | Détection d'intrusions NIDS & Sentryx | <Badge color="blue">🟦 À Évaluer</Badge> | Réseau / VM 104 | 💡 Étude |
@@ -78,9 +85,9 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 ### 3.1 🏷️ Pinning des Tags Docker (Suppression des Tags `:latest`) <Badge color="amber">🟡 Moyen Terme</Badge>
 - **Tâche** : Figer les images Docker sur des versions sémantiques précises (SemVer) pour Stirling PDF et Zipline afin d'éliminer le risque de rupture accidentelle lors d'un `docker pull`.
 
-### 3.2 📊 Extension de l'Agent Alloy sur le Mac Mini (`pve-macmini`) <Badge color="red">🔴 Priorité 1</Badge>
-- **Constat** : Le Mac Mini est désormais le Nœud 2 actif du cluster `ims-cluster`. Son système doit remonter ses métriques et logs vers la stack LGTM.
-- **Tâche** : Déployer l'agent **Grafana Alloy** en service systemd sur le Mac Mini (`100.64.0.6`) pour collecter les métriques système (CPU, RAM, disques, températures) et les transmettre en Remote-Write vers Prometheus (`10.10.10.2`) et Loki. Voir [Stack Monitoring](/services/monitoring).
+### 3.2 📊 Extension de l'Agent Alloy sur le Mac Mini (`pve-macmini`) <Badge color="green">🟢 Effectué le 24/08/2026</Badge>
+- **Statut** : Agent Grafana Alloy systemd réintégré avec succès sur le Mac Mini (`100.64.0.6`).
+- **Composants** : Node Exporter (CPU, RAM, disque), collecteur SMART (`smartmon.sh` cron 5m sur SSD Apple 256 Go) et transmission des logs journald/syslog vers Loki (`10.10.10.2:3100`). Voir [Mac Mini](/infrastructure/mac-mini) et [Stack Monitoring](/services/monitoring).
 
 ### 3.3 📦 Scan & Alertes des Mises à Jour Docker (Diun) <Badge color="amber">🟡 Moyen Terme</Badge>
 - **Tâche** : Déployer **Diun** (*Docker Image Update Notifier*) sur la VM Coolify pour surveiller les registres Docker et pousser une notification Webhook sur Ntfy dès qu'une version stable est publiée.
@@ -106,6 +113,27 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 
 ### 4.4 🐙 Sync Credentials GitHub (Forgejo) <Badge color="amber">🟡 Moyen Terme</Badge>
 - **Tâche** : Configurer les jetons d'accès et identifiants de synchronisation automatique sur les 6 dépôts miroirs GitHub hébergés sur Forgejo.
+
+### 4.5 🏠 Dashboard de Navigation Homelab Unifié (Homepage) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+- **Tâche** : Déployer **Homepage** sur la VM Coolify pour disposer d'un portail d'accueil moderne, centralisant l'accès à tous les services homelab avec intégrations d'état (ping, métriques, statuts Docker/Traefik).
+
+### 4.6 🦅 Analyse & Audit de Sécurité des Dépendances (Strix / Usestrix) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+- **Tâche** : Évaluer et déployer la plateforme **Strix** pour auditer la sécurité des dépendances logicielles et détecter les vulnérabilités CVE applicatives.
+
+### 4.7 🔍 Analyse Statique de Code SAST (Semgrep App) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+- **Tâche** : Déployer l'instance self-hosted de **Semgrep App** sur la VM Coolify pour automatiser l'analyse statique de sécurité (SAST) du code source des projets développés en interne.
+
+### 4.8 🗺️ Suivi & Timeline de Géolocalisation Personnelle (Dawarish) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+- **Tâche** : Déployer **Dawarish** (alternative self-hosted à Google Location History) pour historiser et visualiser sur une carte interactive les déplacements et la chronologie de géolocalisation.
+
+### 4.9 📸 Gestionnaire & OCR de Captures d'Écran (Keep It Shot) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+- **Tâche** : Déployer **Keep It Shot** pour organiser, indexer et exécuter la reconnaissance optique de caractères (OCR) sur les captures d'écran et médias de travail.
+
+### 4.10 🎥 Studio d'Enregistrement d’Écran & Édition Vidéo (Cap.so / Cap io) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+- **Tâche** : Évaluer l'hébergement de **Cap.so (Cap io)** pour enregistrer, éditer et partager rapidement des démonstrations et séquences vidéo directement depuis le navigateur.
+
+### 4.11 ⚔️ Simulation & Évaluation d'Attaques Cyber par IA (Cyber Strike IA) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+- **Tâche** : Évaluer et intégrer la plateforme **Cyber Strike IA** pour simuler des scénarios d'attaques cyber et éprouver la résilience de l'infrastructure homelab face à des menaces automatisées.
 
 ---
 

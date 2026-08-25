@@ -84,8 +84,9 @@ graph TB
         TRAEFIK_METRICS["Traefik Proxy Engine (:8080)"]
     end
 
-    subgraph AGENTS ["⚙️ Agents Grafana Alloy & Textfile Collectors"]
+    subgraph AGENTS ["⚙️ Agents Grafana Alloy & Textfile Collectors (6 Hôtes)"]
         MS01_ALLOY["MS-01 Bare Metal (Alloy + smartmon.sh Cron 5m)"]
+        MAC_ALLOY["Mac Mini Bare Metal (Alloy + smartmon.sh Cron 5m)"]
         NAS_ALLOY["LXC 100 IMS-NAS (Alloy systemd)"]
         PBS_ALLOY["LXC 103 IMS-PBS (Alloy systemd)"]
         COOL_ALLOY["VM 104 IMS-Coolify (Alloy + cAdvisor Docker)"]
@@ -98,6 +99,9 @@ graph TB
 
     MS01_ALLOY -->|Push LAN 192.168.1.52:9090/3100| PROMETHEUS
     MS01_ALLOY -->|Push LAN| LOKI
+
+    MAC_ALLOY -->|Push LAN 192.168.1.52:9090/3100| PROMETHEUS
+    MAC_ALLOY -->|Push LAN| LOKI
 
     RPI_ALLOY -->|Push LAN 192.168.1.52:9090/3100| PROMETHEUS
     RPI_ALLOY -->|Push LAN| LOKI
@@ -115,9 +119,9 @@ graph TB
     PROMETHEUS -.->|Scrape :8080| TRAEFIK_METRICS
 ```
 
-### 1. IngestionHybride : Push Remote-Write + Pull Uptime Kuma/Traefik
+### 1. Ingestion Hybride : Push Remote-Write + Pull Uptime Kuma/Traefik
 
-- **Push Remote-Write (Alloy)** : Les 5 agents Alloy poussent leurs métriques (`prometheus.remote_write`) et leurs logs (`loki.write`) directement vers la stack centrale via le LAN ou le bridge isolé `vmbr1`. La télémétrie ne transite **jamais par Tailscale**.
+- **Push Remote-Write (Alloy)** : Les **6 agents Alloy** (MS-01, Mac Mini, VM Coolify, LXC NAS, LXC PBS, RPi Kiosk) poussent leurs métriques (`prometheus.remote_write`) et leurs logs (`loki.write`) directement vers la stack centrale via le LAN ou le bridge isolé `vmbr1`. La télémétrie ne transite **jamais par Tailscale**.
 - **Pull Uptime Kuma (Exception)** : Prometheus scrape l'endpoint natif `/metrics` d'Uptime Kuma via Basic Auth.
   - La clé API est stockée dans `config/uptime-kuma-api-key.txt` et montée en volume `:ro` dans le conteneur Prometheus (`/etc/prometheus/secrets/kuma-api-key`).
   - **Métriques lues** : `monitor_status`, `monitor_response_time_seconds`, `monitor_uptime_ratio`, `monitor_cert_days_remaining`, `monitor_cert_is_valid`.
@@ -130,11 +134,11 @@ docker restart uptime-kuma-il53bmpdybmss5q14sfy0umm
 ```
 </Warning>
 
-### 2. Monitoring SMART des Disques Physiques (`ms01-pve`)
+### 2. Monitoring SMART des Disques Physiques (`ms01-pve` & `pve-macmini`)
 
-Seul l'hôte Proxmox bare-metal a un accès matériel direct aux disques physiques (`nvme0n1`, `sda` SSD Samsung 870 EVO, `sdb` HDD Apple/Seagate). Les conteneurs LXC (NAS, PBS) ne remontent pas le numéro de série SMART.
+Seuls les deux hôtes Proxmox bare-metal (MS-01 et Mac Mini) ont un accès matériel direct aux disques physiques (`nvme0n1`, SSD 4To, HDD Apple/Seagate 3To et SSD Apple 256 Go du Mac Mini). Les conteneurs LXC (NAS, PBS) ne remontent pas le numéro de série SMART.
 
-- **Méthode** : *textfile collector* Node Exporter via Alloy, alimenté par le script communautaire `smartmon.sh` exécuté toutes les 5 minutes par cron.
+- **Méthode** : *textfile collector* Node Exporter via Alloy, alimenté par le script communautaire `smartmon.sh` exécuté toutes les 5 minutes par cron sur MS-01 et Mac Mini.
 - **Règle de Cron (`/etc/cron.d/smartmon`)** :
   ```bash
   PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

@@ -24,7 +24,10 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
-<Update label="24/08/2026" description="Migration Authentik v2026.8.0, Incident Bypass SSO Dozzle & Incident DNS Wildcard">
+<Update label="24/08/2026" description="Alloy Mac Mini, Migration Authentik v2026.8.0, Incident Bypass SSO Dozzle & Incident DNS Wildcard">
+  ### 📊 Supervision & Infrastructure
+  - **Réintégration de l'Agent Alloy sur le Mac Mini (`pve-macmini`)** — Redéploiement complet du démon systemd Grafana Alloy sur le Nœud 2 du cluster (`100.64.0.6`) avec `node_exporter` (CPU/RAM/disque), tâche cron 5m `smartmon.sh` (monitoring SMART du SSD 256 Go) et transmission des logs journald vers Loki (`10.10.10.2:3100`). Voir [Stack Monitoring](/services/monitoring) et [Mac Mini](/infrastructure/mac-mini).
+
   ### 🔑 Mises à jour Applicatives
   - **Montée de Version Authentik `2026.5.0` ➔ `2026.8.0`** — Migration réussie du serveur SSO, du worker et réconciliation forcée du conteneur Outpost proxy (`ak-outpost-ims-outpost`). Procédure de redéploiement et piège du socket Docker documentés sur [Authentik](/services/authentik#montées-de-version--réconciliation-des-outposts-upgrade-202680).
   - **Mise à Jour Dozzle `v10.7.4`** — Passage en version **v10.7.4** de la console de visualisation live des logs Docker (`logs.ims-world.fr`). Voir [Dozzle](/services/dozzle).

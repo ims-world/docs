@@ -80,7 +80,16 @@ maxretry  = 3
 
 ---
 
-## Rôle & Prochaines Étape
+## 📊 Supervision & Agent Alloy (Stack LGTM)
+
+Le Mac Mini héberge un agent **Grafana Alloy systemd** (`macmini-alloy`) déployé à l'identique du pattern bare-metal du MS-01 :
+- **Node Exporter & CPU/RAM/Disque** : Collecte des métriques bare-metal du système Proxmox VE 9.2.11.
+- **Collecteur SMART (`smartmon.sh`)** : Tâche cron 5m (`/etc/cron.d/smartmon`) pour le suivi d'usure du SSD interne Apple 256 Go (`ata-APPLE_SSD_SM0256F`).
+- **Logs Système Loki** : Centralisation des journald/syslog vers Loki (`10.10.10.2:3100`). Voir [Stack Monitoring](/services/monitoring).
+
+---
+
+## Rôle & Prochaines Étapes
 
 - **Support de Basculement** : Utilisé comme nœud récepteur pour la migration à chaud/à froid de conteneurs et VM.
 - **Feuille de Route** : Installation du conteneur **LXC Home Assistant** (mode bridge direct `vmbr0` pour la découverte mDNS/SSDP) et déploiement du **QDevice Corosync** sur le Raspberry Pi pour sécuriser le quorum.
