@@ -24,6 +24,11 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
+<Update label="26/08/2026" description="Tuning CrowdSec AppSec WAF & Neutralisation des Bans Out-of-Band">
+  ### 🛡️ Sécurité & WAF
+  - **Correction des Faux Positifs AppSec WAF** — Neutralisation des bannissements automatiques intempestifs générés par le scénario `crowdsecurity/crowdsec-appsec-outofband` sur les requêtes AJAX légitimes (Grafana, Jellyfin, Patrimo). Ajustement du profil `/etc/crowdsec/profiles.yaml` pour conserver l'enregistrement des alertes sans bloquer l'accès. Voir le [Post-Mortem du 26/08/2026](/history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband) et la fiche [CrowdSec](/services/crowdsec#pare-feu-applicatif-waf-appsec--tuning-anti-faux-positifs).
+</Update>
+
 <Update label="24/08/2026" description="Alloy Mac Mini, Migration Authentik v2026.8.0, Incident Bypass SSO Dozzle & Incident DNS Wildcard">
   ### 📊 Supervision & Infrastructure
   - **Réintégration de l'Agent Alloy sur le Mac Mini (`pve-macmini`)** — Redéploiement complet du démon systemd Grafana Alloy sur le Nœud 2 du cluster (`100.64.0.6`) avec `node_exporter` (CPU/RAM/disque), tâche cron 5m `smartmon.sh` (monitoring SMART du SSD 256 Go) et transmission des logs journald vers Loki (`10.10.10.2:3100`). Voir [Stack Monitoring](/services/monitoring) et [Mac Mini](/infrastructure/mac-mini).

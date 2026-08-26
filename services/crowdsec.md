@@ -3,7 +3,7 @@ title: "CrowdSec & Shield (Web UI)"
 description: "Moteur de détection d'intrusions, WAF AppSec, bouncer Traefik et interface Web d'administration Shield"
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-08-22"
+last_reviewed: "2026-08-26"
 app_version: "v1.7.8 / 2026.8.1"
 ---
 
@@ -161,12 +161,21 @@ Le bouncer est intégré comme plugin Traefik v1.6.0 et appliqué **globalement 
 
 ---
 
-## Pare-Feu Applicatif WAF (AppSec)
+## Pare-Feu Applicatif WAF (AppSec) & Tuning Anti-Faux-Positifs
 
-Le module AppSec fonctionne sur deux niveaux de filtrage distincts :
+Le module AppSec fonctionne sur deux niveaux de filtrage complémentaires :
 
 1. **Blocage Actif (Inband)** : `appsec-virtual-patching` + `appsec-generic-rules` (196 règles). Intercepte et bloque immédiatement les attaques d'injections SQL, XSS, Path Traversal et CVEs connues sur le port `7422`.
-2. **Détection Seule (Outofband)** : `appsec-crs` (OWASP Core Rule Set). Fonctionne en mode détection/log sans blocage actif (configuration par défaut pour prévenir les faux positifs sans réglage préalable).
+2. **Analyse Asynchrone (Outofband)** : `appsec-crs` (OWASP Core Rule Set). 
+
+<Warning>
+**Tuning `profiles.yaml` (Désactivation des Bans Out-of-Band)** :
+À la suite de faux positifs successifs déclenchés par des requêtes AJAX légitimes sur **Grafana**, **Jellyfin/HomeFlix** ou **Patrimo** (règle CRS 920420 et requêtes de suivi de lecture vidéo), le profil d'action `/etc/crowdsec/profiles.yaml` a été ajusté.
+
+Le scénario `crowdsecurity/crowdsec-appsec-outofband` a été configuré avec `on_success: continue` **sans remédiation de bannissement**. Les alertes CRS restent enregistrées et visibles dans la console **Shield** et sur Grafana, mais **ne provoquent plus de ban d'IP intempestif**.
+
+Voir le [Post-Mortem d'Incident du 26/08/2026](/history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband).
+</Warning>
 
 ---
 
