@@ -3,19 +3,19 @@ title: "VM IMS-Coolify (VM 104)"
 description: "Serveur d'orchestration Docker et Reverse Proxy Traefik de production"
 icon: "box"
 iconType: "duotone"
-last_reviewed: "2026-08-17"
-app_version: "v4.3.9"
+last_reviewed: "2026-08-28"
+app_version: "v4.3.14"
 ---
 
-<Badge color="green">🟢 Production Active (VM 104)</Badge>
+<Badge color="green">🟢 Production Active (VM 104 — Master Control Plane)</Badge>
 
 <Note>
-🖥️ **Type d'Instance** : **Machine Virtuelle QEMU/KVM 104** (Ubuntu 24.04 LTS) — Isolation complète du noyau avec hyperviseur dédié et kernel propre.
+🖥️ **Type d'Instance** : **Machine Virtuelle QEMU/KVM 104** (Ubuntu 24.04 LTS) — Control Plane principal de l'orchestrateur Coolify v4.3.14 et Reverse Proxy central Traefik.
 </Note>
 
 ## Rôle
 
-Héberge Coolify et l'ensemble de la stack applicative (Authentik, Vaultwarden, HomeFlix, Headscale, etc). C'est le point d'entrée de production principal de l'infrastructure.
+Héberge l'interface web Coolify Master, la base de données de gestion et orchestre l'ensemble de la stack applicative locale et des nœuds d'exécution distants (comme le [Worker Coolify LXC 105](/infrastructure/lxc-coolify-worker) sur le Mac Mini). C'est le point d'entrée de production principal de l'infrastructure.
 
 ## Fiche technique
 
@@ -26,7 +26,8 @@ Héberge Coolify et l'ensemble de la stack applicative (Authentik, Vaultwarden, 
 | **CPU / RAM** | 6 cores (mode CPU `host` — `x86-64-v2`) / 18 Go RAM |
 | **Disque** | 128 Go NVMe |
 | **Réseau** | `vmbr0` (192.168.1.52/24) + `vmbr1` (10.10.10.2/24) + client Tailscale dédié |
-| **Version Coolify** | `v4.3.9` |
+| **Version Coolify** | `v4.3.14` |
+| **Rôle Topology** | **Master / Control Plane** (Orchestre la VM 104 et le Worker LXC 105) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 ## Coolify & Architecture Docker

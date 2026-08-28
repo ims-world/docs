@@ -80,6 +80,7 @@
               "infrastructure/ims-nas",
               "infrastructure/ims-pbs",
               "infrastructure/vm-coolify",
+              "infrastructure/lxc-coolify-worker",
               "infrastructure/politique-sauvegardes"
             ]
           },

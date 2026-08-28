@@ -89,6 +89,16 @@ Le Mac Mini héberge un agent **Grafana Alloy systemd** (`macmini-alloy`) déplo
 
 ---
 
+## 🐳 Conteneurs & Workloads Hébergés
+
+Le Nœud 2 `pve-macmini` héberge des workloads d'exécution isolés du cluster :
+
+| ID / Hostname | Type | Distribution / OS | Adresse IP | Role & Description | Statut |
+|---|---|---|---|---|---|
+| **LXC 105** (`pve-macmini-worker_LXC-105`) | LXC Unprivileged | Debian 13 (Trixie) | `192.168.1.198` | **Coolify Worker** — Moteur d'exécution Docker distant (voir [LXC 105](/infrastructure/lxc-coolify-worker)) | <Badge color="green">🟢 Actif</Badge> |
+
+---
+
 ## Rôle & Prochaines Étapes
 
 - **Support de Basculement** : Utilisé comme nœud récepteur pour la migration à chaud/à froid de conteneurs et VM.

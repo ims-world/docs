@@ -23,6 +23,7 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 | **Résilience & Quorum** | QDevice Corosync 3ᵉ vote | <Badge color="red">🔴 Priorité 1</Badge> | Raspberry Pi 3B+ | ⏳ En attente |
 | **Résilience & Alerting** | Supervision & Alerting hors-MS-01 | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / RPi / VPS | ⏳ En attente |
 | **Supervision & Métrologie** | Agent Alloy systemd sur Mac Mini | <Badge color="green">🟢 Effectué</Badge> | Mac Mini (`100.64.0.6`) | ✅ 24/08/2026 |
+| **Supervision & Métrologie** | Agent Alloy sur le Worker Coolify LXC 105 | <Badge color="amber">🟡 Moyen Terme</Badge> | LXC 105 (`192.168.1.198`) | ⏳ En attente |
 | **Alerting** | Notifications Ntfy sur échec backup | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 / PBS | ⏳ En attente |
 | **Sauvegardes & PRA** | Politique de sauvegarde PBS incluant le nœud Mac Mini (`pve-macmini`) | <Badge color="amber">🟡 Moyen Terme</Badge> | Cluster / PBS | ⏳ En attente |
 | **Sécurité** | Credentials OVH dans fichier `.env` | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify Proxy) | ⏳ En attente |
@@ -108,6 +109,10 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 ### 3.6 ⚡ PoC & Évaluation de Caddy v2 (Remplacement Proxy Traefik v3) <Badge color="blue">🟦 À Évaluer — Étude PoC</Badge>
 - **Constat** : Caddy v2 offre une empreinte mémoire très faible (~30 Mo RAM), une configuration synthétique via `Caddyfile` (éliminant la verbosité des labels Docker et la complexité des priorités File vs Docker Provider) et est proposé comme alternative officielle dans Coolify v4.
 - **Tâche** : Réaliser un PoC de build d'une image custom Caddy (`xcaddy` avec plugins `caddy-dns/ovh` et `caddy-crowdsec-bouncer`), tester la réécriture du `Caddyfile` avec filtres `vpn-only` + `forward_auth` Authentik, et évaluer la bascule du proxy dans Coolify.
+
+### 3.7 📊 Extension de l'Agent Alloy sur le Worker Coolify LXC 105 <Badge color="amber">🟡 Moyen Terme</Badge>
+- **Constat** : Le conteneur LXC 105 (`pve-macmini-worker_LXC-105`) exécute désormais des applications Docker distantes sous l'orchestration du Master Coolify v4.3.14. Ses métriques Docker et ses logs doivent être centralisés.
+- **Tâche** : Déployer un agent **Grafana Alloy** (systemd ou conteneur) sur le LXC 105 (`192.168.1.198`) pour remonter la télémétrie des conteneurs applicatifs hébergés vers Prometheus (`10.10.10.2:9090`) et Loki. Voir [LXC 105 Worker](/infrastructure/lxc-coolify-worker) et [Stack Monitoring](/services/monitoring).
 
 ---
 

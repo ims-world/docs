@@ -24,6 +24,12 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
+<Update label="28/08/2026" description="Topologie Multi-Nœuds Coolify v4.3.14 (Master VM 104 + Worker LXC 105 Mac Mini)">
+  ### 🚀 Orchestration & Multi-Nœuds
+  - **Mise à Jour Coolify `v4.3.14` & Enrôlement Nœud Worker Distant** — Passage de l'instance principale en **Coolify v4.3.14** (Master / Control Plane sur VM 104 `ims-coolify`) et création du Nœud Worker LXC 105 (`pve-macmini-worker_LXC-105` sur Debian 13, IP `192.168.1.198`) sur le Mac Mini.
+  - **Securisation SSH & Nettoyage RAM** — Authentification SSH dédiée via la clé `coolify-secondary-node` (`prohibit-password`), routage réseau unifié sur le Traefik principal VM 104 et suppression des conteneurs d'IHM autonomes pour préserver la RAM du Mac Mini. Voir [Coolify Worker LXC 105](/infrastructure/lxc-coolify-worker) et [VM Coolify](/infrastructure/vm-coolify).
+</Update>
+
 <Update label="26/08/2026" description="Pages d'Erreur Custom 404/5xx Traefik & Tuning CrowdSec AppSec WAF">
   ### 🖼️ Reverse Proxy & UX
   - **Mise en Production des Pages d'Erreur Custom Traefik** — Déploiement du conteneur helper Nginx (`vciwi7dolcl0hw1mffvjcfha`) et des middlewares `error-404@file` & `error-5xx@file`. Masquage de sécurité des erreurs 403 (`vpn-only`) en 404 générique pour la discrétion réseau (stealth) et affichage dynamique des codes 5xx via paramètre d'URL. Voir [Traefik (Coolify Proxy)](/reseau/traefik-proxy#-gestion-globale-des-pages-derreur-custom-404-403-masqué--5xx).
