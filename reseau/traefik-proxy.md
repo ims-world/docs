@@ -188,3 +188,90 @@ http:
 Si un domaine privé est saisi dans l'UI Coolify, Coolify génère un routeur automatique parallèle sans le middleware `vpn-only`, créant une concurrence de routeurs non déterministe qui peut ré-exposer le service publiquement.
 </Warning>
 
+---
+
+## 🖼️ Gestion Globale des Pages d'Erreur Custom (404, 403 Masqué & 5xx)
+
+Traefik intercepte et personnalise l'affichage des pages d'erreur (HTTP 404, HTTP 403 et HTTP 5xx) pour l'ensemble du homelab en s'appuyant sur un conteneur helper Nginx dédié (`nginx:1.27-alpine`, UUID Coolify `vciwi7dolcl0hw1mffvjcfha`).
+
+### 1. Architecture & Flux de Traitement
+
+```mermaid
+graph TD
+    REQ["🌐 Requête HTTP Client"] --> TRAEFIK["🚦 Traefik Proxy Engine"]
+    
+    TRAEFIK -->|Route Non Déclarée ou Inexistante| ROUTER_CATCHALL["Router catchall-error-pages (Priority: 1)"]
+    TRAEFIK -->|Erreur Serveur 500-599| MW_5XX["Middleware error-5xx@file"]
+    TRAEFIK -->|Accès Bloqué vpn-only 403| MW_404["Middleware error-404@file"]
+
+    ROUTER_CATCHALL --> ERR_SVC["Service error-pages-svc (Nginx Docker)"]
+    MW_5XX -->|Redirection 5xx.html?code={status}| ERR_SVC
+    MW_404 -->|Redirection 404.html| ERR_SVC
+
+    ERR_SVC -->|Rendu HTML/CSS Custom| CLIENT["🖥️ Navigateur Client"]
+```
+
+### 2. Configuration Dynamic File Provider (`/data/coolify/proxy/dynamic/error-pages.yaml`)
+
+```yaml
+http:
+  middlewares:
+    error-404:
+      errors:
+        status: ["404", "403"]
+        service: error-pages-svc
+        query: "/404.html"
+
+    error-5xx:
+      errors:
+        status: ["500-599"]
+        service: error-pages-svc
+        query: "/5xx.html?code={status}"
+
+  routers:
+    catchall-error-pages:
+      rule: "PathPrefix(`/`)"
+      priority: 1
+      entryPoints: [http, https]
+      service: error-pages-svc
+
+  services:
+    error-pages-svc:
+      loadBalancer:
+        servers:
+          - url: "http://vciwi7dolcl0hw1mffvjcfha-nginx:80"
+```
+
+### 3. Décision de Sécurité — Masquage des HTTP 403 en 404 (Stealth Security)
+
+<Info>
+**Discrétion Vis-à-vis des Scanners Externe** :
+Le middleware `vpn-only` (`ipAllowList`) retourne normalement un code HTTP **403 Forbidden** lorsqu'un client hors VPN tente d'accéder à un service privé (Sonarr, Radarr, qBittorrent, etc.).
+
+Par décision d'architecture, le middleware `error-404` intercepte à la fois les codes **404** et **403** pour afficher une **page 404 générique identique** ("Page non trouvée"). Aucune indication visuelle ni header ne révèle à un scanner externe que la ressource existe ou est protégée par un pare-feu.
+</Info>
+
+### 4. Code HTTP Dynamique (Pages 5xx)
+
+Traefik supporte le placeholder `{status}` dans le paramètre `query` du middleware `errors`. Le code d'erreur exact (`500`, `502`, `503`, `504`) est transmis dans l'URL et injecté dynamiquement en JavaScript dans la page HTML, affichant un libellé français adapté à la panne.
+
+### 5. Pièges & Conseils de Maintenance
+
+<Warning>
+**Modification de la Commande Traefik via l'UI Coolify** :
+Le fichier `/data/coolify/proxy/docker-compose.yml` est régénéré automatiquement par Coolify depuis sa base de données. Toute édition manuelle directe en SSH sur ce fichier est **silencieusement écrasée**.
+
+Pour ajouter les middlewares d'erreur sur les entrypoints HTTP/HTTPS, **toujours éditer la commande Traefik depuis l'IHM Coolify** (*Server ➔ Proxy ➔ Commands*) :
+```text
+--entrypoints.http.http.middlewares=crowdsec-bouncer@file,error-404@file,error-5xx@file
+--entrypoints.https.http.middlewares=crowdsec-bouncer@file,error-404@file,error-5xx@file
+```
+</Warning>
+
+<Info>
+**Astuce de Test pour Simuler un Vrai 502 Bad Gateway** :
+Pour tester la page d'erreur 5xx sans couper un service : exécuter `docker pause <nom-conteneur>`.
+`docker stop` ferait disparaître le routeur du service dans Traefik (retombant sur le 404 du catchall), alors que `docker pause` conserve le routeur mais rend le conteneur non-répondant, déclenchant le vrai comportement HTTP 502 de Traefik. Penser à faire `docker unpause` immédiatement après.
+</Info>
+
+

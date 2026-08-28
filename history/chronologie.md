@@ -24,7 +24,10 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
 </Update>
 
-<Update label="26/08/2026" description="Tuning CrowdSec AppSec WAF & Neutralisation des Bans Out-of-Band">
+<Update label="26/08/2026" description="Pages d'Erreur Custom 404/5xx Traefik & Tuning CrowdSec AppSec WAF">
+  ### 🖼️ Reverse Proxy & UX
+  - **Mise en Production des Pages d'Erreur Custom Traefik** — Déploiement du conteneur helper Nginx (`vciwi7dolcl0hw1mffvjcfha`) et des middlewares `error-404@file` & `error-5xx@file`. Masquage de sécurité des erreurs 403 (`vpn-only`) en 404 générique pour la discrétion réseau (stealth) et affichage dynamique des codes 5xx via paramètre d'URL. Voir [Traefik (Coolify Proxy)](/reseau/traefik-proxy#-gestion-globale-des-pages-derreur-custom-404-403-masqué--5xx).
+
   ### 🛡️ Sécurité & WAF
   - **Correction des Faux Positifs AppSec WAF** — Neutralisation des bannissements automatiques intempestifs générés par le scénario `crowdsecurity/crowdsec-appsec-outofband` sur les requêtes AJAX légitimes (Grafana, Jellyfin, Patrimo). Ajustement du profil `/etc/crowdsec/profiles.yaml` pour conserver l'enregistrement des alertes sans bloquer l'accès. Voir le [Post-Mortem du 26/08/2026](/history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband) et la fiche [CrowdSec](/services/crowdsec#pare-feu-applicatif-waf-appsec--tuning-anti-faux-positifs).
 </Update>
