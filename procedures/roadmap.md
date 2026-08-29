@@ -3,7 +3,7 @@ title: "Feuille de Route & Liste TODO"
 description: "Suivi centralisé des chantiers prioritaires, roadmap de résilience et backlog d'évolution de l'infrastructure"
 icon: "list-check"
 iconType: "duotone"
-last_reviewed: "2026-08-24"
+last_reviewed: "2026-08-29"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -46,6 +46,8 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Nouveaux Services** | Keep It Shot (Gestion & OCR de captures d'écran) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
 | **Nouveaux Services** | Cap.so / Cap io (Studio d'enregistrement d'écran vidéo) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
 | **IA & Sécurité** | Cyber Strike IA (Simulation d'attaques cyber IA) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
+| **IA & Automatisation** | Page Agent (Alibaba — Agent d'automation browser) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
+| **IA & Productivity** | Meetilty (Gestion & transcription de réunions) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
 | **Matériel & Rack** | Extension physique du rack Labrax 10" | <Badge color="amber">🟡 Moyen Terme</Badge> | Rack Physique | ⏳ En attente |
 | **Stockage** | Extension capacitive HDD 4To / 8To Neuf | <Badge color="blue">🟦 À Évaluer</Badge> | NAS LXC 100 | 💡 Achat futur |
 | **Sécurité** | Détection d'intrusions NIDS & Sentryx | <Badge color="blue">🟦 À Évaluer</Badge> | Réseau / VM 104 | 💡 Étude |
@@ -176,6 +178,12 @@ import { ips, domains } from "/snippets/variables.mdx";
 ### 4.11 ⚔️ Simulation & Évaluation d'Attaques Cyber par IA (Cyber Strike IA) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
 
 - **Tâche** : Évaluer et intégrer la plateforme **Cyber Strike IA** pour simuler des scénarios d'attaques cyber et éprouver la résilience de l'infrastructure homelab face à des menaces automatisées.
+
+### 4.12 🌐 Agent d'Automatisation & Navigation Web (Page Agent — Alibaba) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+- **Tâche** : Évaluer et tester le déploiement de **Page Agent** (agent d'automatisation et de navigation web développé par Alibaba) sur la VM Coolify pour interagir avec des interfaces web complexes.
+
+### 4.13 🎙️ Gestion & Transcription de Réunions (Meetilty) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+- **Tâche** : Évaluer l'auto-hébergement de **Meetilty** pour organiser, synthétiser et générer les comptes-rendus et transcriptions de réunions.
 
 ---
 
