@@ -8,10 +8,10 @@ last_reviewed: "2026-08-24"
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Mis à Jour le 24/08/2026</Badge>
+<Badge color="green">🟢 Mis à Jour le 31/08/2026</Badge>
 
 <Info>
-Cette page constitue le **journal central de suivi des chantiers et de la feuille de route** du homelab IMS-WORLD. Elle regroupe l'ensemble des tâches ouvertes classées par domaine d'intervention (Résilience, Sécurité, Supervision, Nouveaux Services, Matériel) ainsi que l'historique des jalons réalisés.
+  Cette page constitue le **journal central de suivi des chantiers et de la feuille de route** du homelab IMS-WORLD. Elle regroupe l'ensemble des tâches ouvertes classées par domaine d'intervention (Résilience, Sécurité, Supervision, Nouveaux Services, Matériel) ainsi que l'historique des jalons réalisés.
 </Info>
 
 ---
@@ -19,8 +19,8 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 ## 📊 Matrice d'Avancement des Chantiers
 
 | Domaine | Chantier | Priorité | Hôte Cible | Statut |
-|---|---|---|---|---|
-| **Résilience & Quorum** | QDevice Corosync 3ᵉ vote | <Badge color="red">🔴 Priorité 1</Badge> | Raspberry Pi 3B+ | ⏳ En attente |
+| --- | --- | --- | --- | --- |
+| **Résilience & Quorum** | QDevice Corosync 3ᵉ vote | <Badge color="red">🔴 Priorité 1</Badge> | Raspberry Pi 3B\+ | ⏳ En attente |
 | **Résilience & Alerting** | Supervision & Alerting hors-MS-01 | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / RPi / VPS | ⏳ En attente |
 | **Supervision & Métrologie** | Agent Alloy systemd sur Mac Mini | <Badge color="green">🟢 Effectué</Badge> | Mac Mini (`100.64.0.6`) | ✅ 24/08/2026 |
 | **Supervision & Métrologie** | Agent Alloy sur le Worker Coolify LXC 105 | <Badge color="amber">🟡 Moyen Terme</Badge> | LXC 105 (`192.168.1.198`) | ⏳ En attente |
@@ -34,7 +34,7 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 | **Docker & Hygiène** | Scan & Alertes mises à jour (Diun Ntfy) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify) | ⏳ En attente |
 | **Supervision** | Exporteur Prometheus Jellyfin | <Badge color="blue">🟦 Nouveaux Services</Badge> | VM 104 (Coolify) | ⏳ En attente |
 | **UX & Proxy** | Pages d'erreur custom Traefik (404/502/503/504) | <Badge color="green">🟢 Effectué</Badge> | Traefik Proxy | ✅ 26/08/2026 |
-| **Proxy & Ingress** | PoC & Évaluation Caddy v2 (xcaddy + CrowdSec + OVH) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify Proxy) | 💡 Étude / PoC |
+| **Proxy & Ingress** | PoC & Évaluation Caddy v2 (xcaddy \+ CrowdSec \+ OVH) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify Proxy) | 💡 Étude / PoC |
 | **Nouveaux Services** | DNS Secondaire (AdGuard Home / Pi-hole) | <Badge color="blue">🟦 Nouveaux Services</Badge> | Mac Mini / RPi | ⏳ En attente |
 | **Nouveaux Services** | Compression & Optimisation d'Images (Imgcompress) | <Badge color="blue">🟦 Nouveaux Services</Badge> | VM 104 (Coolify) | ⏳ En attente |
 | **Stockage** | Migration stockage Zipline vers SSD 4To | <Badge color="amber">🟡 Moyen Terme</Badge> | LXC 100 / VM 104 | ⏳ En attente |
@@ -54,18 +54,22 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 
 ## 🔴 1. Chantiers Critiques & Haute Priorité (Quorum & Résilience)
 
-### 1.1 🖥️ Quorum Cluster & QDevice Corosync (Raspberry Pi 3B+) <Badge color="red">🔴 Priorité 1</Badge>
+### 1.1 🖥️ Quorum Cluster & QDevice Corosync (Raspberry Pi 3B\+) <Badge color="red">🔴 Priorité 1</Badge>
+
 - **Constat** : Le cluster Proxmox VE `ims-cluster` comporte 2 nœuds (MS-01 et Mac Mini). Sans un troisième vote d'arbitrage, la perte de l'un des deux hôtes entraîne la perte de quorum sur le nœud survivant.
-- **Tâche** : Déployer le démon **QDevice Corosync** (`corosync-qnetd` / port TCP `5403`) sur le Raspberry Pi 3B+ (`ims-rpi-monitor`) pour accorder le 3ᵉ vote d'arbitrage et sécuriser le quorum en cas d'extinction de l'un des deux hyperviseurs.
+- **Tâche** : Déployer le démon **QDevice Corosync** (`corosync-qnetd` / port TCP `5403`) sur le Raspberry Pi 3B\+ (`ims-rpi-monitor`) pour accorder le 3ᵉ vote d'arbitrage et sécuriser le quorum en cas d'extinction de l'un des deux hyperviseurs.
 
 ### 1.2 🚨 Supervision & Alerting d'Uptime Hors-Hôte (Panne MS-01) <Badge color="red">🔴 Priorité 1</Badge>
+
 - **Constat** : Toute la stack de supervision (Prometheus, Grafana, Loki, Uptime Kuma, Ntfy) est hébergée sur la VM 104 du MS-01. Si le MS-01 subit une panne matérielle ou électrique totale, aucune alerte ne peut être émise.
 - **Tâche** : Déployer un mécanisme d'alerting léger hors-hôte (sur le Mac Mini, le Raspberry Pi ou un micro VPS externe) pour surveiller la joignabilité du MS-01 et envoyer une alerte push si l'hôte principal s'éteint.
 
 ### 1.3 🔔 Notifications Ntfy sur Échec des Sauvegardes Proxmox VE / PBS <Badge color="amber">🟡 Moyen Terme</Badge>
-- **Tâche** : Configurer les cibles de notification natifs (*Notification Targets*) sur Proxmox VE (MS-01) et Proxmox Backup Server (LXC 103) pour émettre une alerte Ntfy automatique immédiate sur le topic `ims-alerts` en cas d'échec d'un job de sauvegarde `vzdump` ou `pbs`.
+
+- **Tâche** : Configurer les cibles de notification natifs (_Notification Targets_) sur Proxmox VE (MS-01) et Proxmox Backup Server (LXC 103) pour émettre une alerte Ntfy automatique immédiate sur le topic `ims-alerts` en cas d'échec d'un job de sauvegarde `vzdump` ou `pbs`.
 
 ### 1.4 🛡️ Mise à Jour de la Politique de Sauvegarde PBS pour le Nœud Mac Mini (`pve-macmini`) <Badge color="amber">🟡 Moyen Terme</Badge>
+
 - **Constat** : Suite à l'intégration du Mac Mini en tant que Nœud 2 actif du cluster `ims-cluster`, les tâches de sauvegarde planifiées de Proxmox Backup Server (PBS LXC 103) et `vzdump` doivent être révisées pour couvrir les VM/LXC hébergés ou migrés sur ce nœud.
 - **Tâche** : Déclarer le nœud `pve-macmini` dans le Datacenter PVE (jobs de sauvegarde `all` / multi-nœuds) et ajuster la politique de rétention et d'exclusion (LXC 100 NAS maintenu en exclusion manuelle stop-only). Voir [Politique de Sauvegardes](/infrastructure/politique-sauvegardes).
 
@@ -74,15 +78,19 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 ## 🔒 2. Sécurité & Durcissement Système
 
 ### 2.1 🔑 Credentials OVH du Proxy Traefik dans Fichier `.env` <Badge color="amber">🟡 Moyen Terme</Badge>
+
 - **Tâche** : Extraire les identifiants d'API OVH (DNS-01 Let's Encrypt) du fichier `/data/coolify/proxy/docker-compose.yml` et les placer dans un fichier d'environnement restreint (`.env` avec `chmod 600`).
 
 ### 2.2 🏰 Exploration d'une DMZ & Bastion SSH <Badge color="blue">🟦 À Évaluer</Badge>
+
 - **Tâche** : Étudier l'architecture d'un bastion d'administration SSH isolé en DMZ pour centraliser, authentifier et auditer l'ensemble des accès shell d'infrastructures distants.
 
 ### 2.3 🛡️ Activation du Firewall Proxmox VE 3 Niveaux <Badge color="amber">🟡 Moyen Terme</Badge>
+
 - **Tâche** : Activer et configurer le pare-feu natif de Proxmox VE (Nœud ➔ Datacenter ➔ Guest) sur MS-01 et Mac Mini avec règles d'étanchéité sur les bridges `vmbr0` et `vmbr1`.
 
 ### 2.4 ⚙️ Configuration Out-of-Band Intel vPro / AMT <Badge color="blue">🟦 À Évaluer</Badge>
+
 - **Tâche** : Configurer le module d'aménagement à distance Intel vPro / AMT sur le Minisforum MS-01 pour conserver la prise de main KVM matérielle bas niveau même OS éteint.
 
 ---
@@ -90,27 +98,34 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 ## 🐳 3. Supervision, Hygiène Docker & Métrologie
 
 ### 3.1 🏷️ Pinning des Tags Docker (Suppression des Tags `:latest`) <Badge color="amber">🟡 Moyen Terme</Badge>
-- **Tâche** : Figer les images Docker sur des versions sémantiques précises (SemVer) pour Stirling PDF et Zipline afin d'éliminer le risque de rupture accidentelle lors d'un `docker pull`.
+
+- **Tâche** : Figer les images Docker sur des versions sémantiques précises (SemVer) pour Stirling PDF, Zipline et IT-Tools afin d'éliminer le risque de rupture accidentelle lors d'un `docker pull`.
 
 ### 3.2 📊 Extension de l'Agent Alloy sur le Mac Mini (`pve-macmini`) <Badge color="green">🟢 Effectué le 24/08/2026</Badge>
+
 - **Statut** : Agent Grafana Alloy systemd réintégré avec succès sur le Mac Mini (`100.64.0.6`).
 - **Composants** : Node Exporter (CPU, RAM, disque), collecteur SMART (`smartmon.sh` cron 5m sur SSD Apple 256 Go) et transmission des logs journald/syslog vers Loki (`10.10.10.2:3100`). Voir [Mac Mini](/infrastructure/mac-mini) et [Stack Monitoring](/services/monitoring).
 
 ### 3.3 📦 Scan & Alertes des Mises à Jour Docker (Diun) <Badge color="amber">🟡 Moyen Terme</Badge>
-- **Tâche** : Déployer **Diun** (*Docker Image Update Notifier*) sur la VM Coolify pour surveiller les registres Docker et pousser une notification Webhook sur Ntfy dès qu'une version stable est publiée.
+
+- **Tâche** : Déployer **Diun** (_Docker Image Update Notifier_) sur la VM Coolify pour surveiller les registres Docker et pousser une notification Webhook sur Ntfy dès qu'une version stable est publiée.
 
 ### 3.4 🎬 Exporteur Prometheus Dédié Jellyfin (`jellyfin-exporter`) <Badge color="blue">🟦 Nouveaux Services</Badge>
+
 - **Tâche** : Déployer `jellyfin-exporter` sur la VM Coolify pour remonter à Grafana les métriques en temps réel des lectures actives (sessions transcodées vs direct play, débits, codecs).
 
 ### 3.5 🖼️ Pages d'Erreur & Indisponibilité Custom Traefik <Badge color="green">🟢 Effectué le 26/08/2026</Badge>
+
 - **Statut** : Déploiement du conteneur helper Nginx (`vciwi7dolcl0hw1mffvjcfha`, `nginx:1.27-alpine`) et configuration du Dynamic File Provider `/data/coolify/proxy/dynamic/error-pages.yaml`.
 - **Fonctionnalités** : Interception des 404 & 403 (masquage discret des 403 en 404), redirection dynamique `{status}` des erreurs 5xx et routeur `catchall-error-pages`. Voir [Traefik (Coolify Proxy)](/reseau/traefik-proxy#-gestion-globale-des-pages-derreur-custom-404-403-masqué--5xx).
 
 ### 3.6 ⚡ PoC & Évaluation de Caddy v2 (Remplacement Proxy Traefik v3) <Badge color="blue">🟦 À Évaluer — Étude PoC</Badge>
+
 - **Constat** : Caddy v2 offre une empreinte mémoire très faible (~30 Mo RAM), une configuration synthétique via `Caddyfile` (éliminant la verbosité des labels Docker et la complexité des priorités File vs Docker Provider) et est proposé comme alternative officielle dans Coolify v4.
-- **Tâche** : Réaliser un PoC de build d'une image custom Caddy (`xcaddy` avec plugins `caddy-dns/ovh` et `caddy-crowdsec-bouncer`), tester la réécriture du `Caddyfile` avec filtres `vpn-only` + `forward_auth` Authentik, et évaluer la bascule du proxy dans Coolify.
+- **Tâche** : Réaliser un PoC de build d'une image custom Caddy (`xcaddy` avec plugins `caddy-dns/ovh` et `caddy-crowdsec-bouncer`), tester la réécriture du `Caddyfile` avec filtres `vpn-only` \+ `forward_auth` Authentik, et évaluer la bascule du proxy dans Coolify.
 
 ### 3.7 📊 Extension de l'Agent Alloy sur le Worker Coolify LXC 105 <Badge color="amber">🟡 Moyen Terme</Badge>
+
 - **Constat** : Le conteneur LXC 105 (`pve-macmini-worker_LXC-105`) exécute désormais des applications Docker distantes sous l'orchestration du Master Coolify v4.3.14. Ses métriques Docker et ses logs doivent être centralisés.
 - **Tâche** : Déployer un agent **Grafana Alloy** (systemd ou conteneur) sur le LXC 105 (`192.168.1.198`) pour remonter la télémétrie des conteneurs applicatifs hébergés vers Prometheus (`10.10.10.2:9090`) et Loki. Voir [LXC 105 Worker](/infrastructure/lxc-coolify-worker) et [Stack Monitoring](/services/monitoring).
 
@@ -119,36 +134,47 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 ## 🆕 4. Nouveaux Services & Projets Applicatifs
 
 ### 4.1 🛡️ Serveur DNS Secondaire (AdGuard Home / Pi-hole) <Badge color="blue">🟦 Nouveaux Services</Badge>
+
 - **Tâche** : Déployer une instance DNS locale secondaire (sur Mac Mini ou RPi) pour garantir la résolution DNS interne et le filtrage publicitaire même en cas de maintenance du MS-01.
 
 ### 4.2 🖼️ Compression & Optimisation d'Images (Imgcompress) <Badge color="blue">🟦 Nouveaux Services</Badge>
+
 - **Tâche** : Déployer une solution d'optimisation automatisée d'images (Imgcompress ou équivalent) pour réduire le poids des visuels avant intégration.
 
 ### 4.3 💾 Migration Stockage Zipline vers Tier SSD `storage-hot` <Badge color="amber">🟡 Moyen Terme</Badge>
+
 - **Tâche** : Migrer le répertoire de stockage Zipline du HDD vers le SSD 4To Samsung 870 EVO (`/mnt/storage-hot`) pour accélérer le traitement des uploads ShareX.
 
 ### 4.4 🐙 Sync Credentials GitHub (Forgejo) <Badge color="amber">🟡 Moyen Terme</Badge>
+
 - **Tâche** : Configurer les jetons d'accès et identifiants de synchronisation automatique sur les 6 dépôts miroirs GitHub hébergés sur Forgejo.
 
 ### 4.5 🏠 Dashboard de Navigation Homelab Unifié (Homepage) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+
 - **Tâche** : Déployer **Homepage** sur la VM Coolify pour disposer d'un portail d'accueil moderne, centralisant l'accès à tous les services homelab avec intégrations d'état (ping, métriques, statuts Docker/Traefik).
 
 ### 4.6 🦅 Analyse & Audit de Sécurité des Dépendances (Strix / Usestrix) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+
 - **Tâche** : Évaluer et déployer la plateforme **Strix** pour auditer la sécurité des dépendances logicielles et détecter les vulnérabilités CVE applicatives.
 
 ### 4.7 🔍 Analyse Statique de Code SAST (Semgrep App) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+
 - **Tâche** : Déployer l'instance self-hosted de **Semgrep App** sur la VM Coolify pour automatiser l'analyse statique de sécurité (SAST) du code source des projets développés en interne.
 
 ### 4.8 🗺️ Suivi & Timeline de Géolocalisation Personnelle (Dawarish) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+
 - **Tâche** : Déployer **Dawarish** (alternative self-hosted à Google Location History) pour historiser et visualiser sur une carte interactive les déplacements et la chronologie de géolocalisation.
 
 ### 4.9 📸 Gestionnaire & OCR de Captures d'Écran (Keep It Shot) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+
 - **Tâche** : Déployer **Keep It Shot** pour organiser, indexer et exécuter la reconnaissance optique de caractères (OCR) sur les captures d'écran et médias de travail.
 
 ### 4.10 🎥 Studio d'Enregistrement d’Écran & Édition Vidéo (Cap.so / Cap io) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+
 - **Tâche** : Évaluer l'hébergement de **Cap.so (Cap io)** pour enregistrer, éditer et partager rapidement des démonstrations et séquences vidéo directement depuis le navigateur.
 
 ### 4.11 ⚔️ Simulation & Évaluation d'Attaques Cyber par IA (Cyber Strike IA) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
+
 - **Tâche** : Évaluer et intégrer la plateforme **Cyber Strike IA** pour simuler des scénarios d'attaques cyber et éprouver la résilience de l'infrastructure homelab face à des menaces automatisées.
 
 ---
@@ -156,12 +182,15 @@ Cette page constitue le **journal central de suivi des chantiers et de la feuill
 ## 🗄️ 5. Matériel, Physique & Stockage Long Terme
 
 ### 5.1 🛠️ Extension Rack Labrax 10" <Badge color="amber">🟡 Moyen Terme</Badge>
+
 - **Tâche** : Achever le montage physique et le câblage propre de l'extension de châssis 10 pouces du rack [Labrax](/infrastructure/labrax).
 
 ### 5.2 💾 Achat HDD 4To / 8To Neuf <Badge color="blue">🟦 À Évaluer</Badge>
+
 - **Tâche** : Acquérir un disque dur HDD supplémentaire pour étendre le pool capacitif et/ou instaurer un miroir de parité sur le NAS.
 
 ### 5.3 🔍 Sonde NIDS / Sentryx <Badge color="blue">🟦 À Évaluer</Badge>
+
 - **Tâche** : Évaluer la mise en service d'une sonde de détection d'intrusions réseau (NIDS) et du projet Sentryx.
 
 ---

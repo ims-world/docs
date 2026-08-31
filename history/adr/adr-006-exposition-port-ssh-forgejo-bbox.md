@@ -6,7 +6,12 @@ iconType: "duotone"
 ---
 
 ## Statut
-<Badge color="green">🟢 Accepté & Déployé</Badge> *(2026-08-14)*
+
+<Badge color="green">🟢 Accepté & Déployé</Badge> _(2026-08-14)_
+
+<Update label="23/08/2026" description="Amendement — Port SSH système ramené à 22">
+  Le "port SSH principal de l'hôte" mentionné ci-dessous comme étant le port `4242` a depuis été ramené au port **22 standard** sur l'ensemble des nœuds. Décision actée par l'[ADR-010](/history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster) du 23/08/2026. Le port `2222` dédié à Forgejo Git SSH, objet de cet ADR, n'est pas affecté par ce changement. Le texte original ci-dessous est conservé pour l'historique.
+</Update>
 
 ---
 
@@ -23,7 +28,7 @@ Pour permettre l'utilisation fluide des commandes Git CLI depuis l'extérieur to
 Nous avons décidé d'exposer publiquement le port TCP **`2222`** en configurant une règle de redirection de port (NAT) sur le routeur Bbox :
 
 | Règle Bbox | Port Externe | Port Interne | IP Cible |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `Forgejo_SSH` | 2222 | 2222 | `192.168.1.52` (VM IMS-Coolify) |
 
 Dans le `docker-compose.yml` du service [Forgejo](/services/forgejo), le port est mappé directement sur l'hôte : `ports: - '2222:2222'`.
@@ -33,9 +38,11 @@ Dans le `docker-compose.yml` du service [Forgejo](/services/forgejo), le port es
 ## Conséquences
 
 ### Positives
+
 - **Expérience développeur standard** : Commandes Git SSH utilisables depuis n'importe quel réseau externe sans VPN obligatoire (`git clone ssh://git@forge.ims-world.fr:2222/...`).
 - **Isolation du SSH système** : Le port 2222 du conteneur est totalement étanche vis-à-vis du port SSH système de la VM (4242).
 
 ### Négatives / Contraintes de Sécurité
+
 - **Contournement du Reverse Proxy & d'Authentik** : Ce flux TCP brut ne bénéficie ni du filtrage Traefik (`vpn-only`) ni de la protection SSO d'Authentik.
 - **Sécurité basée sur les clés SSH** : La protection du port 2222 repose intégralement sur le moteur de gestion des clés publiques SSH et le durcissement interne du conteneur Forgejo.

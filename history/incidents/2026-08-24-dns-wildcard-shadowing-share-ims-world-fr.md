@@ -5,9 +5,9 @@ icon: "globe"
 iconType: "duotone"
 ---
 
-<Badge color="green">🟢 Résolu — Enregistrements ACME TXT Nettoyés sur OVH</Badge> *(2026-08-24)*
+<Badge color="green">🟢 Résolu — Enregistrements ACME TXT Nettoyés sur OVH</Badge> _(2026-08-24)_
 
-*Rédigé le 24/08/2026 — Zone `ims-world.fr` (OVH).*
+_Rédigé le 24/08/2026 — Zone `ims-world.fr` (OVH)._
 
 ---
 
@@ -30,9 +30,10 @@ Zipline (conteneur `zipline-kbcknnnkswmcnlgmupxoyheh`) démarre normalement (log
 
 **Résolution DNS cassée pour `share.ims-world.fr` uniquement**, malgré un wildcard `*.ims-world.fr` actif et fonctionnel sur la zone (confirmé via un sous-domaine aléatoire qui résout vers `176.151.43.50`).
 
-`dig share.ims-world.fr CNAME` / `AAAA` retournent `NOERROR` avec 0 réponse et le SOA en `AUTHORITY` — signature d'un **nœud DNS existant mais vide** (*empty non-terminal*) pour `share`, pas d'une absence totale du nom.
+`dig share.ims-world.fr CNAME` / `AAAA` retournent `NOERROR` avec 0 réponse et le SOA en `AUTHORITY` — signature d'un **nœud DNS existant mais vide** (_empty non-terminal_) pour `share`, pas d'une absence totale du nom.
 
 En cause : trois enregistrements résiduels dans la zone OVH :
+
 ```dns
 _acme-challenge.share    120 IN TXT  "hkv3VIo_..."
 _acme-challenge.share    120 IN TXT  "HEzpUrsiz1..."
@@ -49,13 +50,14 @@ _acme-challenge.share    120 IN TXT  "2AAxLaW9..."
 
 Même schéma potentiellement présent sur d'autres sous-domaines de la zone ayant un `_acme-challenge.<nom>` sans A/CNAME propre par ailleurs : `radarr`, `system`, `tools`, `coolify-old`. À valider après le fix (voir ci-dessous).
 
-**Hors scope de cet incident** : l'erreur ACME connue sur `docs-ims.world.fr` (chantier 4, plan sécurité) est sur la zone `world.fr`, un domaine différent de `ims-world.fr` — aucun rapport direct.
+**Précision** : `docs.ims-world.fr` (déploiement Mintlify) est bien sur la même zone `ims-world.fr` — voir `_acme-challenge.docs` dans le Fix Appliqué ci-dessous. Cet enregistrement résiduel n'a jamais cassé la résolution (le CNAME propre de `docs` vers `cname.mintlify.builders.` prime sur le nœud vide), mais a été nettoyé par précaution en même temps que les autres résidus.
 
 ---
 
 ## Fix Appliqué
 
 Suppression des enregistrements `_acme-challenge.*` résiduels dans la zone OVH `ims-world.fr` :
+
 - `_acme-challenge.share` (x3)
 - `_acme-challenge.docs` (safe, pas cassé — `docs` a un CNAME actif vers `cname.mintlify.builders.`)
 - `_acme-challenge.radarr`
@@ -81,7 +83,7 @@ dig +short tools.ims-world.fr
 ## Leçon / Piège à Retenir
 
 <Warning>
-**Un enregistrement `_acme-challenge.<nom>` non nettoyé après validation ACME peut masquer un wildcard DNS pour `<nom>` lui-même**, même si un certificat valide existe déjà et que le service fonctionnait normalement jusque-là. Symptôme trompeur côté client : 503 générique plutôt qu'une erreur de résolution DNS explicite.
+  **Un enregistrement `_acme-challenge.<nom>` non nettoyé après validation ACME peut masquer un wildcard DNS pour `<nom>` lui-même**, même si un certificat valide existe déjà et que le service fonctionnait normalement jusque-là. Symptôme trompeur côté client : 503 générique plutôt qu'une erreur de résolution DNS explicite.
 </Warning>
 
 **Action de fond à envisager** : automatiser le nettoyage des TXT `_acme-challenge.*` après émission (hook post-validation côté Traefik/ACME), ou vérifier périodiquement la zone OVH pour des résidus — plutôt que de découvrir le problème un service à la fois.

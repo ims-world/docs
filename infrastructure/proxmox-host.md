@@ -13,12 +13,12 @@ import { ips, hardware } from "/snippets/variables.mdx";
 ## Fiche matériel
 
 | Propriété | Valeur |
-|---|---|
+| --- | --- |
 | **Modèle** | Minisforum MS-01 |
 | **CPU** | {hardware.ms01Cpu} (iGPU Iris Xe intégrée) |
 | **RAM** | {hardware.ms01Ram} |
 | **Stockage NVMe** | {hardware.ms01Storage} (LVM-Thin `local-lvm`) |
-| **Disques SATA** | HDD 3To Apple/Seagate (Passthrough `mp0`) + SSD 4To (Passthrough `mp1` — `storage-hot`) |
+| **Disques SATA** | HDD 3To Apple/Seagate (Passthrough `mp0`) \+ SSD 4To (Passthrough `mp1` — `storage-hot`) |
 | **OS** | **Proxmox VE 9.2.11** (Aligné avec Mac Mini) |
 | **Cluster Proxmox** | Leader Nœud 1 du cluster **`ims-cluster`** (2/2 votes, Quorate: Yes) |
 | **Accès Admin GUI** | `https://`{ips.pveLan}`:8006` |
@@ -44,7 +44,7 @@ graph TD
             PBS_RES["2 Cores | 1 Go RAM | Datastore NFS"]
         end
         subgraph VM104 ["IMS-Coolify (VM 104)"]
-            COOL_RES["6 Cores | 12 Go RAM | 128 Go NVMe"]
+            COOL_RES["6 Cores | 18 Go RAM | 128 Go NVMe"]
         end
     end
 
@@ -61,7 +61,7 @@ graph TD
 ```
 
 <Warning>
-Le firewall Proxmox 3 niveaux (node → datacenter → VM) n'est **pas encore configuré**. À faire avant toute exposition publique supplémentaire. Ordre impératif : règles niveau nœud d'abord, vérifier l'accès GUI+SSH immédiatement après activation, garder la console web ouverte pendant l'opération.
+  Le firewall Proxmox 3 niveaux (node → datacenter → VM) n'est **pas encore configuré**. À faire avant toute exposition publique supplémentaire. Ordre impératif : règles niveau nœud d'abord, vérifier l'accès GUI\+SSH immédiatement après activation, garder la console web ouverte pendant l'opération.
 </Warning>
 
 ## Repos APT
@@ -76,12 +76,12 @@ Le format `deb822` (`.sources`) est utilisé sur PVE9, pas l'ancien `pve-enterpr
 ## Guests hébergés
 
 | VMID | Nom | Type | Statut | Rôle |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | **100** | ims-nas | LXC privilégié | <Badge color="green">🟢 Actif</Badge> | Stockage NFS/SMB |
 | **103** | ims-pbs | LXC privilégié | <Badge color="green">🟢 Actif</Badge> | Sauvegardes |
 | **104** | ims-coolify | VM | <Badge color="green">🟢 Actif</Badge> | Orchestration Docker |
-| **101** | vm-test | VM | <Badge color="gray">⚪ Non utilisé</Badge> | Test, non utilisé en prod |
-| **102** | ims-windows | VM | <Badge color="gray">⚪ Inactif</Badge> | Environnement Windows |
+| **101** | vm-test | VM | <Badge>⚪ Non utilisé</Badge> | Test, non utilisé en prod |
+| **102** | ims-windows | VM | <Badge>⚪ Inactif</Badge> | Environnement Windows |
 | **9000** | ubuntu-2404-template | Template | <Badge color="blue">🔵 Template</Badge> | Base pour clonage de VM Ubuntu |
 
 ## Autostart et ordre de boot
@@ -94,7 +94,7 @@ sequenceDiagram
     participant PBS as 💾 LXC 103 (IMS-PBS)
     participant Coolify as 🚀 VM 104 (IMS-Coolify)
 
-    Note over Host: Démarrage de l'hyperviseur (PVE 9.2.3)
+    Note over Host: Démarrage de l'hyperviseur (PVE 9.2.11)
     Host->>NAS: Startup Order 1 (up=15s)
     Note over NAS: Initialisation MergerFS + NFS Exports
     Host->>PBS: Startup Order 2 (up=10s)
@@ -104,7 +104,7 @@ sequenceDiagram
 ```
 
 <Check>
-Validé par un reboot complet réel du host — les trois guests de production redémarrent automatiquement dans le bon ordre.
+  Validé par un reboot complet réel du host — les trois guests de production redémarrent automatiquement dans le bon ordre.
 </Check>
 
 ```bash
@@ -121,7 +121,7 @@ qm set 104 --onboot 1 --startup order=3,up=20
 ## Monitoring bas niveau & Mise en veille HDD (hd-idle)
 
 <Warning>
-**Tout outil nécessitant un accès device bloc direct (ioctl ATA/SCSI) doit tourner sur le host, jamais dans un LXC avec passthrough mountpoint.** Le passthrough (`mp0`) donne accès au filesystem monté, pas au device brut. Concerne `smartd` et `hd-idle` — voir [Dépannage courant](/procedures/depannage-courant) pour le détail complet de cette découverte.
+  **Tout outil nécessitant un accès device bloc direct (ioctl ATA/SCSI) doit tourner sur le host, jamais dans un LXC avec passthrough mountpoint.** Le passthrough (`mp0`) donne accès au filesystem monté, pas au device brut. Concerne `smartd` et `hd-idle` — voir [Dépannage courant](/procedures/depannage-courant) pour le détail complet de cette découverte.
 </Warning>
 
 ### Configuration hd-idle (Timeout 30 minutes)
@@ -147,9 +147,10 @@ smartctl -H /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ
 L'iGPU Intel Iris Xe du processeur i5-12600H est attribuée en passthrough PCIe (`hostpci0`) à la VM IMS-Coolify (VM 104). Voir l'[ADR-008 — Passthrough GPU (iGPU Iris Xe)](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe) pour le détail complet de la mise en place (IOMMU, VFIO, chipset q35, drivers).
 
 ### Statut de Validation des Services Applicatifs
-- **[HomeFlix / Jellyfin](/services/homeflix#accélération-matérielle-gpu-intel-quicksync-qsv--validé)** : <Badge color="green">🟢 Validé en Production (29.7x)</Badge> — QuickSync QSV opérationnel (`hevc_qsv` / `h264_qsv`), transcodage à 29.7x le temps réel.
-- **[PhotoPrism](/services/photoprism#accélération-gpu-ffmpeg--statut-transcodage-igpu-iris-xe)** : <Badge color="orange">⚠️ Transcodage Vidéo Partiel</Badge> — Variable `PHOTOPRISM_INIT: 'intel tensorflow'` requise pour installer les paquets VA-API/QSV (évite la retombée sur `libx264` CPU).
-- **[Immich](/services/immich#décision-darchitecture--accélération-gpu--openvino-ia--smart-search)** : <Badge color="gray">⚙️ Écarté (Maintien CPU)</Badge> — Support OpenVINO écarté pour éviter la complexité de stack, l'indexation initiale du stock photo (61 880 assets) étant déjà achevée.
+
+- [**HomeFlix / Jellyfin**](/services/homeflix#accélération-matérielle-gpu-intel-quicksync-qsv--validé) : <Badge color="green">🟢 Validé en Production (29.7x)</Badge> — QuickSync QSV opérationnel (`hevc_qsv` / `h264_qsv`), transcodage à 29.7x le temps réel.
+- [**PhotoPrism**](/services/photoprism#accélération-gpu-ffmpeg--statut-transcodage-igpu-iris-xe) : <Badge color="orange">⚠️ Transcodage Vidéo Partiel</Badge> — Variable `PHOTOPRISM_INIT: 'intel tensorflow'` requise pour installer les paquets VA-API/QSV (évite la retombée sur `libx264` CPU).
+- [**Immich**](/services/immich#décision-darchitecture--accélération-gpu--openvino-ia--smart-search) : <Badge>⚙️ Écarté (Maintien CPU)</Badge> — Support OpenVINO écarté pour éviter la complexité de stack, l'indexation initiale du stock photo (61 880 assets) étant déjà achevée.
 
 ---
 
@@ -158,7 +159,7 @@ L'iGPU Intel Iris Xe du processeur i5-12600H est attribuée en passthrough PCIe 
 Le service **Fail2ban** (`fail2ban.service`) est déployé et harmonisé sur l'hôte physique MS-01, le Mac Mini (`pve-macmini`) et la VM Coolify (`ims-coolify`). Il intercepte les tentatives d'intrusion SSH et bloque les IPs malveillantes via `iptables` / `nftables`.
 
 <Info>
-**Architecture Harmonisée (3 Hôtes)** : Fail2ban s'exécute sur 3 instances indépendantes (MS-01, Mac Mini, VM Coolify). Chaque hôte utilise `/etc/fail2ban/jail.local` avec escalade de ban progressive (`1h` à `1 semaine`), prison `recidive` (3 bans en 24h ➔ 1 semaine) et alertes instantanées transmises au topic Ntfy **`ims-alerts`** avec un jeton d'accès scopé.
+  **Architecture Harmonisée (3 Hôtes)** : Fail2ban s'exécute sur 3 instances indépendantes (MS-01, Mac Mini, VM Coolify). Chaque hôte utilise `/etc/fail2ban/jail.local` avec escalade de ban progressive (`1h` à `1 semaine`), prison `recidive` (3 bans en 24h ➔ 1 semaine) et alertes instantanées transmises au topic Ntfy **`ims-alerts`** avec un jeton d'accès scopé.
 </Info>
 
 ### Commandes CLI Usuelles d'Administration
