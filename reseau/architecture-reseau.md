@@ -75,25 +75,25 @@ graph TB
 ## Bridges Proxmox
 
 | Bridge | Plage réseau | Rôle & Usage |
-|---|---|---|
+| --- | --- | --- |
 | `vmbr0` | `192.168.1.0/24` | LAN principal — SMB, SSH, interfaces d'administration locales |
 | `vmbr1` | `10.10.10.0/24` (sans gateway) | Réseau virtuel isolé — trafic NFS haute vitesse entre l'hôte et les guests (NAS ↔ PBS ↔ Coolify) |
 
 ## Plan d'Adressage IP Complet (LAN, NFS & Tailnet)
 
 | Équipement / Guest | `vmbr0` (LAN) | `vmbr1` (NFS Isolé) | Tailscale IP | Hostname Tailnet | Rôle |
-|---|---|---|---|---|---|
-| **Host Proxmox (MS-01)** | {ips.pveLan} | — | {ips.ms01} | `ims-pve-host` | Hyperviseur Principal Proxmox VE 9 |
+| --- | --- | --- | --- | --- | --- |
+| **Host Proxmox (MS-01)** | {ips.pveLan} | — | {ips.ms01} | `ims-pve-ms01` | Hyperviseur Principal Proxmox VE 9 |
 | **IMS-NAS (LXC 100)** | {ips.nasLan} | `10.10.10.1` | ⚠️ Aucun (LAN) | — | Stockage FUSE MergerFS & NFS/SMB |
 | **IMS-PBS (LXC 103)** | {ips.pbsLan} | `10.10.10.3` | {ips.pbs} | `ims-pve-103-pbs` | Proxmox Backup Server |
 | **IMS-Coolify (VM 104)** | {ips.coolifyLan} | `10.10.10.2` | {ips.coolify} | `ims-pve-104-coolify` | Moteur Docker, Traefik v3.7 & Coolify |
-| **Raspberry Pi 3B+** | `192.168.1.x` | — | {ips.rpi} | `ims-rpi-monitor` | Affichage Kiosk 2U |
-| **Mac Mini 2014** | `192.168.1.x` | — | {ips.macmini} | `macmini-standby` | Hôte Standby chaud |
+| **Raspberry Pi 3B\+** | `192.168.1.x` | — | {ips.rpi} | `ims-rpi-monitor` | Affichage Kiosk 2U |
+| **Mac Mini 2012** | `192.168.1.x` | — | {ips.macmini} | `macmini-standby` | Hôte Standby chaud |
 
 ## Headscale — Control Plane Tailscale Self-Hosted
 
 | Propriété | Valeur |
-|---|---|
+| --- | --- |
 | **Serveur Control Plane** | {domains.headscale} |
 | **Orchestration** | VM IMS-Coolify (VM 104) |
 | **Plage Tailnet** | `100.64.0.0/10` (IPv4), `fd7a:115c:a1e0::/48` (IPv6) |
@@ -102,15 +102,13 @@ graph TB
 ## Port-Forward Bbox
 
 | Règle Bbox | Port Externe | Port Interne | Cible |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `Coolify_HTTP` | 80 | 80 | VM Coolify ({ips.coolifyLan}) |
 | `Coolify_HTTPS` | 443 | 443 | VM Coolify ({ips.coolifyLan}) |
 | `Forgejo_SSH` | 2222 | 2222 | VM Coolify ({ips.coolifyLan}) |
 
 <Warning>
-**Politique d'Isolation SSH Système — Port 22 Fermé sur le WAN** :
-Aucune règle de port-forward SSH d'administration système n'existe sur le routeur Bbox. L'accès SSH d'administration (MS-01, LXC NAS, VM Coolify, Mac Mini) est **strictement inaccessible depuis l'Internet public**. Il nécessite d'être physiquement connecté au **LAN local (`192.168.1.0/24`)** ou d'être authentifié sur le **VPN Overlay Tailscale (`100.64.0.0/10`)**.
-Seul le port **`2222`** (dédié aux opérations de `git clone`/`git push` SSH sur Forgejo) est exposé publiquement via Bbox. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
+  **Politique d'Isolation SSH Système — Port 22 Fermé sur le WAN** : Aucune règle de port-forward SSH d'administration système n'existe sur le routeur Bbox. L'accès SSH d'administration (MS-01, LXC NAS, VM Coolify, Mac Mini) est **strictement inaccessible depuis l'Internet public**. Il nécessite d'être physiquement connecté au **LAN local (`192.168.1.0/24`)** ou d'être authentifié sur le **VPN Overlay Tailscale (`100.64.0.0/10`)**. Seul le port **`2222`** (dédié aux opérations de `git clone`/`git push` SSH sur Forgejo) est exposé publiquement via Bbox. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
 </Warning>
 
 ## DNS Public Wildcard (OVH)
@@ -132,7 +130,7 @@ extra_records:
 ## Sécurité Réseau & Firewall Host
 
 | Composant | Rôle |
-|---|---|
+| --- | --- |
 | **CrowdSec** | Détection d'intrusions L3/L4/L7, WAF AppSec & Plugin Bouncer Traefik (Stream Fail-Open) |
 | **Fail2ban** | Bannissement dynamique d'IP sur le **Host Bare-Metal MS-01** (protection SSH port 22 via `iptables`/`nftables`) |
 | **Firewall Proxmox (Roadmap)** | Filtrage 3 niveaux (Host → Datacenter → Guest) en cours de déploiement |

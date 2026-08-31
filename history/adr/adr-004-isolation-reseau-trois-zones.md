@@ -6,7 +6,12 @@ iconType: "duotone"
 ---
 
 ## Statut
-<Badge color="green">🟢 Accepté & Déployé</Badge> *(2026-08-12)*
+
+<Badge color="green">🟢 Accepté & Déployé</Badge> _(2026-08-12)_
+
+<Update label="23/08/2026" description="Amendement — SSH ramené au port 22">
+  Le port SSH système mentionné en Zone 3 (`4242/22`) a depuis été recentralisé sur le port **22 standard** sur l'ensemble des nœuds. Décision actée par l'[ADR-010](/history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster) du 23/08/2026 (abandon de la migration vers le port 4242 pour préserver Corosync/PMXCFS). Le texte original de la décision ci-dessous est conservé pour l'historique.
+</Update>
 
 ---
 
@@ -29,9 +34,11 @@ Nous avons découpé l'ensemble du réseau en **3 zones de confiance étanches**
 ## Conséquences
 
 ### Positives
+
 - **Surface d'attaque minimale** sur Internet (seuls les ports 80/443 de la Bbox sont transférés vers Traefik, ainsi que le port 2222 pour Forgejo Git SSH).
 - **Protection en profondeur** : Même en cas de découverte d'un sous-domaine privé, le provider file Traefik `vpn-only.yaml` rejette la connexion HTTP avec un **403 Forbidden** avant d'atteindre l'application.
 - **Accès Admin Sécurisé** : L'administration SSH et l'accès aux interfaces GUI Proxmox/PBS restent réservés au LAN local et au réseau virtuel Tailscale.
 
 ### Négatives / Contraintes
+
 - Obligation d'être connecté au VPN Tailscale/Headscale pour administrer les arrs, la métrologie, Headplane ou accéder en SSH à distance.

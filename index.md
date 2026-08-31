@@ -9,12 +9,15 @@ description: "Infrastructure self-hosted IMS-WORLD — architecture, principes e
   <Card title="1 Hôte Proxmox" icon="server" href="/infrastructure/proxmox-host">
     Minisforum MS-01 (12 Cores / 16 Threads / 32 Go RAM)
   </Card>
+
   <Card title="2 LXC & 1 VM" icon="box" href="/infrastructure/vm-coolify">
     IMS-NAS (100), IMS-PBS (103), VM Coolify (104)
   </Card>
+
   <Card title="100% Chiffré" icon="shield-check" href="/reseau/matrice-securite-exposition">
     ACME DNS-01 & Headscale Tailnet
   </Card>
+
   <Card title="0€ SaaS / Mois" icon="euro-sign" href="/history/chronologie">
     100% Self-Hosted & matériel possédé
   </Card>
@@ -28,9 +31,11 @@ L'infrastructure IMS-WORLD repose sur trois principes non négociables :
   <Card title="100% Local" icon="house">
     Aucune dépendance à un cloud tiers pour les services critiques. Auto-hébergement complet sur le cluster physique.
   </Card>
+
   <Card title="0€ Récurrent" icon="euro-sign">
     Uniquement du matériel possédé et des logiciels open-source. Aucun abonnement SaaS.
   </Card>
+
   <Card title="Lean & Efficient" icon="feather">
     Complexité activement challengée. Pas de sur-ingénierie — chaque brique ajoutée doit se justifier.
   </Card>
@@ -42,8 +47,9 @@ L'infrastructure IMS-WORLD repose sur trois principes non négociables :
   <Card title="Châssis & Rack Labrax 3D" icon="cubes" href="/infrastructure/labrax">
     Châssis 3D-printé, ventilateur Noctua G2, switch NETGEAR et caddies 3.5" Dell.
   </Card>
+
   <Card title="Afficheur Kiosk & Module 2U" icon="display" href="/infrastructure/rpi-monitor">
-    Raspberry Pi 3B+, écrans Wisecoco 7.84" LCD + OLED 0.91" et bouton poussoir GPIO.
+    Raspberry Pi 3B\+, écrans Wisecoco 7.84" LCD \+ OLED 0.91" et bouton poussoir GPIO.
   </Card>
 </CardGroup>
 
@@ -120,20 +126,20 @@ graph TB
 <Tabs>
   <Tab title="🟢 Services en Production">
     | Service | Domaine | Description | Page associée |
-    |---|---|---|---|
-    | **Authentik** | `auth.ims-world.fr` | Provider d'identité centralisé (SSO / OIDC + 2FA) | [Authentik](/services/authentik) |
+    | --- | --- | --- | --- |
+    | **Authentik** | `auth.ims-world.fr` | Provider d'identité centralisé (SSO / OIDC \+ 2FA) | [Authentik](/services/authentik) |
     | **Vaultwarden** | `vault.ims-world.fr` | Coffre-fort de mots de passe compatible Bitwarden | [Vaultwarden](/services/vaultwarden) |
-    | **HomeFlix** | `homeflix.ims-world.fr` | Stack médias complète (Jellyfin, *arr, qBittorrent, Gluetun) | [HomeFlix](/services/homeflix) |
-    | **Headscale + Headplane** | `vpn.ims-world.fr` | Control plane VPN Tailscale self-hosted | [Headscale](/services/headscale-headplane) |
+    | **HomeFlix** | `homeflix.ims-world.fr` | Stack médias complète (Jellyfin, \*arr, qBittorrent, Gluetun) | [HomeFlix](/services/homeflix) |
+    | **Headscale \+ Headplane** | `vpn.ims-world.fr` | Control plane VPN Tailscale self-hosted | [Headscale](/services/headscale-headplane) |
   </Tab>
   <Tab title="🖥️ Infrastructure Physique & Hyperviseur">
     | Composant | Rôle | Statut | Page associée |
-    |---|---|---|---|
+    | --- | --- | --- | --- |
     | **Labrax** | Rack serveur physique 3D, switch NETGEAR, alim PicoPSU | 🟢 Production | [Rack Labrax](/infrastructure/labrax) |
-    | **Minisforum MS-01** | Hyperviseur Proxmox VE 9.2.3 —  hôte principal | 🟢 Production | [Proxmox Host](/infrastructure/proxmox-host) |
-    | **Mac Mini 2014** | Hôte de secours | 🟡 Standby | [Mac Mini](/infrastructure/mac-mini) |
-    | **Raspberry Pi 3B+** | Affichage Kiosk & Module 2U | 🟢 Production | [RPi Monitor](/infrastructure/rpi-monitor) |
-    | **IMS-NAS (LXC 100)** | Stockage NFS + SMB (MergerFS) | 🟢 Production | [IMS-NAS](/infrastructure/ims-nas) |
+    | **Minisforum MS-01** | Hyperviseur Proxmox VE 9.2.11 —  hôte principal | 🟢 Production | [Proxmox Host](/infrastructure/proxmox-host) |
+    | **Mac Mini 2012** | Hôte de secours | 🟡 Standby | [Mac Mini](/infrastructure/mac-mini) |
+    | **Raspberry Pi 3B\+** | Affichage Kiosk & Module 2U | 🟢 Production | [RPi Monitor](/infrastructure/rpi-monitor) |
+    | **IMS-NAS (LXC 100)** | Stockage NFS \+ SMB (MergerFS) | 🟢 Production | [IMS-NAS](/infrastructure/ims-nas) |
     | **IMS-PBS (LXC 103)** | Sauvegardes Proxmox Backup Server | 🟢 Production | [IMS-PBS](/infrastructure/ims-pbs) |
     | **IMS-Coolify (VM 104)** | Orchestration Docker (Traefik v3.7) | 🟢 Production | [VM Coolify](/infrastructure/vm-coolify) |
   </Tab>
@@ -145,21 +151,27 @@ graph TB
   <Card title="Je dépanne un problème" icon="wrench" href="/procedures/depannage-courant">
     Tous les pièges récurrents déjà rencontrés et leur solution.
   </Card>
+
   <Card title="Plan de Reprise (PRA / DRP)" icon="shield-alert" href="/procedures/plan-reprise-activite-pra">
     Procédure d'urgence et reconstruction intégrale en cas de sinistre.
   </Card>
+
   <Card title="Matrice de Sécurité" icon="shield-halved" href="/reseau/matrice-securite-exposition">
     Cartographie complète des accès, de l'exposition publique et du filtrage Tailnet.
   </Card>
+
   <Card title="Je déploie un nouveau service" icon="arrow-right-arrow-left" href="/procedures/deploiement-service">
     Le protocole standard affiné sur 4 migrations réelles.
   </Card>
+
   <Card title="J'ajoute un disque au NAS" icon="hard-drive" href="/procedures/ajout-nouveau-disque">
     Extension MergerFS ou bascule storage-hot.
   </Card>
+
   <Card title="Feuille de Route & TODOs" icon="list-check" href="/procedures/roadmap">
     Liste des chantiers techniques et optimisations à venir.
   </Card>
+
   <Card title="Historique du projet" icon="clock-rotate-left" href="/history/chronologie">
     Chronologie complète, décisions et déviations par rapport au plan initial.
   </Card>

@@ -11,7 +11,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 ## Philosophie de Sécurité (Sécurité en Profondeur)
 
 <Info>
-L'infrastructure IMS-WORLD applique le principe de **moindre privilège** et de **sécurité en profondeur** : aucun service n'est exposé publiquement s'il n'en a pas le besoin strict. Le trafic d'administration est systématiquement restreint au réseau privé Tailscale ou au LAN local.
+  L'infrastructure IMS-WORLD applique le principe de **moindre privilège** et de **sécurité en profondeur** : aucun service n'est exposé publiquement s'il n'en a pas le besoin strict. Le trafic d'administration est systématiquement restreint au réseau privé Tailscale ou au LAN local.
 </Info>
 
 ---
@@ -37,7 +37,7 @@ graph TB
     end
 
     subgraph ZONE_LAN ["🏠 Zone 3 — Administration System (LAN 192.168.1.x & Tailnet Direct 100.64.0.x)"]
-        ADMIN_LAN["Admin SSH (Port 4242/22) / GUI Proxmox (8006) / PBS (8007)"]
+        ADMIN_LAN["Admin SSH (Port 22) / GUI Proxmox (8006) / PBS (8007)"]
         NFS_ISO["Bridge vmbr1 Isolé (Trafic NFS Interne Guests 10.10.10.0/24)"]
     end
 
@@ -74,65 +74,66 @@ graph TB
   <Tab title="🌐 Cas 1 — Trafic WAN (Internet Public)">
     ```mermaid
     graph LR
-        CLIENT_WAN["🌐 Client WAN (Internet)"] -->|HTTPS 443| BBOX["Bbox (Port-Forward 80/443)"]
-        BBOX -->|DNAT iptables| TRAEFIK["Traefik Proxy (VM 104)"]
+CLIENT_WAN["🌐 Client WAN (Internet)"] -->|HTTPS 443| BBOX["Bbox (Port-Forward 80/443)"]
+BBOX -->|DNAT iptables| TRAEFIK["Traefik Proxy (VM 104)"]
 
-        TRAEFIK -->|Domaine Public Zone 1| APP_PUB["Immich / Vaultwarden / Jellyfin / Authentik"]
-        TRAEFIK -->|Domaine Privé Zone 2| VPN_ONLY{"Middleware vpn-only.yaml"}
+TRAEFIK -->|Domaine Public Zone 1| APP_PUB["Immich / Vaultwarden / Jellyfin / Authentik"]
+TRAEFIK -->|Domaine Privé Zone 2| VPN_ONLY{"Middleware vpn-only.yaml"}
 
-        VPN_ONLY -->|IP source != 100.64.0.0/10| REJECT["🛑 HTTP 403 Forbidden"]
-        APP_PUB -->|Session Validée| OK_200["✅ Accès Autorisé (200 OK)"]
+VPN_ONLY -->|IP source != 100.64.0.0/10| REJECT["🛑 HTTP 403 Forbidden"]
+APP_PUB -->|Session Validée| OK_200["✅ Accès Autorisé (200 OK)"]
 
-        classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
-        classDef err fill:#b91c1c,stroke:#dc2626,color:#fff;
-        classDef ok fill:#0F6E56,stroke:#16A085,color:#fff;
-        class CLIENT_WAN,BBOX,TRAEFIK wan;
-        class REJECT err;
-        class OK_200 ok;
+classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
+classDef err fill:#b91c1c,stroke:#dc2626,color:#fff;
+classDef ok fill:#0F6E56,stroke:#16A085,color:#fff;
+class CLIENT_WAN,BBOX,TRAEFIK wan;
+class REJECT err;
+class OK_200 ok;
     ```
+
     - **Filtrage WAN** : Tout accès vers un sous-domaine de Zone 2 (`qbit`, `coolify`, `monitoring`, etc.) depuis l'Internet public est intercepté par Traefik et immédiatement rejeté en **HTTP 403 Forbidden**.
     - **Port SSH Git** : Seul le port TCP `2222` (Forgejo Git SSH) est transféré directement vers le conteneur Forgejo sans passer par Traefik.
   </Tab>
-
   <Tab title="🔐 Cas 2 — Trafic Tailnet Overlay (Tailscale 100.64.0.0/10)">
     ```mermaid
     graph LR
-        CLIENT_TS["🔐 Appareil Tailnet (100.64.0.x)"] -->|Tunnel WireGuard| TS_IF["Interface tailscale0"]
-        TS_IF -->|snat-subnet-routes=false| KERNEL["Kernel iptables DNAT"]
+CLIENT_TS["🔐 Appareil Tailnet (100.64.0.x)"] -->|Tunnel WireGuard| TS_IF["Interface tailscale0"]
+TS_IF -->|snat-subnet-routes=false| KERNEL["Kernel iptables DNAT"]
 
-        KERNEL -->|IP 100.64.0.x Préservée| TRAEFIK["Traefik Proxy (vpn-only.yaml)"]
-        KERNEL -.->|Accès Direct SSH / GUIs| ADMIN_SYS["SSH (4242/22) / PVE GUI (8006) / PBS GUI (8007)"]
+KERNEL -->|IP 100.64.0.x Préservée| TRAEFIK["Traefik Proxy (vpn-only.yaml)"]
+KERNEL -.->|Accès Direct SSH / GUIs| ADMIN_SYS["SSH (22) / PVE GUI (8006) / PBS GUI (8007)"]
 
-        TRAEFIK -->|IP source == 100.64.0.0/10| APPS_PRIV["Coolify / Headplane / qBit / Arrs / Grafana"]
-        APPS_PRIV --> OK_TS["✅ HTTP 200 OK / OIDC SSO"]
-        ADMIN_SYS --> OK_ADMIN["🔑 Access Admin OK"]
+TRAEFIK -->|IP source == 100.64.0.0/10| APPS_PRIV["Coolify / Headplane / qBit / Arrs / Grafana"]
+APPS_PRIV --> OK_TS["✅ HTTP 200 OK / OIDC SSO"]
+ADMIN_SYS --> OK_ADMIN["🔑 Access Admin OK"]
 
-        classDef vpn fill:#F97316,stroke:#FB923C,color:#fff;
-        classDef ok fill:#0F6E56,stroke:#16A085,color:#fff;
-        class CLIENT_TS,TS_IF,KERNEL,TRAEFIK vpn;
-        class OK_TS,OK_ADMIN ok;
+classDef vpn fill:#F97316,stroke:#FB923C,color:#fff;
+classDef ok fill:#0F6E56,stroke:#16A085,color:#fff;
+class CLIENT_TS,TS_IF,KERNEL,TRAEFIK vpn;
+class OK_TS,OK_ADMIN ok;
     ```
-    - **Préservation d'IP Source** : Grâce à `userland-proxy: false` et `tailscale set --snat-subnet-routes=false`, Traefik voit l'adresse IP réelle du client (`100.64.0.x`) et autorise l'accès.
-    - **Accès Direct Administration** : L'accès SSH (ports 4242/22) et les consoles web Proxmox VE (8006) et PBS (8007) sont joignables directement via l'IP Tailscale des nœuds.
-  </Tab>
 
+    - **Préservation d'IP Source** : Grâce à `userland-proxy: false` et `tailscale set --snat-subnet-routes=false`, Traefik voit l'adresse IP réelle du client (`100.64.0.x`) et autorise l'accès.
+    - **Accès Direct Administration** : L'accès SSH (port 22) et les consoles web Proxmox VE (8006) et PBS (8007) sont joignables directement via l'IP Tailscale des nœuds.
+  </Tab>
   <Tab title="🏠 Cas 3 — Administration LAN & Bridge NFS Isolé (192.168.1.x & 10.10.10.x)">
     ```mermaid
     graph LR
-        PC_LAN["🏠 PC LAN (192.168.1.x)"] -->|LAN Direct| HOST_PVE["Proxmox Host MS-01 (41 / 4242 / 8006)"]
-        PC_LAN -->|LAN Direct| NAS_SMB["NAS SMB (50 / 445)"]
-        PC_LAN -->|LAN Direct| PBS_GUI["PBS GUI (51 / 8007)"]
+PC_LAN["🏠 PC LAN (192.168.1.x)"] -->|LAN Direct| HOST_PVE["Proxmox Host MS-01 (41 / 22 / 8006)"]
+PC_LAN -->|LAN Direct| NAS_SMB["NAS SMB (50 / 445)"]
+PC_LAN -->|LAN Direct| PBS_GUI["PBS GUI (51 / 8007)"]
 
-        subgraph VMBR1 ["🔒 Bridge NFS & Télémétrie (vmbr1 - 10.10.10.0/24)"]
-            COOL_VM["VM Coolify (10.10.10.2)"] <==>|Montage NFSv3 / NFSv4| NAS_LXC["LXC NAS (10.10.10.1)"]
-            PBS_LXC["LXC PBS (10.10.10.3)"] <==>|Sauvegardes NFS| NAS_LXC
-        end
+subgraph VMBR1 ["🔒 Bridge NFS & Télémétrie (vmbr1 - 10.10.10.0/24)"]
+COOL_VM["VM Coolify (10.10.10.2)"] <==>|Montage NFSv3 / NFSv4| NAS_LXC["LXC NAS (10.10.10.1)"]
+PBS_LXC["LXC PBS (10.10.10.3)"] <==>|Sauvegardes NFS| NAS_LXC
+end
 
-        classDef lan fill:#1a2b3c,stroke:#F97316,color:#fff;
-        classDef iso fill:#0F6E56,stroke:#16A085,color:#fff;
-        class PC_LAN,HOST_PVE,NAS_SMB,PBS_GUI lan;
-        class COOL_VM,NAS_LXC,PBS_LXC iso;
+classDef lan fill:#1a2b3c,stroke:#F97316,color:#fff;
+classDef iso fill:#0F6E56,stroke:#16A085,color:#fff;
+class PC_LAN,HOST_PVE,NAS_SMB,PBS_GUI lan;
+class COOL_VM,NAS_LXC,PBS_LXC iso;
     ```
+
     - **Réseau Physiquement Isolé** : Le LAN physique (`192.168.1.0/24`) donne un accès d'administration direct sans passer par le VPN.
     - **Stockage NFS Étanche** : Le trafic NFS et la télémétrie transitent exclusivement par le bridge virtuel interne `vmbr1` (`10.10.10.0/24`), totalement inaccessible depuis le LAN physique ou le WAN.
   </Tab>
@@ -146,116 +147,100 @@ graph TB
   <Tab title="🌐 Zone 1 — Services Publics (WAN)">
     <CardGroup cols={2}>
       <Card title="Authentik SSO" icon="key" href="/services/authentik">
-        **Domaine** : `auth.ims-world.fr`
-        **Auth** : SSO OIDC + WebAuthn 2FA
-        **Protection** : Let's Encrypt DNS-01, TLS 1.3
+        **Domaine** : `auth.ims-world.fr` **Auth** : SSO OIDC \+ WebAuthn 2FA **Protection** : Let's Encrypt DNS-01, TLS 1.3
       </Card>
+
       <Card title="Vaultwarden" icon="shield-halved" href="/services/vaultwarden">
-        **Domaine** : `vault.ims-world.fr`
-        **Auth** : SSO Authentik + Mot de passe fort
-        **Protection** : TLS 1.3, Config `email_verified: true`
+        **Domaine** : `vault.ims-world.fr` **Auth** : SSO Authentik \+ Mot de passe fort **Protection** : TLS 1.3, Config `email_verified: true`
       </Card>
+
       <Card title="Jellyfin" icon="play" href="/services/homeflix">
-        **Domaine** : `homeflix.ims-world.fr`
-        **Auth** : Authentification native Jellyfin
-        **Protection** : DNS-01 TLS, Transcodage iGPU Iris Xe
+        **Domaine** : `homeflix.ims-world.fr` **Auth** : Authentification native Jellyfin **Protection** : DNS-01 TLS, Transcodage iGPU Iris Xe
       </Card>
+
       <Card title="Jellyseerr" icon="film" href="/services/homeflix">
-        **Domaine** : `videoclub.ims-world.fr`
-        **Auth** : SSO / Auth Jellyfin
-        **Protection** : DNS-01 TLS
+        **Domaine** : `videoclub.ims-world.fr` **Auth** : SSO / Auth Jellyfin **Protection** : DNS-01 TLS
       </Card>
+
       <Card title="Headscale VPN Server" icon="network-wired" href="/services/headscale-headplane">
-        **Domaine** : `vpn.ims-world.fr`
-        **Auth** : Noise Key Protocol + OIDC SSO
-        **Protection** : Port-forwarding dédié 443
+        **Domaine** : `vpn.ims-world.fr` **Auth** : Noise Key Protocol \+ OIDC SSO **Protection** : Port-forwarding dédié 443
       </Card>
+
       <Card title="Ntfy Push Server" icon="bell" href="/services/ntfy">
-        **Domaine** : `ntfy.ims-world.fr`
-        **Auth** : Compte/Token local (Exposition WAN assumée pour push mobile)
-        **Protection** : `signup=false`, `default_access=deny-all`
+        **Domaine** : `ntfy.ims-world.fr` **Auth** : Compte/Token local (Exposition WAN assumée pour push mobile) **Protection** : `signup=false`, `default_access=deny-all`
       </Card>
+
       <Card title="Immich Photos" icon="images" href="/services/immich">
-        **Domaine** : `photos.ims-world.fr`
-        **Auth** : Native & SSO Authentik OIDC
-        **Protection** : TLS 1.3, Transcodage & IA (CLIP / Faciale)
+        **Domaine** : `photos.ims-world.fr` **Auth** : Native & SSO Authentik OIDC **Protection** : TLS 1.3, Transcodage & IA (CLIP / Faciale)
       </Card>
+
       <Card title="Uptime Kuma" icon="heart-pulse" href="/services/uptime-kuma">
-        **Domaine** : `status.ims-world.fr`
-        **Auth** : Authentik Forward-Auth Outpost Traefik
-        **Protection** : Monitoring HTTP/TCP & Alerting Ntfy
+        **Domaine** : `status.ims-world.fr` **Auth** : Authentik Forward-Auth Outpost Traefik **Protection** : Monitoring HTTP/TCP & Alerting Ntfy
       </Card>
+
       <Card title="IT-Tools" icon="toolbox" href="/services/it-tools">
-        **Domaine** : `tools.ims-world.fr`
-        **Auth** : Authentik Forward-Auth Outpost Traefik
-        **Protection** : Session SSO obligatoire en amont du proxy
+        **Domaine** : `tools.ims-world.fr` **Auth** : Authentik Forward-Auth Outpost Traefik **Protection** : Session SSO obligatoire en amont du proxy
       </Card>
+
       <Card title="Stirling PDF" icon="file-pdf" href="/services/stirling-pdf">
-        **Domaine** : `pdf.ims-world.fr`
-        **Auth** : Authentik Forward-Auth Outpost Traefik
-        **Protection** : Session SSO obligatoire (`SECURITY=false` natif)
+        **Domaine** : `pdf.ims-world.fr` **Auth** : Authentik Forward-Auth Outpost Traefik **Protection** : Session SSO obligatoire (`SECURITY=false` natif)
       </Card>
+
       <Card title="Zipline" icon="share-nodes" href="/services/zipline">
-        **Domaine** : `share.ims-world.fr`
-        **Auth** : SSO Authentik OIDC Natif
-        **Protection** : Partage de fichiers & ShareX, Postgres 16
+        **Domaine** : `share.ims-world.fr` **Auth** : SSO Authentik OIDC Natif **Protection** : Partage de fichiers & ShareX, Postgres 16
       </Card>
+
       <Card title="Forgejo" icon="code-branch" href="/services/forgejo">
-        **Domaine / SSH** : `forge.ims-world.fr` (Port 2222)
-        **Auth** : SSO Authentik OIDC Natif
-        **Protection** : TLS Traefik (Web) & Clés SSH (Port 2222 NAT)
+        **Domaine / SSH** : `forge.ims-world.fr` (Port 2222) **Auth** : SSO Authentik OIDC Natif **Protection** : TLS Traefik (Web) & Clés SSH (Port 2222 NAT)
       </Card>
+
       <Card title="Patrimo" icon="chart-pie" href="/services/patrimo">
-        **Domaine** : `patrimo.ims-world.fr`
-        **Auth** : Compte applicatif local
-        **Protection** : Application Git Coolify (Auto-Build Node.js)
+        **Domaine** : `patrimo.ims-world.fr` **Auth** : Compte applicatif local **Protection** : Application Git Coolify (Auto-Build Node.js)
       </Card>
+
       <Card title="PhotoPrism" icon="camera" href="/services/photoprism">
-        **Domaine** : `studio.ims-world.fr`
-        **Auth** : SSO Authentik OIDC Natif
-        **Protection** : TLS Traefik & Session SSO (client photo-prism)
+        **Domaine** : `studio.ims-world.fr` **Auth** : SSO Authentik OIDC Natif **Protection** : TLS Traefik & Session SSO (client photo-prism)
       </Card>
     </CardGroup>
   </Tab>
   <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">
     <CardGroup cols={2}>
       <Card title="Coolify Dashboard" icon="server" href="/infrastructure/vm-coolify">
-        **Domaine** : `coolify.ims-world.fr`
-        **Protection** : `vpn-only.yaml` Traefik File Provider (`100.64.0.0/10`)
+        **Domaine** : `coolify.ims-world.fr` **Protection** : `vpn-only.yaml` Traefik File Provider (`100.64.0.0/10`)
       </Card>
+
       <Card title="Headplane Admin" icon="sliders" href="/services/headscale-headplane">
-        **URL** : `https://admin.vpn.ims-world.fr/admin` *(**`/admin` obligatoire**)*
-        **Protection** : `vpn-only.yaml` + Split-Horizon MagicDNS (`100.64.0.4`)
+        **URL** : `https://admin.vpn.ims-world.fr/admin` _(**`/admin` obligatoire**)_ **Protection** : `vpn-only.yaml` \+ Split-Horizon MagicDNS (`100.64.0.4`)
       </Card>
+
       <Card title="qBittorrent" icon="download" href="/services/homeflix">
-        **Domaine** : `qbit.ims-world.fr`
-        **Protection** : `vpn-only.yaml` + Kill-switch VPN Gluetun
+        **Domaine** : `qbit.ims-world.fr` **Protection** : `vpn-only.yaml` \+ Kill-switch VPN Gluetun
       </Card>
+
       <Card title="Radarr & Sonarr" icon="tv" href="/services/homeflix">
-        **Domaines** : `radarr.ims-world.fr` / `sonarr.ims-world.fr`
-        **Protection** : `vpn-only.yaml` + Auth Formulaire
+        **Domaines** : `radarr.ims-world.fr` / `sonarr.ims-world.fr` **Protection** : `vpn-only.yaml` \+ Auth Formulaire
       </Card>
+
       <Card title="Prowlarr" icon="magnifying-glass" href="/services/homeflix">
-        **Domaine** : `prowlarr.ims-world.fr`
-        **Protection** : `vpn-only.yaml` + API Keys
+        **Domaine** : `prowlarr.ims-world.fr` **Protection** : `vpn-only.yaml` \+ API Keys
       </Card>
+
       <Card title="Grafana (Monitoring)" icon="chart-line" href="/services/monitoring">
-        **Domaine** : `monitoring.ims-world.fr`
-        **Protection** : `vpn-only.yaml` + SSO Authentik OIDC
+        **Domaine** : `monitoring.ims-world.fr` **Protection** : `vpn-only.yaml` \+ SSO Authentik OIDC
       </Card>
+
       <Card title="Dozzle Logs" icon="list" href="/services/dozzle">
-        **Domaine** : `logs.ims-world.fr`
-        **Protection** : `vpn-only.yaml` File Provider (`100.64.0.0/10` + `192.168.1.0/24`)
+        **Domaine** : `logs.ims-world.fr` **Protection** : `vpn-only.yaml` File Provider (`100.64.0.0/10` \+ `192.168.1.0/24`)
       </Card>
+
       <Card title="CrowdSec Shield" icon="shield-check" href="/services/crowdsec">
-        **Domaine** : `shield.ims-world.fr`
-        **Protection** : `vpn-only.yaml` + SSO Authentik OIDC (Rôle ADMIN)
+        **Domaine** : `shield.ims-world.fr` **Protection** : `vpn-only.yaml` \+ SSO Authentik OIDC (Rôle ADMIN)
       </Card>
     </CardGroup>
   </Tab>
   <Tab title="🏠 Zone 3 — Administration LAN & Tailnet Direct">
     | Service / Nœud | Adresse / Port | Exposition | Méthode d'Authentification |
-    |---|---|---|---|
+    | --- | --- | --- | --- |
     | **SSH Système** | Port `22` | 🏠 LAN / 🔐 Tailnet | Clés SSH Ed25519 (0 accès WAN Bbox) |
     | **Proxmox VE GUI** | `{ips.pveLan}:8006` / `100.64.0.9:8006` | 🏠 LAN / 🔐 Tailnet | PAM / Compte `cmolotkoff` |
     | **PBS Web GUI** | `{ips.pbsLan}:8007` / `100.64.0.2:8007` | 🏠 LAN / 🔐 Tailnet | Auth PBS `cmolotkoff@pbs` |
@@ -269,14 +254,11 @@ graph TB
 ## 🔒 Règles de Sécurité Impératives
 
 <Warning>
-**Politique d'Isolation SSH Système — Port 22 Fermé sur le WAN** :
-Le serveur SSH d'administration système écoute sur le port **22**.
-**Aucune redirection de port SSH d'administration n'existe sur la Bbox.** L'accès SSH système (MS-01, LXC NAS, VM Coolify, Mac Mini) est **strictement impossible depuis l'Internet public**. Il exige une connexion au **LAN local (`192.168.1.0/24`)** ou d'être authentifié sur le **VPN Overlay Tailscale (`100.64.0.0/10`)**.
-Seul le port **`2222`** (dédié aux opérations Git SSH de Forgejo) est redirigé depuis le WAN. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
+  **Politique d'Isolation SSH Système — Port 22 Fermé sur le WAN** : Le serveur SSH d'administration système écoute sur le port **22**. **Aucune redirection de port SSH d'administration n'existe sur la Bbox.** L'accès SSH système (MS-01, LXC NAS, VM Coolify, Mac Mini) est **strictement impossible depuis l'Internet public**. Il exige une connexion au **LAN local (`192.168.1.0/24`)** ou d'être authentifié sur le **VPN Overlay Tailscale (`100.64.0.0/10`)**. Seul le port **`2222`** (dédié aux opérations Git SSH de Forgejo) est redirigé depuis le WAN. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
 </Warning>
 
 <Warning>
-**Protection Iptables / Docker Bypass** : Docker contourne par défaut les règles UFW/iptables standards. La chaîne `DOCKER-USER` est configurée pour forcer le respect des restrictions IP.
+  **Protection Iptables / Docker Bypass** : Docker contourne par défaut les règles UFW/iptables standards. La chaîne `DOCKER-USER` est configurée pour forcer le respect des restrictions IP.
 </Warning>
 
 ---
@@ -284,13 +266,13 @@ Seul le port **`2222`** (dédié aux opérations Git SSH de Forgejo) est redirig
 ## 🛡️ Matrice des Rôles & Droits d'Accès (RBAC Authentik)
 
 <Info>
-Authentik assure la gestion centralisée des identités (IAM) et du contrôle d'accès basé sur les rôles (**RBAC**). La table ci-dessous définit le périmètre d'accès applicatif exact pour chaque groupe d'utilisateurs.
+  Authentik assure la gestion centralisée des identités (IAM) et du contrôle d'accès basé sur les rôles (**RBAC**). La table ci-dessous définit le périmètre d'accès applicatif exact pour chaque groupe d'utilisateurs.
 </Info>
 
 ### 1. Vue d'Ensemble des Groupes Authentik
 
 | Groupe Authentik | Super-Utilisateur ? | Description & Rôle |
-|---|:---:|---|
+| --- | :-: | --- |
 | **`authentik Admins`** | `Oui` (🟢) | Administrateurs globaux de l'infrastructure homelab et de l'orchestration |
 | **`admins`** | `Oui` (🟢) | Administrateurs de la plateforme IAM Authentik et des politiques de sécurité |
 | **`membres`** | `Non` (🔴) | Utilisateurs principaux certifiés du homelab (accès applicatif complet) |
@@ -300,12 +282,12 @@ Authentik assure la gestion centralisée des identités (IAM) et du contrôle d'
 ### 2. Matrice Croisée d'Accès aux Applications
 
 | Application / Service | Mode d'Auth | `authentik Admins` / `admins` | `membres` | `invites` |
-|---|---|:---:|:---:|:---:|
+| --- | --- | :-: | :-: | :-: |
 | **Authentik Admin** | SSO Direct | ✅ Admin | ❌ | ❌ |
 | **Proxmox PVE / PBS** | PVE PAM / API | ✅ Admin | ❌ | ❌ |
 | **Coolify Orchestrator** | SSO / Local | ✅ Admin | ❌ | ❌ |
-| **Headplane Admin** | OIDC Natif + Tailnet | ✅ Admin | ❌ | ❌ |
-| **Stack LGTM (Grafana)** | OIDC Natif + Tailnet | ✅ Admin | ❌ | ❌ |
+| **Headplane Admin** | OIDC Natif \+ Tailnet | ✅ Admin | ❌ | ❌ |
+| **Stack LGTM (Grafana)** | OIDC Natif \+ Tailnet | ✅ Admin | ❌ | ❌ |
 | **Dozzle (Logs Docker)** | Forward-Auth Outpost | ✅ Admin | ❌ | ❌ |
 | **Uptime Kuma** | Forward-Auth Outpost | ✅ Admin | ❌ | ❌ |
 | **Ntfy Server** | Token / Basic | ✅ Admin | ❌ | ❌ |
@@ -320,8 +302,6 @@ Authentik assure la gestion centralisée des identités (IAM) et du contrôle d'
 | **IT-Tools** | Forward-Auth Outpost | ✅ Full | ✅ Accès | ✅ Accès |
 | **Stirling PDF** | Forward-Auth Outpost | ✅ Full | ✅ Accès | ✅ Accès |
 
-
 <Tip>
-Pour vérifier à tout moment qu'un service restreint n'est pas accessible depuis l'extérieur, exécuter un test d'accès WAN :
-`curl -Iv https://qbit.ims-world.fr` (Doit retourner un HTTP **403 Forbidden** via le middleware `vpn-only`).
+  Pour vérifier à tout moment qu'un service restreint n'est pas accessible depuis l'extérieur, exécuter un test d'accès WAN : `curl -Iv https://qbit.ims-world.fr` (Doit retourner un HTTP **403 Forbidden** via le middleware `vpn-only`).
 </Tip>
