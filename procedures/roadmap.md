@@ -3,12 +3,12 @@ title: "Feuille de Route & Liste TODO"
 description: "Suivi centralisé des chantiers prioritaires, roadmap de résilience et backlog d'évolution de l'infrastructure"
 icon: "list-check"
 iconType: "duotone"
-last_reviewed: "2026-08-29"
+last_reviewed: "2026-09-13"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Mis à Jour le 31/08/2026</Badge>
+<Badge color="green">🟢 Mis à Jour le 13/09/2026</Badge>
 
 <Info>
   Cette page constitue le **journal central de suivi des chantiers et de la feuille de route** du homelab IMS-WORLD. Elle regroupe l'ensemble des tâches ouvertes classées par domaine d'intervention (Résilience, Sécurité, Supervision, Nouveaux Services, Matériel) ainsi que l'historique des jalons réalisés.
@@ -26,7 +26,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Supervision & Métrologie** | Agent Alloy sur le Worker Coolify LXC 105 | <Badge color="amber">🟡 Moyen Terme</Badge> | LXC 105 (`192.168.1.198`) | ⏳ En attente |
 | **Alerting** | Notifications Ntfy sur échec backup | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 / PBS | ⏳ En attente |
 | **Sauvegardes & PRA** | Politique de sauvegarde PBS incluant le nœud Mac Mini (`pve-macmini`) | <Badge color="amber">🟡 Moyen Terme</Badge> | Cluster / PBS | ⏳ En attente |
+| **Sauvegardes & Supervision** | Audit des sauvegardes des VM et validation du monitoring | <Badge color="red">🔴 Priorité 1</Badge> | Cluster / PBS / VM | ⏳ En attente |
 | **Sécurité** | Credentials OVH dans fichier `.env` | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify Proxy) | ⏳ En attente |
+| **Gestion des Accès** | Création des accès pour Elo (Tailscale + VM dédiée) | <Badge color="amber">🟡 Moyen Terme</Badge> | Headscale / Proxmox | ⏳ En attente |
+| **IAM & Sécurité** | Connexion propre d'Authentik avec Tailscale (OIDC) | <Badge color="amber">🟡 Moyen Terme</Badge> | Authentik / Tailscale | ⏳ En attente |
 | **Sécurité** | DMZ & Bastion SSH d'administration | <Badge color="blue">🟦 À Évaluer</Badge> | Réseau / DMZ | 💡 Étude |
 | **Sécurité** | Firewall Proxmox VE 3 niveaux | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 & Mac Mini | ⏳ En attente |
 | **Sécurité** | Intel vPro / AMT (Gestion Out-of-Band) | <Badge color="blue">🟦 À Évaluer</Badge> | MS-01 Bare-Metal | 💡 Étude |
@@ -48,6 +51,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **IA & Sécurité** | Cyber Strike IA (Simulation d'attaques cyber IA) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
 | **IA & Automatisation** | Page Agent (Alibaba — Agent d'automation browser) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
 | **IA & Productivity** | Meetilty (Gestion & transcription de réunions) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
+| **Domotique & Services** | Finalisation et documentation de la VM Home Assistant (HA) | <Badge color="amber">🟡 Moyen Terme</Badge> | Proxmox VE | ⏳ En attente |
 | **Matériel & Rack** | Extension physique du rack Labrax 10" | <Badge color="amber">🟡 Moyen Terme</Badge> | Rack Physique | ⏳ En attente |
 | **Stockage** | Extension capacitive HDD 4To / 8To Neuf | <Badge color="blue">🟦 À Évaluer</Badge> | NAS LXC 100 | 💡 Achat futur |
 | **Sécurité** | Détection d'intrusions NIDS & Sentryx | <Badge color="blue">🟦 À Évaluer</Badge> | Réseau / VM 104 | 💡 Étude |
@@ -75,6 +79,11 @@ import { ips, domains } from "/snippets/variables.mdx";
 - **Constat** : Suite à l'intégration du Mac Mini en tant que Nœud 2 actif du cluster `ims-cluster`, les tâches de sauvegarde planifiées de Proxmox Backup Server (PBS LXC 103) et `vzdump` doivent être révisées pour couvrir les VM/LXC hébergés ou migrés sur ce nœud.
 - **Tâche** : Déclarer le nœud `pve-macmini` dans le Datacenter PVE (jobs de sauvegarde `all` / multi-nœuds) et ajuster la politique de rétention et d'exclusion (LXC 100 NAS maintenu en exclusion manuelle stop-only). Voir [Politique de Sauvegardes](/infrastructure/politique-sauvegardes).
 
+### 1.5 💾 Audit des Sauvegardes de Toutes les VM et Validation du Monitoring <Badge color="red">🔴 Priorité 1</Badge>
+
+- **Constat** : Les machines virtuelles hébergées sur le cluster requièrent une garantie opérationnelle sur l'état de leurs sauvegardes et leur observabilité en temps réel.
+- **Tâche** : Vérifier la bonne exécution des jobs de sauvegarde PBS (`vzdump` / snapshot) pour l'ensemble des VM. Tester des restaurations à blanc. S'assurer que chaque VM remonte ses métriques de santé et ses alertes dans la stack de monitoring (Prometheus, Grafana Alloy, Uptime Kuma et notifications Ntfy).
+
 ---
 
 ## 🔒 2. Sécurité & Durcissement Système
@@ -94,6 +103,16 @@ import { ips, domains } from "/snippets/variables.mdx";
 ### 2.4 ⚙️ Configuration Out-of-Band Intel vPro / AMT <Badge color="blue">🟦 À Évaluer</Badge>
 
 - **Tâche** : Configurer le module d'aménagement à distance Intel vPro / AMT sur le Minisforum MS-01 pour conserver la prise de main KVM matérielle bas niveau même OS éteint.
+
+### 2.5 👤 Création des Accès pour Elo (Tailscale & VM Dédiée) <Badge color="amber">🟡 Moyen Terme</Badge>
+
+- **Constat** : Un accès distant sécurisé et restreint doit être configuré pour Elo afin de lui permettre d'accéder à sa propre machine virtuelle.
+- **Tâche** : Provisionner l'utilisateur et son poste dans Headscale / Tailscale avec des ACL dédiées. Configurer sa VM sur Proxmox VE et sécuriser ses accès distants (SSH / RDP / Web).
+
+### 2.6 🔑 Connexion Propre d'Authentik avec Tailscale / Headscale <Badge color="amber">🟡 Moyen Terme</Badge>
+
+- **Constat** : L'accès au réseau Tailscale / Headscale doit s'interfacer de manière unifiée avec le fournisseur d'identité SSO Authentik.
+- **Tâche** : Valider et optimiser la configuration OIDC d'Authentik pour le control plane Headscale / Tailscale. Vérifier la gestion des tokens, les claims de groupes pour les ACL et la synchronisation sécurisée des sessions.
 
 ---
 
@@ -184,6 +203,11 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 ### 4.13 🎙️ Gestion & Transcription de Réunions (Meetilty) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
 - **Tâche** : Évaluer l'auto-hébergement de **Meetilty** pour organiser, synthétiser et générer les comptes-rendus et transcriptions de réunions.
+
+### 4.14 🏠 Finalisation et Documentation de la VM Home Assistant (HA) <Badge color="amber">🟡 Moyen Terme</Badge>
+
+- **Constat** : La machine virtuelle Home Assistant (HA OS) est en cours de mise en service sur Proxmox VE et requiert une stabilisation technique ainsi qu'une documentation complète.
+- **Tâche** : Finaliser la configuration système, le réseau (bridge direct `vmbr0` pour mDNS/SSDP) et les intégrations domotiques de la VM. Rédiger la fiche de documentation dédiée (architecture, sauvegardes et procédures de maintenance).
 
 ---
 
