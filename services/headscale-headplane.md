@@ -3,7 +3,7 @@ title: "Headscale & Headplane"
 description: "Serveur VPN Tailscale self-hosted et son interface Web d'administration"
 icon: "network-wired"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
+last_reviewed: "2026-09-13"
 app_version: "v0.28.0 / v0.6.2"
 ---
 
@@ -139,3 +139,18 @@ dns:
       value: "100.64.0.4"
     # ... autres sous-domaines d'administration vpn-only
 ```
+
+---
+
+## 🔐 Authentification OIDC & Enrôlement des Utilisateurs (Authentik)
+
+L'accès au Tailnet et l'enrôlement des appareils clients reposent sur la fédération d'identité **OpenID Connect (OIDC)** fournie par [Authentik](/services/authentik) (`auth.ims-world.fr`).
+
+- **Périmètre des droits** : L'accès au réseau Headscale et l'enregistrement de machines sont ouverts aux comptes appartenant au groupe **`membres`** (en complément des administrateurs).
+- **Flux de première connexion** :
+  Lors de la première connexion d'un utilisateur :
+  ```bash
+  tailscale up --login-server https://vpn.ims-world.fr
+  ```
+  Le client Tailscale fournit une URL de redirection vers la mire SSO Authentik. Après validation des identifiants et du second facteur (2FA / WebAuthn), la session est approuvée et le nœud est rattaché au Tailnet avec une adresse IP dédiée en `100.64.0.x`.
+- **Séparation des privilèges** : L'accès à la console d'administration **Headplane** (`https://admin.vpn.ims-world.fr/admin`) demeure strictement réservé aux profils `authentik Admins` et `admins`. Les utilisateurs du groupe `membres` bénéficient exclusivement de l'enrôlement réseau.

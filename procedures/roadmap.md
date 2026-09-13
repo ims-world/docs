@@ -29,7 +29,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Sauvegardes & Supervision** | Audit des sauvegardes des VM et validation du monitoring | <Badge color="red">🔴 Priorité 1</Badge> | Cluster / PBS / VM | ⏳ En attente |
 | **Sécurité** | Credentials OVH dans fichier `.env` | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify Proxy) | ⏳ En attente |
 | **Gestion des Accès** | Création des accès pour Elo (Tailscale + VM dédiée) | <Badge color="amber">🟡 Moyen Terme</Badge> | Headscale / Proxmox | ⏳ En attente |
-| **IAM & Sécurité** | Connexion propre d'Authentik avec Tailscale (OIDC) | <Badge color="amber">🟡 Moyen Terme</Badge> | Authentik / Tailscale | ⏳ En attente |
+| **IAM & Sécurité** | Connexion propre d'Authentik avec Tailscale (OIDC) | <Badge color="green">🟢 Effectué</Badge> | Authentik / Tailscale | ✅ 13/09/2026 |
 | **Sécurité** | DMZ & Bastion SSH d'administration | <Badge color="blue">🟦 À Évaluer</Badge> | Réseau / DMZ | 💡 Étude |
 | **Sécurité** | Firewall Proxmox VE 3 niveaux | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 & Mac Mini | ⏳ En attente |
 | **Sécurité** | Intel vPro / AMT (Gestion Out-of-Band) | <Badge color="blue">🟦 À Évaluer</Badge> | MS-01 Bare-Metal | 💡 Étude |
@@ -109,10 +109,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 - **Constat** : Un accès distant sécurisé et restreint doit être configuré pour Elo afin de lui permettre d'accéder à sa propre machine virtuelle.
 - **Tâche** : Provisionner l'utilisateur et son poste dans Headscale / Tailscale avec des ACL dédiées. Configurer sa VM sur Proxmox VE et sécuriser ses accès distants (SSH / RDP / Web).
 
-### 2.6 🔑 Connexion Propre d'Authentik avec Tailscale / Headscale <Badge color="amber">🟡 Moyen Terme</Badge>
+### 2.6 🔑 Connexion Propre d'Authentik avec Tailscale / Headscale <Badge color="green">🟢 Effectué le 13/09/2026</Badge>
 
-- **Constat** : L'accès au réseau Tailscale / Headscale doit s'interfacer de manière unifiée avec le fournisseur d'identité SSO Authentik.
-- **Tâche** : Valider et optimiser la configuration OIDC d'Authentik pour le control plane Headscale / Tailscale. Vérifier la gestion des tokens, les claims de groupes pour les ACL et la synchronisation sécurisée des sessions.
+- **Statut** : Authentik est configuré en tant que provider OIDC pour Headscale avec attribution des droits d'accès au groupe **`membres`**. Le premier flux d'enrôlement et l'inscription initiale d'un utilisateur ont été testés et validés avec succès via la mire SSO Authentik.
+- **Tâche résiduelle** : Ajuster les ACL Headscale pour restreindre les accès aux machines autorisées selon les profils utilisateurs (voir chantier [2.5](#25--création-des-accès-pour-elo-tailscale--vm-dédiée)).
 
 ---
 

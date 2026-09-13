@@ -3,7 +3,7 @@ title: "Authentik"
 description: "SSO / OIDC — provider d'identité central"
 icon: "key"
 iconType: "duotone"
-last_reviewed: "2026-08-24"
+last_reviewed: "2026-09-13"
 app_version: "2026.8.0"
 ---
 
@@ -80,7 +80,7 @@ sequenceDiagram
 |---|:---:|---|
 | **`authentik Admins`** | `Oui` (🟢) | Administration globale du Homelab, Coolify, Proxmox, Traefik, Monitoring |
 | **`admins`** | `Oui` (🟢) | Administration de la plateforme IAM Authentik et des politiques de sécurité |
-| **`membres`** | `Non` (🔴) | Accès complet aux apps (Vaultwarden, Immich, Zipline, HomeFlix, IT-Tools, etc.) |
+| **`membres`** | `Non` (🔴) | Accès complet aux apps (Tailscale / Headscale, Vaultwarden, Immich, Zipline, HomeFlix, IT-Tools, etc.) |
 | **`invites`** | `Non` (🔴) | Accès restreint (HomeFlix Jellyfin, Vidéoclub JellySeerr, IT-Tools, Stirling PDF) |
 | **`authentik Read-only`** | `Non` (🔴) | Audit et consultation des métriques en lecture seule |
 

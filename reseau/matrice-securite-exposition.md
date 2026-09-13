@@ -3,7 +3,7 @@ title: "Matrice de Sécurité & d'Exposition"
 description: "Cartographie centralisée des zones de confiance, de l'exposition publique, du filtrage et de l'authentification"
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-08-23"
+last_reviewed: "2026-09-13"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -275,7 +275,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
 | --- | :-: | --- |
 | **`authentik Admins`** | `Oui` (🟢) | Administrateurs globaux de l'infrastructure homelab et de l'orchestration |
 | **`admins`** | `Oui` (🟢) | Administrateurs de la plateforme IAM Authentik et des politiques de sécurité |
-| **`membres`** | `Non` (🔴) | Utilisateurs principaux certifiés du homelab (accès applicatif complet) |
+| **`membres`** | `Non` (🔴) | Utilisateurs principaux certifiés du homelab (accès applicatif complet + connexion Tailnet) |
 | **`invites`** | `Non` (🔴) | Utilisateurs invités / restreints (accès limité aux médias et outils partagés) |
 | **`authentik Read-only`** | `Non` (🔴) | Profil de consultation et d'audit en lecture seule (sans droits de modification) |
 
@@ -287,6 +287,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
 | **Proxmox PVE / PBS** | PVE PAM / API | ✅ Admin | ❌ | ❌ |
 | **Coolify Orchestrator** | SSO / Local | ✅ Admin | ❌ | ❌ |
 | **Headplane Admin** | OIDC Natif \+ Tailnet | ✅ Admin | ❌ | ❌ |
+| **Headscale (Enrôlement Tailnet)** | OIDC Natif (Authentik) | ✅ Admin | ✅ Accès | ❌ |
 | **Stack LGTM (Grafana)** | OIDC Natif \+ Tailnet | ✅ Admin | ❌ | ❌ |
 | **Dozzle (Logs Docker)** | Forward-Auth Outpost | ✅ Admin | ❌ | ❌ |
 | **Uptime Kuma** | Forward-Auth Outpost | ✅ Admin | ❌ | ❌ |
