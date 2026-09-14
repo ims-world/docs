@@ -242,7 +242,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
       </Card>
 
       <Card title="Home Assistant" icon="house-signal" href="/services/home-assistant">
-        **Accès** : `http://100.64.0.5:8123` **Protection** : Add-on Tailscale (`100.64.0.0/10`) \+ Auth native HA (VM 106 Mac Mini)
+        **Domaine** : `home.ims-world.fr` **Protection** : `vpn-only.yaml` Traefik (`100.64.0.0/10`) + TLS Let's Encrypt + Auth native HA (VM 106 Mac Mini)
       </Card>
     </CardGroup>
   </Tab>
@@ -254,7 +254,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
     | **PBS Web GUI** | `{ips.pbsLan}:8007` / `100.64.0.2:8007` | 🏠 LAN / 🔐 Tailnet | Auth PBS `cmolotkoff@pbs` |
     | **NAS SMB** | `{ips.nasLan}:445` | 🏠 LAN Only | Auth SMB `cmolotkoff` |
     | **NAS NFS** | `10.10.10.1:2049` | 🔒 `vmbr1` Isolé | Subnet IP `10.10.10.0/24` |
-    | **Home Assistant (LAN)** | `{ips.haLan}:8123` | 🏠 LAN Native | Auth native Home Assistant |
+    | **Home Assistant (LAN)** | `{ips.haLan}` (Port 80) / Observer (:4357) | 🏠 LAN Native | Auth native Home Assistant |
   </Tab>
 </Tabs>
 

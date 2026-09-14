@@ -54,7 +54,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **IA & Productivity** | Meetilty (Gestion & transcription de réunions) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
 | **Domotique & Services** | Documentation & Déploiement VM HAOS (Mac Mini) | <Badge color="green">🟢 Effectué</Badge> | Mac Mini (`100.64.0.5`) | ✅ 14/09/2026 |
 | **Sauvegardes & Domotique** | Sauvegarde PBS nocturne de la VM 106 (HAOS) | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / PBS | ⏳ En attente |
-| **UX & Sécurité HA** | Routeur Traefik HTTPS vpn-only pour Home Assistant | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Traefik) | ⏳ En attente |
+| **UX & Sécurité HA** | Routeur Traefik HTTPS vpn-only pour Home Assistant (`https://home.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Traefik) | ✅ 14/09/2026 |
 | **Automatisation & IaC** | Scripts Ansible de création automatique de VM | <Badge color="amber">🟡 Moyen Terme</Badge> | Proxmox VE (MS-01) | ⏳ En attente |
 | **Automatisation & Web** | Portail web de génération de VM temporaires (self-service) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Étude / PoC |
 | **Automatisation & Ansible** | Playbook post-provisioning (users, sudo NOPASSWD, base) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM & Nœuds PVE | ⏳ En attente |
@@ -224,13 +224,13 @@ import { ips, domains } from "/snippets/variables.mdx";
 ### 4.13 🎙️ Gestion & Transcription de Réunions (Meetilty) <Badge color="blue">🟦 À Évaluer — Plus tard</Badge>
 - **Tâche** : Évaluer l'auto-hébergement de **Meetilty** pour organiser, synthétiser et générer les comptes-rendus et transcriptions de réunions.
 
-### 4.14 🏠 Déploiement & Documentation de la VM Home Assistant (HAOS) <Badge color="green">🟢 Effectué — 14/09/2026</Badge>
+### 4.14 🏠 Déploiement VM Home Assistant (HAOS) & Routage HTTPS Traefik <Badge color="green">🟢 Effectué — 14/09/2026</Badge>
 
-- **Réalisé** : Abandon de l'ancien conteneur Docker Coolify au profit d'une **machine virtuelle dédiée HAOS 18.2 / Core 2026.9.2 (VMID 106)** sur le Mac Mini (`pve-macmini`). Raccordement natif au bridge `vmbr0` (résolvant la découverte mDNS pour Philips Hue et Apple HomeKit) et accès distant sécurisé via l'add-on Tailscale (`100.64.0.5`) connecté à Headscale. Fiche complète publiée sur [Home Assistant](/services/home-assistant).
+- **Réalisé** : Abandon de l'ancien conteneur Docker Coolify au profit d'une **machine virtuelle dédiée HAOS 18.2 / Core 2026.9.2 (VMID 106)** sur le Mac Mini (`pve-macmini`). Raccordement natif au bridge `vmbr0` (résolvant la découverte mDNS pour Philips Hue et Apple HomeKit). Exposition sécurisée en HTTPS (`https://home.ims-world.fr`) via Traefik (VM 104) avec certificat Let's Encrypt, filtrage strict `vpn-only` (`100.64.0.0/10`) et configuration des proxys de confiance via la nouvelle interface graphique HAOS 2026+. Fiche complète publiée sur [Home Assistant](/services/home-assistant).
 - **Tâches d'Exploitation Résiduelles (TODO)** :
   1. **Sauvegardes PBS** : Déclarer la VM 106 dans un job nocturne automatisé `vzdump` vers le datastore PBS (LXC 103).
-  2. **Routeur Traefik HTTPS (`vpn-only`)** : Mettre en place un routeur Traefik filtré sur `https://home.ims-world.fr` pour sécuriser l'application Companion et le micro d'Assist.
-  3. **Bail statique LAN** : Confirmer la réservation DHCP permanente de l'IP `192.168.1.92` sur la Bbox.
+  2. **Bail statique LAN** : Confirmer la réservation DHCP permanente de l'IP `192.168.1.92` sur la Bbox.
+  3. **Supervision Uptime Kuma** : Ajouter une sonde HTTP sécurisée sur `https://home.ims-world.fr`.
 
 ---
 

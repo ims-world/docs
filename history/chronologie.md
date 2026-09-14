@@ -29,6 +29,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   ### 🏠 Domotique & Déploiement VM HAOS (Mac Mini)
 
   - **Bascule d'Architecture & Déploiement HAOS (VMID 106)** — Abandon de l'ancien conteneur Docker sur Coolify et déploiement d'une machine virtuelle dédiée **Home Assistant OS 18.2 / Core 2026.9.2** sur le Mac Mini (`pve-macmini`). Raccordement natif au bridge `vmbr0` pour restaurer la découverte mDNS/Bonjour directe (Philips Hue, Apple HomeKit Bridge).
+  - **Routage HTTPS Traefik (Zone 2 `vpn-only`) & Découverte UI HTTP HAOS 2026+** — Configuration du reverse proxy centralisé Traefik sur la VM 104 (`vpn-only.yaml`) acheminant `https://home.ims-world.fr` vers le backend LAN `http://192.168.1.92:80` avec certificat Let's Encrypt. Diagnostic et résolution du blocage HTTP 400 consécutif à l'obsolescence du bloc `http:` dans `configuration.yaml` au profit de la nouvelle interface graphique **Paramètres > Système > Réseau > Serveur HTTP** (activation de `X-Forwarded-For` et déclaration des `trusted_proxies`).
   - **Accès Distant Sécurisé via Add-on Tailscale** — Déploiement du module complémentaire Tailscale connecté au serveur Headscale (`vpn.ims-world.fr`), attribuant l'adresse IP Tailnet `100.64.0.5`. Voir [Home Assistant](/services/home-assistant).
 </Update>
 
