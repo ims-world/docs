@@ -35,7 +35,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Sécurité** | Firewall Proxmox VE 3 niveaux | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 & Mac Mini | ⏳ En attente |
 | **Sécurité** | Intel vPro / AMT (Gestion Out-of-Band) | <Badge color="blue">🟦 À Évaluer</Badge> | MS-01 Bare-Metal | 💡 Étude |
 | **Docker & Hygiène** | Pinning des tags Docker (suppression `:latest`) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify) | ⏳ En attente |
-| **Docker & Hygiène** | Scan & Alertes mises à jour (Diun Ntfy) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify) | ⏳ En attente |
+| **Docker & Hygiène** | Scan & Alertes mises à jour (WhatsUpDocker WUD) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (`100.64.0.4`) | ✅ 14/09/2026 |
 | **Supervision** | Exporteur Prometheus Jellyfin | <Badge color="blue">🟦 Nouveaux Services</Badge> | VM 104 (Coolify) | ⏳ En attente |
 | **UX & Proxy** | Pages d'erreur custom Traefik (404/502/503/504) | <Badge color="green">🟢 Effectué</Badge> | Traefik Proxy | ✅ 26/08/2026 |
 | **Proxy & Ingress** | PoC & Évaluation Caddy v2 (xcaddy \+ CrowdSec \+ OVH) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify Proxy) | 💡 Étude / PoC |
@@ -140,9 +140,14 @@ import { ips, domains } from "/snippets/variables.mdx";
 - **Statut** : Agent Grafana Alloy systemd réintégré avec succès sur le Mac Mini (`100.64.0.6`).
 - **Composants** : Node Exporter (CPU, RAM, disque), collecteur SMART (`smartmon.sh` cron 5m sur SSD Apple 256 Go) et transmission des logs journald/syslog vers Loki (`10.10.10.2:3100`). Voir [Mac Mini](/infrastructure/mac-mini) et [Stack Monitoring](/services/monitoring).
 
-### 3.3 📦 Scan & Alertes des Mises à Jour Docker (Diun) <Badge color="amber">🟡 Moyen Terme</Badge>
+### 3.3 📦 Scan & Alertes des Mises à Jour Docker (WhatsUpDocker — WUD) <Badge color="green">🟢 Effectué le 14/09/2026</Badge>
 
-- **Tâche** : Déployer **Diun** (_Docker Image Update Notifier_) sur la VM Coolify pour surveiller les registres Docker et pousser une notification Webhook sur Ntfy dès qu'une version stable est publiée.
+- **Statut** : Déploiement de **WhatsUpDocker (WUD)** v9.0.2 sur la VM Coolify (UUID `qwe5jrqlqtwqneevgkf6mwr9`), accessible sous VPN Tailscale sur `wud.ims-world.fr`.
+- **Fonctionnalités** :
+  - Analyse sémantique des tags Docker (SemVer) pour conteneurs épinglés.
+  - Déclencheur push automatique vers Ntfy (`https://ntfy.ims-world.fr`, topic `ims-alerts` avec Bearer Auth).
+  - Isolation étanche via `vpn-only.yaml` (`100.64.0.0/10` & `192.168.1.0/24`) et DNS Split-Horizon Headscale.
+  - Voir la fiche [WhatsUpDocker](/services/whatsupdocker).
 
 ### 3.4 🎬 Exporteur Prometheus Dédié Jellyfin (`jellyfin-exporter`) <Badge color="blue">🟦 Nouveaux Services</Badge>
 

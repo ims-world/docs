@@ -233,6 +233,10 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
         **Domaine** : `logs.ims-world.fr` **Protection** : `vpn-only.yaml` File Provider (`100.64.0.0/10` \+ `192.168.1.0/24`)
       </Card>
 
+      <Card title="WhatsUpDocker (WUD)" icon="docker" href="/services/whatsupdocker">
+        **Domaine** : `wud.ims-world.fr` **Protection** : `vpn-only.yaml` File Provider (`100.64.0.0/10` \+ `192.168.1.0/24`) \+ Auth native WUD v9
+      </Card>
+
       <Card title="CrowdSec Shield" icon="shield-check" href="/services/crowdsec">
         **Domaine** : `shield.ims-world.fr` **Protection** : `vpn-only.yaml` \+ SSO Authentik OIDC (Rôle ADMIN)
       </Card>
@@ -290,6 +294,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
 | **Headscale (Enrôlement Tailnet)** | OIDC Natif (Authentik) | ✅ Admin | ✅ Accès | ❌ |
 | **Stack LGTM (Grafana)** | OIDC Natif \+ Tailnet | ✅ Admin | ❌ | ❌ |
 | **Dozzle (Logs Docker)** | Forward-Auth Outpost | ✅ Admin | ❌ | ❌ |
+| **WhatsUpDocker (WUD)** | Auth Native \+ Tailnet | ✅ Admin | ❌ | ❌ |
 | **Uptime Kuma** | Forward-Auth Outpost | ✅ Admin | ❌ | ❌ |
 | **Ntfy Server** | Token / Basic | ✅ Admin | ❌ | ❌ |
 | **Vaultwarden** | OIDC Natif | ✅ Full | ✅ Accès | ❌ |

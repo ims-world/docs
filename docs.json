@@ -105,6 +105,7 @@
               "services/crowdsec",
               "services/ntfy",
               "services/dozzle",
+              "services/whatsupdocker",
               "services/immich",
               "services/uptime-kuma",
               "services/it-tools",
