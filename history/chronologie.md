@@ -3,28 +3,48 @@ title: "Changelog & Historique"
 description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
-<Update label="Semaine du 13/08/2026 au 19/08/2026" description="Récapitulatif hebdomadaire : PhotoPrism, Forgejo, tier SSD & fiabilité GPU">
-  ### ✨ Nouveaux services
+<Update label="14/09/2026" description="Déploiement WhatsUpDocker (WUD), Vague de Mises à Jour Applicatives (8 services) & Template VM 8000 Tailscale">
+  ### 🔔 Supervision des Mises à Jour (WhatsUpDocker)
 
-  - [**PhotoPrism**](/services/photoprism) est disponible sur `studio.ims-world.fr`. Votre bibliothèque photo et studio d'archivage RAW sont hébergés en interne, avec restauration confirmée de 24 565 photos et dépôt WebDAV pour l'ingestion.
-  - [**Forgejo**](/services/forgejo) est en production sur `forge.ims-world.fr`. Vous pouvez héberger vos dépôts Git, issues et Pull Requests avec SSO Authentik, plus un miroir de sauvegarde automatique depuis GitHub. Le clonage SSH est accessible depuis n'importe quel réseau via `ssh://git@forge.ims-world.fr:2222/…`.
-  - [**Patrimo**](/services/patrimo) est en ligne sur `patrimo.ims-world.fr` avec déploiement continu à chaque push.
-  - [**Zipline**](/services/zipline) est disponible sur `share.ims-world.fr` pour le partage de fichiers, les captures ShareX et le raccourcissement de liens, avec connexion SSO.
-  - [**Stirling PDF**](/services/stirling-pdf) est publié sur `pdf.ims-world.fr`. Vous disposez d'une boîte à outils PDF (fusion, découpe, conversion, OCR) en mode _stateless_ : aucun document n'est conservé après traitement. L'accès est protégé par SSO Authentik.
+  - **Déploiement de WhatsUpDocker (WUD)** — Mise en service du conteneur `getwud/wud:9.0.2` sur la VM 104 (UUID `qwe5jrqlqtwqneevgkf6mwr9`). Il analyse en continu les registres Docker pour détecter les nouvelles versions stables selon la norme SemVer.
+  - **Alerting Push Immédiat via Ntfy** — Intégration directe du trigger Ntfy avec authentification par jeton (`WUD_TRIGGER_NTFY_DEFAULT_AUTH_TOKEN`) pour notifier les nouvelles versions sur le topic `ims-alerts`.
+  - **Sécurisation Réseau & Faux Positif qBittorrent** — Isolation stricte du tableau de bord WUD en Zone 2 (`vpn-only.yaml`) sans exposition WAN. Diagnostic du faux positif SemVer sur qBittorrent (`20.04.1` provenant d'un ancien tag de build Ubuntu 2021) et recommandation de maintien en version `5.0.4`. Voir [WhatsUpDocker](/services/whatsupdocker).
 
-  ### 🔧 Mises à jour
+  ### 📦 Vague de Mises à Jour Applicatives (8 Services)
 
-  - **Coolify** est passé en v4.3.2 puis v4.3.6 : gestion améliorée des webhooks Git et des builds Compose. Une [procédure de secours](/infrastructure/vm-coolify#procédure-post-mise-à-jour-coolify-perte-ihm) est documentée si l'accès à `coolify.ims-world.fr` est perdu après une mise à jour.
-  - **Migration terminée vers le MS-01** : l'ensemble des services applicatifs tourne désormais sur le nouveau serveur. Le [Mac Mini 2012](/infrastructure/mac-mini) bascule officiellement en Standby Chaud de secours.
-  - **Tier de stockage `storage-hot` sur SSD dédié** : les données chaudes d'Immich, Forgejo et consorts sont déplacées sur un SSD 4 To dédié. Vous gagnez 3 To d'espace libre et de meilleures performances. Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
-  - **Nettoyage HomeFlix** : environ 330 Go d'espace libéré sur le NAS après audit des fichiers orphelins. La disponibilité passe de 791 Go à 1,1 To. Voir [HomeFlix](/services/homeflix).
-  - **Accélération matérielle Jellyfin** : le passthrough complet de l'iGPU vers la VM Coolify est officialisé. Les transcodes atteignent 29,7× le temps réel. Voir [ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe).
+  - **Traefik (Coolify Proxy) `v3.7.13`** — Mise à niveau du moteur de reverse proxy central sur la VM 104 avec maintien du bouncer CrowdSec. Voir [Traefik (Coolify Proxy)](/reseau/traefik-proxy).
+  - **Gluetun `v3.41.3` (Stack HomeFlix)** — Montée de version de `qmcgaw/gluetun:v3.40.0` vers `v3.41.3` pour corriger le deadlock critique sur la réattribution dynamique de port ProtonVPN. Modernisation des variables DNS (`DNS_SERVER: 'on'`, `DNS_UPSTREAM_RESOLVERS: cloudflare`). Voir [HomeFlix](/services/homeflix).
+  - **Headscale `v0.29.3` & Headplane `0.7.1`** — Montée de version et résolution des incompatibilités de configuration de Headscale v0.29 (suppression de la directive obsolète `randomize_client_port` et imbrication de `node.ephemeral.inactivity_timeout: 30m`). Voir [Headscale & Headplane](/services/headscale-headplane).
+  - **Immich `v3.2.0`** — Migration majeure du serveur et du conteneur de machine learning avec réindexation des modèles d'inférence. Voir [Immich](/services/immich).
+  - **Uptime Kuma `v2.5.4`** — Mise à jour du moteur de supervision actif et de la page de statut. Voir [Uptime Kuma](/services/uptime-kuma).
+  - **Ntfy `v2.28.0`** — Mise à jour du serveur de notifications push. Voir [Ntfy](/services/ntfy).
+  - **Dozzle `v11.0.1`** — Passage en version majeure v11 de l'afficheur live des logs Docker. Voir [Dozzle](/services/dozzle).
+  - **CrowdSec Agent `v1.8.1` & Shield Web UI `2026.8.3`** — Mise à jour du moteur d'analyse comportementale et de l'interface de gestion du pare-feu. Voir [CrowdSec](/services/crowdsec).
 
-  ### 🐛 Corrections
+  ### 🖥️ Automatisation Proxmox & Template Cloud-Init (VM 8000)
 
-  - **Jellyfin & Sonarr rétablis après incident GPU** : la perte du périphérique `/dev/dri` au redémarrage a été corrigée et un correctif préventif est en place pour éviter toute récidive lors des mises à jour du noyau. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri).
-  - **Grafana accessible en SSO** : suite à un blocage HTTP 403 identifié sur le middleware `vpn-only`, Grafana bascule sur la connexion SSO Authentik OIDC. Voir [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
-  - **Imports Radarr / Sonarr débloqués** : la procédure de résolution des fichiers en erreur `Unable to parse file` est documentée sur [HomeFlix](/services/homeflix#resolution-des-imports-manuels-bloques-unable-to-parse-file).
+  - **Enrôlement Automatique Tailscale sur Template Ubuntu 24.04** — Ajout d'une configuration Cloud-Init `vendor-data.yaml` sur le template Proxmox (`VMID 8000`). Toute nouvelle VM clonée installe Tailscale et rejoint automatiquement le Tailnet privé sur `vpn.ims-world.fr` dès son premier boot via une clé réutilisable. Voir [Hôte Proxmox MS-01](/infrastructure/proxmox-host) et [Ajout d'une machine Headscale](/procedures/ajout-machine-headscale).
+  - **Chantiers Ansible & Audit des Procédures** — Inscription à la feuille de route des playbooks d'automatisation de création de VM, du portail self-service de VM éphémères et de l'audit complet des procédures opérationnelles (Chantier 1.6). Voir [Feuille de Route](/procedures/roadmap).
+</Update>
+
+<Update label="13/09/2026" description="Intégration OIDC Authentik - Headscale (Groupe Membres) & Validation Premier Enrôlement">
+  ### 🔐 Fédération d'Identité & Contrôle d'Accès (OIDC)
+
+  - **Interconnexion Authentik ➔ Headscale OIDC** — Déploiement d'un fournisseur d'identité OAuth2/OIDC dédié (`headscale-oidc`) sur Authentik avec chiffrement PKCE et restriction stricte aux groupes `admins` et `membres`.
+  - **Validation du Premier Enrôlement Utilisateur** — Enregistrement réussi du premier compte utilisateur (`cmolotkoff`) sur le Tailnet avec redirection web interactive via `https://vpn.ims-world.fr/oidc/callback`. Création automatique de l'espace de nommage utilisateur dans Headscale. Voir [Headscale & Headplane](/services/headscale-headplane) et [Authentik](/services/authentik).
+  - **Mise à Jour de la Matrice de Sécurité** — Formalisation des niveaux d'habilitation OIDC et des accès réseau pour les membres du Tailnet. Voir [Matrice de Sécurité](/reseau/matrice-securite-exposition).
+
+  ### 📋 Planification & Résilience
+
+  - **Cadrage des Accès Elo & VM Dédiée** — Inscription à la feuille de route de la procédure d'accès Tailnet restreint et du dimensionnement d'une VM de travail dédiée.
+  - **Supervision & Sauvegardes VM** — Inscription du chantier d'audit global des snapshots PBS et de la validation des alertes Ntfy sur l'ensemble des machines virtuelles. Voir [Feuille de Route](/procedures/roadmap).
+</Update>
+
+<Update label="29/08/2026 - 31/08/2026" description="Cadrage Roadmap : Services IA (Page Agent Alibaba, Meetilty) & Audit Nœud Worker">
+  ### 💡 Innovation & Backlog Applicatif
+
+  - **Cadrage Nouveaux Services IA** — Intégration dans la feuille de route de **Page Agent** (automatisation de navigation par agent IA browser Alibaba) et de **Meetilty** (prise de notes et transcription locale de réunions).
+  - **Audit de Résilience Multi-Nœuds** — Consolidation de la documentation sur le Nœud Worker LXC 105 du Mac Mini et intégration des règles de redondance Traefik. Voir [Feuille de Route](/procedures/roadmap).
 </Update>
 
 <Update label="28/08/2026" description="Topologie Multi-Nœuds Coolify v4.3.14 (Master VM 104 + Worker LXC 105 Mac Mini)">
