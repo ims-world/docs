@@ -41,12 +41,12 @@ graph TD
         end
 
         subgraph DOCKER ["🐳 Moteur Docker & Services"]
-            TRAEFIK["coolify-proxy (Traefik v3.7)"]
+            TRAEFIK["coolify-proxy (Traefik v3.7.13)"]
             AUTH["Authentik (SSO)"]
             VAULT["Vaultwarden"]
             HOMEFLIX["HomeFlix Stack (9 containers)"]
             HEADSCALE["Headscale + Headplane"]
-            CROWDSEC["CrowdSec Agent v1.7.8 + Shield Web UI"]
+            CROWDSEC["CrowdSec Agent v1.8.1 + Shield Web UI"]
         end
 
         subgraph NFS_MNT ["📁 Points de Montage NFS (via 10.10.10.1)"]

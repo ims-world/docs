@@ -3,17 +3,19 @@ title: "Traefik (Coolify Proxy)"
 description: "Reverse proxy, certificats DNS-01, middlewares"
 icon: "traffic-light"
 iconType: "duotone"
+last_reviewed: "2026-09-14"
+app_version: "v3.7.13"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Production Active (Traefik v3.7)</Badge>
+<Badge color="green">🟢 Production Active (Traefik v3.7.13)</Badge>
 
 ## Version & Environnement
 
 | Propriété | Valeur |
 |---|---|
-| **Image Docker** | `traefik:v3.7` |
+| **Image Docker** | `traefik:v3.7.13` |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **Réseau Docker** | `coolify` |
 | **Challenge SSL** | Let's Encrypt DNS-01 (API OVH) |
@@ -25,7 +27,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 ```mermaid
 sequenceDiagram
     autonumber
-    participant Traefik as 🚦 Traefik v3.7 (Coolify Proxy)
+    participant Traefik as 🚦 Traefik v3.7.13 (Coolify Proxy)
     participant ACME as 🔒 Let's Encrypt CA
     participant OVH_API as 🌐 API OVH (ovh-eu)
     participant DNS as 📡 Serveurs DNS OVH
