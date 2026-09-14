@@ -3,7 +3,7 @@ title: "HomeFlix (Jellyfin Stack)"
 description: "Stack média complète (Jellyfin, Sonarr, Radarr, Prowlarr, qBittorrent, Gluetun)"
 icon: "film"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
+last_reviewed: "2026-09-14"
 app_version: "v10.9.11"
 ---
 
@@ -60,7 +60,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `w39uebmcnse7yctsft8hzed8` |
 | **Chemin sur la VM** | `/data/coolify/services/w39uebmcnse7yctsft8hzed8/` |
-| **VPN & Kill-Switch** | ProtonVPN WireGuard (`qmcgaw/gluetun:v3.40.0` avec Port-Forwarding) |
+| **VPN & Kill-Switch** | ProtonVPN WireGuard (`qmcgaw/gluetun:v3.41.3` avec Port-Forwarding) |
 | **Accélération Matérielle** | Passthrough iGPU Intel Iris Xe (QuickSync Haswell / QSV) |
 | **Composants Principaux** | Jellyfin + **Jellyseerr v3.4.1** + Radarr + Sonarr + Prowlarr + qBittorrent |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
