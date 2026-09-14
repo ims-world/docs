@@ -82,7 +82,81 @@ Le format `deb822` (`.sources`) est utilisé sur PVE9, pas l'ancien `pve-enterpr
 | **104** | ims-coolify | VM | <Badge color="green">🟢 Actif</Badge> | Orchestration Docker |
 | **101** | vm-test | VM | <Badge>⚪ Non utilisé</Badge> | Test, non utilisé en prod |
 | **102** | ims-windows | VM | <Badge>⚪ Inactif</Badge> | Environnement Windows |
-| **9000** | ubuntu-2404-template | Template | <Badge color="blue">🔵 Template</Badge> | Base pour clonage de VM Ubuntu |
+| **8000** | ubuntu-2404-template | Template | <Badge color="blue">🔵 Template</Badge> | Base pour clonage de VM Ubuntu avec Tailscale automatique |
+
+## Template de VM Ubuntu 24.04 (VMID 8000) & automatisation Tailscale
+
+Le template **`ubuntu-2404-template`** (VMID `8000`) sert de base standardisée pour déployer rapidement de nouvelles machines virtuelles Linux sur le cluster Proxmox VE. Il intègre une image officielle Ubuntu Cloud Image, les pilotes VirtIO, l'agent QEMU et l'enrôlement automatique sur le réseau VPN privé Headscale.
+
+### Caractéristiques du template
+
+- **Image source** : Ubuntu 24.04 LTS (*Noble Numbat*) Cloud Image (`noble-server-cloudimg-amd64.img`).
+- **Stockage disque** : Disque SCSI VirtIO sur `local-lvm` avec option `discard=on` (trim SSD).
+- **Interface réseau** : Pont virtuel `vmbr0` en mode VirtIO avec bail DHCP.
+- **Observabilité hyperviseur** : Agent QEMU Guest (`qemu-guest-agent`) préconfiguré pour remonter les adresses IP et l'état de santé dans Proxmox VE.
+- **Accès système initial** : Utilisateur d'administration `cmolotkoff` avec injection de clé SSH publique et privilèges `sudo` sans mot de passe.
+
+### Mécanisme d'automatisation Tailscale (Cloud-Init vendor-data)
+
+L'enrôlement réseau de chaque VM clonée s'effectue automatiquement dès son tout premier démarrage grâce au mécanisme **Cloud-Init vendor-data**.
+
+<Important>
+  **Utilisez toujours `vendor-data` et jamais `user-data` pour les personnalisations Proxmox.**  
+  Proxmox VE utilise nativement `user-data` pour configurer le nom d'hôte, l'utilisateur et les clés SSH. Si vous écrasez `user-data`, vous cassez l'injection native des identifiants et des accès Proxmox. Le fichier `vendor-data` s'exécute en complément sans interférer avec la configuration de base.
+</Important>
+
+Le snippet `/var/lib/vz/snippets/vendor-data.yaml` contient les instructions d'amorçage :
+
+```yaml
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - curl
+  - qemu-guest-agent
+
+runcmd:
+  - systemctl enable --now qemu-guest-agent
+  - curl -fsSL https://tailscale.com/install.sh | sh
+  - |
+    tailscale up \
+      --authkey="HEADSCALE_PREAUTH_KEY" \
+      --login-server="https://vpn.ims-world.fr" \
+      --accept-dns=false \
+      --hostname="$(hostname)"
+```
+
+Au boot :
+1. Cloud-Init démarre et met à jour les dépôts de paquets.
+2. Il active le démon `qemu-guest-agent`.
+3. Il télécharge et installe le client officiel Tailscale.
+4. Il connecte automatiquement la machine au serveur Headscale (`https://vpn.ims-world.fr`) avec la Pre-Auth Key d'infrastructure et le nom de la machine.
+5. La nouvelle VM apparaît immédiatement connectée sur Headscale avec son IP `100.64.0.x`.
+
+### Procédure de clonage rapide
+
+Depuis le shell root de Proxmox VE (ou via SSH sur le MS-01) :
+
+```bash
+# 1. Cloner le template 8000 vers un nouvel identifiant VMID
+qm clone 8000 <NOUVEAU_VMID> --name "<nom-de-la-vm>" --full --storage local-lvm
+
+# 2. Associer le snippet Cloud-Init vendor-data
+qm set <NOUVEAU_VMID> --cicustom "vendor=local:snippets/vendor-data.yaml"
+
+# 3. Ajuster les ressources matérielles (CPU, RAM)
+qm set <NOUVEAU_VMID> --memory 2048 --cores 2
+
+# 4. Démarrer la nouvelle machine virtuelle
+qm start <NOUVEAU_VMID>
+```
+
+Patientez environ 60 secondes. La machine sera joignable directement par SSH sur son adresse Tailscale :
+
+```bash
+ssh cmolotkoff@<nom-de-la-vm>.ims-world.fr
+```
 
 ## Autostart et ordre de boot
 

@@ -23,7 +23,8 @@ Avant d'enregistrer une machine, déterminer le profil approprié :
 | Profil | Type d'Équipement | Méthode d'Authentification | Exemples |
 |---|---|---|---|
 | **Utilisateur Classique** | Appareils personnels & mobiles avec navigateur Web | **Interactive via Authentik SSO OIDC** (`auth.ims-world.fr` + 2FA TOTP) | Smartphones (iOS/Android), Laptops, PC de bureau |
-| **Profil `infrastructure`** | Serveurs physiques & virtuels headless (automatisés) | **Non-interactive via Clé de Pré-Authentification** (*Pre-Auth Key*) | MS-01, VM 104 Coolify, PBS 103, Mac Mini, RPi, NAS |
+| **Profil `infrastructure` (Manuel)** | Serveurs physiques & virtuels headless existants | **Non-interactive via Clé de Pré-Authentification** (*Pre-Auth Key*) | MS-01, VM 104 Coolify, PBS 103, Mac Mini, RPi, NAS |
+| **Profil `infrastructure` (Automatisé)** | Nouvelles VM Linux clonées sur Proxmox VE | **Automatique au boot via Cloud-Init `vendor-data` (Template 8000)** | Nouvelles VM instanciées depuis le template |
 
 ---
 
@@ -153,6 +154,31 @@ Ce mode est indispensable pour les serveurs sans interface graphique (*headless*
     # Via le serveur Headscale (sur la VM 104 - UUID i136ix2bmrrbeovnyrh1o72w)
     docker exec -it headscale-i136ix2bmrrbeovnyrh1o72w headscale nodes list
     ```
+  </Step>
+</Steps>
+
+---
+
+## ⚡ Option C : Enrôlement automatique au boot (Template VM 8000 Cloud-Init)
+
+Pour toute nouvelle machine virtuelle déployée sur le cluster Proxmox VE, l'enregistrement Tailscale est entièrement automatisé sans aucune commande manuelle.
+
+<Steps>
+  <Step title="Cloner le template VMID 8000 avec le snippet vendor-data">
+    Sur l'hyperviseur Proxmox VE :
+    ```bash
+    qm clone 8000 <NOUVEAU_VMID> --name "<nom-vm>" --full --storage local-lvm
+    qm set <NOUVEAU_VMID> --cicustom "vendor=local:snippets/vendor-data.yaml"
+    qm start <NOUVEAU_VMID>
+    ```
+  </Step>
+
+  <Step title="Connexion automatique au premier amorçage">
+    Au démarrage, Cloud-Init installe `tailscale` et exécute automatiquement :
+    ```bash
+    tailscale up --authkey="<PREAUTH_KEY>" --login-server="https://vpn.ims-world.fr" --accept-dns=false --hostname="$(hostname)"
+    ```
+    La VM apparaît immédiatement enregistrée sous l'utilisateur `infrastructure` dans Headscale et reçoit son IP `100.64.0.x`. Voir la documentation du [Template Proxmox 8000](/infrastructure/proxmox-host#template-de-vm-ubuntu-2404-vmid-8000--automatisation-tailscale).
   </Step>
 </Steps>
 

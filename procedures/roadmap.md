@@ -3,12 +3,12 @@ title: "Feuille de Route & Liste TODO"
 description: "Suivi centralisé des chantiers prioritaires, roadmap de résilience et backlog d'évolution de l'infrastructure"
 icon: "list-check"
 iconType: "duotone"
-last_reviewed: "2026-09-13"
+last_reviewed: "2026-09-14"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Mis à Jour le 13/09/2026</Badge>
+<Badge color="green">🟢 Mis à Jour le 14/09/2026</Badge>
 
 <Info>
   Cette page constitue le **journal central de suivi des chantiers et de la feuille de route** du homelab IMS-WORLD. Elle regroupe l'ensemble des tâches ouvertes classées par domaine d'intervention (Résilience, Sécurité, Supervision, Nouveaux Services, Matériel) ainsi que l'historique des jalons réalisés.
@@ -27,6 +27,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Alerting** | Notifications Ntfy sur échec backup | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 / PBS | ⏳ En attente |
 | **Sauvegardes & PRA** | Politique de sauvegarde PBS incluant le nœud Mac Mini (`pve-macmini`) | <Badge color="amber">🟡 Moyen Terme</Badge> | Cluster / PBS | ⏳ En attente |
 | **Sauvegardes & Supervision** | Audit des sauvegardes des VM et validation du monitoring | <Badge color="red">🔴 Priorité 1</Badge> | Cluster / PBS / VM | ⏳ En attente |
+| **Gouvernance & Procédures** | Revue intégrale et validation de toutes les procédures | <Badge color="red">🔴 Priorité 1</Badge> | Ensemble de la doc | ⏳ En attente |
 | **Sécurité** | Credentials OVH dans fichier `.env` | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify Proxy) | ⏳ En attente |
 | **Gestion des Accès** | Création des accès pour Elo (Tailscale + VM dédiée) | <Badge color="amber">🟡 Moyen Terme</Badge> | Headscale / Proxmox | ⏳ En attente |
 | **IAM & Sécurité** | Connexion propre d'Authentik avec Tailscale (OIDC) | <Badge color="green">🟢 Effectué</Badge> | Authentik / Tailscale | ✅ 13/09/2026 |
@@ -52,6 +53,9 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **IA & Automatisation** | Page Agent (Alibaba — Agent d'automation browser) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
 | **IA & Productivity** | Meetilty (Gestion & transcription de réunions) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Plus tard |
 | **Domotique & Services** | Finalisation et documentation de la VM Home Assistant (HA) | <Badge color="amber">🟡 Moyen Terme</Badge> | Proxmox VE | ⏳ En attente |
+| **Automatisation & IaC** | Scripts Ansible de création automatique de VM | <Badge color="amber">🟡 Moyen Terme</Badge> | Proxmox VE (MS-01) | ⏳ En attente |
+| **Automatisation & Web** | Portail web de génération de VM temporaires (self-service) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Étude / PoC |
+| **Automatisation & Ansible** | Playbook post-provisioning (users, sudo NOPASSWD, base) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM & Nœuds PVE | ⏳ En attente |
 | **Matériel & Rack** | Extension physique du rack Labrax 10" | <Badge color="amber">🟡 Moyen Terme</Badge> | Rack Physique | ⏳ En attente |
 | **Stockage** | Extension capacitive HDD 4To / 8To Neuf | <Badge color="blue">🟦 À Évaluer</Badge> | NAS LXC 100 | 💡 Achat futur |
 | **Sécurité** | Détection d'intrusions NIDS & Sentryx | <Badge color="blue">🟦 À Évaluer</Badge> | Réseau / VM 104 | 💡 Étude |
@@ -83,6 +87,15 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 - **Constat** : Les machines virtuelles hébergées sur le cluster requièrent une garantie opérationnelle sur l'état de leurs sauvegardes et leur observabilité en temps réel.
 - **Tâche** : Vérifier la bonne exécution des jobs de sauvegarde PBS (`vzdump` / snapshot) pour l'ensemble des VM. Tester des restaurations à blanc. S'assurer que chaque VM remonte ses métriques de santé et ses alertes dans la stack de monitoring (Prometheus, Grafana Alloy, Uptime Kuma et notifications Ntfy).
+
+### 1.6 📋 Revue intégrale et validation de toutes les procédures opérationnelles <Badge color="red">🔴 Priorité 1</Badge>
+
+- **Constat** : Les procédures opérationnelles (urgences, déploiements, sécurité, PRA, gestion des accès et enrôlement réseau) doivent rester strictement conformes aux configurations réelles de l'infrastructure après les récentes évolutions techniques (cluster 2 nœuds, intégration Authentik OIDC, template VM 8000).
+- **Tâche** : Réviser et éprouver pas-à-pas l'intégralité des procédures documentées pour valider leur exactitude opérationnelle :
+  - Tester et valider chaque commande CLI, chemin de fichier et variable dynamique (`ips`, `domains`).
+  - Confirmer les prérequis d'exécution, les ports réseau et les politiques d'accès Authentik / Headscale.
+  - Actualiser l'attribut `last_reviewed` dans le frontmatter de chaque fiche validée.
+  - Corriger sans délai les éventuelles divergences ou commandes obsolètes.
 
 ---
 
@@ -211,23 +224,56 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 ---
 
-## 🗄️ 5. Matériel, Physique & Stockage Long Terme
+## 🤖 5. Automatisation, IaC & Provisioning Proxmox / Ansible
 
-### 5.1 🛠️ Extension Rack Labrax 10" <Badge color="amber">🟡 Moyen Terme</Badge>
+### 5.1 🚀 Scripts Ansible de création automatique de VM Proxmox <Badge color="amber">🟡 Moyen Terme</Badge>
+
+- **Constat** : Le clonage manuel d'une machine virtuelle depuis le template 8000 via l'hyperviseur Proxmox VE (`qm clone`, `qm set`, `qm start`) nécessite plusieurs actions en ligne de commande.
+- **Tâche** : Développer une collection de playbooks et rôles Ansible dédiés à l'IaC Proxmox (`community.general.proxmox_kvm` ou appels API/CLI PVE) pour provisionner automatiquement une VM :
+  - Cloner le template Ubuntu 24.04 (`VMID 8000`).
+  - Définir le nom d'hôte, l'ID de VM, la RAM, les cœurs CPU et la taille du disque.
+  - Injecter le snippet Cloud-Init `vendor-data.yaml` pour l'enrôlement Tailscale/Headscale automatique.
+  - Démarrer la VM et attendre qu'elle soit joignable sur le réseau VPN.
+  - Ajouter automatiquement le nouvel hôte à l'inventaire dynamique Ansible.
+
+### 5.2 🌐 Portail web de génération de VM temporaires (self-service) <Badge color="blue">🟦 À Évaluer</Badge>
+
+- **Constat** : Les sessions de test, validations de concepts (PoC) et environnements éphémères nécessitent une création rapide sans ouvrir l'interface Proxmox et risquent de consommer inutilement des ressources s'ils sont oubliés.
+- **Tâche** : Concevoir et déployer une interface web légère (portail self-service connecté à l'API Proxmox et aux playbooks Ansible) :
+  - Formulaire simple pour demander une VM temporaire (nom, gabarit CPU/RAM, utilisateur SSH).
+  - Attribution d'un temps de rétention ou durée de vie (*Time-To-Live* / TTL : 2h, 24h, 7j).
+  - Tâche planifiée automatique détruisant la VM et libérant le stockage et la RAM à l'échéance.
+  - Authentification centralisée via le SSO Authentik de l'infrastructure.
+
+### 5.3 👤 Configuration Ansible post-provisioning (utilisateurs, sudo NOPASSWD, services de base) <Badge color="amber">🟡 Moyen Terme</Badge>
+
+- **Constat** : Après la première initialisation d'une VM, la standardisation des comptes d'administration, les privilèges sudo et l'outillage système de base doivent être appliqués de façon idempotente et reproductible.
+- **Tâche** : Créer un rôle Ansible réutilisable de configuration initiale de nœud :
+  - **Gestion des utilisateurs** : Création de comptes utilisateurs avec leur shell par défaut et déploiement de leurs clés SSH autorisées.
+  - **Privilèges sudo sans mot de passe** : Déploiement propre d'une règle `NOPASSWD` ciblée dans `/etc/sudoers.d/` pour les administrateurs désignés.
+  - **Services et paquets de base** : Installation de l'outillage standard (`curl`, `git`, `htop`, `tmux`, `jq`, `net-tools`, `qemu-guest-agent`).
+  - **Options activables à la demande** : Activation modulaire par variables d'inventaire de composants optionnels (Docker Engine, agent Grafana Alloy, Fail2ban, Node Exporter).
+
+---
+
+## 🗄️ 6. Matériel, Physique & Stockage Long Terme
+
+### 6.1 🛠️ Extension Rack Labrax 10" <Badge color="amber">🟡 Moyen Terme</Badge>
 
 - **Tâche** : Achever le montage physique et le câblage propre de l'extension de châssis 10 pouces du rack [Labrax](/infrastructure/labrax).
 
-### 5.2 💾 Achat HDD 4To / 8To Neuf <Badge color="blue">🟦 À Évaluer</Badge>
+### 6.2 💾 Achat HDD 4To / 8To Neuf <Badge color="blue">🟦 À Évaluer</Badge>
 
 - **Tâche** : Acquérir un disque dur HDD supplémentaire pour étendre le pool capacitif et/ou instaurer un miroir de parité sur le NAS.
 
-### 5.3 🔍 Sonde NIDS / Sentryx <Badge color="blue">🟦 À Évaluer</Badge>
+### 6.3 🔍 Sonde NIDS / Sentryx <Badge color="blue">🟦 À Évaluer</Badge>
 
 - **Tâche** : Évaluer la mise en service d'une sonde de détection d'intrusions réseau (NIDS) et du projet Sentryx.
 
 ---
 
-## 🟢 6. Chantiers Récents Effectués & Archives
+## 🟢 7. Chantiers Récents Effectués & Archives
+
 
 <AccordionGroup>
   <Accordion title="🖥️ Cluster Proxmox VE ims-cluster & Fail2ban Harmonisé — 23/08/2026">

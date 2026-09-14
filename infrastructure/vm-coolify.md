@@ -22,7 +22,7 @@ Héberge l'interface web Coolify Master, la base de données de gestion et orche
 | Propriété | Valeur |
 |---|---|
 | **VMID** | 104 |
-| **OS** | Ubuntu 24.04 LTS (clonée depuis template `9000`) |
+| **OS** | Ubuntu 24.04 LTS (clonée depuis template Cloud-Init `8000`) |
 | **CPU / RAM** | 6 cores (mode CPU `host` — `x86-64-v2`) / 18 Go RAM |
 | **Disque** | 128 Go NVMe |
 | **Réseau** | `vmbr0` (192.168.1.52/24) + `vmbr1` (10.10.10.2/24) + client Tailscale dédié |
