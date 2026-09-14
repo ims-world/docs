@@ -96,13 +96,14 @@ Le Nœud 2 `pve-macmini` héberge des workloads d'exécution isolés du cluster 
 | ID / Hostname | Type | Distribution / OS | Adresse IP | Role & Description | Statut |
 |---|---|---|---|---|---|
 | **LXC 105** (`pve-macmini-worker_LXC-105`) | LXC Unprivileged | Debian 13 (Trixie) | `192.168.1.198` | **Coolify Worker** — Moteur d'exécution Docker distant (voir [LXC 105](/infrastructure/lxc-coolify-worker)) | <Badge color="green">🟢 Actif</Badge> |
+| **VM 106** (`haos18.2`) | VM KVM Dédiée | Home Assistant OS 18.2 | `192.168.1.92` / `100.64.0.5` | **Home Assistant** — Serveur domotique et passerelle IoT locale (voir [Home Assistant](/services/home-assistant)) | <Badge color="green">🟢 Actif</Badge> |
 
 ---
 
 ## Rôle & Prochaines Étapes
 
 - **Support de Basculement** : Utilisé comme nœud récepteur pour la migration à chaud/à froid de conteneurs et VM.
-- **Feuille de Route** : Installation du conteneur **LXC Home Assistant** (mode bridge direct `vmbr0` pour la découverte mDNS/SSDP) et déploiement du **QDevice Corosync** sur le Raspberry Pi pour sécuriser le quorum.
+- **Feuille de Route** : Intégration de la VM 106 dans les sauvegardes PBS et déploiement du **QDevice Corosync** sur le Raspberry Pi pour sécuriser le quorum.
 
 ---
 

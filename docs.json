@@ -113,7 +113,8 @@
               "services/zipline",
               "services/forgejo",
               "services/patrimo",
-              "services/photoprism"
+              "services/photoprism",
+              "services/home-assistant"
             ]
           }
         ]

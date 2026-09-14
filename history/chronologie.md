@@ -25,6 +25,11 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 
   - **Enrôlement Automatique Tailscale sur Template Ubuntu 24.04** — Ajout d'une configuration Cloud-Init `vendor-data.yaml` sur le template Proxmox (`VMID 8000`). Toute nouvelle VM clonée installe Tailscale et rejoint automatiquement le Tailnet privé sur `vpn.ims-world.fr` dès son premier boot via une clé réutilisable. Voir [Hôte Proxmox MS-01](/infrastructure/proxmox-host) et [Ajout d'une machine Headscale](/procedures/ajout-machine-headscale).
   - **Chantiers Ansible & Audit des Procédures** — Inscription à la feuille de route des playbooks d'automatisation de création de VM, du portail self-service de VM éphémères et de l'audit complet des procédures opérationnelles (Chantier 1.6). Voir [Feuille de Route](/procedures/roadmap).
+
+  ### 🏠 Domotique & Déploiement VM HAOS (Mac Mini)
+
+  - **Bascule d'Architecture & Déploiement HAOS (VMID 106)** — Abandon de l'ancien conteneur Docker sur Coolify et déploiement d'une machine virtuelle dédiée **Home Assistant OS 18.2 / Core 2026.9.2** sur le Mac Mini (`pve-macmini`). Raccordement natif au bridge `vmbr0` pour restaurer la découverte mDNS/Bonjour directe (Philips Hue, Apple HomeKit Bridge).
+  - **Accès Distant Sécurisé via Add-on Tailscale** — Déploiement du module complémentaire Tailscale connecté au serveur Headscale (`vpn.ims-world.fr`), attribuant l'adresse IP Tailnet `100.64.0.5`. Voir [Home Assistant](/services/home-assistant).
 </Update>
 
 <Update label="13/09/2026" description="Intégration OIDC Authentik - Headscale (Groupe Membres) & Validation Premier Enrôlement">
