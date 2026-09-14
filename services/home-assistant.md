@@ -20,8 +20,8 @@ import { ips, domains } from "/snippets/variables.mdx";
 <Tabs>
   <Tab title="🌐 Interfaces Web">
     <CardGroup cols={2}>
-      <Card title="Accès Distant (Tailnet)" icon="shield-halved" href="http://100.64.0.5:8123">
-        Interface web accessible depuis n'importe quel appareil connecté au Tailnet privé (`http://100.64.0.5:8123`).
+      <Card title="Accès Distant (Tailnet)" icon="shield-halved" href="http://home.ims-world.fr:8123">
+        Interface web accessible depuis le Tailnet privé via DNS split-horizon : `http://home.ims-world.fr:8123` (ou `http://100.64.0.5:8123`).
       </Card>
       <Card title="Accès Local (LAN)" icon="network-wired" href="http://192.168.1.92:8123">
         Accès direct sur le réseau local physique (nécessaire lors de l'onboarding initial).
@@ -56,10 +56,11 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Hôte d'Accueil** | Apple Mac Mini Late 2012 (`pve-macmini`, Nœud 2 `ims-cluster`) |
 | **IP Réseau Local (LAN)** | `192.168.1.92` (Bail DHCP statique sur la Bbox) |
 | **IP Tailscale (Tailnet)** | `100.64.0.5` (`ha-macmini`) |
+| **FQDN Tailnet Split-Horizon** | `home.ims-world.fr:8123` (`extra_records` ➔ `100.64.0.5`) |
 | **Version HAOS** | `18.2` |
 | **Version Core** | `2026.9.2` |
 | **Serveur de Coordination VPN** | Headscale IMS-WORLD (`https://vpn.ims-world.fr`) |
-| **Reverse Proxy** | Aucun (accès direct HTTP brut ; routeur HTTPS Traefik `vpn-only` en TODO) |
+| **Reverse Proxy** | Aucun (connexion directe native HTTP sur le port 8123 chiffrée par WireGuard Tailscale) |
 | **Authentification** | Native Home Assistant (compte administrateur local) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
@@ -171,15 +172,15 @@ Le déploiement initial sous forme de conteneur Docker sur `ims-coolify` (VM 104
 
 ## Accès Distant & Avertissements Protocolaires
 
-<Warning>
-**Accès direct en HTTP brut (pas de HTTPS direct)** :
-L'accès distant sur l'IP Tailscale s'effectue exclusivement en HTTP direct : `http://100.64.0.5:8123`. Aucun certificat TLS n'est installé sur cette adresse IP brute.
-Si votre navigateur force le HTTPS (option *Toujours utiliser des connexions sécurisées* de Chrome ou cache HSTS), vous obtiendrez une erreur trompeuse `Unable to connect to Home Assistant`. Vérifiez toujours que le protocole dans la barre d'adresse est bien `http://`.
-</Warning>
+<Info>
+**Chiffrement de bout en bout via Tailscale WireGuard** :
+Même si le protocole applicatif est en HTTP (`http://home.ims-world.fr:8123` ou `http://100.64.0.5:8123`), l'intégralité du trafic réseau est **chiffrée de bout en bout au niveau réseau (Couche 3)** par le tunnel WireGuard de Tailscale. Vos identifiants et données transitent de façon parfaitement hermétique et sécurisée entre votre client et la VM HAOS.
+</Info>
 
 <Warning>
-**Ancien domaine `home.ims-world.fr` obsolète** :
-Ce sous-domaine était associé à l'ancien conteneur Docker sur Coolify. Il a été retiré et ne route plus vers rien. Si vous aviez installé la PWA Home Assistant sur ce domaine, videz le cache et désenregistrez les Service Workers de votre navigateur pour éviter toute confusion (`DevTools → Application → Service Workers → Unregister`).
+**Port `:8123` obligatoire et protocole HTTP** :
+L'accès s'effectue exclusivement en spécifiant le port `:8123` (`http://home.ims-world.fr:8123`). Aucun serveur web n'écoute sur le port 443 standard de la machine.
+Si votre navigateur tente de forcer le HTTPS (option *Toujours utiliser des connexions sécurisées* de Chrome), il retournera une erreur `ERR_CONNECTION_REFUSED`. Assurez-vous que l'URL commence bien par `http://`.
 </Warning>
 
 ---
