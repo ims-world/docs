@@ -3,13 +3,13 @@ title: "CrowdSec & Shield (Web UI)"
 description: "Moteur de détection d'intrusions, WAF AppSec, bouncer Traefik et interface Web d'administration Shield"
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-08-26"
-app_version: "v1.7.8 / 2026.8.1"
+last_reviewed: "2026-09-14"
+app_version: "v1.8.1 / 2026.8.3"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Production Active (v1.7.8 + Web UI)</Badge>
+<Badge color="green">🟢 Production Active (v1.8.1 + Web UI 2026.8.3)</Badge>
 
 ## Accès Rapides & Administration
 
@@ -56,8 +56,8 @@ import { ips, domains } from "/snippets/variables.mdx";
 |---|---|
 | **Domaine Admin Web UI** | `shield.ims-world.fr` |
 | **Rôle** | Détection d'Intrusions L3/L4/L7, WAF AppSec, Bouncer Traefik & Administration des Bans |
-| **Version Agent** | `crowdsecurity/crowdsec:v1.7.8` |
-| **Version Web UI** | `ghcr.io/theduffman85/crowdsec-web-ui:2026.8.1` |
+| **Version Agent** | `crowdsecurity/crowdsec:v1.8.1` |
+| **Version Web UI** | `ghcr.io/theduffman85/crowdsec-web-ui:2026.8.3` |
 | **Version Bouncer Traefik** | `crowdsec-bouncer-traefik-plugin` v1.6.0 (Plugin dynamique) |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `8bqmp4lkzgfoooqx0wrndfkt` |
@@ -87,7 +87,7 @@ graph TB
     end
 
     subgraph CROWDSEC_RESOURCE ["🛡️ Ressemble Coolify CrowdSec (8bqmp4lkzgfoooqx0wrndfkt)"]
-        AGENT["Conteneur Agent CrowdSec v1.7.8"]
+        AGENT["Conteneur Agent CrowdSec v1.8.1"]
         APPSEC["WAF AppSec (Port 7422)"]
         LAPI["LAPI Local (Port 8080 - Interne)"]
         METRICS["Metrics Prometheus (Port 6060)"]

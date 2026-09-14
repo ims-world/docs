@@ -3,13 +3,13 @@ title: "Immich"
 description: "Médiathèque photo & vidéo self-hosted avec IA (reconnaissance faciale & recherche CLIP)"
 icon: "images"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
-app_version: "v3.1.0"
+last_reviewed: "2026-09-14"
+app_version: "v3.2.0"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Production Active (v3.1.0 — 61 880 Assets)</Badge>
+<Badge color="green">🟢 Production Active (v3.2.0 — 61 880 Assets)</Badge>
 
 ## Accès Rapides & Administration
 
@@ -44,7 +44,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 |---|---|
 | **Domaine** | `photos.ims-world.fr` |
 | **Rôle** | Médiathèque photo/vidéo avec IA (reconnaissance faciale & recherche sémantique CLIP) |
-| **Versions** | Immich `v3.1.0` / Postgres VectorChord `14-vectorchord0.3.0` / Redis `7.4-alpine` |
+| **Versions** | Immich `v3.2.0` / Postgres VectorChord `14-vectorchord0.3.0` / Redis `7.4-alpine` |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `p3ujda5c7sc8nf4j9zzd8lck` |
 | **Chemin sur la VM** | `/data/coolify/services/p3ujda5c7sc8nf4j9zzd8lck/` |
@@ -66,8 +66,8 @@ graph TB
     end
 
     subgraph IMMICH_STACK ["🖼️ Stack Immich (VM 104 Docker)"]
-        SERVER["Immich Server v3.1.0 (Port 2283)"]
-        ML["Immich Machine Learning v3.1.0 (CLIP / Faciale)"]
+        SERVER["Immich Server v3.2.0 (Port 2283)"]
+        ML["Immich Machine Learning v3.2.0 (CLIP / Faciale)"]
         DB[("🐘 Postgres 14 (VectorChord)")]
         REDIS[("⚡ Redis 7.4")]
     end

@@ -3,8 +3,8 @@ title: "Headscale & Headplane"
 description: "Serveur VPN Tailscale self-hosted et son interface Web d'administration"
 icon: "network-wired"
 iconType: "duotone"
-last_reviewed: "2026-09-13"
-app_version: "v0.28.0 / v0.6.2"
+last_reviewed: "2026-09-14"
+app_version: "v0.29.3 / 0.7.1"
 ---
 
 import TailscaleTable from "/snippets/tailscale-table.mdx";
@@ -42,7 +42,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 |---|---|
 | **URL Coordination (Public)** | `https://vpn.ims-world.fr` *(Public WAN — serveur de coordination Tailscale)* |
 | **URL Admin Headplane (Tailnet Only)** | `https://admin.vpn.ims-world.fr/admin` *(Tailscale Only — **`/admin` obligatoire**)* |
-| **Versions** | `headscale/headscale:v0.28.0` + `ghcr.io/tale/headplane:0.6.2` |
+| **Versions** | `headscale/headscale:v0.29.3` + `ghcr.io/tale/headplane:0.7.1` |
 | **Base de Données** | SQLite (`db.sqlite`) |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `i136ix2bmrrbeovnyrh1o72w` |
@@ -64,8 +64,8 @@ graph TB
     end
 
     subgraph HEADSCALE_STACK ["🔐 Control Plane Stack (VM 104 Docker)"]
-        HEADSCALE["Headscale v0.28.0 (Control Plane Server)"]
-        HEADPLANE["Headplane 0.6.2 (Web Management GUI)"]
+        HEADSCALE["Headscale v0.29.3 (Control Plane Server)"]
+        HEADPLANE["Headplane 0.7.1 (Web Management GUI)"]
         NOISE_KEY["noise_private.key (Identité Cryptographique)"]
         DB_SQLITE["db.sqlite (Devices, Users, Keys)"]
     end

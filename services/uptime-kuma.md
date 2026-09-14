@@ -3,13 +3,13 @@ title: "Uptime Kuma"
 description: "Statuspage et monitoring actif — pings HTTP/TCP, alerting Ntfy"
 icon: "heart-pulse"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
-app_version: "v2.5.0"
+last_reviewed: "2026-09-14"
+app_version: "v2.5.4"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Production Active (v2.5.0)</Badge>
+<Badge color="green">🟢 Production Active (v2.5.4)</Badge>
 
 ## Accès Rapides & Administration
 
@@ -44,7 +44,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 |---|---|
 | **Domaine** | `status.ims-world.fr` |
 | **Rôle** | Surveillance active de disponibilité (HTTP/TCP) & Alerting Ntfy |
-| **Version** | `louislam/uptime-kuma:2.5.0` (version stable figée) |
+| **Version** | `louislam/uptime-kuma:2.5.4` (version stable figée) |
 | **Base de Données** | SQLite |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `il53bmpdybmss5q14sfy0umm` |
@@ -69,7 +69,7 @@ graph TB
     end
 
     subgraph KUMA_CONTAINER ["💓 Service Uptime Kuma (VM 104 Docker)"]
-        KUMA["Uptime Kuma v2.5.0 (Port 3001)"]
+        KUMA["Uptime Kuma v2.5.4 (Port 3001)"]
         DB[("💾 db.sqlite")]
     end
 

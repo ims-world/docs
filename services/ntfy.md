@@ -3,8 +3,8 @@ title: "Ntfy — Notifications Push"
 description: "Serveur de notifications push pour l'alerting et les applications mobile"
 icon: "bell"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
-app_version: "v2.27.0"
+last_reviewed: "2026-09-14"
+app_version: "v2.28.0"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -48,7 +48,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 |---|---|
 | **Domaine** | `ntfy.ims-world.fr` |
 | **Rôle** | Serveur de Notifications Push (Grafana Alerting & notifications système) |
-| **Version** | `binwiederhier/ntfy:v2.27.0` |
+| **Version** | `binwiederhier/ntfy:v2.28.0` |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `j5akn2e9pr6g7c2pjvdj78w0` |
 | **Chemin sur la VM** | `/data/coolify/services/j5akn2e9pr6g7c2pjvdj78w0/` |

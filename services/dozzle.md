@@ -3,8 +3,8 @@ title: "Dozzle — Logs Docker en Direct"
 description: "Visualisation live des logs de tous les containers Docker, protégée par Authentik"
 icon: "list"
 iconType: "duotone"
-last_reviewed: "2026-08-24"
-app_version: "v10.7.4"
+last_reviewed: "2026-09-14"
+app_version: "v11.0.1"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -41,7 +41,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 |---|---|
 | **Domaine** | `logs.ims-world.fr` |
 | **Rôle** | Consultation instantanée des logs Docker (VM IMS-Coolify) |
-| **Version** | `amir20/dozzle:v10.7.4` |
+| **Version** | `amir20/dozzle:v11.0.1` |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
 | **UUID Coolify** | `ejdn7jiuwiyixrmp8nffjkcj` |
 | **Chemin sur la VM** | `/data/coolify/services/ejdn7jiuwiyixrmp8nffjkcj/` |
