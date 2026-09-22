@@ -201,6 +201,10 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
       <Card title="PhotoPrism" icon="camera" href="/services/photoprism">
         **Domaine** : `studio.ims-world.fr` **Auth** : SSO Authentik OIDC Natif **Protection** : TLS Traefik & Session SSO (client photo-prism)
       </Card>
+
+      <Card title="n8n (Automation)" icon="diagram-project" href="/services/n8n">
+        **Domaine** : `automation.ims-world.fr` **Auth** : Native n8n + 2FA TOTP **Protection** : TLS Traefik, Bouncer CrowdSec, Webhooks publics
+      </Card>
     </CardGroup>
   </Tab>
   <Tab title="🔐 Zone 2 — Services Filtrés (Tailnet Only)">

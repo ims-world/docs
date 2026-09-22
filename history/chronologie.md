@@ -3,6 +3,15 @@ title: "Changelog & Historique"
 description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
+<Update label="22/09/2026" description="Déploiement Plateforme d'Automatisation n8n avec PostgreSQL 16 & Exposition Publique (automation.ims-world.fr)">
+  ### ⚡ Orchestration & Automatisation de Flux (n8n)
+
+  - **Mise en Service de la Stack n8n sur Coolify** — Déploiement d'un service Docker Compose dédié sur la VM 104 (`ims-coolify`) associant le moteur officiel `docker.n8n.io/n8nio/n8n:latest` à une base relationnelle **PostgreSQL 16** (`postgres:16-alpine`).
+  - **Exposition Publique Sécurisée (`automation.ims-world.fr`)** — Routage Traefik v3 avec terminaison TLS 1.3 Let's Encrypt (DNS-01 OVH) et protection bouncer CrowdSec. Résolution immédiate via le wildcard DNS `*.ims-world.fr`.
+  - **Architecture d'Authentification & Webhooks Ouverts** — Choix délibéré de l'authentification native de n8n avec **MFA / 2FA TOTP obligatoire**, garantissant un accès direct et non bloqué pour les webhooks entrants (`/webhook/*`) de services tiers (GitHub, Stripe, Telegram, Home Assistant) sans interférence de proxy SSO.
+  - **Durcissement & Hygiène des Données** — Configuration du prunage automatique des exécutions (`EXECUTIONS_DATA_PRUNE=true`, rétention max 7 jours / 50 000 entrées) et isolation de la base de données sur un réseau Docker interne privé `internal`. Voir [n8n (Automation)](/services/n8n).
+</Update>
+
 <Update label="14/09/2026" description="Déploiement WhatsUpDocker (WUD), Vague de Mises à Jour Applicatives (8 services) & Template VM 8000 Tailscale">
   ### 🔔 Supervision des Mises à Jour (WhatsUpDocker)
 

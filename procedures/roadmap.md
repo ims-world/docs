@@ -55,6 +55,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Domotique & Services** | Documentation & Déploiement VM HAOS (Mac Mini) | <Badge color="green">🟢 Effectué</Badge> | Mac Mini (`100.64.0.5`) | ✅ 14/09/2026 |
 | **Sauvegardes & Domotique** | Sauvegarde PBS nocturne de la VM 106 (HAOS) | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / PBS | ⏳ En attente |
 | **UX & Sécurité HA** | Routeur Traefik HTTPS vpn-only pour Home Assistant (`https://home.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Traefik) | ✅ 14/09/2026 |
+| **Automatisation & Workflows** | Déploiement n8n sur Coolify avec PostgreSQL 16 (`automation.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Coolify) | ✅ 22/09/2026 |
 | **Automatisation & IaC** | Scripts Ansible de création automatique de VM | <Badge color="amber">🟡 Moyen Terme</Badge> | Proxmox VE (MS-01) | ⏳ En attente |
 | **Automatisation & Web** | Portail web de génération de VM temporaires (self-service) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Étude / PoC |
 | **Automatisation & Ansible** | Playbook post-provisioning (users, sudo NOPASSWD, base) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM & Nœuds PVE | ⏳ En attente |
@@ -231,6 +232,13 @@ import { ips, domains } from "/snippets/variables.mdx";
   1. **Sauvegardes PBS** : Déclarer la VM 106 dans un job nocturne automatisé `vzdump` vers le datastore PBS (LXC 103).
   2. **Bail statique LAN** : Confirmer la réservation DHCP permanente de l'IP `192.168.1.92` sur la Bbox.
   3. **Supervision Uptime Kuma** : Ajouter une sonde HTTP sécurisée sur `https://home.ims-world.fr`.
+
+### 4.15 ⚡ Plateforme d'Automatisation de Flux n8n <Badge color="green">🟢 Effectué — 22/09/2026</Badge>
+
+- **Réalisé** : Déploiement du service d'automatisation de workflows **n8n** sur Coolify (VM 104) adossé à un cluster **PostgreSQL 16**. Exposition publique sur **`automation.ims-world.fr`** (Zone 1) avec terminaison TLS 1.3 Let's Encrypt (DNS-01 OVH) et protection CrowdSec. Choix de l'authentification native avec 2FA TOTP pour garantir le passage transparent des requêtes webhooks externes (`/webhook/*`). Fiche complète publiée sur [n8n (Automation)](/services/n8n).
+- **Tâches d'Exploitation Résiduelles (TODO)** :
+  1. **Supervision Uptime Kuma** : Déclarer un moniteur HTTP sur `https://automation.ims-world.fr/healthz` avec alerte Ntfy.
+  2. **Sauvegarde PostgreSQL Automatisée** : Intégrer un job nocturne de dump de la base `n8n` vers le stockage de sauvegarde.
 
 ---
 

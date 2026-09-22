@@ -114,7 +114,8 @@
               "services/forgejo",
               "services/patrimo",
               "services/photoprism",
-              "services/home-assistant"
+              "services/home-assistant",
+              "services/n8n"
             ]
           }
         ]
