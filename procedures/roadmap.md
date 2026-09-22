@@ -233,12 +233,13 @@ import { ips, domains } from "/snippets/variables.mdx";
   2. **Bail statique LAN** : Confirmer la réservation DHCP permanente de l'IP `192.168.1.92` sur la Bbox.
   3. **Supervision Uptime Kuma** : Ajouter une sonde HTTP sécurisée sur `https://home.ims-world.fr`.
 
-### 4.15 ⚡ Plateforme d'Automatisation de Flux n8n <Badge color="green">🟢 Effectué — 22/09/2026</Badge>
+### 4.15 ⚡ Plateforme d'Automatisation de Flux n8n (Queue Mode) <Badge color="green">🟢 Effectué — 22/09/2026</Badge>
 
-- **Réalisé** : Déploiement du service d'automatisation de workflows **n8n** sur Coolify (VM 104) adossé à un cluster **PostgreSQL 16**. Exposition publique sur **`automation.ims-world.fr`** (Zone 1) avec terminaison TLS 1.3 Let's Encrypt (DNS-01 OVH) et protection CrowdSec. Choix de l'authentification native avec 2FA TOTP pour garantir le passage transparent des requêtes webhooks externes (`/webhook/*`). Fiche complète publiée sur [n8n (Automation)](/services/n8n).
+- **Réalisé** : Déploiement de la stack **n8n v2.10.4** sur Coolify (VM 104, UUID `uifode0ypia57wbkyoertbxh`) en architecture haute résilience **Queue Mode** (5 conteneurs : `n8n`, `n8n-worker`, `task-runners`, `redis`, `postgresql`). Exposition publique sur **`automation.ims-world.fr`** (Zone 1) avec terminaison TLS 1.3 Let's Encrypt (DNS-01 OVH) et protection CrowdSec. Authentification native avec 2FA TOTP pour garantir le passage transparent des requêtes webhooks externes (`/webhook/*`). Fiche complète publiée sur [n8n (Automation)](/services/n8n).
 - **Tâches d'Exploitation Résiduelles (TODO)** :
   1. **Supervision Uptime Kuma** : Déclarer un moniteur HTTP sur `https://automation.ims-world.fr/healthz` avec alerte Ntfy.
   2. **Sauvegarde PostgreSQL Automatisée** : Intégrer un job nocturne de dump de la base `n8n` vers le stockage de sauvegarde.
+  3. **Prunage des Exécutions** : Activer `EXECUTIONS_DATA_PRUNE=true` ultérieurement si le volume de flux augmente.
 
 ---
 

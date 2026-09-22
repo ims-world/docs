@@ -1,22 +1,22 @@
 ---
 title: "n8n (Automation)"
-description: "Plateforme d'automatisation de flux de travail, webhooks et intégration d'APIs, orchestrée sur Coolify"
+description: "Plateforme d'automatisation de flux, webhooks et intégrations d'APIs en mode Queue haute performance sur Coolify"
 icon: "diagram-project"
 iconType: "duotone"
 last_reviewed: "2026-09-22"
-app_version: "latest (1.x)"
+app_version: "2.10.4"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Nouveau Service Actif</Badge>
+<Badge color="green">🟢 Production Active (Queue Mode Multi-Workers)</Badge>
 
 ## Accès Rapides & Administration
 
 <Tabs>
   <Tab title="🌐 Interface Web">
     <Card title="n8n Web UI" icon="diagram-project" href="https://automation.ims-world.fr">
-      Éditeur visuel de workflows, déclencheurs webhooks et orchestration d'APIs sur `automation.ims-world.fr`.
+      Console de conception de workflows, gestion des credentials et webhooks sur `automation.ims-world.fr`.
     </Card>
   </Tab>
   <Tab title="⚡ Commandes CLI & Maintenance">
@@ -24,14 +24,17 @@ import { ips, domains } from "/snippets/variables.mdx";
     # Se connecter en SSH à la VM Coolify (VM 104)
     ssh cmolotkoff@100.64.0.4
 
-    # Lister les conteneurs n8n
-    docker ps | grep n8n
+    # Accéder au dossier du service n8n sur Coolify
+    cd /data/coolify/services/uifode0ypia57wbkyoertbxh/
 
-    # Inspecter les logs d'exécution du moteur n8n
-    docker logs -f --tail=100 n8n-app
+    # Inspecter l'état des 5 conteneurs de la stack
+    docker compose ps
+
+    # Consulter les logs en temps réel du serveur web et des workers
+    docker compose logs -f --tail=50 n8n n8n-worker task-runners
 
     # Sauvegarde à chaud de la base PostgreSQL n8n
-    docker exec -t n8n-postgres pg_dump -U n8n -d n8n | gzip > /tmp/backup_n8n_$(date +%F).sql.gz
+    docker exec -t $(docker ps -qf "name=postgresql-uifode0ypia57wbkyoertbxh") pg_dump -U n8n -d n8n | gzip > /tmp/backup_n8n_$(date +%F).sql.gz
     ```
   </Tab>
 </Tabs>
@@ -44,225 +47,272 @@ import { ips, domains } from "/snippets/variables.mdx";
 |---|---|
 | **Domaine Web** | `automation.ims-world.fr` |
 | **Rôle** | Automatisation de flux, récepteur de webhooks, intégrations API et scripts domotiques |
-| **Image Docker Principale** | `docker.n8n.io/n8nio/n8n:latest` |
-| **Base de Données** | PostgreSQL 16 (`postgres:16-alpine`) |
+| **Version n8n** | `2.10.4` (Template Coolify Queue Mode) |
+| **Mode d'Exécution** | **Queue Mode** (Broker Redis + Worker dédié + Task Runners isolés) |
 | **Hôte d'Orchestration** | VM IMS-Coolify (VM 104, `192.168.1.52`) |
+| **UUID Coolify** | `uifode0ypia57wbkyoertbxh` |
+| **Chemin sur la VM** | `/data/coolify/services/uifode0ypia57wbkyoertbxh/` |
+| **Base de Données** | PostgreSQL 16 (`postgres:16-alpine`) |
+| **Broker de Queue** | Redis 6 (`redis:6-alpine`) |
+| **Runners de Code** | `n8nio/runners:2.10.4` (Exécution Python natif sandboxed) |
 | **Zone Réseau & Exposition** | **Zone 1 (Public WAN)** — Chiffrement TLS 1.3 Let's Encrypt (DNS-01 OVH) + Bouncer CrowdSec |
-| **Authentification** | **Native n8n** (User Management avec 2FA / MFA TOTP obligatoire) |
-| **Gestion des Webhooks** | Endpoints `/webhook/*` et `/webhook-test/*` publics traversants |
-| **Stockage Persistant** | Volumes Docker nommés (`n8n_data` et `postgres_data`) |
+| **Authentification** | **Native n8n** (User Management avec 2FA / MFA TOTP) |
+| **Webhooks** | Endpoints publics traversants (`/webhook/*` et `/webhook-test/*`) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 ---
 
-## Architecture & Topologie
+## Architecture & Topologie (Queue Mode)
+
+La stack n8n est déployée selon le pattern haute résilience **Queue Mode**, séparant l'interface web de la charge de calcul :
 
 ```mermaid
 graph TB
     subgraph INGRESS ["🌐 Accès Web WAN & Webhooks Externes (Zone 1)"]
-        USER["👤 Administrateur (Navigateur Web)"]
-        EXTERNAL_SVC["☁️ Services Externes (GitHub, Stripe, Telegram)"]
-        HOMELAB_SVC["🏠 Services Internes (Home Assistant, Ntfy)"]
+        USER["👤 Administrateur (Console UI)"]
+        WEBHOOK_CALLS["☁️ Webhooks Externes (GitHub, Stripe, Telegram, HA)"]
         TRAEFIK["🛡️ Traefik v3 (coolify-proxy - 100.64.0.4)<br/>TLS Let's Encrypt + Plugin CrowdSec"]
     end
 
-    subgraph N8N_STACK ["📦 Stack n8n (VM 104 Docker)"]
-        N8N_CORE["⚙️ Moteur n8n (Port 5678)<br/>docker.n8n.io/n8nio/n8n:latest"]
-        DB[("🐘 PostgreSQL 16<br/>postgres:16-alpine")]
-        VOL_N8N["📁 Volume n8n_data (/home/node/.n8n)"]
-        VOL_DB["📁 Volume postgres_data (/var/lib/postgresql/data)"]
+    subgraph N8N_CLUSTER ["📦 Stack n8n uifode0ypia57wbkyoertbxh (VM 104)"]
+        N8N_WEB["🌐 n8n (Port 5678)<br/>Frontend UI, Dispatcher & Webhooks"]
+        N8N_WORKER["⚙️ n8n-worker<br/>Traitement des workflows en tâche de fond"]
+        RUNNERS["🐍 task-runners (:5680)<br/>Moteur Python/JS sandboxed"]
+        REDIS[("⚡ Redis 6<br/>Broker de messages Bull Queue")]
+        POSTGRES[("🐘 PostgreSQL 16<br/>Stockage persistant")]
     end
 
-    USER -->|HTTPS 443 (Console UI)| TRAEFIK
-    EXTERNAL_SVC -->|POST /webhook/*| TRAEFIK
-    HOMELAB_SVC -->|POST /webhook/*| TRAEFIK
+    USER -->|HTTPS 443| TRAEFIK
+    WEBHOOK_CALLS -->|POST /webhook/*| TRAEFIK
 
-    TRAEFIK -->|Reverse Proxy HTTP :5678| N8N_CORE
-    N8N_CORE <-->|Réseau bridge 'internal' :5432| DB
-    N8N_CORE --- VOL_N8N
-    DB --- VOL_DB
+    TRAEFIK -->|Port 5678| N8N_WEB
+
+    N8N_WEB <-->|Enqueue Jobs| REDIS
+    N8N_WORKER <-->|Dequeue & Exécution| REDIS
+
+    N8N_WEB <-->|Métadonnées & Flux| POSTGRES
+    N8N_WORKER <-->|État des exécutions| POSTGRES
+
+    N8N_WORKER <-->|Exécution de code Python :5679| RUNNERS
 
     classDef web fill:#0284C7,stroke:#0369A1,color:#fff;
     classDef n8n fill:#0F6E56,stroke:#16A085,color:#fff;
-    classDef ext fill:#F97316,stroke:#FB923C,color:#fff;
-    class USER,TRAEFIK web;
-    class N8N_CORE,DB,VOL_N8N,VOL_DB n8n;
-    class EXTERNAL_SVC,HOMELAB_SVC ext;
+    classDef db fill:#D97706,stroke:#B45309,color:#fff;
+    class USER,WEBHOOK_CALLS,TRAEFIK web;
+    class N8N_WEB,N8N_WORKER,RUNNERS n8n;
+    class REDIS,POSTGRES db;
 ```
 
 ---
 
-## 🔒 Choix d'Architecture : Pourquoi l'Authentification Native ?
+## Composants de la Stack (5 Conteneurs)
 
-Dans n8n, le connecteur **SSO SAML / OIDC natif** est une fonctionnalité réservée à l'offre commerciale **n8n Enterprise**. En version gratuite auto-hébergée (Community), l'intégration d'un SSO tiers nécessiterait d'intercaler un proxy inverse Forward-Auth (comme l'Outpost Authentik).
-
-Cependant, intercaler un Forward-Auth devant n8n introduit un risque majeur : **la rupture des webhooks**. Tout service externe (GitHub, Stripe, Telegram, Home Assistant) envoyant un payload HTTP sur `/webhook/...` serait redirigé vers la mire d'authentification SSO Authentik (HTTP 302) et échouerait.
-
-**La solution adoptée est donc l'authentification native de n8n :**
-1. **Accès Interface Administrateur** : Protégé par compte email/mot de passe robuste et **validation 2FA par clé TOTP** (compatible Vaultwarden ou votre application d'authentification).
-2. **Webhooks Publics Traversants** : Les requêtes envoyées vers `https://automation.ims-world.fr/webhook/...` atteignent directement le moteur d'exécution de n8n sans friction.
-3. **Protection Périmétrique** : L'exposition sur l'Internet public bénéficie de la protection globale du **plugin bouncer CrowdSec** sur Traefik (bannissement immédiat des scans et forces brutes).
+| Conteneur | Image | Rôle |
+|---|---|---|
+| **`n8n`** | `n8nio/n8n:2.10.4` | Serveur HTTP principal (UI web sur `:5678`, API, réception des webhooks). Enqueue les exécutions vers Redis. |
+| **`n8n-worker`** | `n8nio/n8n:2.10.4` | Processus worker (`command: worker`) qui consomme les flux en file d'attente depuis Redis et les exécute. |
+| **`task-runners`** | `n8nio/runners:2.10.4` | Environnement isolé d'exécution de scripts (`broker:5679`). Supporte le Python natif (`N8N_NATIVE_PYTHON_RUNNER=true`). |
+| **`redis`** | `redis:6-alpine` | File de messages haute performance (Bull Queue) gérant la distribution asynchrone des flux. |
+| **`postgresql`** | `postgres:16-alpine` | Base relationnelle stockant les workflows, les utilisateurs et les identifiants chiffrés. |
 
 ---
 
-## Déploiement sur Coolify (Docker Compose)
+## 🔒 Choix d'Architecture : Authentification Native
 
-Créez une nouvelle ressource de type **Docker Compose Service** dans Coolify et collez la configuration ci-dessous :
+- **Limitation OIDC** : Le connecteur SAML / OIDC natif est une fonctionnalité commerciale propriétaire réservée à la formule **n8n Enterprise**.
+- **Avantage de l'Auth Native** : Elle évite d'ajouter un proxy Forward-Auth (comme l'Outpost Authentik), qui aurait intercepté et bloqué les appels de webhooks externes en les redirigeant vers la mire de connexion 302.
+- **Sécurité** : L'accès à l'interface d'administration est verrouillé par mot de passe fort et **authentification à deux facteurs TOTP (2FA)** activée sur le compte propriétaire, le tout protégé par le bouncer **CrowdSec** en amont sur Traefik.
+
+---
+
+## Configuration Réelle (Docker Compose Coolify)
+
+Fichier déployé sur la ressource Coolify `uifode0ypia57wbkyoertbxh` :
 
 ```yaml
 services:
   n8n:
-    image: docker.n8n.io/n8nio/n8n:latest
-    container_name: n8n-app
-    restart: unless-stopped
+    image: 'n8nio/n8n:2.10.4'
     environment:
-      - N8N_HOST=automation.ims-world.fr
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=https
-      - WEBHOOK_URL=https://automation.ims-world.fr/
-      - GENERIC_TIMEZONE=Europe/Paris
-      - TZ=Europe/Paris
+      - SERVICE_URL_N8N_5678
+      - 'N8N_EDITOR_BASE_URL=${SERVICE_URL_N8N}'
+      - 'WEBHOOK_URL=${SERVICE_URL_N8N}'
+      - 'N8N_HOST=${SERVICE_URL_N8N}'
+      - 'N8N_PROTOCOL=${N8N_PROTOCOL:-https}'
+      - 'GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-UTC}'
+      - 'TZ=${TZ:-UTC}'
       - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
+      - 'DB_POSTGRESDB_DATABASE=${POSTGRES_DB:-n8n}'
+      - DB_POSTGRESDB_HOST=postgresql
       - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB:-n8n}
-      - DB_POSTGRESDB_USER=${POSTGRES_USER:-n8n}
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
-      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
-      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
-      - EXECUTIONS_DATA_PRUNE=true
-      - EXECUTIONS_DATA_MAX_AGE=168
-      - EXECUTIONS_DATA_PRUNE_MAX_COUNT=50000
+      - DB_POSTGRESDB_USER=$SERVICE_USER_POSTGRES
+      - DB_POSTGRESDB_SCHEMA=public
+      - DB_POSTGRESDB_PASSWORD=$SERVICE_PASSWORD_POSTGRES
+      - EXECUTIONS_MODE=queue
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_HEALTH_CHECK_ACTIVE=true
+      - 'N8N_ENCRYPTION_KEY=${SERVICE_PASSWORD_ENCRYPTION}'
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_RUNNERS_MODE=external
+      - 'N8N_RUNNERS_BROKER_LISTEN_ADDRESS=${N8N_RUNNERS_BROKER_LISTEN_ADDRESS:-0.0.0.0}'
+      - 'N8N_RUNNERS_BROKER_PORT=${N8N_RUNNERS_BROKER_PORT:-5679}'
+      - N8N_RUNNERS_AUTH_TOKEN=$SERVICE_PASSWORD_N8N
+      - 'N8N_NATIVE_PYTHON_RUNNER=${N8N_NATIVE_PYTHON_RUNNER:-true}'
+      - 'N8N_RUNNERS_MAX_CONCURRENCY=${N8N_RUNNERS_MAX_CONCURRENCY:-5}'
+      - OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
+      - 'N8N_BLOCK_ENV_ACCESS_IN_NODE=${N8N_BLOCK_ENV_ACCESS_IN_NODE:-true}'
+      - 'N8N_GIT_NODE_DISABLE_BARE_REPOS=${N8N_GIT_NODE_DISABLE_BARE_REPOS:-true}'
+      - 'N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=${N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS:-true}'
+      - 'N8N_PROXY_HOPS=${N8N_PROXY_HOPS:-1}'
+      - 'N8N_SKIP_AUTH_ON_OAUTH_CALLBACK=${N8N_SKIP_AUTH_ON_OAUTH_CALLBACK:-false}'
     volumes:
-      - n8n_data:/home/node/.n8n
-    networks:
-      - coolify
-      - internal
+      - 'n8n-data:/home/node/.n8n'
     depends_on:
-      postgres:
+      postgresql:
         condition: service_healthy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.n8n.rule=Host(`automation.ims-world.fr`)"
-      - "traefik.http.routers.n8n.entrypoints=https"
-      - "traefik.http.routers.n8n.tls=true"
-      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
-      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
-
-  postgres:
-    image: postgres:16-alpine
-    container_name: n8n-postgres
-    restart: unless-stopped
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB:-n8n}
-      - POSTGRES_USER=${POSTGRES_USER:-n8n}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - internal
+      redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER:-n8n} -d ${POSTGRES_DB:-n8n}"]
+      test:
+        - CMD-SHELL
+        - 'wget -qO- http://127.0.0.1:5678/healthz'
+      interval: 5s
+      timeout: 20s
+      retries: 10
+
+  n8n-worker:
+    image: 'n8nio/n8n:2.10.4'
+    command: worker
+    environment:
+      - 'GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-UTC}'
+      - 'TZ=${TZ:-UTC}'
+      - DB_TYPE=postgresdb
+      - 'DB_POSTGRESDB_DATABASE=${POSTGRES_DB:-n8n}'
+      - DB_POSTGRESDB_HOST=postgresql
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_USER=$SERVICE_USER_POSTGRES
+      - DB_POSTGRESDB_SCHEMA=public
+      - DB_POSTGRESDB_PASSWORD=$SERVICE_PASSWORD_POSTGRES
+      - EXECUTIONS_MODE=queue
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_HEALTH_CHECK_ACTIVE=true
+      - 'N8N_ENCRYPTION_KEY=${SERVICE_PASSWORD_ENCRYPTION}'
+      - N8N_RUNNERS_ENABLED=true
+      - N8N_RUNNERS_MODE=external
+      - 'N8N_RUNNERS_BROKER_LISTEN_ADDRESS=${N8N_RUNNERS_BROKER_LISTEN_ADDRESS:-0.0.0.0}'
+      - 'N8N_RUNNERS_BROKER_PORT=${N8N_RUNNERS_BROKER_PORT:-5679}'
+      - N8N_RUNNERS_AUTH_TOKEN=$SERVICE_PASSWORD_N8N
+      - 'N8N_NATIVE_PYTHON_RUNNER=${N8N_NATIVE_PYTHON_RUNNER:-true}'
+      - 'N8N_RUNNERS_MAX_CONCURRENCY=${N8N_RUNNERS_MAX_CONCURRENCY:-5}'
+      - 'N8N_BLOCK_ENV_ACCESS_IN_NODE=${N8N_BLOCK_ENV_ACCESS_IN_NODE:-true}'
+      - 'N8N_GIT_NODE_DISABLE_BARE_REPOS=${N8N_GIT_NODE_DISABLE_BARE_REPOS:-true}'
+      - 'N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=${N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS:-true}'
+      - 'N8N_PROXY_HOPS=${N8N_PROXY_HOPS:-1}'
+      - 'N8N_SKIP_AUTH_ON_OAUTH_CALLBACK=${N8N_SKIP_AUTH_ON_OAUTH_CALLBACK:-false}'
+    volumes:
+      - 'n8n-data:/home/node/.n8n'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'wget -qO- http://127.0.0.1:5678/healthz'
+      interval: 5s
+      timeout: 20s
+      retries: 10
+    depends_on:
+      n8n:
+        condition: service_healthy
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  postgresql:
+    image: 'postgres:16-alpine'
+    volumes:
+      - 'postgresql-data:/var/lib/postgresql/data'
+    environment:
+      - POSTGRES_USER=$SERVICE_USER_POSTGRES
+      - POSTGRES_PASSWORD=$SERVICE_PASSWORD_POSTGRES
+      - 'POSTGRES_DB=${POSTGRES_DB:-n8n}'
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}'
+      interval: 5s
+      timeout: 20s
+      retries: 10
+
+  redis:
+    image: 'redis:6-alpine'
+    volumes:
+      - 'redis-data:/data'
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
       interval: 5s
       timeout: 5s
       retries: 10
 
-volumes:
-  n8n_data:
-  postgres_data:
-
-networks:
-  coolify:
-    external: true
-  internal:
-    driver: bridge
+  task-runners:
+    image: 'n8nio/runners:2.10.4'
+    environment:
+      - 'N8N_RUNNERS_TASK_BROKER_URI=${N8N_RUNNERS_TASK_BROKER_URI:-http://n8n-worker:5679}'
+      - N8N_RUNNERS_AUTH_TOKEN=$SERVICE_PASSWORD_N8N
+      - 'N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT=${N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT:-15}'
+      - 'N8N_RUNNERS_MAX_CONCURRENCY=${N8N_RUNNERS_MAX_CONCURRENCY:-5}'
+    depends_on:
+      - n8n
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'wget -qO- http://127.0.0.1:5680/healthz'
+      interval: 5s
+      timeout: 20s
+      retries: 10
 ```
 
 ---
 
-## 🔑 Variables d'Environnement Requises (Secrets Coolify)
+## 🔑 Variables d'Environnement Clés (Gérées par Coolify)
 
-Dans l'onglet **Environment Variables** de la ressource Coolify, déclarez les variables suivantes :
-
-| Variable | Description & Règle de Génération | Secret ? |
-|---|---|:---:|
-| `POSTGRES_DB` | Nom de la base de données : `n8n` | ❌ Non |
-| `POSTGRES_USER` | Utilisateur PostgreSQL : `n8n` | ❌ Non |
-| `POSTGRES_PASSWORD` | Mot de passe fort aléatoire (`openssl rand -base64 24`) | ✅ **Oui** |
-| `N8N_ENCRYPTION_KEY` | Clé maîtresse AES de chiffrement des credentials (`openssl rand -hex 32`) | ✅ **Oui** |
-
-<Warning>
-**Sauvegardez impérativement la variable `N8N_ENCRYPTION_KEY`** :
-Cette clé sert à chiffrer toutes les clés API, jetons et mots de passe enregistrés dans vos flux n8n. Si cette clé est perdue lors d'une réinstallation, l'ensemble des identifiants enregistrés deviendra illisible dans la base de données.
-</Warning>
+| Variable Coolify | Rôle | Consigne de Sécurité |
+|---|---|---|
+| `SERVICE_PASSWORD_ENCRYPTION` | Clé AES maîtresse de chiffrement | **À sauvegarder immédiatement dans Vaultwarden** (indispensable en cas de restauration de la DB) |
+| `SERVICE_PASSWORD_N8N` | Jeton d'authentification interne des task-runners | Généré aléatoirement par Coolify |
+| `SERVICE_PASSWORD_POSTGRES` | Mot de passe de la base PostgreSQL | Généré aléatoirement par Coolify |
+| `SERVICE_USER_POSTGRES` | Utilisateur de la base PostgreSQL | Généré par Coolify (ou `n8n`) |
+| `GENERIC_TIMEZONE` / `TZ` | Fuseau horaire des nœuds cron/schedule | À définir sur `Europe/Paris` si des déclencheurs temporels sont créés |
 
 ---
 
-## ⚙️ Explication des Paramètres d'Hygiène & Performance
+## 💡 Évolution Future : Prunage des Exécutions
 
-- **`EXECUTIONS_DATA_PRUNE=true`** : Active la purge automatique des journaux d'exécution terminée. Sans ce paramètre, la base de données PostgreSQL saturera rapidement le stockage SSD du serveur.
-- **`EXECUTIONS_DATA_MAX_AGE=168`** : Conserve l'historique des exécutions pendant **7 jours** (168 heures) avant suppression.
-- **`EXECUTIONS_DATA_PRUNE_MAX_COUNT=50000`** : Limite stricte de 50 000 entrées d'historique maximum en mémoire.
-- **`WEBHOOK_URL=https://automation.ims-world.fr/`** : Indique à n8n comment formater les URLs publiques de webhooks générées dans l'interface pour les intégrations tierces.
-- **Isolation Réseau (`internal`)** : Le conteneur PostgreSQL n'est attaché qu'au réseau `internal`. Il ne rejoint pas le réseau `coolify` partagé, garantissant une étanchéité totale face à Traefik et aux autres conteneurs.
+Si l'activité des flux s'intensifie, pour éviter l'engorgement de la base PostgreSQL, il sera possible d'ajouter les variables d'environnement suivantes dans Coolify :
 
----
-
-## Procédure de Premier Démarrage & Onboarding
-
-<Steps>
-  <Step title="Déploiement initial sur Coolify">
-    Dans Coolify, cliquez sur **Deploy**. Coolify initialise le volume PostgreSQL, attend le passage au statut sain (`healthy`), puis démarre le conteneur n8n.
-  </Step>
-
-  <Step title="Création du Compte Propriétaire">
-    Ouvrez `https://automation.ims-world.fr` dans votre navigateur.
-    Remplissez l'écran d'onboarding initial :
-    - Adresse email administrateur
-    - Prénom / Nom
-    - Mot de passe fort (généré et stocké dans [Vaultwarden](/services/vaultwarden))
-  </Step>
-
-  <Step title="Activation Immédiate du 2FA TOTP (Indispensable)">
-    Le service étant exposé sur le WAN public :
-    1. Rendez-vous dans **Paramètres** (icône d'engrenage en bas à gauche) ➔ **Profil utilisateur**.
-    2. Cliquez sur **Activer l'authentification à deux facteurs (2FA)**.
-    3. Scannez le QR Code avec votre gestionnaire (Vaultwarden) et validez le code à 6 chiffres.
-    4. Enregistrez précieusement les codes de secours générés.
-  </Step>
-
-  <Step title="Test d'un Webhook">
-    Créez un workflow de test avec un nœud déclencheur **Webhook** (méthode `GET` ou `POST`, chemin `test-ping`).
-    Passez le workflow en **Actif** et testez l'appel depuis un terminal :
-    ```bash
-    curl -I https://automation.ims-world.fr/webhook/test-ping
-    ```
-    La réponse doit retourner immédiatement un code `200 OK`.
-  </Step>
-</Steps>
+```env
+EXECUTIONS_DATA_PRUNE=true
+EXECUTIONS_DATA_MAX_AGE=168
+EXECUTIONS_DATA_PRUNE_MAX_COUNT=50000
+```
+*(Permet de purger automatiquement les exécutions de plus de 7 jours ou au-delà de 50 000 exécutions).*
 
 ---
 
 ## 💾 Procédures d'Exploitation & Sauvegardes
 
 ### Sauvegarde à Chaud de la Base PostgreSQL
-Pour effectuer un snapshot complet de la configuration, des flux et des identifiants :
+Pour exporter un dump cohérent de la base de données :
 
 ```bash
 # Se connecter en SSH sur la VM 104
 ssh cmolotkoff@100.64.0.4
 
-# Exécuter le pg_dump dans le conteneur PostgreSQL
-docker exec n8n-postgres pg_dump -U n8n -d n8n -F c -b -v -f /tmp/n8n_backup.dump
+# Dump compressé de la base n8n
+docker exec -t $(docker ps -qf "name=postgresql-uifode0ypia57wbkyoertbxh") pg_dump -U n8n -d n8n -F c -b -v -f /tmp/n8n_backup.dump
 
-# Copier le dump vers l'hôte
-docker cp n8n-postgres:/tmp/n8n_backup.dump ./n8n_backup_$(date +%F).dump
+# Copier le dump vers le répertoire courant sur l'hôte
+docker cp $(docker ps -qf "name=postgresql-uifode0ypia57wbkyoertbxh"):/tmp/n8n_backup.dump ./n8n_backup_$(date +%F).dump
 ```
 
-### Restauration d'une Sauvegarde
-En cas de corruption ou de reprise sur incident :
-
-```bash
-docker cp ./n8n_backup.dump n8n-postgres:/tmp/n8n_backup.dump
-docker exec -it n8n-postgres pg_restore -U n8n -d n8n -v --clean /tmp/n8n_backup.dump
-```
