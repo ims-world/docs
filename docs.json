@@ -118,17 +118,6 @@
               "services/n8n",
               "services/termix"
             ]
-          },
-          {
-            "group": "Infrastructure as Code",
-            "icon": "code",
-            "pages": [
-              "iac/index",
-              "iac/lot-01-template-proxmox",
-              "iac/lot-02-acces-admin",
-              "iac/lot-03-termix",
-              "iac/lot-04-securite-ssh"
-            ]
           }
         ]
       },
@@ -227,6 +216,28 @@
               "history/incidents/2026-08-19-stale-nfs-filehandle-jellyfin-mergerfs",
               "history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri",
               "history/incidents/2026-08-18-blocage-traefik-vpn-only-docker-proxy"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Infrastructure as Code",
+        "groups": [
+          {
+            "group": "Vue d'ensemble",
+            "icon": "code",
+            "pages": [
+              "iac/index"
+            ]
+          },
+          {
+            "group": "Lots IMS-INFRA",
+            "icon": "cubes-stacked",
+            "pages": [
+              "iac/lot-01-template-proxmox",
+              "iac/lot-02-acces-admin",
+              "iac/lot-03-termix",
+              "iac/lot-04-securite-ssh"
             ]
           }
         ]

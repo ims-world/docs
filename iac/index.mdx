@@ -20,6 +20,26 @@ Cette documentation explique pourquoi et comment chaque lot est conçu. Le `READ
 
 ## Les lots
 
+<CardGroup cols={2}>
+  <Card title="Lot 01 — Template Proxmox" icon="clone" href="/iac/lot-01-template-proxmox">
+    Template VM Ubuntu 24.04 (VMID 9000) et snippet Cloud-Init `vendor-data`. `make template`
+  </Card>
+
+  <Card title="Lot 02 — Accès admin (cmolotkoff)" icon="user-shield" href="/iac/lot-02-acces-admin">
+    Compte d'administration et sudo NOPASSWD dans les conteneurs LXC. `make admin-bootstrap`
+  </Card>
+
+  <Card title="Lot 03 — Accès Termix (termix-usr)" icon="plug" href="/iac/lot-03-termix">
+    Compte dédié `termix-usr`, clé Ed25519 restreinte et traçabilité Loki. `make termix-apply`
+  </Card>
+
+  <Card title="Lot 04 — Sécurité SSH et système" icon="shield-halved" href="/iac/lot-04-securite-ssh">
+    Durcissement des VMs issues du template (sshd, fail2ban, CrowdSec). `make ssh-apply`
+  </Card>
+</CardGroup>
+
+### Tableau récapitulatif des lots
+
 | Lot | Fonction | Outil | Commande principale | Statut |
 |---|---|---|---|---|
 | [01 — Template Proxmox](/iac/lot-01-template-proxmox) | Template VM Ubuntu 24.04 (VMID 9000) + snippet Cloud-Init | Script | `make template` | ✅ Prêt |
