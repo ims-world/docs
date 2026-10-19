@@ -3,12 +3,16 @@ title: "Changelog & Historique"
 description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
-<Update label="19/10/2026" description="Déploiement du Socle Termix v26.10.2 (Administration SSH/SFTP, Guacd & OIDC Authentik) sur Coolify">
+<Update label="19/10/2026" description="Termix 26.10.2 en Production, Validation Accès Pilote IMS-PBS & Refonte d'IMS-INFRA en Lots">
   ### 🖥️ Gestion Centralisée des Hôtes & Accès Distant (Termix)
 
-  - **Mise en Service du Socle Termix sur Coolify** — Déploiement de **Termix v26.10.2** couplé au conteneur `guacd:1.6.0` sur la VM 104 (`ims-coolify`, UUID `ot8tjxw5ruhoqyis3rkb4ll5`). Ce service constitue le point d'entrée unique d'administration du homelab (terminal SSH web, explorateur SFTP, métriques et vue Proxmox/Docker).
-  - **Fédération d'Identité OIDC & Double Isolation** — Intégration OIDC native avec Authentik (`auth.ims-world.fr`) restreinte aux seuls membres du groupe `admins`, complétée par un compte de secours local chiffré. Exposition sécurisée en Zone 2 (`vpn-only.yaml`) via Traefik et résolution DNS split-horizon Headscale (`100.64.0.4`).
-  - **Cadrage de Sécurité & Clés Chiffrées** — Initialisation avec clés d'environnement hexadécimales externes (`TERMIX_REQUIRE_EXTERNAL_SECRETS=true`) sauvegardées dans Vaultwarden. Préparation du rôle Ansible `termix_access` pour le raccordement sécurisé des hôtes via le compte `termix-usr`. Voir [Termix](/services/termix).
+  - **Mise en Production de Termix 26.10.2 (`termix.ims-world.fr`)** — Déploiement sur la VM 104 (`ims-coolify`, UUID `ot8tjxw5ruhoqyis3rkb4ll5`) avec conteneur `guacd:1.6.0` isolé. Accès réservé au Tailnet (`vpn-only.yaml`), authentification OIDC Authentik native (groupe `admins`) avec admin local de secours TOTP, et secrets gérés dans Coolify. Voir [Termix](/services/termix).
+  - **Validation de l'Accès termix-usr sur l'Hôte Pilote IMS-PBS** — Déploiement et validation du compte dédié non-root `termix-usr` sur le LXC 103 (`192.168.1.51`) : clé Ed25519 restreinte à `192.168.1.52`, sudo `NOPASSWD` avec `log_subcmds`, traçabilité temps réel dans Loki via Alloy. Voir [Lot 03 — Accès Termix](/iac/lot-03-termix).
+
+  ### ⚙️ Refonte du Dépôt d'Automatisation (IMS-INFRA en Lots)
+
+  - **Refonte Modulaire par Lots & Point d'Entrée Makefile** — Restructuration complète du dépôt **IMS-INFRA** en 4 lots fonctionnels indépendants avec un `Makefile` universel comme interface unique (`make help`, simulation `--check --diff`).
+  - **Nettoyage du Code Mort & Protection du Cluster Proxmox** — Retrait des rôles obsolètes (`node_exporter`, `nfs_client`), restriction stricte des playbooks de durcissement SSH/fail2ban/CrowdSec au seul groupe `[vms]` pour préserver le root SSH inter-nœuds du cluster Proxmox. Voir [Infrastructure as Code](/iac/index) et l'[ADR-011](/history/adr/adr-011-organisation-ims-infra-par-lots).
 </Update>
 
 <Update label="22/09/2026" description="Déploiement Plateforme d'Automatisation n8n v2.10.4 (Queue Mode, Redis & Task Runners) sur Coolify">

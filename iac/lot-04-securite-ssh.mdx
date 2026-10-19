@@ -1,0 +1,102 @@
+---
+title: "Lot 04 — Sécurité SSH et système"
+description: "Durcissement des VMs issues du template : paquets de base, mises à jour de sécurité, sshd, fail2ban, CrowdSec"
+icon: "shield-halved"
+iconType: "duotone"
+last_reviewed: "2026-10-19"
+---
+
+<Badge color="amber">⚠️ VMs du template uniquement — jamais appliqué en production</Badge>
+
+## Objectif
+
+Ce lot applique un socle de sécurité aux VMs créées depuis le template du [lot 01](/iac/lot-01-template-proxmox).
+
+| Élément | Valeur |
+|---|---|
+| **Outil** | Ansible — playbook `ansible/playbooks/security.yml` |
+| **Cible** | Groupe `[vms]` uniquement |
+| **Commandes** | `make ssh-check`, `make ssh-apply` |
+
+<Warning>
+  **Ne l'applique jamais aux nœuds Proxmox ni aux LXC.** Le rôle `sshd` pose `PermitRootLogin no`, ce qui couperait l'accès root SSH dont le cluster a besoin entre ses nœuds. Le playbook cible `[vms]` pour l'empêcher.
+</Warning>
+
+<Info>
+  Aucune VM issue du template n'est en service aujourd'hui : le groupe `[vms]` est vide. Le durcissement SSH et fail2ban des hôtes existants n'est pas géré par ce dépôt.
+</Info>
+
+---
+
+## Les rôles
+
+| Rôle | Tag | Effet |
+|---|---|---|
+| `common` | `common` | Installe les paquets de base : `htop`, `btop`, `jq`, `ncdu`, `rsync`, `dnsutils`, `bash-completion`, `acl` |
+| `unattended_upgrades` | `unattended-upgrades` | Applique automatiquement les patches de sécurité (pocket `-security` uniquement), sans redémarrage automatique |
+| `sshd` | `sshd` | Pose `/etc/ssh/sshd_config.d/99-hardened.conf` : pas de mot de passe, pas de root, pas de X11 ni de redirection TCP. Validé par `sshd -t` avant écriture |
+| `fail2ban` | `fail2ban` | Active la jail sshd (backend `systemd`) |
+| `crowdsec` | `crowdsec` | Installe l'agent CrowdSec et le bouncer nftables, collections `linux` et `sshd` |
+
+`fail2ban` et `CrowdSec` cohabitent volontairement : `fail2ban` réagit vite à des motifs simples, `CrowdSec` détecte des scénarios plus complexes (brute force distribué, scans).
+
+---
+
+## Variables
+
+Toutes dans `ansible/group_vars/all.yml`. Surcharge pour un hôte : `ansible/host_vars/<hôte>.yml`.
+
+| Variable | Défaut |
+|---|---|
+| `common_packages` | Liste ci-dessus |
+| `unattended_upgrades_auto_reboot` | `false` |
+| `unattended_upgrades_remove_unused` | `true` |
+| `fail2ban_bantime` / `fail2ban_findtime` / `fail2ban_maxretry` | `1h` / `10m` / `5` |
+| `crowdsec_collections` | `crowdsecurity/linux`, `crowdsecurity/sshd` |
+
+---
+
+## Procédure
+
+<Steps>
+  <Step title="Déclarer la VM">
+    Ajoute la VM au groupe `[vms]` de `ansible/inventory.ini`, enregistre sa clé d'hôte, puis vérifie avec `make ping HOST=<vm>`.
+  </Step>
+
+  <Step title="Simuler">
+    ```bash
+    make ssh-check HOST=<vm>
+    ```
+  </Step>
+
+  <Step title="Appliquer">
+    ```bash
+    make ssh-apply HOST=<vm>
+    ```
+    Pour un seul rôle :
+    ```bash
+    cd ansible && ansible-playbook playbooks/security.yml --limit <vm> --tags fail2ban
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Vérification sur la VM
+
+```bash
+sudo sshd -T | grep -E 'passwordauthentication|permitrootlogin' # no / no
+sudo fail2ban-client status sshd
+sudo cscli metrics
+cat /etc/apt/apt.conf.d/20auto-upgrades
+```
+
+---
+
+## Dépannage
+
+| Symptôme | Cause | Correction |
+|---|---|---|
+| `make ssh-check` ne fait rien | Groupe `[vms]` vide | Normal tant qu'aucune VM du template n'est en service |
+| Validation `sshd -t` en échec | Directive invalide | Corrige le rôle `sshd` ; le fichier n'est pas écrit sur l'hôte |
+| CrowdSec : dépôt introuvable | Distribution non prise en charge par packagecloud | Vérifie la distribution de l'hôte (`ansible_distribution`) |

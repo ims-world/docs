@@ -3,12 +3,12 @@ title: "Feuille de Route & Liste TODO"
 description: "Suivi centralisé des chantiers prioritaires, roadmap de résilience et backlog d'évolution de l'infrastructure"
 icon: "list-check"
 iconType: "duotone"
-last_reviewed: "2026-09-14"
+last_reviewed: "2026-10-19"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Mis à Jour le 14/09/2026</Badge>
+<Badge color="green">🟢 Mis à Jour le 19/10/2026</Badge>
 
 <Info>
   Cette page constitue le **journal central de suivi des chantiers et de la feuille de route** du homelab IMS-WORLD. Elle regroupe l'ensemble des tâches ouvertes classées par domaine d'intervention (Résilience, Sécurité, Supervision, Nouveaux Services, Matériel) ainsi que l'historique des jalons réalisés.
@@ -56,7 +56,9 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Sauvegardes & Domotique** | Sauvegarde PBS nocturne de la VM 106 (HAOS) | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / PBS | ⏳ En attente |
 | **UX & Sécurité HA** | Routeur Traefik HTTPS vpn-only pour Home Assistant (`https://home.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Traefik) | ✅ 14/09/2026 |
 | **Automatisation & Workflows** | Déploiement n8n sur Coolify avec PostgreSQL 16 (`automation.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Coolify) | ✅ 22/09/2026 |
-| **Automatisation & IaC** | Scripts Ansible de création automatique de VM | <Badge color="amber">🟡 Moyen Terme</Badge> | Proxmox VE (MS-01) | ⏳ En attente |
+| **Automatisation & IaC** | Refonte du dépôt IMS-INFRA en lots documentés + Makefile ([IaC](/iac/index)) | <Badge color="green">🟢 Court Terme</Badge> | Mac (opérateur) | 🚧 En cours |
+| **Automatisation & IaC** | Raccordement Termix des 5 hôtes restants ([Lot 03](/iac/lot-03-termix)) | <Badge color="green">🟢 Court Terme</Badge> | Tous les hôtes | 🚧 En cours |
+| **Automatisation & IaC** | Lot « Supervision » : déploiement d'Alloy par Ansible (manquant sur le LXC 105) | <Badge color="amber">🟡 Moyen Terme</Badge> | Tous les hôtes | ⏳ En attente |
 | **Automatisation & Web** | Portail web de génération de VM temporaires (self-service) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Étude / PoC |
 | **Automatisation & Ansible** | Playbook post-provisioning (users, sudo NOPASSWD, base) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM & Nœuds PVE | ⏳ En attente |
 | **Matériel & Rack** | Extension physique du rack Labrax 10" | <Badge color="amber">🟡 Moyen Terme</Badge> | Rack Physique | ⏳ En attente |

@@ -3,7 +3,7 @@ title: "Matrice de Sécurité & d'Exposition"
 description: "Cartographie centralisée des zones de confiance, de l'exposition publique, du filtrage et de l'authentification"
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-09-13"
+last_reviewed: "2026-10-19"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -250,7 +250,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
       </Card>
 
       <Card title="Termix (SSH, SFTP & Admin)" icon="terminal" href="/services/termix">
-        **Domaine** : `termix.ims-world.fr` **Protection** : `vpn-only.yaml` + SSO Authentik OIDC (Groupe `admins` uniquement)
+        **Domaine** : `termix.ims-world.fr` **Hôte** : VM 104 **Protection** : `vpn-only.yaml` + OIDC Authentik natif (groupe `admins`) + admin local de secours avec TOTP
       </Card>
     </CardGroup>
   </Tab>
@@ -265,6 +265,14 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
     | **Home Assistant (LAN)** | `{ips.haLan}` (Port 80) / Observer (:4357) | 🏠 LAN Native | Auth native Home Assistant |
   </Tab>
 </Tabs>
+
+---
+
+## 🔄 Flux Internes Notables
+
+| Source | Destination | Protocole / Port | Usage & Sécurité |
+|---|---|---|---|
+| **VM IMS-Coolify** (`192.168.1.52`) | **Hôtes du LAN** (`192.168.1.0/24`) | TCP `22` (SSH) | Administration Termix : connexions sortantes vers les hôtes administrés (compte `termix-usr`, clé Ed25519 restreinte avec `from="192.168.1.52"`). Voir [Lot 03 — Accès Termix](/iac/lot-03-termix). |
 
 ---
 

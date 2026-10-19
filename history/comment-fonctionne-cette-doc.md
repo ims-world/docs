@@ -3,6 +3,7 @@ title: "Comment fonctionne cette documentation"
 description: "Principes d'organisation, règles de contribution et structure de docs 2"
 icon: "book-open"
 iconType: "duotone"
+last_reviewed: "2026-10-19"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -44,9 +45,9 @@ Toute nouvelle fiche applicative ajoutée dans le dossier `services/` **DOIT imp
 
 ## Règles de Rédaction et de Maintenance
 
-### 1. Règle : Documentation vs Code Versionné (`ims-infra`)
+### 1. Règle : Documentation vs Code Versionné (`IMS-INFRA`)
 - La documentation explique le fonctionnement et les choix d'architecture.
-- Le code versionné (Ansible, Compose, Scripts, Configs Traefik) vit dans le dépôt `ims-infra`.
+- Le code versionné (scripts, playbooks et rôles Ansible) vit dans le dépôt `IMS-INFRA`, organisé en lots documentés. Voir [Infrastructure as Code](/iac/index).
 - Si un script ou un fichier compose dépasse quelques lignes, il doit être référencé depuis le code sans être dupliqué intégralement dans la doc.
 
 ### 2. Règle : Source Unique de Vérité (Anti-duplication)

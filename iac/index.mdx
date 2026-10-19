@@ -1,0 +1,142 @@
+---
+title: "Infrastructure as Code — IMS-INFRA"
+description: "Organisation du dépôt IMS-INFRA : lots fonctionnels, Makefile, Ansible, et frontière entre ce qui est scripté et ce qui reste manuel"
+icon: "code"
+iconType: "duotone"
+last_reviewed: "2026-10-19"
+---
+
+<Badge color="green">🟢 Référence</Badge>
+
+## Le dépôt IMS-INFRA
+
+Le dépôt IMS-INFRA regroupe tous les scripts et playbooks d'administration du homelab. Il est organisé en lots : un lot correspond à une fonctionnalité, avec son dossier, son `README.md` et ses commandes.
+
+Cette documentation explique pourquoi et comment chaque lot est conçu. Le `README.md` du dépôt et ceux des lots donnent les commandes à lancer.
+
+<Info>
+  Le dépôt se trouve sur le Mac, dans `homelab/IMS-INFRA`. Toutes les commandes se lancent depuis sa racine.
+</Info>
+
+## Les lots
+
+| Lot | Fonction | Outil | Commande principale | Statut |
+|---|---|---|---|---|
+| [01 — Template Proxmox](/iac/lot-01-template-proxmox) | Template VM Ubuntu 24.04 (VMID 9000) + snippet Cloud-Init | Script | `make template` | ✅ Prêt |
+| [02 — Accès admin](/iac/lot-02-acces-admin) | Compte cmolotkoff + sudo dans les LXC | Script | `make admin-bootstrap` | 🧪 À valider |
+| [03 — Accès Termix](/iac/lot-03-termix) | Compte termix-usr : raccordement, révocation, rotation | Ansible | `make termix-apply` | ✅ Validé sur IMS-PBS |
+| [04 — Sécurité SSH](/iac/lot-04-securite-ssh) | Durcissement sshd, fail2ban, CrowdSec, mises à jour | Ansible | `make ssh-apply` | ⚠️ VMs du template uniquement |
+
+Légende : ✅ utilisé en production · 🧪 écrit, pas encore validé · ⚠️ restriction d'usage
+
+---
+
+## Principes
+
+### Un seul point d'entrée : le Makefile
+
+Chaque action a une cible make. Tu n'as pas à retenir les commandes Ansible.
+
+```bash
+make help               # liste toutes les commandes, groupées par lot
+make ping               # connexion + sudo sur tous les hôtes
+make termix-check HOST=ims-nas
+make termix-apply HOST=ims-nas
+```
+
+`HOST=` limite une commande à un seul hôte. Les commandes destructrices exigent une confirmation explicite (`CONFIRM=oui`).
+
+### Script ou Ansible
+
+| Situation | Outil | Exemple |
+|---|---|---|
+| Action ponctuelle sur une seule machine | Script shell | Créer le template, préparer un nouveau LXC |
+| État à maintenir sur plusieurs hôtes | Ansible | Compte Termix, durcissement SSH |
+
+### Connexion d'Ansible
+
+| Règle | Détail |
+|---|---|
+| Compte | `cmolotkoff` + sudo. Jamais root. |
+| Hôtes du tailnet | Joints par leur IP Tailscale : Ansible fonctionne depuis n'importe où |
+| LXC sans Tailscale | IP LAN + rebond par pve (ProxyJump) |
+| Clés d'hôte | `host_key_checking` activé : chaque clé est enregistrée avant le premier passage |
+
+### Qualité
+
+- Toute modification se simule avec `--check --diff` (cibles `*-check`) avant d'être appliquée.
+- `make lint` (`ansible-lint`, profil production) doit passer.
+- Une variable obligatoire absente fait échouer le rôle : jamais de valeur factice.
+- Aucun secret dans le dépôt : `secrets/` (`.gitignore`) ou Vaultwarden.
+
+---
+
+## Le parc vu par Ansible
+
+| Hôte (inventaire) | Machine | Accès Ansible |
+|---|---|---|
+| `pve` | MS-01, nœud leader ims-cluster | `100.64.0.9` |
+| `pve-macmini` | Mac Mini 2014, second nœud | `100.64.0.6` |
+| `ims-pbs` | LXC 103 — Proxmox Backup Server | `100.64.0.2` |
+| `ims-coolify` | VM 104 — Coolify, Traefik, LGTM, Authentik | `100.64.0.4` |
+| `ims-nas` | LXC 100 — NAS | `192.168.1.50` via pve |
+| `ims-worker` | LXC 105 — worker Coolify | `192.168.1.198` via pve |
+
+| Groupe | Contenu | Utilisé par |
+|---|---|---|
+| `[vms]` | VMs issues du template 9000 (aucune en service) | Lot 04 |
+| `[termix_hosts]` | Les six hôtes ci-dessus | Lot 03 |
+
+<Warning>
+  **Les playbooks de durcissement (lot 04) ne ciblent que `[vms]`.** Le rôle `sshd` pose `PermitRootLogin no`, ce qui couperait l'accès root SSH dont le cluster Proxmox a besoin entre ses nœuds.
+</Warning>
+
+---
+
+## Ce qui est scripté, ce qui reste manuel
+
+| Sujet | Géré par | Référence |
+|---|---|---|
+| Template VM et snippet Cloud-Init | Script (lot 01) | [Lot 01](/iac/lot-01-template-proxmox) |
+| Compte admin dans les LXC | Script (lot 02) | [Lot 02](/iac/lot-02-acces-admin) |
+| Accès Termix sur les hôtes | Ansible (lot 03) | [Lot 03](/iac/lot-03-termix) |
+| Durcissement des VMs du template | Ansible (lot 04) | [Lot 04](/iac/lot-04-securite-ssh) |
+| Création des VM et LXC (hors template) | Manuel | Infrastructure Proxmox |
+| Configuration Proxmox (stockage, réseau, sauvegardes) | Manuel | Infrastructure Proxmox |
+| Conteneurs et services | Coolify | Fiches services |
+| Routage vpn-only, DNS Headscale | Manuel | [Sécuriser un service avec vpn-only](/procedures/securiser-service-vpn-only) |
+| Durcissement SSH et fail2ban des hôtes existants | Hors dépôt (configuration existante, non gérée par Ansible) | — |
+| Agent Alloy | Manuel | Futur lot « Supervision » |
+
+---
+
+## Structure du dépôt
+
+```text
+IMS-INFRA/
+├── README.md               # sommaire des lots
+├── Makefile                # point d'entrée unique
+├── lots/
+│   ├── 01-proxmox-template/ # README.md, create-template.sh, vendor-data.yaml
+│   ├── 02-acces-admin/      # README.md, bootstrap-lxc-admin.sh
+│   ├── 03-termix/           # README.md
+│   └── 04-securite-ssh/     # README.md
+├── ansible/                # moteur : inventaire, rôles, playbooks
+│   ├── ansible.cfg
+│   ├── inventory.ini
+│   ├── group_vars/all.yml
+│   ├── playbooks/          # un playbook par lot
+│   └── roles/
+└── secrets/                # gitignored
+```
+
+---
+
+## Ajouter un lot
+
+1. Crée `lots/NN-<nom>/README.md` sur le modèle des lots existants : objectif, prérequis, commandes, variables, vérification, dépannage.
+2. Ajoute les cibles `<nom>-check` et `<nom>-apply` au Makefile, sous un titre `##@ Lot NN`.
+3. Ajoute la ligne du lot au sommaire du `README.md` racine, avec son statut.
+4. Crée la page Mintlify correspondante dans ce groupe et ajoute-la au sommaire ci-dessus.
+
+Voir aussi l'[ADR-011 — Organisation d'IMS-INFRA par lots](/history/adr/adr-011-organisation-ims-infra-par-lots).
