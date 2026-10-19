@@ -248,6 +248,10 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
       <Card title="Home Assistant" icon="house-signal" href="/services/home-assistant">
         **Domaine** : `home.ims-world.fr` **Protection** : `vpn-only.yaml` Traefik (`100.64.0.0/10`) + TLS Let's Encrypt + Auth native HA (VM 106 Mac Mini)
       </Card>
+
+      <Card title="Termix (SSH, SFTP & Admin)" icon="terminal" href="/services/termix">
+        **Domaine** : `termix.ims-world.fr` **Protection** : `vpn-only.yaml` + SSO Authentik OIDC (Groupe `admins` uniquement)
+      </Card>
     </CardGroup>
   </Tab>
   <Tab title="🏠 Zone 3 — Administration LAN & Tailnet Direct">
@@ -316,6 +320,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
 | **Vidéoclub (Jellyseerr)** | OIDC Natif | ✅ Full | ✅ Accès | ✅ Accès |
 | **IT-Tools** | Forward-Auth Outpost | ✅ Full | ✅ Accès | ✅ Accès |
 | **Stirling PDF** | Forward-Auth Outpost | ✅ Full | ✅ Accès | ✅ Accès |
+| **Termix (SSH / SFTP)** | OIDC Natif \+ Tailnet | ✅ Admin | ❌ | ❌ |
 
 <Tip>
   Pour vérifier à tout moment qu'un service restreint n'est pas accessible depuis l'extérieur, exécuter un test d'accès WAN : `curl -Iv https://qbit.ims-world.fr` (Doit retourner un HTTP **403 Forbidden** via le middleware `vpn-only`).

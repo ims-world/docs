@@ -92,6 +92,7 @@ graph TD
 | **Forgejo** (Forge Git & Miroir GitHub) | `culcigf0vwg0fbdvegbkzoan` | `/data/coolify/services/culcigf0vwg0fbdvegbkzoan/` | <Badge color="green">🟢 Production</Badge> |
 | **Patrimo** (App Node.js — Git Build) | *Application Git* | `/var/lib/docker/volumes/...` (Volume nommé) | <Badge color="green">🟢 Production</Badge> |
 | **PhotoPrism** (Studio Photo RAW & Archivage) | `yfotvbtkqj8cqw5alox6gfpr` | `/data/coolify/services/yfotvbtkqj8cqw5alox6gfpr/` | <Badge color="green">🟢 Production</Badge> |
+| **Termix** (Gestion SSH, SFTP & Administration) | `ot8tjxw5ruhoqyis3rkb4ll5` | `/data/coolify/services/ot8tjxw5ruhoqyis3rkb4ll5/` | <Badge color="orange">🟠 Déploiement en cours</Badge> |
 
 ---
 

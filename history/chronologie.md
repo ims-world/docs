@@ -3,6 +3,14 @@ title: "Changelog & Historique"
 description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
+<Update label="19/10/2026" description="Déploiement du Socle Termix v26.10.2 (Administration SSH/SFTP, Guacd & OIDC Authentik) sur Coolify">
+  ### 🖥️ Gestion Centralisée des Hôtes & Accès Distant (Termix)
+
+  - **Mise en Service du Socle Termix sur Coolify** — Déploiement de **Termix v26.10.2** couplé au conteneur `guacd:1.6.0` sur la VM 104 (`ims-coolify`, UUID `ot8tjxw5ruhoqyis3rkb4ll5`). Ce service constitue le point d'entrée unique d'administration du homelab (terminal SSH web, explorateur SFTP, métriques et vue Proxmox/Docker).
+  - **Fédération d'Identité OIDC & Double Isolation** — Intégration OIDC native avec Authentik (`auth.ims-world.fr`) restreinte aux seuls membres du groupe `admins`, complétée par un compte de secours local chiffré. Exposition sécurisée en Zone 2 (`vpn-only.yaml`) via Traefik et résolution DNS split-horizon Headscale (`100.64.0.4`).
+  - **Cadrage de Sécurité & Clés Chiffrées** — Initialisation avec clés d'environnement hexadécimales externes (`TERMIX_REQUIRE_EXTERNAL_SECRETS=true`) sauvegardées dans Vaultwarden. Préparation du rôle Ansible `termix_access` pour le raccordement sécurisé des hôtes via le compte `termix-usr`. Voir [Termix](/services/termix).
+</Update>
+
 <Update label="22/09/2026" description="Déploiement Plateforme d'Automatisation n8n v2.10.4 (Queue Mode, Redis & Task Runners) sur Coolify">
   ### ⚡ Orchestration & Automatisation de Flux (n8n)
 

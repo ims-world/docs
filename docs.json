@@ -115,7 +115,8 @@
               "services/patrimo",
               "services/photoprism",
               "services/home-assistant",
-              "services/n8n"
+              "services/n8n",
+              "services/termix"
             ]
           }
         ]

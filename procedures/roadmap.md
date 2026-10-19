@@ -31,7 +31,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Sécurité** | Credentials OVH dans fichier `.env` | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify Proxy) | ⏳ En attente |
 | **Gestion des Accès** | Création des accès pour Elo (Tailscale + VM dédiée) | <Badge color="amber">🟡 Moyen Terme</Badge> | Headscale / Proxmox | ⏳ En attente |
 | **IAM & Sécurité** | Connexion propre d'Authentik avec Tailscale (OIDC) | <Badge color="green">🟢 Effectué</Badge> | Authentik / Tailscale | ✅ 13/09/2026 |
-| **Sécurité** | DMZ & Bastion SSH d'administration | <Badge color="blue">🟦 À Évaluer</Badge> | Réseau / DMZ | 💡 Étude |
+| **Sécurité & Administration** | Déploiement Termix & Bastion SSH (Socle opérationnel) | <Badge color="orange">🟠 En cours</Badge> | VM 104 (`100.64.0.4`) | ⏳ Hôtes à raccorder |
 | **Sécurité** | Firewall Proxmox VE 3 niveaux | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 & Mac Mini | ⏳ En attente |
 | **Sécurité** | Intel vPro / AMT (Gestion Out-of-Band) | <Badge color="blue">🟦 À Évaluer</Badge> | MS-01 Bare-Metal | 💡 Étude |
 | **Docker & Hygiène** | Pinning des tags Docker (suppression `:latest`) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify) | ⏳ En attente |
@@ -108,9 +108,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 - **Tâche** : Extraire les identifiants d'API OVH (DNS-01 Let's Encrypt) du fichier `/data/coolify/proxy/docker-compose.yml` et les placer dans un fichier d'environnement restreint (`.env` avec `chmod 600`).
 
-### 2.2 🏰 Exploration d'une DMZ & Bastion SSH <Badge color="blue">🟦 À Évaluer</Badge>
+### 2.2 🏰 Déploiement Termix & Bastion d'Administration SSH <Badge color="orange">🟠 En cours (Socle opérationnel)</Badge>
 
-- **Tâche** : Étudier l'architecture d'un bastion d'administration SSH isolé en DMZ pour centraliser, authentifier et auditer l'ensemble des accès shell d'infrastructures distants.
+- **Statut** : Socle Termix v26.10.2 + Guacd v1.6.0 déployé sur Coolify VM 104 (`ot8tjxw5ruhoqyis3rkb4ll5`) le 19/10/2026. Point d'entrée centralisé pour l'administration SSH, SFTP et la vue Proxmox/Docker avec isolation Tailnet (`vpn-only.yaml`) et authentification OIDC Authentik (groupe `admins`).
+- **Reste à faire** : Déploiement du rôle Ansible `termix_access` pour provisionner le compte de service restreint `termix-usr` et les clés Ed25519 sur les hôtes cibles (hôte pilote : `IMS-PBS`). Voir [Termix](/services/termix).
 
 ### 2.3 🛡️ Activation du Firewall Proxmox VE 3 Niveaux <Badge color="amber">🟡 Moyen Terme</Badge>
 
