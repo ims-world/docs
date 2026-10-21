@@ -1,5 +1,5 @@
 ---
-title: "Lot 02 — Accès admin (cmolotkoff)"
+title: "Script 02 — Accès admin (cmolotkoff)"
 description: "Création du compte d'administration cmolotkoff dans les conteneurs LXC, prérequis à Ansible"
 icon: "user-shield"
 iconType: "duotone"
@@ -10,13 +10,13 @@ last_reviewed: "2026-10-19"
 
 ## Objectif
 
-Ansible se connecte à tous les hôtes avec le compte `cmolotkoff` et passe root par sudo, jamais en root direct. Ce lot crée ce compte dans les conteneurs LXC, qui ne passent pas par Cloud-Init.
+Ansible se connecte à tous les hôtes avec le compte `cmolotkoff` et passe root par sudo, jamais en root direct. Ce script crée ce compte dans les conteneurs LXC, qui ne passent pas par Cloud-Init.
 
 | Type d'hôte | Origine du compte cmolotkoff |
 |---|---|
-| VM issue du template | Cloud-Init ([lot 01](/iac/lot-01-template-proxmox)) |
+| VM issue du template | Cloud-Init ([Script 01](/iac/script-01-template-proxmox)) |
 | Nœud Proxmox | Créé lors de l'installation |
-| LXC | Ce lot |
+| LXC | Ce script |
 
 | Élément | Valeur |
 |---|---|

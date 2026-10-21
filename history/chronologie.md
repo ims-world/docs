@@ -3,15 +3,15 @@ title: "Changelog & Historique"
 description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
-<Update label="19/10/2026" description="Termix 26.10.2 en Production, Validation Accès Pilote IMS-PBS & Refonte d'IMS-INFRA en Lots">
+<Update label="19/10/2026" description="Termix 26.10.2 en Production, Validation Accès Pilote IMS-PBS & Refonte d'IMS-INFRA">
   ### 🖥️ Gestion Centralisée des Hôtes & Accès Distant (Termix)
 
   - **Mise en Production de Termix 26.10.2 (`termix.ims-world.fr`)** — Déploiement sur la VM 104 (`ims-coolify`, UUID `ot8tjxw5ruhoqyis3rkb4ll5`) avec conteneur `guacd:1.6.0` isolé. Accès réservé au Tailnet (`vpn-only.yaml`), authentification OIDC Authentik native (groupe `admins`) avec admin local de secours TOTP, et secrets gérés dans Coolify. Voir [Termix](/services/termix).
-  - **Validation de l'Accès termix-usr sur l'Hôte Pilote IMS-PBS** — Déploiement et validation du compte dédié non-root `termix-usr` sur le LXC 103 (`192.168.1.51`) : clé Ed25519 restreinte à `192.168.1.52`, sudo `NOPASSWD` avec `log_subcmds`, traçabilité temps réel dans Loki via Alloy. Voir [Lot 03 — Accès Termix](/iac/lot-03-termix).
+  - **Validation de l'Accès termix-usr sur l'Hôte Pilote IMS-PBS** — Déploiement et validation du compte dédié non-root `termix-usr` sur le LXC 103 (`192.168.1.51`) : clé Ed25519 restreinte à `192.168.1.52`, sudo `NOPASSWD` avec `log_subcmds`, traçabilité temps réel dans Loki via Alloy. Voir [Script 03 — Accès Termix](/iac/script-03-termix).
 
-  ### ⚙️ Refonte du Dépôt d'Automatisation (IMS-INFRA en Lots)
+  ### ⚙️ Refonte du Dépôt d'Automatisation (IMS-INFRA)
 
-  - **Refonte Modulaire par Lots & Point d'Entrée Makefile** — Restructuration complète du dépôt **IMS-INFRA** en 4 lots fonctionnels indépendants avec un `Makefile` universel comme interface unique (`make help`, simulation `--check --diff`).
+  - **Refonte Modulaire par Scripts & Point d'Entrée Makefile** — Restructuration complète du dépôt **IMS-INFRA** en scripts et playbooks d'automatisation avec un `Makefile` universel comme interface unique (`make help`, simulation `--check --diff`).
   - **Nettoyage du Code Mort & Protection du Cluster Proxmox** — Retrait des rôles obsolètes (`node_exporter`, `nfs_client`), restriction stricte des playbooks de durcissement SSH/fail2ban/CrowdSec au seul groupe `[vms]` pour préserver le root SSH inter-nœuds du cluster Proxmox. Voir [Infrastructure as Code](/iac/index) et l'[ADR-011](/history/adr/adr-011-organisation-ims-infra-par-lots).
 </Update>
 

@@ -1,5 +1,5 @@
 ---
-title: "Lot 01 — Template Proxmox"
+title: "Script 01 — Template Proxmox"
 description: "Création du template de VM Ubuntu 24.04 (VMID 9000) et du snippet Cloud-Init vendor-data"
 icon: "clone"
 iconType: "duotone"
@@ -10,7 +10,7 @@ last_reviewed: "2026-10-19"
 
 ## Objectif
 
-Ce lot crée sur `pve` le template de VM Ubuntu 24.04 (cloud image, VMID 9000). Chaque VM clonée depuis ce template démarre avec le compte `cmolotkoff`, ta clé SSH, l'agent QEMU et Tailscale enregistré sur Headscale.
+Ce script crée sur `pve` le template de VM Ubuntu 24.04 (cloud image, VMID 9000). Chaque VM clonée depuis ce template démarre avec le compte `cmolotkoff`, ta clé SSH, l'agent QEMU et Tailscale enregistré sur Headscale.
 
 | Élément | Valeur |
 |---|---|
@@ -66,7 +66,7 @@ Si le template 9000 existe déjà, le script affiche son nom et demande de taper
   </Step>
 
   <Step title="Durcir la VM">
-    Ajoute la VM au groupe `[vms]` de `ansible/inventory.ini`, puis applique le [lot 04](/iac/lot-04-securite-ssh).
+    Ajoute la VM au groupe `[vms]` de `ansible/inventory.ini`, puis applique le [script 04](/iac/script-04-securite-ssh).
   </Step>
 </Steps>
 

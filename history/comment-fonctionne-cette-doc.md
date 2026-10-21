@@ -47,7 +47,7 @@ Toute nouvelle fiche applicative ajoutée dans le dossier `services/` **DOIT imp
 
 ### 1. Règle : Documentation vs Code Versionné (`IMS-INFRA`)
 - La documentation explique le fonctionnement et les choix d'architecture.
-- Le code versionné (scripts, playbooks et rôles Ansible) vit dans le dépôt `IMS-INFRA`, organisé en lots documentés. Voir [Infrastructure as Code](/iac/index).
+- Le code versionné (scripts, playbooks et rôles Ansible) vit dans le dépôt `IMS-INFRA`, organisé en scripts documentés. Voir [Infrastructure as Code](/iac/index).
 - Si un script ou un fichier compose dépasse quelques lignes, il doit être référencé depuis le code sans être dupliqué intégralement dans la doc.
 
 ### 2. Règle : Source Unique de Vérité (Anti-duplication)

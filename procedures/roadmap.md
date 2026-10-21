@@ -56,9 +56,9 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Sauvegardes & Domotique** | Sauvegarde PBS nocturne de la VM 106 (HAOS) | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / PBS | ⏳ En attente |
 | **UX & Sécurité HA** | Routeur Traefik HTTPS vpn-only pour Home Assistant (`https://home.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Traefik) | ✅ 14/09/2026 |
 | **Automatisation & Workflows** | Déploiement n8n sur Coolify avec PostgreSQL 16 (`automation.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Coolify) | ✅ 22/09/2026 |
-| **Automatisation & IaC** | Refonte du dépôt IMS-INFRA en lots documentés + Makefile ([IaC](/iac/index)) | <Badge color="green">🟢 Court Terme</Badge> | Mac (opérateur) | 🚧 En cours |
-| **Automatisation & IaC** | Raccordement Termix des 5 hôtes restants ([Lot 03](/iac/lot-03-termix)) | <Badge color="green">🟢 Court Terme</Badge> | Tous les hôtes | 🚧 En cours |
-| **Automatisation & IaC** | Lot « Supervision » : déploiement d'Alloy par Ansible (manquant sur le LXC 105) | <Badge color="amber">🟡 Moyen Terme</Badge> | Tous les hôtes | ⏳ En attente |
+| **Automatisation & IaC** | Refonte du dépôt IMS-INFRA en scripts documentés + Makefile ([IaC](/iac/index)) | <Badge color="green">🟢 Court Terme</Badge> | Mac (opérateur) | 🚧 En cours |
+| **Automatisation & IaC** | Raccordement Termix des 5 hôtes restants ([Script 03](/iac/script-03-termix)) | <Badge color="green">🟢 Court Terme</Badge> | Tous les hôtes | 🚧 En cours |
+| **Automatisation & IaC** | Script « Supervision » : déploiement d'Alloy par Ansible (manquant sur le LXC 105) | <Badge color="amber">🟡 Moyen Terme</Badge> | Tous les hôtes | ⏳ En attente |
 | **Automatisation & Web** | Portail web de génération de VM temporaires (self-service) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Étude / PoC |
 | **Automatisation & Ansible** | Playbook post-provisioning (users, sudo NOPASSWD, base) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM & Nœuds PVE | ⏳ En attente |
 | **Matériel & Rack** | Extension physique du rack Labrax 10" | <Badge color="amber">🟡 Moyen Terme</Badge> | Rack Physique | ⏳ En attente |

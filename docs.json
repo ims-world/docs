@@ -231,13 +231,13 @@
             ]
           },
           {
-            "group": "Lots IMS-INFRA",
-            "icon": "cubes-stacked",
+            "group": "Scripts & Playbooks",
+            "icon": "terminal",
             "pages": [
-              "iac/lot-01-template-proxmox",
-              "iac/lot-02-acces-admin",
-              "iac/lot-03-termix",
-              "iac/lot-04-securite-ssh"
+              "iac/script-01-template-proxmox",
+              "iac/script-02-acces-admin",
+              "iac/script-03-termix",
+              "iac/script-04-securite-ssh"
             ]
           }
         ]

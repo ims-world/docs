@@ -268,13 +268,13 @@ Entrée dans `extra_records` (via Headplane) :
 
 ## Raccordement des hôtes
 
-Les hôtes sont raccordés à Termix par le lot 03 du dépôt IMS-INFRA : un compte dédié `termix-usr`, une clé restreinte à `192.168.1.52`, un sudo journalisé dans Loki. La procédure complète, la révocation d'urgence et la rotation de clé sont décrites dans [Lot 03 — Accès Termix](/iac/lot-03-termix).
+Les hôtes sont raccordés à Termix par le script 03 du dépôt IMS-INFRA : un compte dédié `termix-usr`, une clé restreinte à `192.168.1.52`, un sudo journalisé dans Loki. La procédure complète, la révocation d'urgence et la rotation de clé sont décrites dans [Script 03 — Accès Termix](/iac/script-03-termix).
 
 | Hôte | Statut |
 |---|---|
 | **IMS-PBS (LXC 103)** | ✅ Raccordé (pilote, 19/10/2026) |
 | **pve**, **pve-macmini**, **IMS-Coolify (VM 104)** | À raccorder |
-| **IMS-NAS (LXC 100)**, **Coolify Worker (LXC 105)** | À raccorder après le [lot 02](/iac/lot-02-acces-admin) |
+| **IMS-NAS (LXC 100)**, **Coolify Worker (LXC 105)** | À raccorder après le [script 02](/iac/script-02-acces-admin) |
 | **ims-rpi-monitor** | Reporté (éteint) |
 | **VM Windows (RDP)** | Reportée (allumée à la demande) |
 

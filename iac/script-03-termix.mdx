@@ -1,5 +1,5 @@
 ---
-title: "Lot 03 — Accès Termix (termix-usr)"
+title: "Script 03 — Accès Termix (termix-usr)"
 description: "Raccordement, révocation et rotation de clé de l'accès SSH de Termix aux hôtes du homelab, via le rôle Ansible termix_access"
 icon: "plug"
 iconType: "duotone"
@@ -10,7 +10,7 @@ last_reviewed: "2026-10-19"
 
 ## Objectif
 
-Ce lot donne à [Termix](/services/termix) un accès SSH contrôlé aux hôtes du homelab, par un compte dédié `termix-usr`. Ce compte n'est utilisable que par Termix, et chacune de ses actions privilégiées est tracée dans Loki. Le même lot permet de révoquer cet accès sur tout le parc en une commande.
+Ce script donne à [Termix](/services/termix) un accès SSH contrôlé aux hôtes du homelab, par un compte dédié `termix-usr`. Ce compte n'est utilisable que par Termix, et chacune de ses actions privilégiées est tracée dans Loki. Ce composant permet de révoquer cet accès sur tout le parc en une commande.
 
 | Élément | Valeur |
 |---|---|
@@ -80,7 +80,7 @@ Le filtre `!= "pvesh"` écarte les relevés automatiques du plugin Proxmox, qui 
 
 <Steps>
   <Step title="Vérifier l'accès Ansible">
-    L'hôte figure dans `[termix_hosts]` et `make ping HOST=<hôte>` répond `root`. Pour un LXC, applique d'abord le [lot 02](/iac/lot-02-acces-admin).
+    L'hôte figure dans `[termix_hosts]` et `make ping HOST=<hôte>` répond `root`. Pour un LXC, applique d'abord le [script 02](/iac/script-02-acces-admin).
   </Step>
 
   <Step title="Simuler">
@@ -167,7 +167,7 @@ Attendus :
 |---|---|
 | **IMS-PBS (LXC 103)** | ✅ Raccordé (pilote) |
 | **pve**, **pve-macmini**, **IMS-Coolify (VM 104)** | À raccorder |
-| **IMS-NAS (LXC 100)**, **Coolify Worker (LXC 105)** | À raccorder après le [lot 02](/iac/lot-02-acces-admin) |
+| **IMS-NAS (LXC 100)**, **Coolify Worker (LXC 105)** | À raccorder après le [script 02](/iac/script-02-acces-admin) |
 | **ims-rpi-monitor** | Reporté (éteint) |
 
 ---

@@ -272,7 +272,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
 
 | Source | Destination | Protocole / Port | Usage & Sécurité |
 |---|---|---|---|
-| **VM IMS-Coolify** (`192.168.1.52`) | **Hôtes du LAN** (`192.168.1.0/24`) | TCP `22` (SSH) | Administration Termix : connexions sortantes vers les hôtes administrés (compte `termix-usr`, clé Ed25519 restreinte avec `from="192.168.1.52"`). Voir [Lot 03 — Accès Termix](/iac/lot-03-termix). |
+| **VM IMS-Coolify** (`192.168.1.52`) | **Hôtes du LAN** (`192.168.1.0/24`) | TCP `22` (SSH) | Administration Termix : connexions sortantes vers les hôtes administrés (compte `termix-usr`, clé Ed25519 restreinte avec `from="192.168.1.52"`). Voir [Script 03 — Accès Termix](/iac/script-03-termix). |
 
 ---
 

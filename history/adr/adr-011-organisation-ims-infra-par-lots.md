@@ -1,6 +1,6 @@
 ---
-title: "ADR-011 : Organisation d'IMS-INFRA par Lots"
-description: "Structuration du dépôt IMS-INFRA en lots documentés avec un Makefile comme point d'entrée, et règles de connexion d'Ansible"
+title: "ADR-011 : Organisation d'IMS-INFRA par Scripts et Modules"
+description: "Structuration du dépôt IMS-INFRA en scripts et modules documentés avec un Makefile comme point d'entrée, et règles de connexion d'Ansible"
 icon: "file-code"
 iconType: "duotone"
 last_reviewed: "2026-10-19"
