@@ -3,7 +3,7 @@ title: "Infrastructure as Code — IMS-INFRA"
 description: "Organisation du dépôt IMS-INFRA : scripts et playbooks d'automatisation, Makefile, Ansible, et frontière entre ce qui est scripté et ce qui reste manuel"
 icon: "code"
 iconType: "duotone"
-last_reviewed: "2026-10-19"
+last_reviewed: "2026-10-22"
 ---
 
 <Badge color="green">🟢 Référence</Badge>
@@ -45,7 +45,7 @@ Cette documentation explique pourquoi et comment chaque script est conçu. Le `R
 | Script / Playbook | Fonction | Outil | Commande principale | Statut |
 |---|---|---|---|---|
 | [Script 01 — Template Proxmox](/iac/script-01-template-proxmox) | Template VM Ubuntu 24.04 (VMID 9000) + snippet Cloud-Init | Script | `make template` | ✅ Prêt |
-| [Script 02 — Accès admin](/iac/script-02-acces-admin) | Compte cmolotkoff + sudo dans les LXC | Script | `make admin-bootstrap` | 🧪 À valider |
+| [Script 02 — Accès admin](/iac/script-02-acces-admin) | Compte cmolotkoff + sudo dans les LXC | Script | `make admin-bootstrap` | ✅ Validé (LXC 100, 103, 105) |
 | [Script 03 — Accès Termix](/iac/script-03-termix) | Compte termix-usr : raccordement, révocation, rotation | Ansible | `make termix-apply` | ✅ Validé sur IMS-PBS |
 | [Script 04 — Sécurité SSH](/iac/script-04-securite-ssh) | Durcissement sshd, fail2ban, CrowdSec, mises à jour | Ansible | `make ssh-apply` | ⚠️ VMs du template uniquement |
 
@@ -101,8 +101,8 @@ make termix-apply HOST=ims-nas
 | `pve-macmini` | Mac Mini 2014, second nœud | `100.64.0.6` |
 | `ims-pbs` | LXC 103 — Proxmox Backup Server | `100.64.0.2` |
 | `ims-coolify` | VM 104 — Coolify, Traefik, LGTM, Authentik | `100.64.0.4` |
-| `ims-nas` | LXC 100 — NAS | `192.168.1.50` via pve |
-| `ims-worker` | LXC 105 — worker Coolify | `192.168.1.198` via pve |
+| `ims-nas` | LXC 100 — NAS | `100.64.0.11` |
+| `ims-worker` | LXC 105 — worker Coolify | `100.64.0.10` |
 
 | Groupe | Contenu | Utilisé par |
 |---|---|---|

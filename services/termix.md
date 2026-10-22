@@ -3,7 +3,7 @@ title: "Termix — Gestion SSH, SFTP & Bureau à Distance"
 description: "Point d'entrée unique pour administrer les hôtes du homelab (terminal SSH, fichiers SFTP, Proxmox, Docker), restreint au Tailnet et authentifié par Authentik"
 icon: "terminal"
 iconType: "duotone"
-last_reviewed: "2026-10-19"
+last_reviewed: "2026-10-22"
 app_version: "26.10.2"
 ---
 
@@ -274,7 +274,7 @@ Les hôtes sont raccordés à Termix par le script 03 du dépôt IMS-INFRA : un 
 |---|---|
 | **IMS-PBS (LXC 103)** | ✅ Raccordé (pilote, 19/10/2026) |
 | **pve**, **pve-macmini**, **IMS-Coolify (VM 104)** | À raccorder |
-| **IMS-NAS (LXC 100)**, **Coolify Worker (LXC 105)** | À raccorder après le [script 02](/iac/script-02-acces-admin) |
+| **IMS-NAS (LXC 100)**, **Coolify Worker (LXC 105)** | Prêts à raccorder (Script 02 validé le 22/10/2026) |
 | **ims-rpi-monitor** | Reporté (éteint) |
 | **VM Windows (RDP)** | Reportée (allumée à la demande) |
 

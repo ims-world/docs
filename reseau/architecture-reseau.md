@@ -3,6 +3,7 @@ title: "Architecture réseau"
 description: "Bridges Proxmox, Tailscale/Headscale, DNS, port-forward"
 icon: "network-wired"
 iconType: "duotone"
+last_reviewed: "2026-10-22"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -42,6 +43,8 @@ graph TB
         COOL_TS["Coolify Client (100.64.0.4)"]
         MAC_TS["Mac Mini Cluster (100.64.0.6)"]
         PVE_TS["PVE Host (100.64.0.9)"]
+        NAS_TS["NAS Storage (100.64.0.11)"]
+        WORKER_TS["Coolify Worker (100.64.0.10)"]
         RPI_TS["Raspberry Pi Kiosk (100.64.0.12)"]
     end
 
@@ -60,6 +63,8 @@ graph TB
     HEADSCALE_SRV --- COOL_TS
     HEADSCALE_SRV --- MAC_TS
     HEADSCALE_SRV --- PVE_TS
+    HEADSCALE_SRV --- NAS_TS
+    HEADSCALE_SRV --- WORKER_TS
     HEADSCALE_SRV --- RPI_TS
 
     classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;

@@ -3,7 +3,7 @@ title: "LXC 105 — Coolify Worker (Mac Mini)"
 description: "Nœud d'exécution Docker distant (Worker) orchestré par le Master VM 104"
 icon: "cube"
 iconType: "duotone"
-last_reviewed: "2026-08-28"
+last_reviewed: "2026-10-22"
 app_version: "v4.3.14"
 ---
 
@@ -21,8 +21,9 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Hôte d'Hébergement** | Proxmox VE Nœud 2 (`pve-macmini.ims-world.fr`) |
 | **OS / Distribution** | Debian 13 (Trixie) LXC Unprivileged |
 | **Adresse IP LAN** | `192.168.1.198` |
-| **Accès VPN / Tailnet** | Non (Réseau LAN `192.168.1.0/24` uniquement pour le moment) |
+| **Accès VPN / Tailnet** | Tailscale ({ips.coolifyWorker}), hostname `ims-pve-105-coolify-worker`, utilisateur Headscale `infra` |
 | **Accès SSH Master** | Clé publique `coolify-secondary-node` (Port 22, User `root`) |
+| **Accès SSH Admin** | Compte `cmolotkoff` (Port 22, clé SSH Ed25519, `sudo NOPASSWD`) |
 | **Version Coolify** | `v4.3.14` |
 | **Rôle dans l'Architecture** | **Nœud Worker Distant** (Moteur d'exécution Docker autonome) |
 | **Statut** | <Badge color="green">🟢 Opérationnel & Enrôlé</Badge> |
@@ -58,14 +59,22 @@ graph TD
 - Tout le trafic HTTP/HTTPS entrant (WAN et VPN Tailnet) continue d'arriver exclusivement sur le **Traefik principal de la VM 104** (`100.64.0.4`).
 - Traefik réachemine ensuite les requêtes vers les conteneurs applicatifs exécutés sur le Worker LXC 105 via le réseau LAN local `192.168.1.198`.
 
-### 2. Authentification & Enrôlement SSH
-- **Clé SSH Dédiée** : Le Master VM 104 s'authentifie sur le LXC 105 via la clé publique `coolify-secondary-node`.
-- **Fichier de Configuration (`/etc/ssh/sshd_config.d/01-coolify.conf`)** :
+### 2. Authentification & Accès SSH
+- **Enrôlement Master Coolify** : Le Master VM 104 s'authentifie sur le LXC 105 via la clé publique `coolify-secondary-node` inscrite dans `/root/.ssh/authorized_keys` (droits `600`).
+- **Configuration sshd (`/etc/ssh/sshd_config.d/01-coolify.conf`)** :
   ```text
   PermitRootLogin prohibit-password
   PubkeyAuthentication yes
   ```
-- Clé inscrite dans `/root/.ssh/authorized_keys` avec les permissions strictes `600`.
+- **Compte d'Administration (`cmolotkoff`)** : Créé le 22/10/2026 avec les droits `sudo NOPASSWD` dans `/etc/sudoers.d/cmolotkoff` et sa clé SSH Ed25519 d'administration. Il permet la connexion directe depuis le Tailnet ({ips.coolifyWorker}) pour la maintenance et l'exécution d'Ansible.
+
+### 3. Enrôlement Tailscale & TUN Device
+Pour autoriser Tailscale à opérer dans le conteneur LXC 105 Unprivileged, le périphérique `/dev/net/tun` a été configuré sur le nœud Proxmox Mac Mini (`/etc/pve/nodes/pve-macmini/lxc/105.conf`) :
+```ini
+lxc.cgroup2.devices.allow: c 10:200 rwm
+lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
+```
+Le conteneur est enrôlé sous l'utilisateur Headscale `infra` avec le hostname `ims-pve-105-coolify-worker`.
 
 ---
 

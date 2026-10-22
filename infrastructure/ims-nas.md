@@ -3,7 +3,7 @@ title: "IMS-NAS (LXC 100)"
 description: "Serveur de stockage central — NFS v3/v4, MergerFS Pool (ext4) & SMB"
 icon: "hard-drive"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
+last_reviewed: "2026-10-22"
 ---
 
 import { ips, hardware } from "/snippets/variables.mdx";
@@ -33,14 +33,14 @@ Centralise le stockage de l'infrastructure : documents, photos, backups, et méd
 | **VMID** | 100 |
 | **Type** | LXC Debian 12, **privilégié** (requis pour NFS + passthrough disque) |
 | **CPU / RAM** | 2 cores / 1024 MB |
-| **Réseau** | `vmbr0` ({ips.nasLan}/24, LAN) + `vmbr1` (10.10.10.1/24, isolé, sans gateway) |
+| **Réseau** | `vmbr0` ({ips.nasLan}/24, LAN) + `vmbr1` (10.10.10.1/24, isolé, sans gateway) + `tailscale0` ({ips.nas}) |
 | **Carte SATA** | {hardware.sataCard} |
 | **Emplacement disques** | 4-Pack Hard Drive Tray Caddy 3.5" pour DELL (baie évolutive multi-disques) |
-| **Accès distant** | Aucun — LAN uniquement à ce jour |
+| **Accès distant** | Tailscale ({ips.nas}), hostname `ims-pve-100-nas`, utilisateur Headscale `infra` |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 <Note>
-`vmbr1` est un bridge isolé sans port physique ni gateway, dédié au trafic NFS interne entre guests (NAS ↔ PBS ↔ VM Coolify). Le LAN (`vmbr0`) sert le SMB et l'accès humain.
+`vmbr1` est un bridge isolé sans port physique ni gateway, dédié au trafic NFS interne entre guests (NAS ↔ PBS ↔ VM Coolify). Le LAN (`vmbr0`) sert le SMB et l'accès humain. L'interface `tailscale0` ({ips.nas}) assure l'administration à distance via le tunnel VPN Headscale.
 </Note>
 
 ## Disques physiques & Évolutivité
@@ -133,16 +133,39 @@ graph TB
 /mnt/storage-hot  10.10.10.0/24(rw,no_root_squash)    # guests internes uniquement
 ```
 
-## SMB
+## SMB & Compte d'Administration (cmolotkoff)
 
 | Propriété | Valeur |
 |---|---|
-| **Partage** | `smb://`{ips.nasLan}`/storage` |
-| **Utilisateur** | `cmolotkoff` |
+| **Partage SMB** | `smb://`{ips.nasLan}`/storage` (LAN) ou `smb://`{ips.nas}`/storage` (Tailnet) |
+| **Utilisateur système & SMB** | `cmolotkoff` (UID `1000`, GID `1000`) |
+| **Shell système** | `/bin/bash` |
+| **Droits sudo** | `NOPASSWD: ALL` dans `/etc/sudoers.d/cmolotkoff` |
+| **Mot de passe système** | Verrouillé (`passwd -l`), authentification exclusive par clé SSH Ed25519 |
 
-<Note>
-L'accès SMB est configuré sur l'utilisateur `cmolotkoff` pour la gestion simplifiée des droits du partage. À adapter avec un compte restreint si le stockage doit être ouvert à d'autres utilisateurs du LAN.
-</Note>
+<Warning>
+**Règle d'Or — Intégrité de l'UID 1000 Samba** :
+Le compte d'administration `cmolotkoff` est **strictement identique** à l'utilisateur propriétaire du partage Samba. Son shell a été passé de `/sbin/nologin` à `/bin/bash` pour permettre les connexions SSH et l'exécution d'Ansible, tout en conservant son mot de passe système verrouillé. **Ne jamais modifier son UID (1000) ni supprimer ce compte**, sous peine de corrompre l'ensemble des permissions POSIX du pool de stockage MergerFS.
+</Warning>
+
+## Accès Distant & Client Tailscale
+
+Le conteneur LXC 100 est enrôlé dans le Tailnet sous le hostname `ims-pve-100-nas` avec l'adresse IP `{ips.nas}` (utilisateur Headscale `infra`).
+
+<Steps>
+  <Step title="Pass-through du périphérique TUN">
+    L'accès au périphérique `/dev/net/tun` est déclaré dans la configuration Proxmox du conteneur (`/etc/pve/lxc/100.conf`) :
+    ```ini
+    lxc.cgroup2.devices.allow: c 10:200 rwm
+    lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
+    ```
+  </Step>
+  <Step title="Raccordement au Tailnet Headscale">
+    ```bash
+    tailscale up --login-server=https://vpn.ims-world.fr --hostname=ims-pve-100-nas --accept-routes
+    ```
+  </Step>
+</Steps>
 
 ## Monitoring
 

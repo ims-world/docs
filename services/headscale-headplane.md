@@ -3,7 +3,7 @@ title: "Headscale & Headplane"
 description: "Serveur VPN Tailscale self-hosted et son interface Web d'administration"
 icon: "network-wired"
 iconType: "duotone"
-last_reviewed: "2026-09-14"
+last_reviewed: "2026-10-22"
 app_version: "v0.29.3 / 0.7.1"
 ---
 
@@ -78,7 +78,9 @@ graph TB
         MAC["Mac Mini Cluster (100.64.0.6)"]
         PVE["Proxmox Host MS-01 (100.64.0.9)"]
         PBS["PBS Storage (100.64.0.2)"]
+        NAS["NAS Storage (100.64.0.11)"]
         COOL["Coolify VM (100.64.0.4)"]
+        WORKER["Coolify Worker (100.64.0.10)"]
         RPI["Raspberry Pi Kiosk (100.64.0.12)"]
         MOBILE["Clients Mobiles & Laptops"]
     end
@@ -91,7 +93,9 @@ graph TB
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| MAC
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| PVE
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| PBS
+    HEADSCALE -.->|MagicDNS & Coordination WireGuard| NAS
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| COOL
+    HEADSCALE -.->|MagicDNS & Coordination WireGuard| WORKER
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| RPI
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| MOBILE
 

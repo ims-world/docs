@@ -3,10 +3,10 @@ title: "Script 02 — Accès admin (cmolotkoff)"
 description: "Création du compte d'administration cmolotkoff dans les conteneurs LXC, prérequis à Ansible"
 icon: "user-shield"
 iconType: "duotone"
-last_reviewed: "2026-10-19"
+last_reviewed: "2026-10-22"
 ---
 
-<Badge color="amber">🧪 À valider</Badge>
+<Badge color="green">🟢 Validé en production (LXC 100, 103, 105)</Badge>
 
 ## Objectif
 
@@ -23,6 +23,7 @@ Ansible se connecte à tous les hôtes avec le compte `cmolotkoff` et passe root
 | **Outil** | Script shell, exécuté sur le nœud Proxmox via `pct exec` |
 | **Fichier** | `lots/02-acces-admin/bootstrap-lxc-admin.sh` |
 | **Commande** | `make admin-bootstrap CT=<id> NODE=cmolotkoff@<nœud>` |
+| **Statut** | Validé en production le 22/10/2026 sur les trois conteneurs du parc |
 
 ---
 
@@ -42,15 +43,20 @@ Le script est relançable sans effet de bord.
   Ce choix d'un script plutôt qu'Ansible est volontaire : l'action est ponctuelle (une fois par conteneur) et elle est justement le prérequis qui permet ensuite à Ansible de se connecter.
 </Info>
 
+<Warning>
+  **Cas particulier LXC 100 (NAS) — Règle UID 1000 Samba** :
+  Sur le NAS, le compte `cmolotkoff` existait déjà pour Samba avec l'UID 1000. Le shell a été passé de `/sbin/nologin` à `/bin/bash` et le mot de passe système a été verrouillé (`passwd -l`). **Ne jamais modifier son UID (1000) ni supprimer ce compte** pour ne pas corrompre les droits POSIX sur le pool MergerFS.
+</Warning>
+
 ---
 
 ## Procédure
 
-| Conteneur | Commande |
-|---|---|
-| LXC 100 — NAS | `make admin-bootstrap CT=100 NODE=cmolotkoff@100.64.0.9` |
-| LXC 103 — PBS | `make admin-bootstrap CT=103 NODE=cmolotkoff@100.64.0.9` |
-| LXC 105 — worker | `make admin-bootstrap CT=105 NODE=cmolotkoff@100.64.0.6` |
+| Conteneur | Commande | Statut au 22/10/2026 |
+|---|---|---|
+| LXC 100 — NAS | `make admin-bootstrap CT=100 NODE=cmolotkoff@100.64.0.9` | ✅ Configuré (Samba UID 1000 + SSH) |
+| LXC 103 — PBS | `make admin-bootstrap CT=103 NODE=cmolotkoff@100.64.0.9` | ✅ Réparé (clé SSH rétablie) |
+| LXC 105 — worker | `make admin-bootstrap CT=105 NODE=cmolotkoff@100.64.0.6` | ✅ Créé & opérationnel |
 
 `NODE` est le nœud qui héberge le conteneur : `pct` n'agit que sur les conteneurs locaux. Si la commande répond `does not exist`, relance-la sur l'autre nœud.
 

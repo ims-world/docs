@@ -3,7 +3,7 @@ title: "Matrice de Sécurité & d'Exposition"
 description: "Cartographie centralisée des zones de confiance, de l'exposition publique, du filtrage et de l'authentification"
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-10-19"
+last_reviewed: "2026-10-22"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -44,7 +44,7 @@ graph TB
     subgraph SERVICES ["🐳 Services Applicatifs Docker (VM 104) & Hôtes"]
         PUB_APPS["Authentik (auth) / Vaultwarden (vault) / Immich (photos) / Jellyfin (homeflix)"]
         PRIV_APPS["qBittorrent (qbit) / Radarr / Sonarr / Prowlarr / Grafana (monitoring)"]
-        ADMIN_NODES["Host PVE (100.64.0.9) / NAS LXC (10.10.10.1) / PBS LXC (100.64.0.2) / VM 104 (100.64.0.4)"]
+        ADMIN_NODES["Host PVE (100.64.0.9) / NAS LXC (100.64.0.11) / PBS LXC (100.64.0.2) / VM 104 (100.64.0.4) / Worker LXC (100.64.0.10)"]
     end
 
     PUBLIC_USERS --> HTTPS_443
@@ -257,10 +257,10 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
   <Tab title="🏠 Zone 3 — Administration LAN & Tailnet Direct">
     | Service / Nœud | Adresse / Port | Exposition | Méthode d'Authentification |
     | --- | --- | --- | --- |
-    | **SSH Système** | Port `22` | 🏠 LAN / 🔐 Tailnet | Clés SSH Ed25519 (0 accès WAN Bbox) |
+    | **SSH Système** | Port `22` (PVE, Mac Mini, PBS, NAS, Coolify, Worker) | 🏠 LAN / 🔐 Tailnet | Clés SSH Ed25519 (compte `cmolotkoff`, sudo NOPASSWD) |
     | **Proxmox VE GUI** | `{ips.pveLan}:8006` / `100.64.0.9:8006` | 🏠 LAN / 🔐 Tailnet | PAM / Compte `cmolotkoff` |
     | **PBS Web GUI** | `{ips.pbsLan}:8007` / `100.64.0.2:8007` | 🏠 LAN / 🔐 Tailnet | Auth PBS `cmolotkoff@pbs` |
-    | **NAS SMB** | `{ips.nasLan}:445` | 🏠 LAN Only | Auth SMB `cmolotkoff` |
+    | **NAS SMB** | `{ips.nasLan}:445` / `{ips.nas}:445` | 🏠 LAN / 🔐 Tailnet | Auth SMB `cmolotkoff` (UID 1000) |
     | **NAS NFS** | `10.10.10.1:2049` | 🔒 `vmbr1` Isolé | Subnet IP `10.10.10.0/24` |
     | **Home Assistant (LAN)** | `{ips.haLan}` (Port 80) / Observer (:4357) | 🏠 LAN Native | Auth native Home Assistant |
   </Tab>

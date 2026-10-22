@@ -3,7 +3,7 @@ title: "IMS-PBS (LXC 103 — Proxmox Backup Server)"
 description: "Serveur de sauvegarde dédupliquée et chiffrée de tout le homelab"
 icon: "shield-halved"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
+last_reviewed: "2026-10-22"
 ---
 
 import { ips } from "/snippets/variables.mdx";
@@ -31,6 +31,7 @@ Datastore de sauvegarde déduplicée pour les VM/LXC applicatifs (VM Coolify en 
 | **CPU / RAM** | 2 cores / 1024 MB |
 | **Réseau** | `vmbr0` ({ips.pbsLan}/24) + `vmbr1` (10.10.10.3/24) + client Tailscale dédié |
 | **Accès Tailscale** | {ips.pbs}, hostname `ims-pve-103-pbs` |
+| **Compte admin** | `cmolotkoff` (Port 22, clé SSH Ed25519 réparée le 22/10/2026, `sudo NOPASSWD`) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 <Note>
@@ -39,7 +40,7 @@ Datastore de sauvegarde déduplicée pour les VM/LXC applicatifs (VM Coolify en 
 
 ## Accès distant — client Tailscale dédié
 
-Contrairement au NAS (aucun accès distant), PBS a son propre client Tailscale plutôt qu'un subnet router généraliste — accès chirurgical, pas d'exposition du LAN entier.
+PBS dispose de son propre client Tailscale enrôlé sur le control plane Headscale (`ims-pve-103-pbs`). Le compte d'administration `cmolotkoff` a été réparé le 22/10/2026 (la clé SSH était refusée) : il permet la gestion directe en SSH et l'exécution d'Ansible.
 
 <Steps>
   <Step title="Device TUN requis dans la config LXC">

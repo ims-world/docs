@@ -3,6 +3,20 @@ title: "Changelog & Historique"
 description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
+<Update label="22/10/2026" description="Enrôlement Tailscale des LXC 100 (NAS) et 105 (Worker), Déploiement & Réparation des Comptes Admin cmolotkoff">
+  ### 🔐 Extension du Tailnet aux Conteneurs LXC (NAS & Worker)
+
+  - **Enrôlement Tailscale du NAS (LXC 100)** — Tu as connecté le conteneur de stockage au Tailnet avec l'adresse IP `100.64.0.11`, le hostname `ims-pve-100-nas` et l'utilisateur Headscale `infra`. Tu as activé l'accès au périphérique `/dev/net/tun` dans la configuration Proxmox du conteneur. Voir [IMS-NAS (LXC 100)](/infrastructure/ims-nas).
+  - **Enrôlement Tailscale du Worker Coolify (LXC 105)** — Tu as enrôlé le conteneur worker dans le Tailnet avec l'IP `100.64.0.10`, le hostname `ims-pve-105-coolify-worker` et l'utilisateur Headscale `infra`. Tu as configuré le pass-through de `/dev/net/tun` sur le nœud Mac Mini. Voir [LXC 105 — Coolify Worker](/infrastructure/lxc-coolify-worker).
+
+  ### 🛡️ Déploiement et Réparation des Comptes d'Administration (cmolotkoff)
+
+  - **Configuration du Compte cmolotkoff sur le NAS (LXC 100)** — Tu as configuré le compte d'administration avec `sudo NOPASSWD` et ta clé SSH. Ce compte est aussi l'utilisateur Samba (UID 1000) : son shell est passé de `nologin` à `/bin/bash` et son mot de passe système reste verrouillé (`passwd -l`). Son UID 1000 ne doit jamais être modifié ni supprimé.
+  - **Création du Compte cmolotkoff sur le Worker Coolify (LXC 105)** — Tu as créé le compte `cmolotkoff` avec `sudo NOPASSWD` et ta clé SSH, permettant l'accès direct Ansible sur le worker.
+  - **Réparation de l'Accès cmolotkoff sur Proxmox Backup Server (LXC 103)** — Tu as réparé la clé SSH qui était refusée, rétablissant les connexions d'administration sur PBS.
+  - **Validation en Production du Script 02** — Ces interventions valident en conditions réelles le [Script 02 — Accès admin (cmolotkoff)](/iac/script-02-acces-admin) sur les trois conteneurs LXC du homelab.
+</Update>
+
 <Update label="19/10/2026" description="Termix 26.10.2 en Production, Validation Accès Pilote IMS-PBS & Refonte d'IMS-INFRA">
   ### 🖥️ Gestion Centralisée des Hôtes & Accès Distant (Termix)
 
