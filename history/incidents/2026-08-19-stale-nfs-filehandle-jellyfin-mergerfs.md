@@ -7,6 +7,11 @@ iconType: "duotone"
 
 <Badge color="green">🟢 Résolu & Choix d'Architecture Acté</Badge> *(2026-08-19)*
 
+<Info>
+**Mise à jour du 23/10/2026 — Résolution Structurelle Définitive** :
+Si cet incident d'août 2026 avait été contourné par la désactivation de la sauvegarde automatique quotidienne du NAS, la cause racine (MergerFS FUSE sous NFS) a de nouveau frappé en octobre 2026 sur PBS et HomeFlix. La vulnérabilité a été définitivement éliminée le 23/10/2026 par le **retrait complet de MergerFS sur `/mnt/storage` et son remplacement par un bind-mount ext4 direct**. Voir le [Post-Mortem du 23/10/2026](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix).
+</Info>
+
 ---
 
 ## Symptôme

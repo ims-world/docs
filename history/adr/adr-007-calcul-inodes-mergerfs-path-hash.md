@@ -3,10 +3,16 @@ title: "ADR-007 — Calcul d'Inodes MergerFS (path-hash) & Diagnostic de Hardlin
 description: "Décision concernant l'impact de la politique inodecalc=path-hash sur la vérification des inodes et des hardlinks"
 icon: "hard-drive"
 iconType: "duotone"
+last_reviewed: "2026-10-23"
 ---
 
 ## Statut
-<Badge color="green">🟢 Accepté & Déployé</Badge> *(2026-08-16)*
+<Badge color="amber">🟡 Obsolète / Remplacé (23/10/2026)</Badge>
+
+<Warning>
+**Décision rendue caduque par le retrait de MergerFS (23/10/2026)** :
+Suite aux incidents de handles NFS périmés (`ESTALE`), le pool virtuel MergerFS sur `/mnt/storage` a été définitivement remplacé par un **bind-mount direct ext4** (`/mnt/disk1` → `/mnt/storage`). En conséquence, la politique de virtualisation d'inodes `inodecalc=path-hash` n'est plus active : les numéros d'inodes inspectés sur `/mnt/storage` et au travers des partages NFS sont désormais les **véritables inodes natifs du système de fichiers ext4**. Les diagnostics et vérifications de hardlinks s'effectuent de façon transparente sans divergence d'inodes.
+</Warning>
 
 ---
 

@@ -3,7 +3,7 @@ title: "Politique de Sauvegarde & Tâches Planifiées"
 description: "Architecture de protection des données, anti-circularité, chronologie nocturne et tolérance aux coupures"
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-08-17"
+last_reviewed: "2026-10-23"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -69,12 +69,9 @@ vzdump 103 --storage local --mode snapshot
 **Storage `local` (type `dir`, `/var/lib/vz`)** : Ne pas utiliser `local-lvm` (LVM-Thin refuse le stockage de type archive `backup` avec l'erreur `wrong content type`).
 </Warning>
 
-<Warning>
-**Workaround Freeze MergerFS (LXC 100)** : En mode `snapshot`, la sauvegarde du LXC 100 reste bloquée indéfiniment sur la commande `freeze guest filesystem` en raison de l'interaction entre FUSE/MergerFS et le noyau. Le passage en `--mode stop` résout définitivement le blocage (arrêt propre de ~10 secondes, sauvegarde, redémarrage automatique).
-</Warning>
-
 <Info>
-**Warning non-bloquant (LXC 103)** : Un avertissement `failed to open /mnt/pbs-datastore: Stale file handle` apparaît lors du snapshot du LXC 103 mais n'empêche pas la réussite du backup du rootfs.
+**Stabilisation post-retrait de MergerFS** :
+L'avertissement historique `failed to open /mnt/pbs-datastore: Stale file handle` et le risque d'invalidation des handles lors des arrêts du NAS découlaient de l'export NFS d'un système FUSE (MergerFS). Avec le passage au **bind-mount direct ext4** sur `/mnt/storage` (23/10/2026), les handles NFS du datastore restent stables et persistants.
 </Info>
 
 *Taille moyenne des archives : ~2 à 2.5 Go par conteneur, temps d'exécution observés : 7 à 10 secondes.*

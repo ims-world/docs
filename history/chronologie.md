@@ -3,6 +3,16 @@ title: "Changelog & Historique"
 description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
+<Update label="23/10/2026" description="Résolution Définitive des Erreurs ESTALE NFS (Backups PBS & Jellyfin) et Retrait de MergerFS">
+  ### 🗄️ Stockage & Résilience NFS (NAS LXC 100 & PBS LXC 103)
+
+  - **Suppression Définitive de MergerFS sur le NAS** — Tu as remplacé le pool FUSE MergerFS `/mnt/storage` par un bind-mount `ext4` direct (`/mnt/disk1` vers `/mnt/storage`) dans le `/etc/fstab` du LXC 100.
+  - **Résolution Définitive des Erreurs ESTALE** — Les requêtes NFS accèdent directement aux inodes stables du système de fichiers natif `ext4`. Les erreurs `ESTALE: Stale file handle` qui bloquaient les sauvegardes vzdump de la VM 104 (`unable to get shared lock`) et provoquaient le crash de Jellyfin (code 140) après chaque redémarrage du NAS sont définitivement éliminées.
+  - **Résolution de l'Erreur Trompeuse `namespace not found` sur PBS** — Lors d'un incident `ESTALE` sur le point de montage `/mnt/pbs-coolify`, le démon PBS ne pouvait pas lire la racine du datastore et retournait cette erreur même en l'absence de namespace configuré. Le montage direct `ext4` fiabilise l'accès au datastore.
+  - **Évolution de la Feuille de Route Alerting** — Tu as passé en Priorité 1 le chantier de notification push Ntfy sur échec des sauvegardes Proxmox / PBS suite au constat de l'angle mort sur `mail-to-root`.
+  - **Documentation & Post-Mortem** — Tu as publié le rapport d'incident complet [Incidents ESTALE NFS](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix) et mis à jour l'[ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash) marquée obsolète.
+</Update>
+
 <Update label="22/10/2026" description="Enrôlement Tailscale des LXC 100 (NAS) et 105 (Worker), Déploiement & Réparation des Comptes Admin cmolotkoff">
   ### 🔐 Extension du Tailnet aux Conteneurs LXC (NAS & Worker)
 

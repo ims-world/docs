@@ -3,7 +3,7 @@ title: "IMS-PBS (LXC 103 — Proxmox Backup Server)"
 description: "Serveur de sauvegarde dédupliquée et chiffrée de tout le homelab"
 icon: "shield-halved"
 iconType: "duotone"
-last_reviewed: "2026-10-22"
+last_reviewed: "2026-10-23"
 ---
 
 import { ips } from "/snippets/variables.mdx";
@@ -133,22 +133,22 @@ Le datastore est nommé **`pve-backups`**. Il sert d'espace de stockage dédupli
 Sauvegarde de la VM Coolify (104) opérationnelle et validée en production (snapshots quotidiens récurrents à 02:00).
 </Check>
 
-<Warning>
-**Montage NFS forcé en `vers=3`** (pas la valeur par défaut v4.2) — un bug d'interaction NFSv4.2/MergerFS causait un `Stale file handle` systématique en toute fin de backup (échec du commit du manifest, après un transfert 100% réussi). Voir [Dépannage courant](/procedures/depannage-courant#stale-file-handle-en-fin-de-backup-nfsv4-2-mergerfs) pour le détail complet du diagnostic.
+<Info>
+**Montage NFS du datastore (`vers=3`)** :
+Le montage est actuellement configuré en NFS `vers=3` (`/etc/fstab`) :
 ```ini
 # fstab du CT PBS
 10.10.10.1:/mnt/storage/backups  /mnt/pbs-datastore  nfs  defaults,nofail,_netdev,vers=3  0 0
 ```
-</Warning>
+Ce forçage en version 3 avait été appliqué pour contourner des blocages d'invalidation de handles (`ESTALE`) spécifiques à l'interaction entre NFSv4.2 et MergerFS FUSE. Depuis le retrait de MergerFS et le passage en ext4 natif sur le NAS (23/10/2026), le montage NFS repose sur un système de fichiers stable. Le retour en `vers=4.2` ou le passage du datastore en bind-mount Proxmox direct (`mp`) sont des évolutions identifiées.
+</Info>
 
-## Résumé du Diagnostic NFS
+## Résumé du Montage NFS
 
-Pour assurer la stabilité du montage du datastore sur le conteneur LXC 103 :
+Pour assurer le fonctionnement du datastore sur le conteneur LXC 103 :
 
 1. **LXC privilégié** : passage du conteneur en privilège root pour autoriser les syscalls de montage NFS.
 2. **Feature `mount=nfs`** : activation explicite dans la configuration du LXC.
-3. **Version NFS** : réglage en **`vers=3`** pour contourner les blocages `Stale file handle` avec MergerFS.
+3. **Système de fichiers sous-jacent** : ext4 natif sur le NAS LXC 100 via bind-mount direct (MergerFS retiré).
 
-<Card title="Procédure de Dépannage" icon="magnifying-glass" href="/procedures/depannage-courant">
-  Consulter toutes les commandes et retours d'expérience sur la gestion NFS/FUSE.
-</Card>
+Voir aussi le [Post-Mortem du 23/10/2026](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix).

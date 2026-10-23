@@ -3,10 +3,16 @@ title: "ADR-003 — Partitionnement du Stockage NFS (storage vs storage-hot)"
 description: "Décision d'architecture concernant le découpage du stockage partagé du NAS IMS-NAS"
 icon: "hard-drive"
 iconType: "duotone"
+last_reviewed: "2026-10-23"
 ---
 
 ## Statut
-<Badge color="green">🟢 Accepté & Déployé</Badge> *(2026-08-12)*
+<Badge color="green">🟢 Accepté & Déployé</Badge> *(2026-08-12, actualisé le 23/10/2026)*
+
+<Info>
+**Évolution du Tier `storage` (23/10/2026)** :
+Initialement monté via MergerFS sur le NAS, le point de montage `/mnt/storage` a été converti en **bind-mount direct ext4** (`/mnt/disk1` → `/mnt/storage`), calqué sur le modèle éprouvé de `/mnt/storage-hot`. Le découpage en deux tiers de stockage étanches reste strictement préservé sans nécessiter de modification côté clients NFS.
+</Info>
 
 ---
 

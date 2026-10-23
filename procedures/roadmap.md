@@ -3,12 +3,12 @@ title: "Feuille de Route & Liste TODO"
 description: "Suivi centralisé des chantiers prioritaires, roadmap de résilience et backlog d'évolution de l'infrastructure"
 icon: "list-check"
 iconType: "duotone"
-last_reviewed: "2026-10-22"
+last_reviewed: "2026-10-23"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Mis à Jour le 22/10/2026</Badge>
+<Badge color="green">🟢 Mis à Jour le 23/10/2026</Badge>
 
 <Info>
   Cette page constitue le **journal central de suivi des chantiers et de la feuille de route** du homelab IMS-WORLD. Elle regroupe l'ensemble des tâches ouvertes classées par domaine d'intervention (Résilience, Sécurité, Supervision, Nouveaux Services, Matériel) ainsi que l'historique des jalons réalisés.
@@ -24,7 +24,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Résilience & Alerting** | Supervision & Alerting hors-MS-01 | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / RPi / VPS | ⏳ En attente |
 | **Supervision & Métrologie** | Agent Alloy systemd sur Mac Mini | <Badge color="green">🟢 Effectué</Badge> | Mac Mini (`100.64.0.6`) | ✅ 24/08/2026 |
 | **Supervision & Métrologie** | Agent Alloy sur le Worker Coolify LXC 105 | <Badge color="amber">🟡 Moyen Terme</Badge> | LXC 105 (`192.168.1.198`) | ⏳ En attente |
-| **Alerting** | Notifications Ntfy sur échec backup | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 / PBS | ⏳ En attente |
+| **Alerting** | Notifications Ntfy sur échec backup | <Badge color="red">🔴 Priorité 1</Badge> | MS-01 / PBS | ⏳ En attente |
 | **Sauvegardes & PRA** | Politique de sauvegarde PBS incluant le nœud Mac Mini (`pve-macmini`) | <Badge color="amber">🟡 Moyen Terme</Badge> | Cluster / PBS | ⏳ En attente |
 | **Sauvegardes & Supervision** | Audit des sauvegardes des VM et validation du monitoring | <Badge color="red">🔴 Priorité 1</Badge> | Cluster / PBS / VM | ⏳ En attente |
 | **Gouvernance & Procédures** | Revue intégrale et validation de toutes les procédures | <Badge color="red">🔴 Priorité 1</Badge> | Ensemble de la doc | ⏳ En attente |
@@ -80,9 +80,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 - **Constat** : Toute la stack de supervision (Prometheus, Grafana, Loki, Uptime Kuma, Ntfy) est hébergée sur la VM 104 du MS-01. Si le MS-01 subit une panne matérielle ou électrique totale, aucune alerte ne peut être émise.
 - **Tâche** : Déployer un mécanisme d'alerting léger hors-hôte (sur le Mac Mini, le Raspberry Pi ou un micro VPS externe) pour surveiller la joignabilité du MS-01 et envoyer une alerte push si l'hôte principal s'éteint.
 
-### 1.3 🔔 Notifications Ntfy sur Échec des Sauvegardes Proxmox VE / PBS <Badge color="amber">🟡 Moyen Terme</Badge>
+### 1.3 🔔 Notifications Ntfy sur Échec des Sauvegardes Proxmox VE / PBS <Badge color="red">🔴 Priorité 1</Badge>
 
-- **Tâche** : Configurer les cibles de notification natifs (_Notification Targets_) sur Proxmox VE (MS-01) et Proxmox Backup Server (LXC 103) pour émettre une alerte Ntfy automatique immédiate sur le topic `ims-alerts` en cas d'échec d'un job de sauvegarde `vzdump` ou `pbs`.
+- **Constat** : L'incident du 15 au 19/10/2026 a révélé un angle mort critique : les échecs répétés des sauvegardes nocturnes de la VM 104 n'étaient envoyés qu'à la cible `mail-to-root` non consultée, laissant l'administrateur sans visibilité pendant 4 jours.
+- **Tâche** : Configurer les cibles de notification natives (_Notification Targets_) sur Proxmox VE (MS-01) et Proxmox Backup Server (LXC 103) pour émettre une alerte push Ntfy immédiate sur le topic `ims-alerts` en cas d'échec d'un job de sauvegarde `vzdump` ou `pbs`. Voir le [Post-Mortem ESTALE NFS](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix).
 
 ### 1.4 🛡️ Mise à Jour de la Politique de Sauvegarde PBS pour le Nœud Mac Mini (`pve-macmini`) <Badge color="amber">🟡 Moyen Terme</Badge>
 
@@ -285,9 +286,12 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 - **Tâche** : Achever le montage physique et le câblage propre de l'extension de châssis 10 pouces du rack [Labrax](/infrastructure/labrax).
 
-### 6.2 💾 Achat HDD 4To / 8To Neuf <Badge color="blue">🟦 À Évaluer</Badge>
+### 6.2 💾 Achat HDD 4To / 8To Neuf & Architecture Multi-Disques <Badge color="blue">🟦 À Évaluer</Badge>
 
-- **Tâche** : Acquérir un disque dur HDD supplémentaire pour étendre le pool capacitif et/ou instaurer un miroir de parité sur le NAS.
+- **Constat** : L'abandon définitif de MergerFS sur le NAS interdit de regrouper plusieurs disques sous un même système de fichiers FUSE exporté en NFS (source d'invalidation des file handles `ESTALE`).
+- **Tâche** : Lors de l'acquisition d'un second HDD, appliquer l'une des deux approches d'architecture validées :
+  - **Option A (Recommandée — Approche native)** : Monter le nouveau disque sur un point de montage `ext4` indépendant sur le NAS (ex. `/mnt/disk2` exporté en `/mnt/storage2`) et configurer les chemins multiples directement dans les applications (Jellyfin, Radarr et Sonarr gèrent nativement plusieurs dossiers racines).
+  - **Option B (Union côté client)** : Monter chaque disque indépendamment via NFS sur la VM 104, puis agréger localement les répertoires avec MergerFS sur le client. Les applications accèdent à un point unifié sans exposer FUSE au protocole NFS.
 
 ### 6.3 🔍 Sonde NIDS / Sentryx <Badge color="blue">🟦 À Évaluer</Badge>
 
@@ -299,6 +303,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 
 <AccordionGroup>
+  <Accordion title="🛡️ Résolution Incidents ESTALE NFS & Retrait Définitif de MergerFS — 23/10/2026">
+    Suppression définitive de MergerFS sur `/mnt/storage` dans le NAS (LXC 100) au profit d'un bind-mount `ext4` direct (`/mnt/disk1` vers `/mnt/storage`). Résolution définitive des erreurs `ESTALE: Stale file handle` et `namespace not found` sur PBS ainsi que des plantages Jellyfin (SIGABRT code 140). Formalisation de la règle d'or interdisant l'export NFS d'un système de fichiers FUSE. Voir [IMS-NAS](/infrastructure/ims-nas) et [Post-Mortem ESTALE NFS](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix).
+  </Accordion>
+
   <Accordion title="🖥️ Cluster Proxmox VE ims-cluster & Fail2ban Harmonisé — 23/08/2026">
     Installation de Proxmox VE 9.2.11 sur Mac Mini, création du cluster à 2 nœuds `ims-cluster` (Quorum 2/2 votes), formalisation de l'ADR-010 et déploiement harmonisé de Fail2ban avec alertes Ntfy sur MS-01, Mac Mini et VM Coolify. Voir [Mac Mini](/infrastructure/mac-mini) et [ADR-010](/history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster).
   </Accordion>

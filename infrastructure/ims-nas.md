@@ -1,9 +1,9 @@
 ---
 title: "IMS-NAS (LXC 100)"
-description: "Serveur de stockage central — NFS v3/v4, MergerFS Pool (ext4) & SMB"
+description: "Serveur de stockage central — NFS v3/v4, Double Bind-Mount ext4 direct & SMB"
 icon: "hard-drive"
 iconType: "duotone"
-last_reviewed: "2026-10-22"
+last_reviewed: "2026-10-23"
 ---
 
 import { ips, hardware } from "/snippets/variables.mdx";
@@ -19,13 +19,13 @@ import { ips, hardware } from "/snippets/variables.mdx";
 Centralise le stockage de l'infrastructure : documents, photos, backups, et médias. Sert en NFS aux guests internes (réseau isolé) et en SMB au LAN.
 
 <Info>
-**Capacité & Évolution** : Architecture multi-disques hybride composée d'un **HDD capacitif 3To** (Pool `/mnt/storage`) et d'un **SSD 4To dédié** (Tier `/mnt/storage-hot`). L'infrastructure reste évolutive pour accueillir de futurs disques durs HDD supplémentaires dans les slots caddies Dell 3.5" du rack [Labrax](/infrastructure/labrax).
+**Capacité & Évolution** : Architecture multi-disques hybride composée d'un **HDD capacitif 3To** (Tier `/mnt/storage`) et d'un **SSD 4To dédié** (Tier `/mnt/storage-hot`). L'infrastructure reste évolutive pour accueillir de futurs disques durs HDD supplémentaires dans les slots caddies Dell 3.5" du rack [Labrax](/infrastructure/labrax).
 </Info>
 
 ## Fiche technique
 
 <Info>
-**Architecture "Fait Maison"** : Ce NAS n'est pas un boîtier commercial (Synology/QNAP), mais une solution sur-mesure combinant un conteneur LXC Debian 12 et MergerFS. Les disques physiques sont logés dans le **4-Pack Hard Drive Tray Caddy 3,5" pour DELL** du rack [Labrax](/infrastructure/labrax) et raccordés au MS-01 via la carte {hardware.sataCard}.
+**Architecture "Fait Maison"** : Ce NAS n'est pas un boîtier commercial (Synology/QNAP), mais une solution sur-mesure combinant un conteneur LXC Debian 12 et des montages directs ext4. Les disques physiques sont logés dans le **4-Pack Hard Drive Tray Caddy 3,5" pour DELL** du rack [Labrax](/infrastructure/labrax) et raccordés au MS-01 via la carte {hardware.sataCard}.
 </Info>
 
 | Propriété | Valeur |
@@ -47,14 +47,14 @@ Centralise le stockage de l'infrastructure : documents, photos, backups, et méd
 
 | Disque | Référence Matérielle | Capacité / Type | Affectation NAS | Passthrough Proxmox |
 |---|---|---|---|---|
-| **Disque 1 (Capacitif)** | Seagate/Apple ST3000DM001 (`Z1F3N0NZ`) | 3 To HDD 7200rpm (ext4) | Pool `/mnt/storage` (Documents, HomeFlix, Backups, PhotoPrism) | `mp0` → `/mnt/disk1` |
+| **Disque 1 (Capacitif)** | Seagate/Apple ST3000DM001 (`Z1F3N0NZ`) | 3 To HDD 7200rpm (ext4) | Tier `/mnt/storage` (Documents, HomeFlix, Backups, PhotoPrism) | `mp0` → `/mnt/disk1` |
 | **Disque 2 (Hot/Performant)** | Samsung SSD 870 EVO (`S758NX0W713130Z`) | 4 To SSD SATA (ext4) | Tier `/mnt/storage-hot` (Immich, Forgejo) | `mp1` → `/mnt/ssd-hot-raw` |
 
 <Warning>
-Le disque Seagate ST3000DM001 est statistiquement plus sujet aux pannes selon les études de référence (Backblaze). L'intégration ultérieure de nouveaux HDD supplémentaires dans le pool permettra de mettre en place de la redondance.
+Le disque Seagate ST3000DM001 est issu d'un ancien Apple AirPort Time Capsule (usage modéré, SMART OK). L'intégration ultérieure de nouveaux disques durs dans le NAS permettra d'étendre la volumétrie.
 </Warning>
 
-## Stockage — architecture MergerFS
+## Stockage — architecture des points de montage directs
 
 ```mermaid
 graph TB
@@ -65,49 +65,51 @@ graph TB
         MP1["/mnt/ssd-hot-raw (Mountpoint passthrough mp1)"]
     end
 
-    subgraph FUSE ["📂 Pool FUSE & Points de Montage (IMS-NAS)"]
-        MPOOL["/mnt/storage (fuse.mergerfs, category.create=mfs, inodecalc=path-hash)"]
-        HOT["/mnt/storage-hot (bind-mount -> /mnt/ssd-hot-raw)"]
+    subgraph MOUNT ["📂 Points de Montage Directs (IMS-NAS)"]
+        STORAGE["/mnt/storage (bind-mount -> /mnt/disk1, ext4 natif)"]
+        HOT["/mnt/storage-hot (bind-mount -> /mnt/ssd-hot-raw, ext4 natif)"]
     end
 
     subgraph EXPORTS ["📤 Partages Réseau"]
         NFS_RW["NFS (10.10.10.0/24, rw, no_root_squash)\nGuests: Coolify (104), PBS (103)"]
         NFS_RO["NFS (192.168.1.0/24, ro, root_squash)\nClients LAN Read-Only"]
-        SMB_SHARE["SMB (192.168.1.50/storage)\nUtilisateur: cmolotkoff (LAN)"]
+        SMB_SHARE["SMB (192.168.1.50/storage)\nUtilisateur: cmolotkoff (LAN & Tailnet)"]
     end
 
     PHYS_HDD --> MP0
     PHYS_SSD --> MP1
-    MP0 --> MPOOL
+    MP0 --> STORAGE
     MP1 --> HOT
 
-    MPOOL --> NFS_RW
-    MPOOL --> NFS_RO
-    MPOOL --> SMB_SHARE
+    STORAGE --> NFS_RW
+    STORAGE --> NFS_RO
+    STORAGE --> SMB_SHARE
     HOT --> NFS_RW
 
     classDef disk fill:#2c3e50,stroke:#34495e,color:#fff;
-    classDef fuse fill:#0F6E56,stroke:#16A085,color:#fff;
+    classDef mount fill:#0F6E56,stroke:#16A085,color:#fff;
     classDef export fill:#1a2b3c,stroke:#0F6E56,color:#fff;
     class PHYS_HDD,PHYS_SSD,MP0,MP1 disk;
-    class MPOOL,HOT fuse;
+    class STORAGE,HOT mount;
     class NFS_RW,NFS_RO,SMB_SHARE export;
 ```
 
 ```
-/mnt/disk1        ext4, passthrough mp0 — membre actuel du pool
-/mnt/storage      fuse.mergerfs (pool modulable, category.create=mfs, inodecalc=path-hash)
+/mnt/disk1        ext4, passthrough mp0 (HDD 3 To)
+/mnt/storage      bind mount → /mnt/disk1 (ext4 natif)
                   ├── documents/
                   ├── backups/
                   ├── homeflix/
                   └── photoprism-data/
-/mnt/storage-hot  bind mount → /mnt/ssd-hot-raw (SSD SATA 4To dédié, passthrough mp1 — 🟢 Production Active)
+/mnt/ssd-hot-raw  ext4, passthrough mp1 (SSD SATA 4 To)
+/mnt/storage-hot  bind mount → /mnt/ssd-hot-raw (ext4 natif)
                   ├── immich-data/
                   └── forgejo-data/
 ```
 
 <Warning>
-**Piège du calcul d'inodes MergerFS (`inodecalc=path-hash`)** : MergerFS génère des inodes virtuels basés sur le hash du chemin. Deux fichiers hardlinkés sur `/mnt/disk1` afficheront des inodes virtuels différents via `/mnt/storage` ou via les montages NFS clients. Tout diagnostic d'inode ou de hardlink DOIT s'effectuer en SSH direct sur le LXC NAS 100 sur le chemin physique `/mnt/disk1/...`. Voir l'[ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
+**Règle d'or — Ne jamais exporter de système de fichiers FUSE en NFS** :
+Le montage MergerFS sur `/mnt/storage` a été définitivement supprimé au profit d'un **bind-mount direct ext4**. Les systèmes FUSE régénèrent leurs identifiants internes à chaque redémarrage, ce qui invalidait immédiatement tous les descripteurs NFS des clients (`ESTALE: Stale file handle`). Les exports NFS portent désormais directement sur un système `ext4` natif, garantissant la persistance des handles NFS au reboot du NAS.
 </Warning>
 
 ### Logique de Découpage : Stockage Capacitif vs Données Chaudes
@@ -115,15 +117,11 @@ graph TB
 | Montage NFS (VM Coolify) | Point de Montage NAS (LXC 100) | Usage & Types de Données | Objectif & Comportement Matériel |
 |---|---|---|---|
 | **`/mnt/nas-storage`** | `/mnt/storage` | **Stockage Capacitif / Froid** : Médias HomeFlix (films, séries), archives photo, documents personnels et sauvegardes PBS (`/mnt/storage/backups`). | Optimisé pour le **stockage de masse** et la lecture séquentielle sur HDD. |
-| **`/mnt/nas-hot`** | `/mnt/storage-hot` | **Données Chaudes / I/O Intensif** : Assets Immich (`immich-data`), dépôts Git Forgejo (`forgejo-data`). *(Remarque : Les bases de données Postgres/MariaDB résident directement sur le SSD NVMe local de la VM Coolify)*. | Optimisé pour la **latence et les IOPS**. Basculé avec succès le 18/08/2026 vers le **SSD SATA 4To dédié** (`/mnt/ssd-hot-raw`). |
+| **`/mnt/nas-hot`** | `/mnt/storage-hot` | **Données Chaudes / I/O Intensif** : Assets Immich (`immich-data`), dépôts Git Forgejo (`forgejo-data`). *(Remarque : Les bases de données Postgres/MariaDB résident directement sur le SSD NVMe local de la VM Coolify)*. | Optimisé pour la **latence et les IOPS** sur le **SSD SATA 4To dédié** (`/mnt/ssd-hot-raw`). |
 
 <Info>
-**Succès d'Architecture** : En isolant le réseau NFS dès le départ (`/mnt/nas-hot` vs `/mnt/nas-storage`), la bascule physique de `/mnt/storage-hot` vers le SSD 4To dédié s'est effectuée sur le LXC NAS **sans aucune reconfiguration ni modification des volumes Docker** dans la VM Coolify.
+**Succès d'Architecture** : En isolant le réseau NFS dès le départ (`/mnt/nas-hot` vs `/mnt/nas-storage`), la bascule physique de `/mnt/storage-hot` vers le SSD 4To dédié puis le passage de `/mnt/storage` en bind-mount direct se sont effectués sur le LXC NAS **sans aucune modification des volumes Docker** dans la VM Coolify.
 </Info>
-
-<Tip>
-`inodecalc=path-hash` a été ajouté aux options MergerFS pour stabiliser les exports NFS long terme (retour d'expérience communautaire). `noforget` testé puis retiré (cause de fuite mémoire connue).
-</Tip>
 
 ## NFS
 
@@ -175,15 +173,19 @@ Le conteneur LXC 100 est enrôlé dans le Tailnet sous le hostname `ims-pve-100-
 
 ## Sauvegardes & Stratégie d'Exclusion Proxmox (vzdump)
 
-<Warning>
-**Exclusion de Sauvegarde Quotidienne Automatique** : Le conteneur LXC 100 est **volontairement exclu des sauvegardes automatiques quotidiennes**. Chaque arrêt de la LXC 100 réinitialise l'instance FUSE MergerFS et invalide définitivement les descripteurs de fichiers NFS (`Stale filehandle`) côté VM Coolify. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-stale-nfs-filehandle-jellyfin-mergerfs).
-</Warning>
+<Info>
+**Stabilisation post-retrait de MergerFS** :
+Historiquement, chaque redémarrage ou arrêt de la LXC 100 réinitialisait l'instance FUSE MergerFS et invalidait les descripteurs NFS des clients (`ESTALE`). Le passage au **bind-mount direct ext4** le 23/10/2026 a résolu ce comportement à la racine (voir le [Post-Mortem du 23/10/2026](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix)).
+</Info>
 
-### 1. Incompatibilité avec le Mode Snapshot
-Le `--mode snapshot` de `vzdump` ne peut pas être utilisé sur la LXC 100 : le gel (*freeze*) du système de fichiers s'exécute sur l'ensemble du *mount namespace* du conteneur et bloque indéfiniment à cause de la présence du point de montage FUSE MergerFS (`mp0`), même lorsque `backup=0` est configuré.
+### 1. Sauvegarde en Mode Stop
+La sauvegarde du LXC 100 s'effectue en `--mode stop` vers le stockage `local` NVMe de l'hôte :
+```bash
+vzdump 100 --mode stop --compress zstd --storage local
+```
 
 ### 2. Directive `backup=0` Obligatoire
-Les deux points de montage doivent impérativement conserver la directive `backup=0` sur l'hôte MS-01 pour éviter d'embarquer les téraoctets de données dans le stockage système `local-lvm` lors des sauvegardes manuelles :
+Les deux points de montage doivent impérativement conserver la directive `backup=0` sur l'hôte MS-01 pour éviter d'embarquer les téraoctets de données dans le stockage système `local-lvm` lors des sauvegardes :
 ```bash
 # Vérification / Correction sur le host MS-01
 sudo pct set 100 -mp0 /mnt/disk1,mp=/mnt/disk1,backup=0
