@@ -230,16 +230,6 @@
             "pages": [
               "iac/index"
             ]
-          },
-          {
-            "group": "Scripts & Playbooks",
-            "icon": "terminal",
-            "pages": [
-              "iac/script-01-template-proxmox",
-              "iac/script-02-acces-admin",
-              "iac/script-03-termix",
-              "iac/script-04-securite-ssh"
-            ]
           }
         ]
       },

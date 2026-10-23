@@ -268,7 +268,7 @@ Entrée dans `extra_records` (via Headplane) :
 
 ## Raccordement des hôtes
 
-Les hôtes sont raccordés à Termix par le script 03 du dépôt IMS-INFRA : un compte dédié `termix-usr`, une clé restreinte à `192.168.1.52`, un sudo journalisé dans Loki. La procédure complète, la révocation d'urgence et la rotation de clé sont décrites dans [Script 03 — Accès Termix](/iac/script-03-termix).
+Les hôtes sont raccordés à Termix par l'automatisation du dépôt IMS-INFRA : un compte dédié `termix-usr`, une clé restreinte à `192.168.1.52`, un sudo journalisé dans Loki. Voir [Infrastructure as Code](/iac/index).
 
 | Hôte | Statut |
 |---|---|

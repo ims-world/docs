@@ -3,39 +3,37 @@ title: "Infrastructure as Code — IMS-INFRA"
 description: "Organisation du dépôt IMS-INFRA : scripts et playbooks d'automatisation, Makefile, Ansible, et frontière entre ce qui est scripté et ce qui reste manuel"
 icon: "code"
 iconType: "duotone"
-last_reviewed: "2026-10-22"
+last_reviewed: "2026-10-23"
 ---
 
-<Badge color="green">🟢 Référence</Badge>
+<Badge color="amber">🟡 Refonte en cours</Badge>
 
 ## Le dépôt IMS-INFRA
 
 Le dépôt IMS-INFRA regroupe tous les scripts et playbooks d'administration du homelab. Il est organisé par script et composant fonctionnel : chaque brique possède son dossier, son `README.md` explicatif et ses commandes dédiées.
 
-Cette documentation explique pourquoi et comment chaque script est conçu. Le `README.md` du dépôt et ceux de chaque sous-dossier donnent les commandes opérationnelles à lancer.
-
 <Info>
-  Le dépôt se trouve sur le Mac, dans `homelab/IMS-INFRA`. Toutes les commandes se lancent depuis sa racine.
+  **Refonte en cours** : Les scripts et playbooks du dépôt IMS-INFRA font l'objet d'une refonte complète. Les pages individuelles de détail sont temporairement suspendues et seront publiées avec la nouvelle version de l'outillage. Le dépôt local se trouve sur le Mac, dans `homelab/IMS-INFRA`.
 </Info>
 
 ---
 
-## Les scripts et playbooks
+## Les scripts et composants
 
 <CardGroup cols={2}>
-  <Card title="Script 01 — Template Proxmox" icon="clone" href="/iac/script-01-template-proxmox">
+  <Card title="Script 01 — Template Proxmox" icon="clone">
     Template VM Ubuntu 24.04 (VMID 9000) et snippet Cloud-Init `vendor-data`. `make template`
   </Card>
 
-  <Card title="Script 02 — Accès admin (cmolotkoff)" icon="user-shield" href="/iac/script-02-acces-admin">
-    Compte d'administration et sudo NOPASSWD dans les conteneurs LXC. `make admin-bootstrap`
+  <Card title="Script 02 — Accès admin (cmolotkoff)" icon="user-shield">
+    Compte d'administration et sudo journalisé `log_subcmds` dans les conteneurs LXC. `make admin-bootstrap`
   </Card>
 
-  <Card title="Script 03 — Accès Termix (termix-usr)" icon="plug" href="/iac/script-03-termix">
+  <Card title="Script 03 — Accès Termix (termix-usr)" icon="plug">
     Compte dédié `termix-usr`, clé Ed25519 restreinte et traçabilité Loki. `make termix-apply`
   </Card>
 
-  <Card title="Script 04 — Sécurité SSH et système" icon="shield-halved" href="/iac/script-04-securite-ssh">
+  <Card title="Script 04 — Sécurité SSH et système" icon="shield-halved">
     Durcissement des VMs issues du template (sshd, fail2ban, CrowdSec). `make ssh-apply`
   </Card>
 </CardGroup>
@@ -44,10 +42,10 @@ Cette documentation explique pourquoi et comment chaque script est conçu. Le `R
 
 | Script / Playbook | Fonction | Outil | Commande principale | Statut |
 |---|---|---|---|---|
-| [Script 01 — Template Proxmox](/iac/script-01-template-proxmox) | Template VM Ubuntu 24.04 (VMID 9000) + snippet Cloud-Init | Script | `make template` | ✅ Prêt |
-| [Script 02 — Accès admin](/iac/script-02-acces-admin) | Compte cmolotkoff + sudo dans les LXC | Script | `make admin-bootstrap` | ✅ Validé (LXC 100, 103, 105) |
-| [Script 03 — Accès Termix](/iac/script-03-termix) | Compte termix-usr : raccordement, révocation, rotation | Ansible | `make termix-apply` | ✅ Validé sur IMS-PBS |
-| [Script 04 — Sécurité SSH](/iac/script-04-securite-ssh) | Durcissement sshd, fail2ban, CrowdSec, mises à jour | Ansible | `make ssh-apply` | ⚠️ VMs du template uniquement |
+| **Script 01 — Template Proxmox** | Template VM Ubuntu 24.04 (VMID 9000) + snippet Cloud-Init | Script | `make template` | ✅ Prêt |
+| **Script 02 — Accès admin** | Compte cmolotkoff + sudo dans les LXC | Script | `make admin-bootstrap` | ✅ Validé (LXC 100, 103, 105) |
+| **Script 03 — Accès Termix** | Compte termix-usr : raccordement, révocation, rotation | Ansible | `make termix-apply` | ✅ Validé sur IMS-PBS |
+| **Script 04 — Sécurité SSH** | Durcissement sshd, fail2ban, CrowdSec, mises à jour | Ansible | `make ssh-apply` | ⚠️ VMs du template uniquement |
 
 Légende : ✅ utilisé en production · 🧪 écrit, pas encore validé · ⚠️ restriction d'usage
 
@@ -119,10 +117,10 @@ make termix-apply HOST=ims-nas
 
 | Sujet | Géré par | Référence |
 |---|---|---|
-| Template VM et snippet Cloud-Init | Script (script 01) | [Script 01](/iac/script-01-template-proxmox) |
-| Compte admin dans les LXC | Script (script 02) | [Script 02](/iac/script-02-acces-admin) |
-| Accès Termix sur les hôtes | Ansible (script 03) | [Script 03](/iac/script-03-termix) |
-| Durcissement des VMs du template | Ansible (script 04) | [Script 04](/iac/script-04-securite-ssh) |
+| Template VM et snippet Cloud-Init | Script (script 01) | Script 01 (dépôt local) |
+| Compte admin dans les LXC | Script (script 02) | Script 02 (dépôt local) |
+| Accès Termix sur les hôtes | Ansible (script 03) | Script 03 (dépôt local) |
+| Durcissement des VMs du template | Ansible (script 04) | Script 04 (dépôt local) |
 | Création des VM et LXC (hors template) | Manuel | Infrastructure Proxmox |
 | Configuration Proxmox (stockage, réseau, sauvegardes) | Manuel | Infrastructure Proxmox |
 | Conteneurs et services | Coolify | Fiches services |

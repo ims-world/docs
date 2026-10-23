@@ -23,13 +23,13 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Résilience & Quorum** | QDevice Corosync 3ᵉ vote | <Badge color="red">🔴 Priorité 1</Badge> | Raspberry Pi 3B\+ | ⏳ En attente |
 | **Résilience & Alerting** | Supervision & Alerting hors-MS-01 | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / RPi / VPS | ⏳ En attente |
 | **Supervision & Métrologie** | Agent Alloy systemd sur Mac Mini | <Badge color="green">🟢 Effectué</Badge> | Mac Mini (`100.64.0.6`) | ✅ 24/08/2026 |
-| **Supervision & Métrologie** | Agent Alloy sur le Worker Coolify LXC 105 | <Badge color="amber">🟡 Moyen Terme</Badge> | LXC 105 (`192.168.1.198`) | ⏳ En attente |
+| **Supervision & Métrologie** | Agent Alloy sur le Worker Coolify LXC 105 | <Badge color="green">🟢 Effectué</Badge> | LXC 105 (`192.168.1.198`) | ✅ 23/10/2026 |
 | **Alerting** | Notifications Ntfy sur échec backup | <Badge color="red">🔴 Priorité 1</Badge> | MS-01 / PBS | ⏳ En attente |
 | **Sauvegardes & PRA** | Politique de sauvegarde PBS incluant le nœud Mac Mini (`pve-macmini`) | <Badge color="amber">🟡 Moyen Terme</Badge> | Cluster / PBS | ⏳ En attente |
 | **Sauvegardes & Supervision** | Audit des sauvegardes des VM et validation du monitoring | <Badge color="red">🔴 Priorité 1</Badge> | Cluster / PBS / VM | ⏳ En attente |
 | **Gouvernance & Procédures** | Revue intégrale et validation de toutes les procédures | <Badge color="red">🔴 Priorité 1</Badge> | Ensemble de la doc | ⏳ En attente |
 | **Sécurité** | Credentials OVH dans fichier `.env` | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify Proxy) | ⏳ En attente |
-| **Gestion des Accès** | Création des accès pour Elo (Tailscale + VM dédiée) | <Badge color="amber">🟡 Moyen Terme</Badge> | Headscale / Proxmox | ⏳ En attente |
+| **Gestion des Accès** | Création des accès pour Elo (Tailscale + VM 107 dédiée, migration hors `infra`) | <Badge color="amber">🟡 Moyen Terme</Badge> | Headscale / Proxmox | ⏳ En attente |
 | **IAM & Sécurité** | Connexion propre d'Authentik avec Tailscale (OIDC) | <Badge color="green">🟢 Effectué</Badge> | Authentik / Tailscale | ✅ 13/09/2026 |
 | **Sécurité & Administration** | Déploiement Termix & Bastion SSH (Socle opérationnel) | <Badge color="orange">🟠 En cours</Badge> | VM 104 (`100.64.0.4`) | ⏳ Hôtes à raccorder |
 | **Sécurité** | Firewall Proxmox VE 3 niveaux | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 & Mac Mini | ⏳ En attente |
@@ -37,6 +37,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Docker & Hygiène** | Pinning des tags Docker (suppression `:latest`) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify) | ⏳ En attente |
 | **Docker & Hygiène** | Scan & Alertes mises à jour (WhatsUpDocker WUD) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (`100.64.0.4`) | ✅ 14/09/2026 |
 | **Supervision** | Exporteur Prometheus Jellyfin | <Badge color="blue">🟦 Nouveaux Services</Badge> | VM 104 (Coolify) | ⏳ En attente |
+| **Supervision** | Dashboard Grafana Logs : réglage variable container (`.*`) pour afficher journald | <Badge color="green">🟢 Court Terme</Badge> | Grafana VM 104 | ⏳ En attente |
 | **UX & Proxy** | Pages d'erreur custom Traefik (404/502/503/504) | <Badge color="green">🟢 Effectué</Badge> | Traefik Proxy | ✅ 26/08/2026 |
 | **Proxy & Ingress** | PoC & Évaluation Caddy v2 (xcaddy \+ CrowdSec \+ OVH) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify Proxy) | 💡 Étude / PoC |
 | **Nouveaux Services** | DNS Secondaire (AdGuard Home / Pi-hole) | <Badge color="blue">🟦 Nouveaux Services</Badge> | Mac Mini / RPi | ⏳ En attente |
@@ -57,10 +58,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **UX & Sécurité HA** | Routeur Traefik HTTPS vpn-only pour Home Assistant (`https://home.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Traefik) | ✅ 14/09/2026 |
 | **Automatisation & Workflows** | Déploiement n8n sur Coolify avec PostgreSQL 16 (`automation.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Coolify) | ✅ 22/09/2026 |
 | **Automatisation & IaC** | Refonte du dépôt IMS-INFRA en scripts documentés + Makefile ([IaC](/iac/index)) | <Badge color="green">🟢 Court Terme</Badge> | Mac (opérateur) | 🚧 En cours |
-| **Automatisation & IaC** | Raccordement Termix des 5 hôtes restants ([Script 03](/iac/script-03-termix)) | <Badge color="green">🟢 Court Terme</Badge> | Tous les hôtes | 🚧 En cours |
-| **Automatisation & IaC** | Script « Supervision » : déploiement d'Alloy par Ansible (manquant sur le LXC 105) | <Badge color="amber">🟡 Moyen Terme</Badge> | Tous les hôtes | ⏳ En attente |
+| **Automatisation & IaC** | Raccordement Termix des hôtes restants ([IaC](/iac/index)) | <Badge color="green">🟢 Court Terme</Badge> | Tous les hôtes | 🚧 En cours |
 | **Réseau & Tailnet** | Enrôlement Tailscale des LXC 100 (NAS) et 105 (Worker) | <Badge color="green">🟢 Effectué</Badge> | LXC 100 & 105 | ✅ 22/10/2026 |
-| **Automatisation & Ansible** | Bootstrap comptes admin LXC (`cmolotkoff`, sudo NOPASSWD) ([Script 02](/iac/script-02-acces-admin)) | <Badge color="green">🟢 Effectué</Badge> | LXC 100, 103, 105 | ✅ 22/10/2026 |
+| **Automatisation & Socle** | Durcissement SSH transversal & sudo journalisé ([Changelog](/history/chronologie)) | <Badge color="green">🟢 Effectué</Badge> | 7 hôtes du parc | ✅ 23/10/2026 |
+| **Sécurité & Tailnet** | Renouvellement de la clé pre-auth Headscale infra (avant le 21/01/2027) | <Badge color="amber">🟡 Moyen Terme</Badge> | Headscale | ⏳ Échéance 2027 |
 | **Automatisation & Web** | Portail web de génération de VM temporaires (self-service) | <Badge color="blue">🟦 À Évaluer</Badge> | VM 104 (Coolify) | 💡 Étude / PoC |
 | **Matériel & Rack** | Extension physique du rack Labrax 10" | <Badge color="amber">🟡 Moyen Terme</Badge> | Rack Physique | ⏳ En attente |
 | **Stockage** | Extension capacitive HDD 4To / 8To Neuf | <Badge color="blue">🟦 À Évaluer</Badge> | NAS LXC 100 | 💡 Achat futur |
@@ -171,10 +172,9 @@ import { ips, domains } from "/snippets/variables.mdx";
 - **Constat** : Caddy v2 offre une empreinte mémoire très faible (~30 Mo RAM), une configuration synthétique via `Caddyfile` (éliminant la verbosité des labels Docker et la complexité des priorités File vs Docker Provider) et est proposé comme alternative officielle dans Coolify v4.
 - **Tâche** : Réaliser un PoC de build d'une image custom Caddy (`xcaddy` avec plugins `caddy-dns/ovh` et `caddy-crowdsec-bouncer`), tester la réécriture du `Caddyfile` avec filtres `vpn-only` \+ `forward_auth` Authentik, et évaluer la bascule du proxy dans Coolify.
 
-### 3.7 📊 Extension de l'Agent Alloy sur le Worker Coolify LXC 105 <Badge color="amber">🟡 Moyen Terme</Badge>
+### 3.7 📊 Extension de l'Agent Alloy sur le Worker Coolify LXC 105 <Badge color="green">🟢 Effectué — 23/10/2026</Badge>
 
-- **Constat** : Le conteneur LXC 105 (`pve-macmini-worker_LXC-105`) exécute désormais des applications Docker distantes sous l'orchestration du Master Coolify v4.3.14. Ses métriques Docker et ses logs doivent être centralisés.
-- **Tâche** : Déployer un agent **Grafana Alloy** (systemd ou conteneur) sur le LXC 105 (`192.168.1.198`) pour remonter la télémétrie des conteneurs applicatifs hébergés vers Prometheus (`10.10.10.2:9090`) et Loki. Voir [LXC 105 Worker](/infrastructure/lxc-coolify-worker) et [Stack Monitoring](/services/monitoring).
+- **Réalisé** : L'agent **Grafana Alloy systemd** a été déployé sur le LXC 105 (`192.168.1.198`) avec l'étiquette `host: ims-coolify-worker` et niveau de log `info`. Il collecte les métriques système, le journal systemd et les logs/métriques des conteneurs applicatifs Docker vers Prometheus et Loki (`192.168.1.52`). Voir [LXC 105 Worker](/infrastructure/lxc-coolify-worker) et [Stack Monitoring](/services/monitoring).
 
 ---
 

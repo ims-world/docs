@@ -3,7 +3,7 @@ title: "Architecture réseau"
 description: "Bridges Proxmox, Tailscale/Headscale, DNS, port-forward"
 icon: "network-wired"
 iconType: "duotone"
-last_reviewed: "2026-10-22"
+last_reviewed: "2026-10-23"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -46,6 +46,7 @@ graph TB
         NAS_TS["NAS Storage (100.64.0.11)"]
         WORKER_TS["Coolify Worker (100.64.0.10)"]
         RPI_TS["Raspberry Pi Kiosk (100.64.0.12)"]
+        VMTEST_TS["vm-test (100.64.0.13)"]
     end
 
     %% Flux WAN -> Bbox -> Traefik
@@ -66,6 +67,7 @@ graph TB
     HEADSCALE_SRV --- NAS_TS
     HEADSCALE_SRV --- WORKER_TS
     HEADSCALE_SRV --- RPI_TS
+    HEADSCALE_SRV --- VMTEST_TS
 
     classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
     classDef lan fill:#0F6E56,stroke:#16A085,color:#fff;
@@ -74,7 +76,7 @@ graph TB
     class CLIENT_EXT,OVH_DNS,NAT80,NAT443 wan;
     class NAS_LAN,PBS_LAN,COOL_LAN lan;
     class NAS_ISO,PBS_ISO,COOL_ISO iso;
-    class HEADSCALE_SRV,PBS_TS,COOL_TS,MAC_TS,PVE_TS,RPI_TS vpn;
+    class HEADSCALE_SRV,PBS_TS,COOL_TS,MAC_TS,PVE_TS,NAS_TS,WORKER_TS,RPI_TS,VMTEST_TS vpn;
 ```
 
 ## Bridges Proxmox
@@ -89,11 +91,13 @@ graph TB
 | Équipement / Guest | `vmbr0` (LAN) | `vmbr1` (NFS Isolé) | Tailscale IP | Hostname Tailnet | Rôle |
 | --- | --- | --- | --- | --- | --- |
 | **Host Proxmox (MS-01)** | {ips.pveLan} | — | {ips.ms01} | `ims-pve-ms01` | Hyperviseur Principal Proxmox VE 9 |
-| **IMS-NAS (LXC 100)** | {ips.nasLan} | `10.10.10.1` | ⚠️ Aucun (LAN) | — | Stockage FUSE MergerFS & NFS/SMB |
+| **Mac Mini 2012** | `192.168.1.42` | — | {ips.macmini} | `ims-pve-macmini` | Nœud 2 Cluster Proxmox VE |
+| **IMS-NAS (LXC 100)** | {ips.nasLan} | `10.10.10.1` | {ips.nas} | `ims-pve-100-nas` | Stockage central ext4 direct & NFS/SMB |
 | **IMS-PBS (LXC 103)** | {ips.pbsLan} | `10.10.10.3` | {ips.pbs} | `ims-pve-103-pbs` | Proxmox Backup Server |
-| **IMS-Coolify (VM 104)** | {ips.coolifyLan} | `10.10.10.2` | {ips.coolify} | `ims-pve-104-coolify` | Moteur Docker, Traefik v3.7 & Coolify |
+| **IMS-Coolify (VM 104)** | {ips.coolifyLan} | `10.10.10.2` | {ips.coolify} | `ims-pve-104-coolify` | Moteur Docker, Traefik v3.7 & Coolify Master |
+| **Coolify Worker (LXC 105)** | {ips.coolifyWorkerLan} | — | {ips.coolifyWorker} | `ims-pve-105-coolify-worker` | Nœud d'exécution Docker distant (Mac Mini) |
 | **Raspberry Pi 3B\+** | `192.168.1.x` | — | {ips.rpi} | `ims-rpi-monitor` | Affichage Kiosk 2U |
-| **Mac Mini 2012** | `192.168.1.x` | — | {ips.macmini} | `macmini-standby` | Hôte Standby chaud |
+| **vm-test (VM 101)** | `192.168.1.x` | — | {ips.vmTest} | `vm-test` | Banc de test & VM générique |
 
 ## Headscale — Control Plane Tailscale Self-Hosted
 
@@ -132,10 +136,10 @@ extra_records:
     value: "{ips.macmini}"   # accès de secours à l'ancienne instance Mac Mini
 ```
 
-## Sécurité Réseau & Firewall Host
+## Sécurité Réseau & Protection des Hôtes
 
 | Composant | Rôle |
 | --- | --- |
 | **CrowdSec** | Détection d'intrusions L3/L4/L7, WAF AppSec & Plugin Bouncer Traefik (Stream Fail-Open) |
-| **Fail2ban** | Bannissement dynamique d'IP sur le **Host Bare-Metal MS-01** (protection SSH port 22 via `iptables`/`nftables`) |
+| **Fail2ban** | Bannissement dynamique d'IP actif sur **l'ensemble des hôtes gérés** (`pve`, `pve-macmini`, `ims-pbs`, `ims-nas`, `ims-coolify-worker`, `ims-coolify`, `vm-test`). Prisons `sshd` et `recidive` (1h doublé à chaque récidive, plafond 1 semaine), alertes Ntfy envoyées directement via l'IP LAN de Traefik (`192.168.1.52`). |
 | **Firewall Proxmox (Roadmap)** | Filtrage 3 niveaux (Host → Datacenter → Guest) en cours de déploiement |

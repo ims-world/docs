@@ -3,7 +3,7 @@ title: "Headscale & Headplane"
 description: "Serveur VPN Tailscale self-hosted et son interface Web d'administration"
 icon: "network-wired"
 iconType: "duotone"
-last_reviewed: "2026-10-22"
+last_reviewed: "2026-10-23"
 app_version: "v0.29.3 / 0.7.1"
 ---
 
@@ -82,6 +82,7 @@ graph TB
         COOL["Coolify VM (100.64.0.4)"]
         WORKER["Coolify Worker (100.64.0.10)"]
         RPI["Raspberry Pi Kiosk (100.64.0.12)"]
+        VMTEST["vm-test (100.64.0.13)"]
         MOBILE["Clients Mobiles & Laptops"]
     end
 
@@ -97,6 +98,7 @@ graph TB
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| COOL
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| WORKER
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| RPI
+    HEADSCALE -.->|MagicDNS & Coordination WireGuard| VMTEST
     HEADSCALE -.->|MagicDNS & Coordination WireGuard| MOBILE
 
     MAC <==>|Tunnels Directs Peer-to-Peer WireGuard| COOL
@@ -108,7 +110,7 @@ graph TB
     classDef node fill:#1a2b3c,stroke:#F97316,color:#fff;
     class HEADSCALE,HEADPLANE,AUTH_SRV srv;
     class NOISE_KEY,DB_SQLITE key;
-    class MAC,PVE,PBS,COOL,RPI,MOBILE node;
+    class MAC,PVE,PBS,NAS,COOL,WORKER,RPI,VMTEST,MOBILE node;
 ```
 
 <Warning>
@@ -158,3 +160,16 @@ L'accès au Tailnet et l'enrôlement des appareils clients reposent sur la féd�
   ```
   Le client Tailscale fournit une URL de redirection vers la mire SSO Authentik. Après validation des identifiants et du second facteur (2FA / WebAuthn), la session est approuvée et le nœud est rattaché au Tailnet avec une adresse IP dédiée en `100.64.0.x`.
 - **Séparation des privilèges** : L'accès à la console d'administration **Headplane** (`https://admin.vpn.ims-world.fr/admin`) demeure strictement réservé aux profils `authentik Admins` et `admins`. Les utilisateurs du groupe `membres` bénéficient exclusivement de l'enrôlement réseau.
+
+---
+
+## 🔑 Clés de Pré-Authentification & Points d'Exploitation
+
+### Clé Réutilisable du Nœud d'Infrastructure
+- **Usage** : Utilisée pour l'enrôlement automatique des VM et conteneurs d'infrastructure via Cloud-Init et scripts (`lots/`).
+- **Utilisateur Headscale** : `infra`
+- **Validité** : Valide jusqu'au **21/01/2027**.
+- **Stockage** : Chiffrée dans le coffre-fort de mots de passe de l'administrateur. À renouveler avant expiration.
+
+### Points Restant Ouverts
+- **VM 107 (`lab-elo`)** : Actuellement éteinte et non traitée. Enregistrée initialement sous l'utilisateur Headscale `infra` alors qu'elle est destinée à un usage tiers. Une migration vers un utilisateur dédié avec des ACLs Headscale adaptées est requise avant sa mise en service.

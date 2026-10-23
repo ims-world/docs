@@ -3,7 +3,7 @@ title: "Mac Mini (Nœud 2 Cluster ims-cluster)"
 description: "Second nœud du cluster Proxmox VE — Hyperviseur physique de secours et support de basculement"
 icon: "apple"
 iconType: "duotone"
-last_reviewed: "2026-08-23"
+last_reviewed: "2026-10-23"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
@@ -30,7 +30,7 @@ Le **Mac Mini 2012** (Macmini6,1/6,2) constitue le **second nœud d'hypervision 
 | **Hostname FQDN** | `pve-macmini.ims-world.fr` |
 | **IP LAN Native** | `192.168.1.42` |
 | **IP Tailscale VPN** | {ips.macmini} (`pve-macmini`) |
-| **Compte Admin SSH** | `cmolotkoff` (Clés SSH Ed25519, `sudo` NOPASSWD, Port 22) |
+| **Compte Admin SSH** | Clé uniquement (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`, `cmolotkoff` avec `sudo` journalisé `log_subcmds`, Port 22) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 ---
@@ -40,7 +40,7 @@ Le **Mac Mini 2012** (Macmini6,1/6,2) constitue le **second nœud d'hypervision 
 ### 1. Caractéristiques de l'Installation
 - **Architecture EFI Native** : Pas de puce de sécurité Apple T2, démarrage EFI natif sans patch de noyau nécessaire.
 - **Dépôts Proxmox** : Suppression des dépôts payants `pve-enterprise.sources` et `ceph.sources` (format deb822 Debian Trixie `.sources`) et activation du dépôt gratuit `pve-no-subscription`.
-- **Mise à Jour** : Alignement strict sur la version **Proxmox VE 9.2.11** (identique au MS-01).
+- **Mise à Jour** : Alignement strict sur la version **Proxmox VE 9.2.11** (identique au MS-01). Mises à jour maintenues manuelles (aucun redémarrage ou update automatique sur les hyperviseurs).
 
 ### 2. Intégration au Cluster (`ims-cluster`)
 - Le Mac Mini a rejoint le cluster Proxmox VE créé sur le MS-01 via la commande `pvecm add`.
@@ -48,35 +48,11 @@ Le **Mac Mini 2012** (Macmini6,1/6,2) constitue le **second nœud d'hypervision 
 
 ---
 
-## 🛡️ Sécurité & Protection Host (Fail2ban & Ntfy)
+## 🛡️ Sécurité & Protection Host (Fail2ban, SSH & Ntfy)
 
-Comme sur le host MS-01 et la VM Coolify, un service **Fail2ban** (`fail2ban.service`) local a été déployé et durci dans `/etc/fail2ban/jail.local` pour intercepter les tentatives d'intrusion SSH :
-
-```ini
-[DEFAULT]
-bantime  = 1h
-findtime = 10m
-maxretry = 5
-
-bantime.increment = true
-bantime.factor    = 2
-bantime.maxtime   = 1w
-
-action = %(action_)s
-         ntfy
-
-[recidive]
-enabled   = true
-mode      = normal
-banaction = %(banaction_allports)s
-bantime   = 1w
-findtime  = 1d
-maxretry  = 3
-```
-
-- **Politique d'Escalade** : Durée de bannissement progressive (1h ➔ 2h ➔ 4h... jusqu'à 1 semaine).
-- **Prison Récidivistes (`recidive`)** : 3 bannes en 24h entraînent un bannissement d'une semaine sur tous les ports.
-- **Alertes Ntfy** : Chaque bannissement déclenche une alerte instantanée vers le topic `ims-alerts` via l'action `/etc/fail2ban/action.d/ntfy.conf` avec un jeton d'accès scopé.
+Le socle SSH standardisé `/etc/ssh/sshd_config.d/00-ims-ops.conf` et **Fail2ban** (`fail2ban.service`) protègent le nœud `pve-macmini` :
+- **SSH Durci** : Connexions par mot de passe désactivées (`PasswordAuthentication no`), X11 désactivé, `PermitRootLogin prohibit-password` pour autoriser le root par clé SSH entre nœuds du cluster. Clé orpheline `audit@ims-world` retirée.
+- **Fail2ban avec escalade** : Configuration `/etc/fail2ban/jail.local` avec prisons `sshd` et `recidive`. Alertes transmises à Ntfy directement via l'IP LAN de Traefik (`192.168.1.52`).
 
 ---
 

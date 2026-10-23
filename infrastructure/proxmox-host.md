@@ -3,7 +3,7 @@ title: "Minisforum MS-01 (Proxmox VE)"
 description: "Hyperviseur principal — Minisforum MS-01, Proxmox VE 9.2.3"
 icon: "server"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
+last_reviewed: "2026-10-23"
 ---
 
 import { ips, hardware } from "/snippets/variables.mdx";
@@ -22,7 +22,9 @@ import { ips, hardware } from "/snippets/variables.mdx";
 | **OS** | **Proxmox VE 9.2.11** (Aligné avec Mac Mini) |
 | **Cluster Proxmox** | Leader Nœud 1 du cluster **`ims-cluster`** (2/2 votes, Quorate: Yes) |
 | **Accès Admin GUI** | `https://`{ips.pveLan}`:8006` |
-| **Comptes** | `cmolotkoff@pam` (nominatif), `root@pam` en break-glass local |
+| **Accès SSH** | Clé uniquement (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`, port 22) |
+| **Comptes** | `cmolotkoff` (sudo NOPASSWD journalisé `log_subcmds`), `root` par clé (cluster) |
+| **Supervision Alloy** | Agent bare-metal (étiquette `host: ms01-pve`, log level `info`) |
 
 ## Topologie Matérielle & Allocation
 
@@ -80,7 +82,7 @@ Le format `deb822` (`.sources`) est utilisé sur PVE9, pas l'ancien `pve-enterpr
 | **100** | ims-nas | LXC privilégié | <Badge color="green">🟢 Actif</Badge> | Stockage NFS/SMB |
 | **103** | ims-pbs | LXC privilégié | <Badge color="green">🟢 Actif</Badge> | Sauvegardes |
 | **104** | ims-coolify | VM | <Badge color="green">🟢 Actif</Badge> | Orchestration Docker |
-| **101** | vm-test | VM | <Badge>⚪ Non utilisé</Badge> | Test, non utilisé en prod |
+| **101** | vm-test | VM | <Badge color="green">🟢 Actif</Badge> | Banc de test & VM générique (Tailscale `100.64.0.13`, Alloy, socle `00-ims-ops`) |
 | **102** | ims-windows | VM | <Badge>⚪ Inactif</Badge> | Environnement Windows |
 | **8000** | ubuntu-2404-template | Template | <Badge color="blue">🔵 Template</Badge> | Base pour clonage de VM Ubuntu avec Tailscale automatique |
 
@@ -228,12 +230,18 @@ L'iGPU Intel Iris Xe du processeur i5-12600H est attribuée en passthrough PCIe 
 
 ---
 
-## 🛡️ Sécurité & Protection Host Bare-Metal (Fail2ban & Ntfy)
+## 🛡️ Sécurité & Protection Host Bare-Metal (Fail2ban, SSH & Ntfy)
 
-Le service **Fail2ban** (`fail2ban.service`) est déployé et harmonisé sur l'hôte physique MS-01, le Mac Mini (`pve-macmini`) et la VM Coolify (`ims-coolify`). Il intercepte les tentatives d'intrusion SSH et bloque les IPs malveillantes via `iptables` / `nftables`.
+Le service **Fail2ban** (`fail2ban.service`) et le socle de configuration SSH `/etc/ssh/sshd_config.d/00-ims-ops.conf` sont déployés sur l'hôte physique MS-01 et harmonisés sur l'ensemble des 7 hôtes du homelab.
 
 <Info>
-  **Architecture Harmonisée (3 Hôtes)** : Fail2ban s'exécute sur 3 instances indépendantes (MS-01, Mac Mini, VM Coolify). Chaque hôte utilise `/etc/fail2ban/jail.local` avec escalade de ban progressive (`1h` à `1 semaine`), prison `recidive` (3 bans en 24h ➔ 1 semaine) et alertes instantanées transmises au topic Ntfy **`ims-alerts`** avec un jeton d'accès scopé.
+  **Socle Système & Fail2ban (7 Hôtes)** : Fail2ban s'exécute avec les prisons `sshd` et `recidive` sur `/etc/fail2ban/jail.local`. L'escalade de ban est progressive (`1h` doublé à chaque récidive, plafond `1 semaine`). Les alertes instantanées sont envoyées au topic Ntfy **`ims-alerts`** directement par l'IP LAN de Traefik (`192.168.1.52`).
+  
+  **Durcissement SSH du Nœud Proxmox** :
+  - `PasswordAuthentication no` : connexion par mot de passe bannie, clés uniquement.
+  - `PermitRootLogin prohibit-password` : root accessible uniquement par clé SSH (nécessaire au cluster inter-nœuds et aux sauvegardes).
+  - Suppression de la clé orpheline `audit@ims-world` sur le compte `cmolotkoff`.
+  - Pas de mises à jour automatiques sur les nœuds Proxmox (maintien manuel).
 </Info>
 
 ### Commandes CLI Usuelles d'Administration

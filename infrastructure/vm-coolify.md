@@ -3,7 +3,7 @@ title: "VM IMS-Coolify (VM 104)"
 description: "Serveur d'orchestration Docker et Reverse Proxy Traefik de production"
 icon: "box"
 iconType: "duotone"
-last_reviewed: "2026-08-28"
+last_reviewed: "2026-10-23"
 app_version: "v4.3.14"
 ---
 
@@ -23,9 +23,13 @@ Héberge l'interface web Coolify Master, la base de données de gestion et orche
 |---|---|
 | **VMID** | 104 |
 | **OS** | Ubuntu 24.04 LTS (clonée depuis template Cloud-Init `8000`) |
+| **Fuseau horaire** | `Europe/Paris` (aligné le 23/10/2026 pour les logs système de la VM) |
 | **CPU / RAM** | 6 cores (mode CPU `host` — `x86-64-v2`) / 18 Go RAM |
 | **Disque** | 128 Go NVMe |
 | **Réseau** | `vmbr0` (192.168.1.52/24) + `vmbr1` (10.10.10.2/24) + client Tailscale dédié |
+| **Accès SSH** | Clé uniquement (`PasswordAuthentication no`, `PermitRootLogin prohibit-password` pour Coolify) |
+| **Comptes** | `cmolotkoff` (sudo journalisé `log_subcmds`), `root` par clé (auto-gestion Coolify) |
+| **Mises à jour** | `unattended-upgrades` automatiques (**redémarrage automatique interdit**) |
 | **Version Coolify** | `v4.3.14` |
 | **Rôle Topology** | **Master / Control Plane** (Orchestre la VM 104 et le Worker LXC 105) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |

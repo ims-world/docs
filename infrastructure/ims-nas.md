@@ -35,12 +35,13 @@ Centralise le stockage de l'infrastructure : documents, photos, backups, et méd
 | **CPU / RAM** | 2 cores / 1024 MB |
 | **Réseau** | `vmbr0` ({ips.nasLan}/24, LAN) + `vmbr1` (10.10.10.1/24, isolé, sans gateway) + `tailscale0` ({ips.nas}) |
 | **Carte SATA** | {hardware.sataCard} |
-| **Emplacement disques** | 4-Pack Hard Drive Tray Caddy 3.5" pour DELL (baie évolutive multi-disques) |
 | **Accès distant** | Tailscale ({ips.nas}), hostname `ims-pve-100-nas`, utilisateur Headscale `infra` |
+| **Accès SSH Admin** | Clé uniquement (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`, `cmolotkoff` avec `sudo` journalisé `log_subcmds`) |
+| **Sécurité & Maintenance** | Fail2ban (jails `sshd` + `recidive`), Mises à jour de sécurité auto (`unattended-upgrades`, sans reboot) |
 | **Statut** | <Badge color="green">🟢 Production Active</Badge> |
 
 <Note>
-`vmbr1` est un bridge isolé sans port physique ni gateway, dédié au trafic NFS interne entre guests (NAS ↔ PBS ↔ VM Coolify). Le LAN (`vmbr0`) sert le SMB et l'accès humain. L'interface `tailscale0` ({ips.nas}) assure l'administration à distance via le tunnel VPN Headscale.
+`vmbr1` est un bridge isolé sans port physique ni gateway, dédié au trafic NFS interne entre guests (NAS ↔ PBS ↔ VM Coolify). Le LAN (`vmbr0`) sert le SMB et l'accès humain. L'interface `tailscale0` ({ips.nas}) assure l'administration à distance via le tunnel VPN Headscale. Le dossier personnel `/home/cmolotkoff` a été remis au propriétaire `cmolotkoff` (UID 1000).
 </Note>
 
 ## Disques physiques & Évolutivité

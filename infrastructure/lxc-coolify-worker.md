@@ -3,7 +3,7 @@ title: "LXC 105 — Coolify Worker (Mac Mini)"
 description: "Nœud d'exécution Docker distant (Worker) orchestré par le Master VM 104"
 icon: "cube"
 iconType: "duotone"
-last_reviewed: "2026-10-22"
+last_reviewed: "2026-10-23"
 app_version: "v4.3.14"
 ---
 
@@ -22,8 +22,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **OS / Distribution** | Debian 13 (Trixie) LXC Unprivileged |
 | **Adresse IP LAN** | `192.168.1.198` |
 | **Accès VPN / Tailnet** | Tailscale ({ips.coolifyWorker}), hostname `ims-pve-105-coolify-worker`, utilisateur Headscale `infra` |
-| **Accès SSH Master** | Clé publique `coolify-secondary-node` (Port 22, User `root`) |
-| **Accès SSH Admin** | Compte `cmolotkoff` (Port 22, clé SSH Ed25519, `sudo NOPASSWD`) |
+| **Accès SSH Master** | Clé publique `coolify-secondary-node` (Port 22, User `root`, socket activation `ssh.socket`) |
+| **Accès SSH Admin** | Compte `cmolotkoff` (Port 22, clé SSH Ed25519, `sudo` journalisé `log_subcmds`) |
+| **Supervision Alloy** | Agent Grafana Alloy installé (`host: ims-coolify-worker`, métriques + journald + logs Docker vers `192.168.1.52`) |
+| **Sécurité & Maintenance** | Fail2ban (jails `sshd` + `recidive`), Mises à jour de sécurité auto (`unattended-upgrades`, sans reboot) |
 | **Version Coolify** | `v4.3.14` |
 | **Rôle dans l'Architecture** | **Nœud Worker Distant** (Moteur d'exécution Docker autonome) |
 | **Statut** | <Badge color="green">🟢 Opérationnel & Enrôlé</Badge> |
@@ -60,13 +62,15 @@ graph TD
 - Traefik réachemine ensuite les requêtes vers les conteneurs applicatifs exécutés sur le Worker LXC 105 via le réseau LAN local `192.168.1.198`.
 
 ### 2. Authentification & Accès SSH
+- **Activation par Socket** : Le serveur SSH est lancé par activation sur socket systemd (`ssh.socket`).
 - **Enrôlement Master Coolify** : Le Master VM 104 s'authentifie sur le LXC 105 via la clé publique `coolify-secondary-node` inscrite dans `/root/.ssh/authorized_keys` (droits `600`).
-- **Configuration sshd (`/etc/ssh/sshd_config.d/01-coolify.conf`)** :
+- **Configuration sshd (`/etc/ssh/sshd_config.d/00-ims-ops.conf` & `01-coolify.conf`)** :
   ```text
   PermitRootLogin prohibit-password
+  PasswordAuthentication no
   PubkeyAuthentication yes
   ```
-- **Compte d'Administration (`cmolotkoff`)** : Créé le 22/10/2026 avec les droits `sudo NOPASSWD` dans `/etc/sudoers.d/cmolotkoff` et sa clé SSH Ed25519 d'administration. Il permet la connexion directe depuis le Tailnet ({ips.coolifyWorker}) pour la maintenance et l'exécution d'Ansible.
+- **Compte d'Administration (`cmolotkoff`)** : Droits `sudo NOPASSWD` configurés dans `/etc/sudoers.d/cmolotkoff` avec directive `Defaults log_subcmds` pour la traçabilité des commandes.
 
 ### 3. Enrôlement Tailscale & TUN Device
 Pour autoriser Tailscale à opérer dans le conteneur LXC 105 Unprivileged, le périphérique `/dev/net/tun` a été configuré sur le nœud Proxmox Mac Mini (`/etc/pve/nodes/pve-macmini/lxc/105.conf`) :
@@ -75,6 +79,15 @@ lxc.cgroup2.devices.allow: c 10:200 rwm
 lxc.mount.entry: /dev/net/tun dev/net/tun none bind,create=file
 ```
 Le conteneur est enrôlé sous l'utilisateur Headscale `infra` avec le hostname `ims-pve-105-coolify-worker`.
+
+---
+
+## 📊 Supervision & Agent Grafana Alloy
+
+L'agent **Grafana Alloy** est déployé en tant que service systemd sur le conteneur LXC 105 (niveau de log `info`) :
+- **Métriques système** : Node exporter intégré (CPU, mémoire, disque, réseau) remonté vers Prometheus (`192.168.1.52:9090`).
+- **Logs système** : Collecte du journal systemd acheminée vers Loki (`192.168.1.52:3100`).
+- **Métriques & Logs Docker** : Découverte automatique des conteneurs applicatifs déployés par Coolify avec l'étiquette `host: ims-coolify-worker`.
 
 ---
 

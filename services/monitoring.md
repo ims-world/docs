@@ -3,7 +3,7 @@ title: "Stack Monitoring (LGTM)"
 description: "Grafana, Loki, Prometheus & Grafana Alloy — métriques, centralisation de logs & monitoring SMART"
 icon: "chart-line"
 iconType: "duotone"
-last_reviewed: "2026-08-21"
+last_reviewed: "2026-10-23"
 app_version: "v13.1.3"
 ---
 
@@ -84,13 +84,15 @@ graph TB
         TRAEFIK_METRICS["Traefik Proxy Engine (:8080)"]
     end
 
-    subgraph AGENTS ["⚙️ Agents Grafana Alloy & Textfile Collectors (6 Hôtes)"]
-        MS01_ALLOY["MS-01 Bare Metal (Alloy + smartmon.sh Cron 5m)"]
+    subgraph AGENTS ["⚙️ Agents Grafana Alloy & Textfile Collectors (8 Hôtes)"]
+        MS01_ALLOY["MS-01 Bare Metal (host: ms01-pve + smartmon.sh)"]
         MAC_ALLOY["Mac Mini Bare Metal (Alloy + smartmon.sh Cron 5m)"]
         NAS_ALLOY["LXC 100 IMS-NAS (Alloy systemd)"]
         PBS_ALLOY["LXC 103 IMS-PBS (Alloy systemd)"]
         COOL_ALLOY["VM 104 IMS-Coolify (Alloy + cAdvisor Docker)"]
+        WORKER_ALLOY["LXC 105 Worker (host: ims-coolify-worker)"]
         RPI_ALLOY["Raspberry Pi Kiosk (Alloy systemd)"]
+        TEST_ALLOY["VM 101 vm-test (Alloy systemd)"]
     end
 
     CLIENT_VPN -->|HTTPS| TRAEFIK
@@ -102,6 +104,12 @@ graph TB
 
     MAC_ALLOY -->|Push LAN 192.168.1.52:9090/3100| PROMETHEUS
     MAC_ALLOY -->|Push LAN| LOKI
+
+    WORKER_ALLOY -->|Push LAN 192.168.1.52:9090/3100| PROMETHEUS
+    WORKER_ALLOY -->|Push LAN| LOKI
+
+    TEST_ALLOY -->|Push LAN 192.168.1.52:9090/3100| PROMETHEUS
+    TEST_ALLOY -->|Push LAN| LOKI
 
     RPI_ALLOY -->|Push LAN 192.168.1.52:9090/3100| PROMETHEUS
     RPI_ALLOY -->|Push LAN| LOKI
@@ -121,7 +129,7 @@ graph TB
 
 ### 1. Ingestion Hybride : Push Remote-Write + Pull Uptime Kuma/Traefik
 
-- **Push Remote-Write (Alloy)** : Les **6 agents Alloy** (MS-01, Mac Mini, VM Coolify, LXC NAS, LXC PBS, RPi Kiosk) poussent leurs métriques (`prometheus.remote_write`) et leurs logs (`loki.write`) directement vers la stack centrale via le LAN ou le bridge isolé `vmbr1`. La télémétrie ne transite **jamais par Tailscale**.
+- **Push Remote-Write (Alloy)** : Les **8 agents Alloy** (MS-01, Mac Mini, VM Coolify, LXC NAS, LXC PBS, RPi Kiosk, Worker LXC 105, VM 101 vm-test) poussent leurs métriques (`prometheus.remote_write`) et leurs logs (`loki.write`) directement vers la stack centrale via le LAN (`192.168.1.52`) ou le bridge isolé `vmbr1`. Le niveau de log des agents est configuré en `info` (abaissé depuis `debug` le 23/10/2026). La télémétrie ne transite **jamais par Tailscale**.
 - **Pull Uptime Kuma (Exception)** : Prometheus scrape l'endpoint natif `/metrics` d'Uptime Kuma via Basic Auth.
   - La clé API est stockée dans `config/uptime-kuma-api-key.txt` et montée en volume `:ro` dans le conteneur Prometheus (`/etc/prometheus/secrets/kuma-api-key`).
   - **Métriques lues** : `monitor_status`, `monitor_response_time_seconds`, `monitor_uptime_ratio`, `monitor_cert_days_remaining`, `monitor_cert_is_valid`.
@@ -205,7 +213,7 @@ Prometheus scrape les métriques de Traefik sur `coolify-proxy:8080`.
 | **Uptime Kuma - Overview** | Custom | **Disponibilité Applicative** : Statut des 17 services, temps de réponse, validité et jours restants des certificats SSL, SLO (24h/7j/30j), historique chronologique des coupures. |
 | **Node Exporter Full** | Grafana ID `1860` (Fixé) | **Vue Système par Hôte** : CPU, mémoire, I/O disque, réseau. *Note : Variables corrigées pour matcher les vrais labels (`job=integrations/unix`, `host=`).* |
 | **Docker monitoring** | Grafana ID `15798` + Custom | **Métriques Conteneurs** : Consommation CPU/RAM/Network par conteneur Docker via cAdvisor. |
-| **Logs — Vue d'ensemble** | Custom (`logs-overview.json`) | **Explorateur de Logs Loki** : Filtrable par `$host`, `$job`, `$container` et `$level` (ERROR, WARN, INFO). |
+| **Logs — Vue d'ensemble** | Custom (`logs-overview.json`) | **Explorateur de Logs Loki** : Filtrable par `$host`, `$job`, `$container` et `$level` (ERROR, WARN, INFO). *Note opérationnelle : Pour afficher les logs systemd-journal au lieu de masquer les entrées non-conteneur, régler la variable `$container` sur `.*` (All).* |
 
 ---
 

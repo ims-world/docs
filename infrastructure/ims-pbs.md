@@ -98,7 +98,7 @@ sequenceDiagram
     participant PVE as Proxmox VE (MS-01)
     participant VM as VM 104 (Coolify)
     participant PBS as PBS Engine (LXC 103)
-    participant NAS as LXC NAS 100 (MergerFS / NFS)
+    participant NAS as LXC NAS 100 (ext4 / NFS)
 
     PVE->>VM: Initialisation QEMU Guest Agent Snapshot (02h00)
     VM-->>PVE: Freeze Filesystem & State Ready
@@ -143,12 +143,14 @@ Le montage est actuellement configuré en NFS `vers=3` (`/etc/fstab`) :
 Ce forçage en version 3 avait été appliqué pour contourner des blocages d'invalidation de handles (`ESTALE`) spécifiques à l'interaction entre NFSv4.2 et MergerFS FUSE. Depuis le retrait de MergerFS et le passage en ext4 natif sur le NAS (23/10/2026), le montage NFS repose sur un système de fichiers stable. Le retour en `vers=4.2` ou le passage du datastore en bind-mount Proxmox direct (`mp`) sont des évolutions identifiées.
 </Info>
 
-## Résumé du Montage NFS
+## Résumé de la Configuration Système & Sécurité
 
-Pour assurer le fonctionnement du datastore sur le conteneur LXC 103 :
+Pour assurer le fonctionnement fiable et sécurisé du conteneur LXC 103 :
 
-1. **LXC privilégié** : passage du conteneur en privilège root pour autoriser les syscalls de montage NFS.
-2. **Feature `mount=nfs`** : activation explicite dans la configuration du LXC.
-3. **Système de fichiers sous-jacent** : ext4 natif sur le NAS LXC 100 via bind-mount direct (MergerFS retiré).
+1. **LXC privilégié & NFS** : conteneur en privilège root avec feature `mount=nfs` pour autoriser les syscalls de montage NFS vers le NAS (`ext4` natif).
+2. **Socle SSH & Accès Admin** : configuration `/etc/ssh/sshd_config.d/00-ims-ops.conf` posée (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`). Le compte `cmolotkoff` dispose de `sudo` journalisé (`log_subcmds`).
+3. **Accès Termix Vérifié** : compte dédié non-root `termix-usr` avec clé Ed25519 restreinte à Traefik (`from="192.168.1.52"`) et sudo journalisé dans Loki via Alloy.
+4. **Fail2ban** : déployé avec les jails `sshd` et `recidive`, alertes Ntfy envoyées vers `192.168.1.52`.
+5. **Mises à Jour Automatiques** : patches de sécurité appliqués automatiquement via `unattended-upgrades`, sans redémarrage automatique.
 
 Voir aussi le [Post-Mortem du 23/10/2026](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix).

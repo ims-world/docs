@@ -3,13 +3,23 @@ title: "Changelog & Historique"
 description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
-<Update label="23/10/2026" description="Résolution Définitive des Erreurs ESTALE NFS (Backups PBS & Jellyfin) et Retrait de MergerFS">
+<Update label="23/10/2026" description="Standardisation & Durcissement Global du Parc (SSH, Fail2ban, Alloy), Résolution ESTALE NFS & Retrait de MergerFS">
+  ### 🛡️ Standardisation & Durcissement Système (7 Hôtes)
+
+  - **Durcissement SSH Transversal (`00-ims-ops.conf`)** — Tu as désactivé l'authentification par mot de passe partout (`PasswordAuthentication no`), coupé le X11 forwarding et configuré le fichier `/etc/ssh/sshd_config.d/00-ims-ops.conf`. L'accès root SSH est restreint à la clé uniquement (`prohibit-password`) sur les hyperviseurs, conteneurs et Coolify, et formellement interdit (`no`) sur `vm-test`.
+  - **Sécurisation & Traçabilité Sudo (`cmolotkoff`)** — Tu as restreint les clés autorisées à `clementm@MacBook-Pro-de-Clement.local` et activé la journalisation systématique des commandes (`Defaults log_subcmds`) dans `/etc/sudoers.d/cmolotkoff`.
+  - **Généralisation de Fail2ban (7 Hôtes)** — Tu as étendu Fail2ban à l'ensemble du parc (`pve`, `pve-macmini`, `ims-pbs`, `ims-nas`, `ims-coolify-worker`, `ims-coolify`, `vm-test`) avec les jails `sshd` et `recidive` (bannissement 1h doublé par récidive, plafond 1 semaine) et transmission des alertes push Ntfy directement via l'IP LAN de Traefik (`192.168.1.52`).
+  - **Socle Système Unifié** — Tu as appliqué le fuseau horaire `Europe/Paris`, la persistance du journal systemd et le lot de paquets standard (`curl`, `git`, `htop`, `jq`, `ncdu`, `rsync`, `bind9-dnsutils`, `bash-completion`, `acl`, `tmux`, plus `qemu-guest-agent` sur les VM).
+  - **Extension de la Supervision Alloy** — Tu as installé l'agent Alloy sur le Worker Coolify (LXC 105, `host: ims-coolify-worker`) et sur `vm-test` (VM 101). Le niveau de log de tous les agents Alloy a été ajusté de `debug` à `info`.
+  - **Enrôlement Tailscale de vm-test (VM 101)** — Tu as connecté la VM 101 au Tailnet sous le nom `vm-test` (`100.64.0.13`, utilisateur `infra`) avec son socle complet.
+  - **Clé de Pré-Authentification Headscale** — Tu as généré une clé réutilisable pour l'utilisateur `infra`, valide jusqu'au 21/01/2027 et stockée dans le coffre chiffré.
+
   ### 🗄️ Stockage & Résilience NFS (NAS LXC 100 & PBS LXC 103)
 
   - **Suppression Définitive de MergerFS sur le NAS** — Tu as remplacé le pool FUSE MergerFS `/mnt/storage` par un bind-mount `ext4` direct (`/mnt/disk1` vers `/mnt/storage`) dans le `/etc/fstab` du LXC 100.
   - **Résolution Définitive des Erreurs ESTALE** — Les requêtes NFS accèdent directement aux inodes stables du système de fichiers natif `ext4`. Les erreurs `ESTALE: Stale file handle` qui bloquaient les sauvegardes vzdump de la VM 104 (`unable to get shared lock`) et provoquaient le crash de Jellyfin (code 140) après chaque redémarrage du NAS sont définitivement éliminées.
   - **Résolution de l'Erreur Trompeuse `namespace not found` sur PBS** — Lors d'un incident `ESTALE` sur le point de montage `/mnt/pbs-coolify`, le démon PBS ne pouvait pas lire la racine du datastore et retournait cette erreur même en l'absence de namespace configuré. Le montage direct `ext4` fiabilise l'accès au datastore.
-  - **Évolution de la Feuille de Route Alerting** — Tu as passé en Priorité 1 le chantier de notification push Ntfy sur échec des sauvegardes Proxmox / PBS suite au constat de l'angle mort sur `mail-to-root`.
+  - **Restauration Propriétaire `/home/cmolotkoff`** — Tu as rétabli la propriété du dossier utilisateur à `cmolotkoff` sur le NAS (LXC 100).
   - **Documentation & Post-Mortem** — Tu as publié le rapport d'incident complet [Incidents ESTALE NFS](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix) et mis à jour l'[ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash) marquée obsolète.
 </Update>
 
@@ -24,14 +34,14 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Configuration du Compte cmolotkoff sur le NAS (LXC 100)** — Tu as configuré le compte d'administration avec `sudo NOPASSWD` et ta clé SSH. Ce compte est aussi l'utilisateur Samba (UID 1000) : son shell est passé de `nologin` à `/bin/bash` et son mot de passe système reste verrouillé (`passwd -l`). Son UID 1000 ne doit jamais être modifié ni supprimé.
   - **Création du Compte cmolotkoff sur le Worker Coolify (LXC 105)** — Tu as créé le compte `cmolotkoff` avec `sudo NOPASSWD` et ta clé SSH, permettant l'accès direct Ansible sur le worker.
   - **Réparation de l'Accès cmolotkoff sur Proxmox Backup Server (LXC 103)** — Tu as réparé la clé SSH qui était refusée, rétablissant les connexions d'administration sur PBS.
-  - **Validation en Production du Script 02** — Ces interventions valident en conditions réelles le [Script 02 — Accès admin (cmolotkoff)](/iac/script-02-acces-admin) sur les trois conteneurs LXC du homelab.
+  - **Validation en Production du Bootstrap Admin** — Ces interventions valident en conditions réelles la préparation des accès administrateur sur les trois conteneurs LXC du homelab. Voir [Infrastructure as Code](/iac/index).
 </Update>
 
 <Update label="19/10/2026" description="Termix 26.10.2 en Production, Validation Accès Pilote IMS-PBS & Refonte d'IMS-INFRA">
   ### 🖥️ Gestion Centralisée des Hôtes & Accès Distant (Termix)
 
   - **Mise en Production de Termix 26.10.2 (`termix.ims-world.fr`)** — Déploiement sur la VM 104 (`ims-coolify`, UUID `ot8tjxw5ruhoqyis3rkb4ll5`) avec conteneur `guacd:1.6.0` isolé. Accès réservé au Tailnet (`vpn-only.yaml`), authentification OIDC Authentik native (groupe `admins`) avec admin local de secours TOTP, et secrets gérés dans Coolify. Voir [Termix](/services/termix).
-  - **Validation de l'Accès termix-usr sur l'Hôte Pilote IMS-PBS** — Déploiement et validation du compte dédié non-root `termix-usr` sur le LXC 103 (`192.168.1.51`) : clé Ed25519 restreinte à `192.168.1.52`, sudo `NOPASSWD` avec `log_subcmds`, traçabilité temps réel dans Loki via Alloy. Voir [Script 03 — Accès Termix](/iac/script-03-termix).
+  - **Validation de l'Accès termix-usr sur l'Hôte Pilote IMS-PBS** — Déploiement et validation du compte dédié non-root `termix-usr` sur le LXC 103 (`192.168.1.51`) : clé Ed25519 restreinte à `192.168.1.52`, sudo `NOPASSWD` avec `log_subcmds`, traçabilité temps réel dans Loki via Alloy. Voir [Infrastructure as Code](/iac/index).
 
   ### ⚙️ Refonte du Dépôt d'Automatisation (IMS-INFRA)
 

@@ -257,7 +257,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
   <Tab title="🏠 Zone 3 — Administration LAN & Tailnet Direct">
     | Service / Nœud | Adresse / Port | Exposition | Méthode d'Authentification |
     | --- | --- | --- | --- |
-    | **SSH Système** | Port `22` (PVE, Mac Mini, PBS, NAS, Coolify, Worker) | 🏠 LAN / 🔐 Tailnet | Clés SSH Ed25519 (compte `cmolotkoff`, sudo NOPASSWD) |
+    | **SSH Système** | Port `22` (PVE, Mac Mini, PBS, NAS, Coolify, Worker, vm-test) | 🏠 LAN / 🔐 Tailnet | Clés SSH uniquement (compte `cmolotkoff`, sudo journalisé `log_subcmds`, pas de mot de passe) |
     | **Proxmox VE GUI** | `{ips.pveLan}:8006` / `100.64.0.9:8006` | 🏠 LAN / 🔐 Tailnet | PAM / Compte `cmolotkoff` |
     | **PBS Web GUI** | `{ips.pbsLan}:8007` / `100.64.0.2:8007` | 🏠 LAN / 🔐 Tailnet | Auth PBS `cmolotkoff@pbs` |
     | **NAS SMB** | `{ips.nasLan}:445` / `{ips.nas}:445` | 🏠 LAN / 🔐 Tailnet | Auth SMB `cmolotkoff` (UID 1000) |
@@ -272,11 +272,21 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
 
 | Source | Destination | Protocole / Port | Usage & Sécurité |
 |---|---|---|---|
-| **VM IMS-Coolify** (`192.168.1.52`) | **Hôtes du LAN** (`192.168.1.0/24`) | TCP `22` (SSH) | Administration Termix : connexions sortantes vers les hôtes administrés (compte `termix-usr`, clé Ed25519 restreinte avec `from="192.168.1.52"`). Voir [Script 03 — Accès Termix](/iac/script-03-termix). |
+| **VM IMS-Coolify** (`192.168.1.52`) | **Hôtes du LAN** (`192.168.1.0/24`) | TCP `22` (SSH) | Administration Termix : connexions sortantes vers les hôtes administrés (compte `termix-usr`, clé Ed25519 restreinte avec `from="192.168.1.52"`). Voir [Termix](/services/termix) et [Infrastructure as Code](/iac/index). |
 
 ---
 
 ## 🔒 Règles de Sécurité Impératives
+
+<Info>
+  **Socle Système & SSH Standardisé (`00-ims-ops.conf`)** :
+  Depuis le 23/10/2026, l'ensemble des 7 hôtes gérés (`pve`, `pve-macmini`, `ims-pbs`, `ims-nas`, `ims-coolify-worker`, `ims-coolify`, `vm-test`) applique une politique stricte :
+  - **Authentification par mot de passe bannie** : `PasswordAuthentication no` partout, clé SSH uniquement.
+  - **X11 Forwarding désactivé** : `X11Forwarding no` sur tous les hôtes.
+  - **Accès Root par SSH** : par clé uniquement (`PermitRootLogin prohibit-password`) sur les nœuds Proxmox, Coolify, le worker, PBS et NAS ; formellement interdit (`PermitRootLogin no`) sur les VM ordinaires (`vm-test`).
+  - **Traçabilité sudo** : règle `/etc/sudoers.d/cmolotkoff` avec directive `Defaults log_subcmds` pour journaliser toutes les sous-commandes privilégiées dans le journal systemd et Loki.
+  - **Fail2ban actif sur 7 hôtes** : jails `sshd` et `recidive` (ban 1h doublé à chaque récidive, plafond 1 semaine), alerte Ntfy immédiate sur le topic `ims-alerts` via l'IP LAN directe de Traefik (`192.168.1.52`).
+</Info>
 
 <Warning>
   **Politique d'Isolation SSH Système — Port 22 Fermé sur le WAN** : Le serveur SSH d'administration système écoute sur le port **22**. **Aucune redirection de port SSH d'administration n'existe sur la Bbox.** L'accès SSH système (MS-01, LXC NAS, VM Coolify, Mac Mini) est **strictement impossible depuis l'Internet public**. Il exige une connexion au **LAN local (`192.168.1.0/24`)** ou d'être authentifié sur le **VPN Overlay Tailscale (`100.64.0.0/10`)**. Seul le port **`2222`** (dédié aux opérations Git SSH de Forgejo) est redirigé depuis le WAN. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
