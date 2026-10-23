@@ -81,6 +81,7 @@
               "infrastructure/ims-pbs",
               "infrastructure/vm-coolify",
               "infrastructure/lxc-coolify-worker",
+              "infrastructure/vm-home-assistant",
               "infrastructure/politique-sauvegardes"
             ]
           },
@@ -114,7 +115,6 @@
               "services/forgejo",
               "services/patrimo",
               "services/photoprism",
-              "services/home-assistant",
               "services/n8n",
               "services/termix"
             ]

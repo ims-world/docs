@@ -1,9 +1,9 @@
 ---
-title: "Home Assistant"
+title: "VM 106 — Home Assistant (HAOS)"
 description: "Domotique et smart home, VM dédiée HAOS sur le Mac Mini (Proxmox), reverse proxy HTTPS Traefik (Zone 2) et accès distant via Tailscale"
 icon: "house-signal"
 iconType: "duotone"
-last_reviewed: "2026-09-14"
+last_reviewed: "2026-10-24"
 app_version: "2026.9.2 (HAOS 18.2)"
 ---
 

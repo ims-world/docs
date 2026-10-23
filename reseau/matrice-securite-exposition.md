@@ -245,7 +245,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
         **Domaine** : `shield.ims-world.fr` **Protection** : `vpn-only.yaml` \+ SSO Authentik OIDC (Rôle ADMIN)
       </Card>
 
-      <Card title="Home Assistant" icon="house-signal" href="/services/home-assistant">
+      <Card title="Home Assistant" icon="house-signal" href="/infrastructure/vm-home-assistant">
         **Domaine** : `home.ims-world.fr` **Protection** : `vpn-only.yaml` Traefik (`100.64.0.0/10`) + TLS Let's Encrypt + Auth native HA (VM 106 Mac Mini)
       </Card>
 

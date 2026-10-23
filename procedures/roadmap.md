@@ -232,7 +232,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 ### 4.14 🏠 Déploiement VM Home Assistant (HAOS) & Routage HTTPS Traefik <Badge color="green">🟢 Effectué — 14/09/2026</Badge>
 
-- **Réalisé** : Abandon de l'ancien conteneur Docker Coolify au profit d'une **machine virtuelle dédiée HAOS 18.2 / Core 2026.9.2 (VMID 106)** sur le Mac Mini (`pve-macmini`). Raccordement natif au bridge `vmbr0` (résolvant la découverte mDNS pour Philips Hue et Apple HomeKit). Exposition sécurisée en HTTPS (`https://home.ims-world.fr`) via Traefik (VM 104) avec certificat Let's Encrypt, filtrage strict `vpn-only` (`100.64.0.0/10`) et configuration des proxys de confiance via la nouvelle interface graphique HAOS 2026+. Fiche complète publiée sur [Home Assistant](/services/home-assistant).
+- **Réalisé** : Abandon de l'ancien conteneur Docker Coolify au profit d'une **machine virtuelle dédiée HAOS 18.2 / Core 2026.9.2 (VMID 106)** sur le Mac Mini (`pve-macmini`). Raccordement natif au bridge `vmbr0` (résolvant la découverte mDNS pour Philips Hue et Apple HomeKit). Exposition sécurisée en HTTPS (`https://home.ims-world.fr`) via Traefik (VM 104) avec certificat Let's Encrypt, filtrage strict `vpn-only` (`100.64.0.0/10`) et configuration des proxys de confiance via la nouvelle interface graphique HAOS 2026+. Fiche complète publiée sur [Home Assistant](/infrastructure/vm-home-assistant).
 - **Tâches d'Exploitation Résiduelles (TODO)** :
   1. **Sauvegardes PBS** : Déclarer la VM 106 dans un job nocturne automatisé `vzdump` vers le datastore PBS (LXC 103).
   2. **Bail statique LAN** : Confirmer la réservation DHCP permanente de l'IP `192.168.1.92` sur la Bbox.
