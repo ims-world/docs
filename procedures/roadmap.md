@@ -89,7 +89,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 ### 1.4 🛡️ Mise à Jour de la Politique de Sauvegarde PBS pour le Nœud Mac Mini (`pve-macmini`) <Badge color="amber">🟡 Moyen Terme</Badge>
 
 - **Constat** : Suite à l'intégration du Mac Mini en tant que Nœud 2 actif du cluster `ims-cluster`, les tâches de sauvegarde planifiées de Proxmox Backup Server (PBS LXC 103) et `vzdump` doivent être révisées pour couvrir les VM/LXC hébergés ou migrés sur ce nœud.
-- **Tâche** : Déclarer le nœud `pve-macmini` dans le Datacenter PVE (jobs de sauvegarde `all` / multi-nœuds) et ajuster la politique de rétention et d'exclusion (LXC 100 NAS maintenu en exclusion manuelle stop-only). Voir [Politique de Sauvegardes](/infrastructure/politique-sauvegardes).
+- **Tâche** : Déclarer le nœud `pve-macmini` dans le Datacenter PVE (jobs de sauvegarde `all` / multi-nœuds) et ajuster la politique de rétention et d'exclusion (LXC 100 NAS maintenu en exclusion manuelle stop-only). Voir [Politique de Sauvegardes](/procedures/politique-sauvegardes).
 
 ### 1.5 💾 Audit des Sauvegardes de Toutes les VM et Validation du Monitoring <Badge color="red">🔴 Priorité 1</Badge>
 

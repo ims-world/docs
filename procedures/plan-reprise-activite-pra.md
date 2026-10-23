@@ -20,7 +20,7 @@ import { ips, domains } from "/snippets/variables.mdx";
   - <Badge color="amber">🟡 LXC 100 (IMS-NAS)</Badge> : **Sauvegarde Manuelle Uniquement** — Exclu des backups automatiques quotidiens (prévention de l'incident `stale filehandle` NFS). Sauvegarde `--mode stop` manuelle avant opérations de maintenance.
   - <Badge color="green">🟢 LXC 103 (IMS-PBS)</Badge> : **Sauvegardé & Restaurable** — Backup `vzdump` local NVMe quotidien à 03:00 (`--mode snapshot`).
 
-  _Voir la [Politique de Sauvegarde & Tâches Planifiées](/infrastructure/politique-sauvegardes) pour le détail de la chronologie et de l'anti-circularité._
+  _Voir la [Politique de Sauvegarde & Tâches Planifiées](/procedures/politique-sauvegardes) pour le détail de la chronologie et de l'anti-circularité._
 </Check>
 
 ## Objectif & Scénarios de Sinistre
@@ -99,7 +99,7 @@ sequenceDiagram
   </Step>
   <Step title="Phase 3 — Restauration des Conteneurs LXC 100 (NAS) & 103 (PBS)">
     <Check>
-      Les conteneurs LXC 100 et 103 disposent de sauvegardes `vzdump` quotidiennes stockées sur le NVMe local de l'hôte (`/var/lib/vz/dump/`). Voir la [Politique de Sauvegarde](/infrastructure/politique-sauvegardes).
+      Les conteneurs LXC 100 et 103 disposent de sauvegardes `vzdump` quotidiennes stockées sur le NVMe local de l'hôte (`/var/lib/vz/dump/`). Voir la [Politique de Sauvegarde](/procedures/politique-sauvegardes).
     </Check>
 
     ```bash

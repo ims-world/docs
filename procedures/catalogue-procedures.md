@@ -92,7 +92,7 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
   <Card title="Simulation Crash NVMe & Restauration DRP" icon="skull-crossbones" href="/procedures/simulation-crash-restauration">
     Runbook théorique de restauration à froid d'urgence de la VM Coolify depuis PBS suite à un crash NVMe (avec avertissement).
   </Card>
-  <Card title="Politique de Sauvegarde & Tâches Planifiées" icon="shield-check" href="/infrastructure/politique-sauvegardes">
+  <Card title="Politique de Sauvegarde & Tâches Planifiées" icon="shield-check" href="/procedures/politique-sauvegardes">
     Vue d'ensemble de la protection des données, chronologie nocturne, règle d'anti-circularité et backups vzdump local.
   </Card>
 </CardGroup>

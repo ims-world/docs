@@ -81,8 +81,7 @@
               "infrastructure/ims-pbs",
               "infrastructure/vm-coolify",
               "infrastructure/lxc-coolify-worker",
-              "infrastructure/vm-home-assistant",
-              "infrastructure/politique-sauvegardes"
+              "infrastructure/vm-home-assistant"
             ]
           },
           {
@@ -156,6 +155,7 @@
             "group": "Reprise d'Activité (PRA)",
             "icon": "shield-alert",
             "pages": [
+              "procedures/politique-sauvegardes",
               "procedures/plan-reprise-activite-pra",
               "procedures/simulation-crash-restauration"
             ]

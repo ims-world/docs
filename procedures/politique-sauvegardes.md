@@ -3,7 +3,7 @@ title: "Politique de Sauvegarde & Tâches Planifiées"
 description: "Architecture de protection des données, anti-circularité, chronologie nocturne et tolérance aux coupures"
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-24"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";

@@ -240,7 +240,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Mise à niveau de Coolify en v4.3.6 & Workaround IHM** — Montée en version vers v4.3.6. Documentation de la procédure de secours `docker restart coolify-proxy` requise pour rétablir l'accès à `coolify.ims-world.fr` en cas de perte de liaison IHM post-update. Voir [VM IMS-Coolify](/infrastructure/vm-coolify#procédure-post-mise-à-jour-coolify-perte-ihm).
   - **Enrichissement de l'ADR-001 (Abandon de Beszel & Dualité LGTM/Dozzle)** — Officialisation de l'abandon de Beszel au profit de la stack LGTM (Grafana/Loki/Alloy) et maintien de Dozzle (`logs.ims-world.fr`). Voir [ADR-001](/history/adr/adr-001-stack-monitoring-lgtm).
   - **Adoption de l'ADR-008 (GPU Passthrough)** — Formalisation du passthrough PCI complet de l'iGPU Iris Xe via VFIO/IOMMU vers la VM Coolify, passage au chipset `q35` et validation Jellyfin QSV à 29.7x le temps réel. Voir [ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe).
-  - **Formalisation de la Politique de Sauvegarde** — Publication de la page consolidant la chronologie nocturne (02h-05h), les sauvegardes `vzdump` validées des LXC 100 & 103, les contournements FUSE/MergerFS (`--mode stop`) et les règles d'anti-circularité. Voir [Politique de Sauvegarde](/infrastructure/politique-sauvegardes).
+  - **Formalisation de la Politique de Sauvegarde** — Publication de la page consolidant la chronologie nocturne (02h-05h), les sauvegardes `vzdump` validées des LXC 100 & 103, les contournements FUSE/MergerFS (`--mode stop`) et les règles d'anti-circularité. Voir [Politique de Sauvegarde](/procedures/politique-sauvegardes).
 </Update>
 
 <Update label="16/08/2026" description="Audit Hardlinks HomeFlix, Nettoyage NAS (~330 Go) & ADR-007">

@@ -87,7 +87,7 @@ Le Nœud 2 `pve-macmini` héberge des workloads d'exécution isolés du cluster 
   <Card title="Hyperviseur Principal (MS-01)" icon="server" href="/infrastructure/proxmox-host">
     Fiche technique et administration du nœud 1 de ims-cluster.
   </Card>
-  <Card title="Politique de Sauvegarde" icon="shield-check" href="/infrastructure/politique-sauvegardes">
+  <Card title="Politique de Sauvegarde" icon="shield-check" href="/procedures/politique-sauvegardes">
     Sauvegardes PBS et protection des VM/LXC du cluster.
   </Card>
 </CardGroup>
