@@ -3,6 +3,22 @@ title: "Changelog & Historique"
 description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
 ---
 
+<Update label="24/10/2026" description="Raccordement Termix Généralisé (7 Hôtes), Nouvelle Clé SSH, Déduplication jdupes sur le NAS & Optimisation Alloy LXC">
+  ### 🏰 Administration Centralisée & Accès Distant (Termix)
+
+  - **Raccordement Généralisé de Termix (7 Hôtes)** — Tu as déployé le compte de service dédié non-root `termix-usr` sur l'ensemble des 7 hôtes Linux gérés du homelab (`pve`, `pve-macmini`, `ims-pbs`, `ims-nas`, `ims-coolify`, `ims-coolify-worker`, `vm-test`). La VM domotique HAOS (VM 106) n'est pas raccordée pour le moment.
+  - **Déploiement de la Nouvelle Clé SSH Termix** — Tu as configuré une nouvelle clé SSH autorisée pour `termix-usr` avec restriction stricte d'IP source à l'adresse de Traefik (`from="192.168.1.52"`).
+  - **Sudo Sans Mot de Passe Journalisé** — Chaque élévation `sudo` de `termix-usr` est tracée au format `log_subcmds` dans le journal systemd et répercutée en temps réel dans Loki via l'agent Grafana Alloy. Voir [Termix](/services/termix).
+
+  ### 🗄️ Stockage & Maintenance (NAS LXC 100)
+
+  - **Intégration de l'Utilitaire `jdupes`** — Tu as installé `jdupes` sur le conteneur de stockage NAS (LXC 100) pour auditer les doublons volumineux et optimiser l'espace disque sur `/mnt/storage` et `/mnt/storage-hot` via déduplication par hardlinks (`jdupes -r -L`). Voir [IMS-NAS (LXC 100)](/infrastructure/ims-nas).
+
+  ### 📊 Métrologie & Supervision (Grafana Alloy)
+
+  - **Optimisation des Agents Alloy sur les Conteneurs LXC** — Tu as désactivé le collecteur physique `hwmon` dans la configuration Node Exporter d'Alloy sur tous les conteneurs LXC (`ims-nas`, `ims-pbs`, `ims-coolify-worker`), éliminant définitivement les erreurs de logs récurrentes dues à l'inaccessibilité de `/sys/class/hwmon` en conteneur non privilégié. La surveillance matérielle reste assurée sur les hyperviseurs hôtes. Voir [Stack Monitoring](/services/monitoring).
+</Update>
+
 <Update label="23/10/2026" description="Standardisation & Durcissement Global du Parc (SSH, Fail2ban, Alloy), Résolution ESTALE NFS & Retrait de MergerFS">
   ### 🛡️ Standardisation & Durcissement Système (7 Hôtes)
 

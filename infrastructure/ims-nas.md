@@ -3,7 +3,7 @@ title: "IMS-NAS (LXC 100)"
 description: "Serveur de stockage central — NFS v3/v4, Double Bind-Mount ext4 direct & SMB"
 icon: "hard-drive"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-24"
 ---
 
 import { ips, hardware } from "/snippets/variables.mdx";
@@ -166,11 +166,25 @@ Le conteneur LXC 100 est enrôlé dans le Tailnet sous le hostname `ims-pve-100-
   </Step>
 </Steps>
 
-## Monitoring
+## Monitoring & Tuning Alloy
+
+L'agent **Grafana Alloy** est déployé en tant que service systemd pour la collecte des métriques système et des journaux vers la stack centrale (`192.168.1.52`). Le sous-collecteur **`hwmon`** y est désactivé pour éliminer les erreurs d'accès aux capteurs matériels physiques.
 
 <Warning>
 **`smartd` et `hd-idle` ne peuvent PAS tourner dans ce LXC** — le passthrough mountpoint ne donne pas accès au device bloc brut nécessaire à ces outils. Les deux tournent sur le **host**. Voir [Dépannage courant](/procedures/depannage-courant) pour le détail de cette découverte.
 </Warning>
+
+## Outillage de Gestion & Déduplication (`jdupes`)
+
+L'utilitaire CLI **`jdupes`** est installé sur le NAS pour analyser rapidement l'arborescence des disques (`/mnt/storage` et `/mnt/storage-hot`) et dédupliquer les fichiers identiques :
+
+```bash
+# Identifier les fichiers doublons de manière récursive (lecture seule)
+jdupes -r /mnt/storage/documents
+
+# Dédupliquer en remplaçant les doublons par des hardlinks (gain d'espace sans perte)
+jdupes -r -L /mnt/storage/documents
+```
 
 ## Sauvegardes & Stratégie d'Exclusion Proxmox (vzdump)
 

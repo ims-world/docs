@@ -3,7 +3,7 @@ title: "Stack Monitoring (LGTM)"
 description: "Grafana, Loki, Prometheus & Grafana Alloy — métriques, centralisation de logs & monitoring SMART"
 icon: "chart-line"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-24"
 app_version: "v13.1.3"
 ---
 
@@ -130,6 +130,7 @@ graph TB
 ### 1. Ingestion Hybride : Push Remote-Write + Pull Uptime Kuma/Traefik
 
 - **Push Remote-Write (Alloy)** : Les **8 agents Alloy** (MS-01, Mac Mini, VM Coolify, LXC NAS, LXC PBS, RPi Kiosk, Worker LXC 105, VM 101 vm-test) poussent leurs métriques (`prometheus.remote_write`) et leurs logs (`loki.write`) directement vers la stack centrale via le LAN (`192.168.1.52`) ou le bridge isolé `vmbr1`. Le niveau de log des agents est configuré en `info` (abaissé depuis `debug` le 23/10/2026). La télémétrie ne transite **jamais par Tailscale**.
+- **Tuning LXC (Désactivation `hwmon`)** : Le sous-collecteur `hwmon` de Node Exporter est désactivé sur les agents Alloy des conteneurs LXC (LXC 100, LXC 103, LXC 105). Les capteurs matériels physiques (`/sys/class/hwmon`) n'étant pas accessibles dans les conteneurs, cette exclusion supprime les erreurs d'accès et le bruit dans les logs Loki tout en maintenant la supervision thermique sur les hyperviseurs physiques.
 - **Pull Uptime Kuma (Exception)** : Prometheus scrape l'endpoint natif `/metrics` d'Uptime Kuma via Basic Auth.
   - La clé API est stockée dans `config/uptime-kuma-api-key.txt` et montée en volume `:ro` dans le conteneur Prometheus (`/etc/prometheus/secrets/kuma-api-key`).
   - **Métriques lues** : `monitor_status`, `monitor_response_time_seconds`, `monitor_uptime_ratio`, `monitor_cert_days_remaining`, `monitor_cert_is_valid`.

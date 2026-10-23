@@ -3,13 +3,13 @@ title: "Termix — Gestion SSH, SFTP & Bureau à Distance"
 description: "Point d'entrée unique pour administrer les hôtes du homelab (terminal SSH, fichiers SFTP, Proxmox, Docker), restreint au Tailnet et authentifié par Authentik"
 icon: "terminal"
 iconType: "duotone"
-last_reviewed: "2026-10-22"
+last_reviewed: "2026-10-24"
 app_version: "26.10.2"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Production Active</Badge> <Badge color="orange">Raccordement des hôtes en cours</Badge>
+<Badge color="green">🟢 Production Active</Badge> <Badge color="green">🟢 Parc Raccordé</Badge>
 
 ## Accès rapides & administration
 
@@ -268,15 +268,20 @@ Entrée dans `extra_records` (via Headplane) :
 
 ## Raccordement des hôtes
 
-Les hôtes sont raccordés à Termix par l'automatisation du dépôt IMS-INFRA : un compte dédié `termix-usr`, une clé restreinte à `192.168.1.52`, un sudo journalisé dans Loki. Voir [Infrastructure as Code](/iac/index).
+Les hôtes sont raccordés à Termix par l'automatisation du dépôt IMS-INFRA : un compte dédié `termix-usr`, une nouvelle clé SSH déployée le 24/10/2026 restreinte à Traefik (`from="192.168.1.52"`), et un sudo sans mot de passe journalisé (`Defaults log_subcmds`) dans Loki via Alloy. Voir [Infrastructure as Code](/iac/index).
 
-| Hôte | Statut |
-|---|---|
-| **IMS-PBS (LXC 103)** | ✅ Raccordé (pilote, 19/10/2026) |
-| **pve**, **pve-macmini**, **IMS-Coolify (VM 104)** | À raccorder |
-| **IMS-NAS (LXC 100)**, **Coolify Worker (LXC 105)** | Prêts à raccorder (Script 02 validé le 22/10/2026) |
-| **ims-rpi-monitor** | Reporté (éteint) |
-| **VM Windows (RDP)** | Reportée (allumée à la demande) |
+| Hôte | Statut | Rôle & Remarque |
+|---|---|---|
+| **pve (MS-01)** | ✅ Raccordé (24/10/2026) | Nœud 1 Leader Cluster Proxmox VE |
+| **pve-macmini** | ✅ Raccordé (24/10/2026) | Nœud 2 Cluster Proxmox VE |
+| **IMS-Coolify (VM 104)** | ✅ Raccordé (24/10/2026) | Master Coolify / Orchestrateur Docker |
+| **IMS-NAS (LXC 100)** | ✅ Raccordé (24/10/2026) | Stockage central NFS/SMB |
+| **IMS-PBS (LXC 103)** | ✅ Raccordé (24/10/2026) | Proxmox Backup Server (clé renouvelée) |
+| **Coolify Worker (LXC 105)** | ✅ Raccordé (24/10/2026) | Nœud d'exécution Docker distant (Mac Mini) |
+| **vm-test (VM 101)** | ✅ Raccordé (24/10/2026) | Banc de test & VM générique |
+| **VM HAOS (VM 106)** | ⏳ Non raccordé | Système domotique Appliance (accès exclu pour le moment) |
+| **ims-rpi-monitor** | ⏸️ Reporté | Affichage Kiosk 2U (hôte éteint) |
+| **VM Windows (VM 102)** | ⏸️ Reportée | RDP ponctuel (allumée à la demande) |
 
 ---
 

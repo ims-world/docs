@@ -3,7 +3,7 @@ title: "LXC 105 — Coolify Worker (Mac Mini)"
 description: "Nœud d'exécution Docker distant (Worker) orchestré par le Master VM 104"
 icon: "cube"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-24"
 app_version: "v4.3.14"
 ---
 
@@ -85,7 +85,7 @@ Le conteneur est enrôlé sous l'utilisateur Headscale `infra` avec le hostname 
 ## 📊 Supervision & Agent Grafana Alloy
 
 L'agent **Grafana Alloy** est déployé en tant que service systemd sur le conteneur LXC 105 (niveau de log `info`) :
-- **Métriques système** : Node exporter intégré (CPU, mémoire, disque, réseau) remonté vers Prometheus (`192.168.1.52:9090`).
+- **Métriques système** : Node exporter intégré (CPU, mémoire, disque, réseau) remonté vers Prometheus (`192.168.1.52:9090`). Le collecteur `hwmon` est désactivé pour éviter les erreurs d'accès aux capteurs matériels physiques inaccessibles dans le LXC.
 - **Logs système** : Collecte du journal systemd acheminée vers Loki (`192.168.1.52:3100`).
 - **Métriques & Logs Docker** : Découverte automatique des conteneurs applicatifs déployés par Coolify avec l'étiquette `host: ims-coolify-worker`.
 

@@ -3,7 +3,7 @@ title: "IMS-PBS (LXC 103 — Proxmox Backup Server)"
 description: "Serveur de sauvegarde dédupliquée et chiffrée de tout le homelab"
 icon: "shield-halved"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-24"
 ---
 
 import { ips } from "/snippets/variables.mdx";
@@ -149,8 +149,9 @@ Pour assurer le fonctionnement fiable et sécurisé du conteneur LXC 103 :
 
 1. **LXC privilégié & NFS** : conteneur en privilège root avec feature `mount=nfs` pour autoriser les syscalls de montage NFS vers le NAS (`ext4` natif).
 2. **Socle SSH & Accès Admin** : configuration `/etc/ssh/sshd_config.d/00-ims-ops.conf` posée (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`). Le compte `cmolotkoff` dispose de `sudo` journalisé (`log_subcmds`).
-3. **Accès Termix Vérifié** : compte dédié non-root `termix-usr` avec clé Ed25519 restreinte à Traefik (`from="192.168.1.52"`) et sudo journalisé dans Loki via Alloy.
-4. **Fail2ban** : déployé avec les jails `sshd` et `recidive`, alertes Ntfy envoyées vers `192.168.1.52`.
-5. **Mises à Jour Automatiques** : patches de sécurité appliqués automatiquement via `unattended-upgrades`, sans redémarrage automatique.
+3. **Accès Termix Opérationnel** : compte dédié non-root `termix-usr` avec nouvelle clé Ed25519 déployée le 24/10/2026 restreinte à Traefik (`from="192.168.1.52"`) et sudo journalisé dans Loki via Alloy.
+4. **Supervision Alloy** : agent systemd actif (log level `info`), avec collecteur `hwmon` désactivé pour éviter les erreurs d'accès capteurs dans le LXC.
+5. **Fail2ban** : déployé avec les jails `sshd` et `recidive`, alertes Ntfy envoyées vers `192.168.1.52`.
+6. **Mises à Jour Automatiques** : patches de sécurité appliqués automatiquement via `unattended-upgrades`, sans redémarrage automatique.
 
 Voir aussi le [Post-Mortem du 23/10/2026](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix).

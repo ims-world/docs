@@ -3,12 +3,12 @@ title: "Feuille de Route & Liste TODO"
 description: "Suivi centralisé des chantiers prioritaires, roadmap de résilience et backlog d'évolution de l'infrastructure"
 icon: "list-check"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-24"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Mis à Jour le 23/10/2026</Badge>
+<Badge color="green">🟢 Mis à Jour le 24/10/2026</Badge>
 
 <Info>
   Cette page constitue le **journal central de suivi des chantiers et de la feuille de route** du homelab IMS-WORLD. Elle regroupe l'ensemble des tâches ouvertes classées par domaine d'intervention (Résilience, Sécurité, Supervision, Nouveaux Services, Matériel) ainsi que l'historique des jalons réalisés.
@@ -31,7 +31,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Sécurité** | Credentials OVH dans fichier `.env` | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify Proxy) | ⏳ En attente |
 | **Gestion des Accès** | Création des accès pour Elo (Tailscale + VM 107 dédiée, migration hors `infra`) | <Badge color="amber">🟡 Moyen Terme</Badge> | Headscale / Proxmox | ⏳ En attente |
 | **IAM & Sécurité** | Connexion propre d'Authentik avec Tailscale (OIDC) | <Badge color="green">🟢 Effectué</Badge> | Authentik / Tailscale | ✅ 13/09/2026 |
-| **Sécurité & Administration** | Déploiement Termix & Bastion SSH (Socle opérationnel) | <Badge color="orange">🟠 En cours</Badge> | VM 104 (`100.64.0.4`) | ⏳ Hôtes à raccorder |
+| **Sécurité & Administration** | Déploiement Termix & Bastion SSH (Parc raccordé) | <Badge color="green">🟢 Effectué</Badge> | 7 hôtes du parc | ✅ 24/10/2026 |
 | **Sécurité** | Firewall Proxmox VE 3 niveaux | <Badge color="amber">🟡 Moyen Terme</Badge> | MS-01 & Mac Mini | ⏳ En attente |
 | **Sécurité** | Intel vPro / AMT (Gestion Out-of-Band) | <Badge color="blue">🟦 À Évaluer</Badge> | MS-01 Bare-Metal | 💡 Étude |
 | **Docker & Hygiène** | Pinning des tags Docker (suppression `:latest`) | <Badge color="amber">🟡 Moyen Terme</Badge> | VM 104 (Coolify) | ⏳ En attente |
@@ -58,7 +58,7 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **UX & Sécurité HA** | Routeur Traefik HTTPS vpn-only pour Home Assistant (`https://home.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Traefik) | ✅ 14/09/2026 |
 | **Automatisation & Workflows** | Déploiement n8n sur Coolify avec PostgreSQL 16 (`automation.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Coolify) | ✅ 22/09/2026 |
 | **Automatisation & IaC** | Refonte du dépôt IMS-INFRA en scripts documentés + Makefile ([IaC](/iac/index)) | <Badge color="green">🟢 Court Terme</Badge> | Mac (opérateur) | 🚧 En cours |
-| **Automatisation & IaC** | Raccordement Termix des hôtes restants ([IaC](/iac/index)) | <Badge color="green">🟢 Court Terme</Badge> | Tous les hôtes | 🚧 En cours |
+| **Automatisation & IaC** | Raccordement Termix des hôtes du parc ([IaC](/iac/index)) | <Badge color="green">🟢 Effectué</Badge> | 7 hôtes du parc | ✅ 24/10/2026 |
 | **Réseau & Tailnet** | Enrôlement Tailscale des LXC 100 (NAS) et 105 (Worker) | <Badge color="green">🟢 Effectué</Badge> | LXC 100 & 105 | ✅ 22/10/2026 |
 | **Automatisation & Socle** | Durcissement SSH transversal & sudo journalisé ([Changelog](/history/chronologie)) | <Badge color="green">🟢 Effectué</Badge> | 7 hôtes du parc | ✅ 23/10/2026 |
 | **Sécurité & Tailnet** | Renouvellement de la clé pre-auth Headscale infra (avant le 21/01/2027) | <Badge color="amber">🟡 Moyen Terme</Badge> | Headscale | ⏳ Échéance 2027 |
@@ -113,10 +113,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 - **Tâche** : Extraire les identifiants d'API OVH (DNS-01 Let's Encrypt) du fichier `/data/coolify/proxy/docker-compose.yml` et les placer dans un fichier d'environnement restreint (`.env` avec `chmod 600`).
 
-### 2.2 🏰 Déploiement Termix & Bastion d'Administration SSH <Badge color="orange">🟠 En cours (Socle opérationnel)</Badge>
+### 2.2 🏰 Déploiement Termix & Bastion d'Administration SSH <Badge color="green">🟢 Effectué le 24/10/2026</Badge>
 
-- **Statut** : Socle Termix v26.10.2 + Guacd v1.6.0 déployé sur Coolify VM 104 (`ot8tjxw5ruhoqyis3rkb4ll5`) le 19/10/2026. Point d'entrée centralisé pour l'administration SSH, SFTP et la vue Proxmox/Docker avec isolation Tailnet (`vpn-only.yaml`) et authentification OIDC Authentik (groupe `admins`).
-- **Reste à faire** : Déploiement du rôle Ansible `termix_access` pour provisionner le compte de service restreint `termix-usr` et les clés Ed25519 sur les hôtes cibles (hôte pilote : `IMS-PBS`). Voir [Termix](/services/termix).
+- **Statut** : Socle Termix v26.10.2 + Guacd v1.6.0 déployé sur Coolify VM 104 (`ot8tjxw5ruhoqyis3rkb4ll5`). Point d'entrée centralisé pour l'administration SSH, SFTP et la vue Proxmox/Docker avec isolation Tailnet (`vpn-only.yaml`) et authentification OIDC Authentik (groupe `admins`).
+- **Raccordement du parc** : L'ensemble des 7 hôtes Linux du homelab (`pve`, `pve-macmini`, `ims-pbs`, `ims-nas`, `ims-coolify`, `ims-coolify-worker`, `vm-test`) sont raccordés via le compte dédié `termix-usr`, une nouvelle clé SSH déployée le 24/10/2026 avec restriction `from="192.168.1.52"` et sudo `log_subcmds` audité dans Loki via Alloy. La VM 106 (HAOS) n'est pas connectée pour le moment. Voir [Termix](/services/termix).
 
 ### 2.3 🛡️ Activation du Firewall Proxmox VE 3 Niveaux <Badge color="amber">🟡 Moyen Terme</Badge>
 
