@@ -1,207 +1,107 @@
 ---
-title: "Ajouter un Équipement sur Headscale"
-description: "Procédure d'enrôlement VPN Tailnet : profil Utilisateur Classique (OIDC SSO) vs profil Nœud Infrastructure (Pre-Auth Key)"
+title: "Ajouter une machine au tailnet"
+description: "Enrôler un appareil personnel par Authentik, un hôte géré par ims-ops, ou une machine hors gestion par clé de pré-authentification."
 icon: "network-wired"
 iconType: "duotone"
-last_reviewed: "2026-08-23"
+last_reviewed: "2026-10-25"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
+Durée : 5 à 15 minutes · Risque : faible · Interruption de service : aucune
 
-<Badge color="green">🟢 Procédure Opérationnelle Validée</Badge>
+## Quand l'utiliser
 
-<Info>
-Cette procédure décrit les étapes exactes pour enregistrer un nouvel équipement (ordinateur, smartphone, serveur physique ou VM) sur le réseau overlay VPN **Headscale** de l'infrastructure IMS-WORLD.
-</Info>
+| Machine | Méthode | Utilisateur Headscale |
+| --- | --- | --- |
+| Téléphone, ordinateur personnel | [A — Connexion par Authentik](#option-a-appareil-personnel) | Compte de la personne |
+| Hôte déclaré dans ims-ops, VM créée par `just vm` | [B — Rôle Ansible](#option-b-hôte-géré-par-ims-ops) | `infra` |
+| Machine hors gestion (appliance, conteneur Docker) | [C — Clé de pré-authentification](#option-c-machine-hors-gestion) | `infra` |
 
----
+Le fonctionnement du tailnet est décrit dans [Headscale](/reseau/headscale-headplane).
 
-## 📌 Choix du Profil d'Enrôlement
+## Prérequis
 
-Avant d'enregistrer une machine, déterminer le profil approprié :
+- A : compte Authentik dans le groupe `membres` ou administrateurs.
+- B : hôte déclaré dans l'inventaire ims-ops ; pour un conteneur LXC, accès à `/dev/net/tun` ([socle commun](/infrastructure/socle-commun#tailnet)).
+- C : accès à Headplane ou à la VM 104.
 
-| Profil | Type d'Équipement | Méthode d'Authentification | Exemples |
-|---|---|---|---|
-| **Utilisateur Classique** | Appareils personnels & mobiles avec navigateur Web | **Interactive via Authentik SSO OIDC** (`auth.ims-world.fr` + 2FA TOTP) | Smartphones (iOS/Android), Laptops, PC de bureau |
-| **Profil `infra` (manuel)** | Serveurs physiques & virtuels headless existants | **Non-interactive via Clé de Pré-Authentification** (*Pre-Auth Key*) | MS-01, VM 104 Coolify, PBS 103, Mac Mini, RPi, NAS |
-| **Profil `infra` (ims-ops)** | Hôtes gérés par ims-ops, dont les VM créées par `just vm` | **Rôle Ansible `tailscale`, clé lue dans le coffre** | `just setup <hôte> tailscale` |
+## Étapes
 
----
-
-## 📱 Option A : Enrôler un Appareil "Utilisateur Classique" (OIDC Browser Login)
-
-Ce mode est destiné aux utilisateurs humains sur des appareils disposant d'un navigateur Web.
+### Option A : appareil personnel
 
 <Steps>
-  <Step title="Installation du Client Tailscale Native">
-    Télécharger et installer le client officiel Tailscale sur l'appareil cible :
-    - **macOS / iOS / Android / Windows** : Télécharger l'application officielle sur l'App Store / Play Store ou le site officiel Tailscale.
-    - **Linux avec IHM** : Installer le paquet officiel `tailscale`.
+  <Step title="Installer Tailscale">
+    Application officielle (App Store, Play Store, site Tailscale) ou paquet `tailscale` sous Linux.
   </Step>
-
-  <Step title="Configuration du Serveur de Coordination Headscale">
-    - **Sur l'Application Mobile / GUI (macOS, iOS, Windows, Android)** :
-      1. Ouvrir l'application Tailscale.
-      2. Accéder aux **Paramètres** (icône d'engrenage) ➔ **Accounts** ➔ **Add Account** ou **Change Server**.
-      3. Définir l'URL du serveur de coordination custom :
-         ```text
-         https://vpn.ims-world.fr
-         ```
-    - **Sur Linux Desktop / macOS via Terminal CLI** :
-      ```bash
-      tailscale up --login-server https://vpn.ims-world.fr --accept-routes
-      ```
-  </Step>
-
-  <Step title="Authentification SSO Authentik">
-    1. L'application ou le terminal ouvre automatiquement une page Web pointant vers `vpn.ims-world.fr/register/...`.
-    2. Redirection automatique vers le portail **Authentik SSO** (`https://auth.ims-world.fr`).
-    3. Se connecter avec votre compte utilisateur personnel (`cmolotkoff`) et valider le **2FA TOTP**.
-    4. Valider l'enregistrement de l'appareil. Le client Tailscale passe immédiatement au statut **Connected**.
-  </Step>
-</Steps>
-
----
-
-## 🖥️ Option B : Enrôler un Serveur "Infrastructure" (Pre-Auth Key)
-
-Ce mode est indispensable pour les serveurs sans interface graphique (*headless*) qui doivent se reconnecter automatiquement au démarrage sans intervention humaine.
-
-<Steps>
-  <Step title="Générer une Clé de Pré-Authentification (Pre-Auth Key)">
-    La clé doit être associée à l'utilisateur Headscale **`infra`**, qui regroupe toutes les VM et tous les conteneurs.
-
-    <Info>
-    **💡 Que signifie l'Expiration d'une Pre-Auth Key ?**
-    L'expiration s'applique **uniquement à la fenêtre de temps pendant laquelle le jeton (la chaîne de texte `authkey`) peut être utilisé pour effectuer le premier `tailscale up`**.
-    - **Une fois la machine enregistrée**, sa connexion avec Headscale est **permanente et illimitée dans le temps**. 
-    - L'expiration de la clé **n'aura AUCUN impact sur les machines déjà enrôlées** (elles ne seront JAMAIS déconnectées lorsque la clé expire).
-    - Cela signifie simplement qu'au-delà de cette durée (ex: 90j), le jeton ne pourra plus servir à enregistrer de *nouveaux* serveurs supplémentaires.
-    </Info>
-
-    <Tabs>
-      <Tab title="🌐 Via la Console Web Headplane">
-        1. Se connecter à la console **Headplane Admin** : `https://admin.vpn.ims-world.fr/admin` *(suffixe `/admin` obligatoire)*.
-        2. Dans le menu de gauche, sélectionner l'utilisateur **`infra`**.
-        3. Accéder à l'onglet **Pre-Auth Keys**.
-        4. Cliquer sur **Create Pre-Auth Key** :
-           - **Expiration** : Sélectionner `90d` ou `999d` (délai disponible pour réaliser le premier enregistrement).
-           - **Reusable** : Cocher si vous prévoyez d'enregistrer plusieurs serveurs différents avec le même jeton.
-        5. Copier la clé générée (ex: `a1b2c3d4e5f6...`).
-      </Tab>
-      <Tab title="⚡ Via la CLI Headscale (VM Coolify)">
-        Exécuter la commande dans le conteneur Headscale sur la VM 104 :
-        ```bash
-        # Se connecter en SSH à la VM Coolify
-        ssh cmolotkoff@100.64.0.4
-
-        # Identifier l'ID de l'utilisateur infra
-        docker exec -it headscale-i136ix2bmrrbeovnyrh1o72w headscale users list
-
-        # Générer une clé réutilisable pour cet utilisateur
-        docker exec -it headscale-i136ix2bmrrbeovnyrh1o72w headscale preauthkeys create --user <ID> --reusable --expiration 365d
-        ```
-      </Tab>
-    </Tabs>
-  </Step>
-
-  <Step title="Exécuter l'Enregistrement sur le Cibles">
-    Selon que l'équipement cible est un serveur hôte physique/VM ou un conteneur Docker dédié, adapter le mode d'exécution :
-
-    <Tabs>
-      <Tab title="🖥️ Sur Serveur Physiques ou VM (Host Linux / Proxmox)">
-        Se connecter en SSH au serveur hôte et exécuter directement la CLI Tailscale :
-        ```bash
-        sudo tailscale up \
-          --login-server https://vpn.ims-world.fr \
-          --authkey <VOTRE_PRE_AUTH_KEY> \
-          --accept-routes \
-          --snat-subnet-routes=false
-        ```
-      </Tab>
-      <Tab title="🐳 Dans un Conteneur Docker (Docker Tailscale Client)">
-        Si le client Tailscale s'exécute dans un conteneur Docker (ex: stack Coolify / Compose) :
-        ```bash
-        # 1. Identifier le nom exact du conteneur client Tailscale
-        docker ps --format '{{.Names}}' | grep tailscale
-
-        # 2. Exécuter l'enrôlement à l'intérieur du conteneur client
-        docker exec -it <nom_conteneur_tailscale> tailscale up \
-          --login-server https://vpn.ims-world.fr \
-          --authkey <VOTRE_PRE_AUTH_KEY> \
-          --accept-routes \
-          --snat-subnet-routes=false
-        ```
-      </Tab>
-    </Tabs>
-
-    <Info>
-    **Détail des flags réseau** :
-    - `--login-server https://vpn.ims-world.fr` : Pointeur vers le serveur de coordination Headscale.
-    - `--snat-subnet-routes=false` : Empêche Tailscale de masquer la vraie IP source lors du routage réseau.
-    - `--accept-routes` : Accepte les routes propagées sur le Tailnet.
-    </Info>
-  </Step>
-
-  <Step title="Vérification de l'Enrôlement">
-    Vérifier le statut du nœud et l'attribution de son IP privée dans la plage `100.64.0.0/10` :
-
+  <Step title="Indiquer le serveur">
+    Application : **Paramètres → Accounts → Change Server**, `https://vpn.ims-world.fr`. Ligne de commande :
     ```bash
-    # Sur l'hôte physique / VM
-    tailscale status
-    tailscale ip -4
-
-    # Dans un conteneur client Tailscale
-    docker exec -it <nom_conteneur_tailscale> tailscale status
-
-    # Via le serveur Headscale (sur la VM 104 - UUID i136ix2bmrrbeovnyrh1o72w)
-    docker exec -it headscale-i136ix2bmrrbeovnyrh1o72w headscale nodes list
+    tailscale up --login-server https://vpn.ims-world.fr
     ```
   </Step>
+  <Step title="Se connecter">
+    La page d'enregistrement redirige vers Authentik : connexion, second facteur, validation.
+  </Step>
 </Steps>
 
----
+### Option B : hôte géré par ims-ops
 
-## Option C : hôte géré par ims-ops
-
-Pour un hôte déclaré dans l'inventaire ims-ops, l'enrôlement passe par le rôle Ansible `tailscale`. La clé de pré-authentification de l'utilisateur `infra` est lue dans le coffre chiffré du dépôt : elle n'est jamais copiée sur l'hôte ni dans un snippet Proxmox.
+La clé de pré-authentification de `infra` est lue dans le coffre d'ims-ops : elle n'est jamais copiée sur l'hôte ni dans un snippet Proxmox.
 
 ```bash
-just check <hôte> tailscale   # simulation
-just setup <hôte> tailscale   # application
+just check <hôte> tailscale
+just setup <hôte> tailscale
 ```
 
-Une VM créée par `just vm <nom> … full` est enrôlée de la même façon, puis son IP Tailscale est inscrite dans l'inventaire.
+Puis renseigner `ip_tailscale` de l'hôte dans l'inventaire. Une VM créée par `just vm … full` est enrôlée et inscrite automatiquement.
 
 <Warning>
 L'ancienne méthode (template 8000 et snippet Cloud-Init `vendor-data.yaml` contenant la clé en clair) est abandonnée depuis le 24/10/2026. Le template et le snippet ont été supprimés.
 </Warning>
 
----
+### Option C : machine hors gestion
 
-## ⚙️ Étape Post-Configuration : Split-Horizon DNS (`extra_records`)
+<Steps>
+  <Step title="Créer une clé">
+    Headplane (`https://admin.vpn.ims-world.fr/admin`) : utilisateur `infra`, onglet **Pre-Auth Keys**, **Create**. En ligne de commande, depuis la VM 104 :
+    ```bash
+    docker exec -it headscale-i136ix2bmrrbeovnyrh1o72w headscale users list
+    docker exec -it headscale-i136ix2bmrrbeovnyrh1o72w headscale preauthkeys create --user <ID> --expiration 1h
+    ```
+    Une clé à usage unique et de courte durée suffit pour une machine. L'expiration ne concerne que l'enrôlement : une machine enrôlée reste connectée après l'expiration de la clé.
+  </Step>
+  <Step title="Enrôler">
+    ```bash
+    sudo tailscale up --login-server https://vpn.ims-world.fr --authkey <clé>
+    ```
+    Dans un conteneur Docker : la même commande par `docker exec -it <conteneur> tailscale up …`. Home Assistant OS utilise son module Tailscale ([procédure](/infrastructure/vm-home-assistant#module-tailscale)).
+  </Step>
+</Steps>
 
-Si le nouvel équipement enrôlé héberge un service privé qui doit être protégé par le middleware Traefik `vpn-only.yaml` :
+`--snat-subnet-routes=false` ne concerne que la VM 104, où Traefik doit voir l'IP réelle des clients.
 
-1. Éditer le fichier de configuration Headscale sur la VM 104 (`/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/config/config.yaml`).
-2. Ajouter le nom de domaine FQDN et l'IP Tailscale du nœud sous la section `extra_records` :
-   ```yaml
-   extra_records:
-     - name: "nouveau-service.ims-world.fr"
-       value: "100.64.0.X"
-   ```
-3. Redémarrer le conteneur Headscale :
-   ```bash
-   docker restart headscale-i136ix2bmrrbeovnyrh1o72w
-   ```
+## Vérification
 
----
+```bash
+tailscale status
+tailscale ip -4
+# Depuis la VM 104
+docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale nodes list
+```
 
-<CardGroup cols={2}>
-  <Card title="Headscale & Headplane" icon="network-wired" href="/reseau/headscale-headplane">
-    Fiche service et console de gestion du réseau VPN Overlay.
-  </Card>
-  <Card title="Sécuriser un Service vpn-only" icon="shield" href="/procedures/securiser-service-vpn-only">
-    Procédure d'isolation des services privés d'administration.
-  </Card>
-</CardGroup>
+<Check>
+La machine apparaît avec une adresse en `100.64.0.x` et le bon utilisateur.
+</Check>
+
+Si un service de la machine doit être joint par un nom, ajouter l'enregistrement dans les `extra_records` ([Headscale](/reseau/headscale-headplane#dns-interne-extra_records)) et l'adresse dans l'[architecture réseau](/reseau/architecture-reseau#adresses-des-hôtes).
+
+## Retour arrière
+
+`just tailnet-remove <nom>` depuis ims-ops, ou `headscale nodes delete -i <id>` depuis la VM 104.
+
+## Dépannage
+
+| Symptôme | Cause | Solution |
+| --- | --- | --- |
+| `tailscale` ne démarre pas dans un LXC | `/dev/net/tun` non transmis | Ajouter les deux lignes de la [configuration LXC](/infrastructure/socle-commun#tailnet), redémarrer le conteneur |
+| `--user infra` refusé | `--user` attend l'ID | `headscale users list` |
+| Alerte de clé d'hôte SSH | Adresse déjà utilisée par une ancienne machine | Vérifier l'empreinte, puis `ssh-keygen -R` |

@@ -1,81 +1,69 @@
 ---
-title: "Protocole de Déploiement d'un Service"
-description: "Méthodologie standardisée d'installation, de validation et de mise en production d'un service"
-icon: "cube"
+title: "Déployer un service"
+description: "Mettre un nouveau service en production sur Coolify : déploiement, exposition, authentification, supervision, sauvegarde et documentation."
+icon: "rocket"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
-## Philosophie & Standard de Déploiement
+Durée : 1 heure environ · Risque : faible · Interruption de service : aucune pour les services existants
 
-<Info>
-Ce protocole définit la méthode éprouvée pour déployer et mettre en production une nouvelle application sur l'infrastructure IMS-WORLD sans interruption de service ni faille de sécurité.
-</Info>
+## Quand l'utiliser
 
----
+Pour tout nouveau service Docker sur la VM 104 ou le worker 105. Pour un hôte ou une VM, voir plutôt [Administration avec ims-ops](/procedures/administration-ims-ops).
 
-## 🗺️ Workflow des 4 Phases de Déploiement
+## Prérequis
 
-```mermaid
-flowchart TD
-    subgraph PHASE_A ["Phase 1: Préparation (Coolify & Stockage)"]
-        A1["Créer la stack dans Coolify"]
-        A2["Configurer les variables & montages NFS/SSD"]
-        A3["Définir les réseaux & labels Traefik"]
-    end
+- Accès à Coolify et SSH sur la VM 104.
+- Image avec un tag de version précis (jamais `latest`).
+- Choix de l'exposition fait : public avec authentification, ou restreint au tailnet ([matrice](/reseau/matrice-securite-exposition)).
 
-    subgraph PHASE_B ["Phase 2: Provisioning & Données"]
-        B1["Préparer la base de données (Postgres/MySQL/SQLite)"]
-        B2["Appliquer les ACL POSIX sur les dossiers"]
-        B3["Initialiser les volumes de stockage"]
-    end
+## Étapes
 
-    subgraph PHASE_C ["Phase 3: Validation Isolée (-ng)"]
-        C1["Assigner sous-domaine temporaire: app-ng.ims-world.fr"]
-        C2["Démarrer la stack & vérifier les logs Docker"]
-        C3["Valider OIDC Authentik, HTTPS TLS & SSL"]
-    end
+<Steps>
+  <Step title="Créer la ressource dans Coolify">
+    Service Docker Compose (ou modèle Coolify), tag d'image figé. Secrets en variables d'environnement avec **Is Secret**. Conteneur attaché au réseau `coolify`.
+  </Step>
+  <Step title="Placer les données">
+    Base de données : volume local de la VM (jamais sur NFS). Fichiers volumineux : partage du NAS (`/mnt/nas-storage` ou `/mnt/nas-hot`). Vérifier qu'aucun fichier de configuration attendu n'a été remplacé par un dossier vide (`file <chemin>`).
+  </Step>
+  <Step title="Valider sur un domaine temporaire">
+    Démarrer sur `<nom>-ng.ims-world.fr`, vérifier les journaux, le certificat et le fonctionnement.
+  </Step>
+  <Step title="Exposer sur le domaine définitif">
+    - Service public : domaine dans le champ **Domains** de Coolify, authentification par [OIDC](/procedures/integration-service-authentik-oidc) ou [forward-auth](/procedures/securiser-application-authentik-forward-auth).
+    - Service restreint : champ **Domains** vide, routeur dans `vpn-only.yaml` ([procédure](/procedures/securiser-service-vpn-only)).
 
-    subgraph PHASE_D ["Phase 4: Mise en Production (Cutover)"]
-        D1["Basculer vers le domaine final: app.ims-world.fr"]
-        D2["Supprimer le sous-domaine de test -ng"]
-        D3["Intégrer le service à la Matrice de Sécurité"]
-    end
+    Supprimer ensuite le domaine temporaire.
+  </Step>
+  <Step title="Superviser">
+    Ajouter une sonde [Uptime Kuma](/services/uptime-kuma) : domaine public, ou nom du conteneur pour un service restreint.
+  </Step>
+  <Step title="Vérifier la sauvegarde">
+    Rien à faire pour les données de la VM 104 ou du worker (pool `backup`). Si des données importantes sont sur le NAS, les signaler : elles ne sont pas sauvegardées ([politique](/procedures/politique-sauvegardes#ce-qui-nest-pas-sauvegardé)).
+  </Step>
+  <Step title="Documenter">
+    Créer la fiche depuis `_modeles/service.md`, l'ajouter à `docs.json`, ajouter la ligne dans la [matrice d'exposition](/reseau/matrice-securite-exposition) et un bloc dans la [chronologie](/history/chronologie).
+  </Step>
+</Steps>
 
-    PHASE_A --> PHASE_B
-    PHASE_B --> PHASE_C
-    PHASE_C --> PHASE_D
+## Vérification
 
-    classDef prep fill:#2c3e50,stroke:#34495e,color:#fff;
-    classDef test fill:#0F6E56,stroke:#16A085,color:#fff;
-    classDef prod fill:#1a2b3c,stroke:#0F6E56,color:#fff;
-    class A1,A2,A3,B1,B2,B3 prep;
-    class C1,C2,C3 test;
-    class D1,D2,D3 prod;
+```bash
+# Hors tailnet
+curl -sI https://<nom>.ims-world.fr | head -1   # public : 200 ou redirection ; restreint : 403
+# Depuis le tailnet
+curl -sI https://<nom>.ims-world.fr | head -1   # 200 ou redirection
 ```
 
----
+<Check>
+La sonde Uptime Kuma est au vert, WUD voit l'image, la fiche est publiée.
+</Check>
 
-## 📋 Checklist Opérationnelle
+## Retour arrière
 
-### Phase 1 — Choix du Mode de Routage Traefik
+Arrêter puis supprimer la ressource dans Coolify, retirer le routeur de `vpn-only.yaml` s'il existe, la sonde Uptime Kuma, l'application Authentik et la ligne de la matrice.
 
-- **Option A — Service Public WAN ou avec SSO OIDC Natif (ex: Immich, Vaultwarden, Forgejo)** :
-  - [ ] Saisir le FQDN définitif (`https://app.ims-world.fr`) dans le champ **Domains** de l'UI Coolify.
-  - [ ] Laisser Coolify générer le routeur Traefik automatique.
+## Dépannage
 
-- **Option B — Service d'Administration Privé Restreint au Tailnet (`vpn-only`) (ex: qBittorrent, Sonarr, Radarr, Prowlarr, Coolify, Headplane)** :
-  - [ ] **Laisser le champ Domains vide dans l'UI Coolify** (pour éviter la concurrence de routeurs).
-  - [ ] Supprimer tout label de routage Traefik (`traefik.http.routers...`) du fichier Compose.
-  - [ ] Déclarer le router et le service dans `/data/coolify/proxy/dynamic/vpn-only.yaml`.
-  - [ ] Suivre la procédure [Sécuriser un Service avec vpn-only](/procedures/securiser-service-vpn-only).
-
-### Phase 2 — Validation et Tests (`-ng`)
-- [ ] Utiliser un domaine de qualification temporaire (`nom-ng.ims-world.fr`).
-- [ ] Vérifier la génération du certificat Let's Encrypt via le challenge DNS-01.
-
-### Phase 3 — Mise en Production & Audit
-- [ ] Valider le FQDN définitif (`nom.ims-world.fr`).
-- [ ] Tester le filtrage étanche :
-  - **403 Forbidden** depuis le WAN (4G/5G mobile).
-  - **200 OK** depuis un appareil authentifié sur le Tailnet (`100.64.0.0/10`).
-- [ ] Mettre à jour la [Matrice de Sécurité](/reseau/matrice-securite-exposition) et le [Changelog](/history/chronologie).
+Voir [Dépannage courant](/procedures/depannage-courant#docker-et-coolify).
