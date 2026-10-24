@@ -1,145 +1,181 @@
 ---
-title: "Plan de Reprise d'Activité (PRA / DRP)"
-description: "Procédure d'urgence et état réel de restauration du homelab IMS-WORLD en cas de sinistre"
-icon: "shield-alert"
+title: "Plan de reprise"
+description: "Restaurer une machine depuis le PBS, reconstruire un nœud, faire face à la perte d'un disque ou du tailnet, et tester les sauvegardes."
+icon: "rotate-left"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
+import { ips } from "/snippets/variables.mdx";
+
+Durée : de 15 minutes (une machine) à une demi-journée (un nœud) · Risque : élevé · Interruption de service : selon le scénario
 
 <Warning>
-  ⚠️ **PROCÉDURE THÉORIQUE — EN ATTENTE DE TEST & VALIDATION SUR LE TERRAIN**
-
-  Ce Plan de Reprise d'Activité (PRA) a été conçu et documenté selon les spécifications d'architecture, mais **n'a pas encore fait l'objet d'une simulation réelle de crash et de restauration de bout en bout**.
+Ce plan n'a pas encore été validé par une restauration réelle. Le premier test est décrit en fin de page ; sa date sera inscrite ici une fois réalisé.
 </Warning>
 
-<Check>
-  **Couverture & Stratégie de Sauvegarde (Mise à jour Août 2026)** :
+## Quand l'utiliser
 
-  - <Badge color="green">🟢 VM 104 (IMS-Coolify)</Badge> : **Sauvegardée & Restaurable** — Backup quotidien automatisé à 02:00 dans PBS via NFSv3 (`pbs-coolify`).
-  - <Badge color="amber">🟡 LXC 100 (IMS-NAS)</Badge> : **Sauvegarde Manuelle Uniquement** — Exclu des backups automatiques quotidiens (prévention de l'incident `stale filehandle` NFS). Sauvegarde `--mode stop` manuelle avant opérations de maintenance.
-  - <Badge color="green">🟢 LXC 103 (IMS-PBS)</Badge> : **Sauvegardé & Restaurable** — Backup `vzdump` local NVMe quotidien à 03:00 (`--mode snapshot`).
+| Scénario | Section |
+| --- | --- |
+| Une VM ou un conteneur du pool `backup` est cassé ou supprimé | [Restaurer une machine](#restaurer-une-machine-depuis-le-pbs) |
+| Le MS-01 ou son disque système est perdu | [Reconstruire le nœud pve](#reconstruire-le-nœud-pve) |
+| Le Mac Mini est perdu | [Reconstruire le nœud pve-macmini](#reconstruire-le-nœud-pve-macmini) |
+| Le HDD ou le SSD du NAS est perdu | [Perte d'un disque du NAS](#perte-dun-disque-du-nas) |
+| Headscale ou le tailnet est indisponible | [Perte du tailnet](#perte-du-tailnet) |
 
-  _Voir la [Politique de Sauvegarde & Tâches Planifiées](/procedures/politique-sauvegardes) pour le détail de la chronologie et de l'anti-circularité._
-</Check>
+## Prérequis
 
-## Objectif & Scénarios de Sinistre
+- Accès au LAN (le tailnet dépend de la VM 104).
+- Une clé USB d'installation Proxmox VE 9.
+- Le poste d'administration avec le dépôt ims-ops et le mot de passe du coffre (trousseau macOS).
+- L'empreinte du certificat du PBS, visible sur son tableau de bord (**Show Fingerprint**), si le stockage `pbs-coolify` doit être recréé.
 
-Ce plan définit les étapes exactes pour reconstruire l'infrastructure en cas de :
+## Étapes
 
-1. **Sinistre Majeur Host (MS-01 HS)** : Panne carte mère, CPU ou NVMe principal de l'hyperviseur Minisforum MS-01.
-2. **Crash Stockage NAS (HDD 3To HS)** : Corruption ou défaillance mécanique du disque de stockage principal.
-3. **Pertes de Connectivité VPN (Headscale HS)** : Perte du control plane et procédure d'accès d'urgence LAN/console.
-
----
-
-## 🗺️ Schéma de Restauration PRA (Workflow Réel)
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Admin as 👨‍💻 Administrateur
-    participant Hardware as 🖥️ Nouvel Hôte MS-01 / Mac Mini Standby
-    participant PBS as 💾 Proxmox Backup Server (Datastore NFS)
-    participant NAS as 📁 Stockage Physique NAS
-
-    Note over Admin,Hardware: STEP 1: Préparation du nœud de remplacement
-    Admin->>Hardware: Installation Proxmox VE 9 vierge (ou boot Mac Mini)
-    Admin->>Hardware: Config IP LAN 192.168.1.x + Bridge vmbr0
-
-    Note over Admin,Hardware: STEP 2: Reconstruction Manuelle des LXC (SPOF)
-    Admin->>Hardware: Création LXC 100 (Debian 12 Privilégié) + Config MergerFS / NFS
-    Admin->>Hardware: Création LXC 103 (Debian 12 Privilégié) + Re-connexion Datastore
-
-    Note over Admin,PBS: STEP 3: Restauration Automatisée de la VM 104
-    Admin->>PBS: Récupération du snapshot VM 104 dans /mnt/pbs-datastore
-    PBS-->>Hardware: Import de la VM Coolify via qmrestore (VMID 104)
-
-    Note over Admin,Hardware: STEP 4: Relance & Validation
-    Admin->>Hardware: Démarrage VM 104 (Traefik, Authentik, Vaultwarden, HomeFlix, Headscale)
-    Hardware-->>Admin: Services applicatifs & Tailnet opérationnels !
-```
-
----
-
-## 📋 Procédure de Reconstruction Pas-à-Pas
+### Restaurer une machine depuis le PBS
 
 <Steps>
-  <Step title="Phase 1 — Préparation de la machine de remplacement">
-    1. **Si remplacement du MS-01** par un nouvel ordinateur/serveur :
-       - Installer Proxmox VE 9.x depuis une clé USB de boot ISO.
-       - Configurer l'IP hôte (ex: <code>{ips.pveLan}/24</code>, gateway `192.168.1.254`).
-       - S'assurer que le bridge `vmbr0` est rattaché à la carte réseau physique principale.
-    2. **Si bascule temporaire d'urgence sur le Mac Mini 2012 (Standby)** :
-       - Démarrer le Mac Mini dans le rack [Labrax](/infrastructure/labrax).
-       - Vérifier la connectivité réseau et l'accès SSH (`ssh cmolotkoff@100.64.0.6`).
-  </Step>
-  <Step title="Phase 2 — Restauration de la VM 104 (IMS-Coolify) depuis PBS">
-    La VM Coolify est le seul guest bénéficiant d'un snapshot quotidien automatisé dans PBS.
-
-    <CodeGroup>
-
-    ```bash Restauration Proxmox CLI
-    # Se connecter au nouvel hôte Proxmox (192.168.1.41)
-    mkdir -p /mnt/recovery-pbs
-    
-    # Monter le stockage du datastore en NFSv3 (vers=3 obligatoire)
-    mount -t nfs -o vers=3 192.168.1.50:/mnt/storage/backups /mnt/recovery-pbs
-    
-    # Restaurer la VM Coolify (104)
-    qmrestore /mnt/recovery-pbs/dump/vzdump-qemu-104-*.vma.zst 104 --storage local-lvm
-    qm start 104
-    ```
-
-    </CodeGroup>
-
-    <Check>
-      La VM Coolify redémarre automatiquement avec son IP statique ({ips.coolifyLan}). Le reverse proxy Traefik v3.7 reprend le routage du trafic dès son démarrage.
-    </Check>
-  </Step>
-  <Step title="Phase 3 — Restauration des Conteneurs LXC 100 (NAS) & 103 (PBS)">
-    <Check>
-      Les conteneurs LXC 100 et 103 disposent de sauvegardes `vzdump` quotidiennes stockées sur le NVMe local de l'hôte (`/var/lib/vz/dump/`). Voir la [Politique de Sauvegarde](/procedures/politique-sauvegardes).
-    </Check>
+  <Step title="Choisir la sauvegarde">
+    Dans Proxmox VE : **Datacenter → Storage → pbs-coolify → Backups**, filtrer sur le VMID. En ligne de commande :
 
     ```bash
-    # Restaurer le conteneur LXC 103 (PBS) depuis l'archive vzdump
-    pctrestore 103 /var/lib/vz/dump/vzdump-lxc-103-*.tar.zst --storage local-lvm
-    
-    # Restaurer le conteneur LXC 100 (NAS) depuis l'archive vzdump
-    pctrestore 100 /var/lib/vz/dump/vzdump-lxc-100-*.tar.zst --storage local-lvm
+    pvesm list pbs-coolify --vmid <vmid>
     ```
-
-    1. **Reconnexion du passthrough disque NAS (LXC 100)** :
-       - Re-créer la ligne passthrough `mp0` du disque physique Seagate 3To dans `/etc/pve/lxc/100.conf`.
-       - Démarrer le conteneur et vérifier l'export NFS : `pct start 100`.
-    2. **Vérification du Datastore PBS (LXC 103)** :
-       - Démarrer le conteneur et lancer un verifier job : `pct start 103`.
-       - Installer Proxmox Backup Server (`proxmox-backup-server`).
-       - Remonter le partage NFS `/mnt/storage/backups` en `vers=3`. Voir [Fiche IMS-PBS](/infrastructure/ims-pbs).
   </Step>
-  <Step title="Phase 4 — Clés critiques à vérifier après restauration">
-    | Composant | Fichier sensible à contrôler | Risque si perdu |
-    | --- | --- | --- |
-    | **Headscale** | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/noise_private.key` | Reconnexion manuelle obligatoire de tous les appareils du tailnet |
-    | **Authentik** | Variable `SECRET_KEY` dans le compose | Invalidation de toutes les sessions utilisateurs et tokens JWT |
-    | **Vaultwarden** | `/data/coolify/services/i5ae953riutbot9afjcboptb/data/rsa_key.pem` | Incapacité à déchiffrer les pièces jointes du coffre |
+  <Step title="Restaurer">
+    Depuis l'interface : sélectionner la sauvegarde, **Restore**, stockage `local-lvm`. En ligne de commande :
+
+    ```bash
+    # VM
+    qmrestore pbs-coolify:backup/vm/<vmid>/<horodatage> <vmid> --storage local-lvm --force
+    # Conteneur
+    pct restore <vmid> pbs-coolify:backup/ct/<vmid>/<horodatage> --storage local-lvm --force
+    ```
+    `--force` écrase la machine existante de même VMID.
+  </Step>
+  <Step title="Démarrer et vérifier">
+    ```bash
+    qm start <vmid>     # ou pct start <vmid>
+    ```
   </Step>
 </Steps>
 
----
+### Reconstruire le nœud pve
 
-## 🧪 Tests de Simulation PRA (Exercices réguliers)
+Les disques du NAS (HDD et SSD) ne sont pas touchés : les sauvegardes et les données y sont toujours. Les configurations des invités de `pve` restent aussi lisibles depuis `pve-macmini`, dans le système de fichiers du cluster (`/etc/pve/nodes/pve/`).
 
-<Tip>
-  Il est recommandé d'effectuer un test de restauration à blanc (dry-run) tous les 6 mois en restaurant la VM Coolify dans un VMID de test (ex: VM 101) pour valider l'intégrité des snapshots PBS.
-</Tip>
+<Steps>
+  <Step title="Mettre de côté les configurations des invités">
+    Sur `pve-macmini` :
+    ```bash
+    mkdir -p /root/pve-configs
+    cp -r /etc/pve/nodes/pve/qemu-server /etc/pve/nodes/pve/lxc /root/pve-configs/
+    ```
+  </Step>
+  <Step title="Retirer l'ancien nœud du cluster">
+    Sur `pve-macmini`, qui a perdu le quorum :
+    ```bash
+    pvecm expected 1
+    pvecm delnode pve
+    ```
+  </Step>
+  <Step title="Installer Proxmox VE">
+    Nom d'hôte `pve` (ne pas en changer, [ADR-010](/history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster)), IP <code>{ips.pveLan}/24</code>, passerelle `192.168.1.254`. Recréer le pont `vmbr1` (`10.10.10.0/24`, sans port physique ni passerelle). Désactiver le dépôt entreprise et activer `pve-no-subscription`.
+  </Step>
+  <Step title="Rejoindre le cluster">
+    Sur le nouveau `pve` :
+    ```bash
+    pvecm add 192.168.1.42
+    ```
+  </Step>
+  <Step title="Recréer le NAS (LXC 100)">
+    Recréer le conteneur à partir de sa configuration mise de côté : conteneur privilégié, disques transmis avec `backup=0`. Puis, dans le conteneur : bind-mounts de `/etc/fstab`, exports NFS, partage Samba avec le compte `cmolotkoff` (UID 1000, à recréer avec cet UID exact). Voir [ims-nas](/infrastructure/ims-nas). Appliquer ensuite le socle : `just setup ims-nas`.
+  </Step>
+  <Step title="Réinstaller le PBS (LXC 103) et rattacher le datastore">
+    Recréer le conteneur (privilégié, `mount=nfs`, accès `/dev/net/tun`), installer `proxmox-backup-server`, monter `10.10.10.1:/mnt/storage/backups` sur `/mnt/pbs-datastore` (voir [ims-pbs](/infrastructure/ims-pbs)). Dans l'interface du PBS, ajouter le datastore `pve-backups` sur ce chemin en cochant la réutilisation d'un datastore existant. Les sauvegardes réapparaissent.
+  </Step>
+  <Step title="Recréer le stockage pbs-coolify">
+    S'il n'est plus défini dans le cluster :
+    ```bash
+    pvesm add pbs pbs-coolify --server 192.168.1.51 --datastore pve-backups \
+      --username <utilisateur>@pbs --password --fingerprint <empreinte>
+    ```
+  </Step>
+  <Step title="Restaurer la VM 104 et les autres invités">
+    Suivre [Restaurer une machine](#restaurer-une-machine-depuis-le-pbs) pour la VM 104, puis pour les autres invités sauvegardés. Si le matériel a changé, vérifier l'adresse PCI de l'iGPU avant de démarrer la VM 104 (`hostpci0`, [ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe)).
+  </Step>
+  <Step title="Rétablir l'ordre de démarrage et le socle">
+    Ordre de démarrage : voir [MS-01](/infrastructure/proxmox-host#ordre-de-démarrage). Puis, depuis le poste : `just setup pve`, `just audit`.
+  </Step>
+</Steps>
 
-<CodeGroup>
+### Reconstruire le nœud pve-macmini
 
-```bash Restauration à Blanc (Dry-Run)
-# Test de restauration sur une VMID fictive (101) sans impacter la prod (104)
-qmrestore /mnt/recovery-pbs/dump/vzdump-qemu-104-latest.vma.zst 101 --storage local-lvm
-```
+Même démarche, en inversant les rôles : retirer `pve-macmini` du cluster depuis `pve`, réinstaller Proxmox VE avec le même nom et la même IP (`192.168.1.42`), rejoindre le cluster, puis restaurer les invités 105 et 106 depuis le PBS. En attendant, ces invités peuvent être restaurés temporairement sur `pve`.
 
-</CodeGroup>
+### Perte d'un disque du NAS
+
+| Disque perdu | Effet | Reprise |
+| --- | --- | --- |
+| HDD 3 To | Médiathèque, originaux PhotoPrism et **toutes les sauvegardes PBS** perdus. Les invités continuent de tourner | Remplacer le disque, recréer `/mnt/storage/backups`, créer un nouveau datastore, lancer immédiatement une sauvegarde du pool. Retélécharger la médiathèque |
+| SSD 4 To | Photos Immich et dépôts Forgejo perdus, sans copie connue | Remplacer le disque, recréer `/mnt/storage-hot`. Les dépôts miroirs de GitHub se resynchronisent ; le reste est perdu |
+
+Les deux procédures d'ajout et de remplacement de disque sont dans [Ajouter un disque](/procedures/ajout-nouveau-disque).
+
+### Perte du tailnet
+
+Headscale tourne sur la VM 104 : si elle est arrêtée, le tailnet ne coordonne plus de nouvelles connexions.
+
+1. Passer par le LAN : interfaces Proxmox (`https://192.168.1.41:8006`), SSH par IP LAN, ims-ops avec `IMS_NETWORK=lan`.
+2. Restaurer ou redémarrer la VM 104. L'état de Headscale (base, clé `noise_private.key`) est dans sa sauvegarde.
+
+### Clés à vérifier après une restauration de la VM 104
+
+| Composant | Élément | Risque s'il est perdu |
+| --- | --- | --- |
+| Headscale | `noise_private.key` dans le dossier du service | Toutes les machines du tailnet sont à réenrôler |
+| Authentik | `SECRET_KEY` | Sessions et jetons invalidés |
+| Vaultwarden | `data/rsa_key.pem` | Pièces jointes du coffre illisibles |
+| Coolify | `/data/coolify/source/.env` (clé d'application) | Secrets de Coolify illisibles |
+
+## Vérification
+
+- Les services publics répondent et Uptime Kuma est au vert.
+- `tailscale status` liste les machines attendues.
+- `just ping` et `just audit` passent sur tout le parc.
+- Une sauvegarde manuelle du pool réussit (`vzdump <vmid> --storage pbs-coolify`).
+
+## Retour arrière
+
+Une restauration avec `--force` écrase la machine existante. En cas de doute, restaurer d'abord sur un VMID libre (voir le test ci-dessous), comparer, puis remplacer.
+
+## Tester les sauvegardes
+
+À faire au moins une fois par an, et après tout changement de la chaîne de sauvegarde.
+
+<Steps>
+  <Step title="Restaurer la VM 104 sur un VMID libre">
+    ```bash
+    qmrestore pbs-coolify:backup/vm/104/<horodatage> 900 --storage local-lvm --unique 1
+    ```
+  </Step>
+  <Step title="Isoler la copie avant de la démarrer">
+    La copie a la même IP et la même identité tailnet que la production, et réclame l'iGPU déjà attribuée à la VM 104 :
+    ```bash
+    qm set 900 --delete hostpci0
+    qm set 900 --net0 "$(qm config 900 | awk -F': ' '/^net0/ {print $2}'),link_down=1"
+    qm set 900 --onboot 0
+    qm start 900
+    ```
+  </Step>
+  <Step title="Contrôler depuis la console">
+    Ouvrir la console de la VM 900 dans Proxmox, vérifier que le système démarre, que Docker liste les conteneurs (`docker ps -a`) et que les clés du tableau ci-dessus sont présentes.
+  </Step>
+  <Step title="Supprimer la copie et dater le test">
+    ```bash
+    qm stop 900 && qm destroy 900 --purge
+    ```
+    Inscrire la date et le résultat en tête de cette page.
+  </Step>
+</Steps>

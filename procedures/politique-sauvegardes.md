@@ -1,90 +1,115 @@
 ---
-title: "Politique de Sauvegarde & Tâches Planifiées"
-description: "Architecture de protection des données, anti-circularité, chronologie nocturne et tolérance aux coupures"
+title: "Politique de sauvegarde"
+description: "Ce qui est sauvegardé, où, quand et avec quelle rétention ; ce qui ne l'est pas ; comment sauvegarder à la main avant une intervention."
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-10-24"
+last_reviewed: "2026-10-25"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
+## Principes
 
-<Badge color="green">🟢 Production Active</Badge>
+- Les invités sont sauvegardés au niveau de l'hyperviseur par le [PBS](/infrastructure/ims-pbs) : système, configuration et volumes Docker compris. Aucune application ne gère sa propre sauvegarde.
+- Un pool Proxmox, `backup`, désigne les machines sauvegardées. Un seul job, sans restriction de nœud, sauvegarde tout le pool. Ajouter une machine revient à l'ajouter au pool ([ADR-014](/history/adr/adr-014-sauvegarde-par-pool-unique)).
+- Le NAS et le PBS ne sont pas dans le pool : le datastore est sur le NAS et géré par le PBS, ils ne peuvent pas se sauvegarder eux-mêmes.
+- Les échecs sont notifiés sur Ntfy, par Proxmox VE et par le PBS.
 
-<Info>
-Cette page constitue la **vue consolidée de l'architecture de sauvegarde et de la chronologie nocturne** du homelab IMS-WORLD. Elle recense l'ensemble des tâches planifiées pour éviter les chevauchements de ressources et faciliter les diagnostics.
-</Info>
+## Couverture
 
----
+| Machine | Sauvegarde | Restauration |
+| --- | --- | --- |
+| VM 104 `ims-coolify` | Pool `backup`, chaque nuit | Depuis le PBS |
+| LXC 105 worker Coolify | Pool `backup`, chaque nuit | Depuis le PBS |
+| VM 106 Home Assistant | Pool `backup`, chaque nuit | Depuis le PBS |
+| VM 102 Windows | À ajouter au pool (`just backup-add 102`) | — |
+| VM 107 `lab-elo` | À décider avec son utilisatrice | — |
+| LXC 103 `ims-pbs` | Locale, sur le stockage `local` du nœud | Ou réinstallation et rattachement du datastore |
+| LXC 100 `ims-nas` | Manuelle, avant intervention | Ou recréation à l'identique |
+| Nœuds `pve` et `pve-macmini` | Aucune | Réinstallation |
 
-## 📌 Principes d'Architecture & Règles Fondamentales
+`just backup-list` affiche l'état réel du pool.
 
-### 1. Découplage Coolify / Proxmox
-**Coolify ne gère aucune sauvegarde nativement** (aucun job de backup applicatif automatisé n'est configuré dans l'UI Coolify). La sécurité et l'historisation des données reposent intégralement sur **Proxmox Backup Server (PBS)**, qui effectue un snapshot dédupliqué quotidien à chaud de la **VM 104 (IMS-Coolify)** complète au niveau hyperviseur. Ce snapshot englobe à la fois le système d'exploitation, l'arborescence `/data/coolify/` et l'intégralité des **volumes Docker nommés** (`/var/lib/docker/volumes/`).
+### Ce qui n'est pas sauvegardé
 
-### 2. Règle d'Anti-Circularité
-Le NAS (LXC 100) et PBS (LXC 103) ne sont **jamais** sauvegardés dans le datastore PBS qu'ils hébergent ou gèrent eux-mêmes. Leurs sauvegardes s'effectuent via l'utilitaire `vzdump` directement de l'hôte Proxmox vers le stockage NVMe local (`local` / `/var/lib/vz/dump/`).
+| Données | Emplacement | Conséquence d'une perte |
+| --- | --- | --- |
+| Médiathèque HomeFlix | HDD du NAS | Se retélécharge |
+| Photos Immich, dépôts Forgejo | SSD du NAS (`storage-hot`) | Perte définitive : aucune copie connue |
+| Originaux PhotoPrism | HDD du NAS | Perte définitive : aucune copie connue |
+| Sauvegardes PBS elles-mêmes | HDD du NAS | Plus aucune sauvegarde des invités |
 
-### 3. Exclusions de Sauvegarde & Stabilité NFS
-Le conteneur NAS (**LXC 100**) est **exclu des sauvegardes automatiques quotidiennes**. Le redémarrage de LXC 100 réinitialise l'instance FUSE MergerFS, ce qui invalide définitivement les descripteurs de fichiers NFS (`Stale filehandle`) côté VM Coolify. La sauvegarde de la LXC 100 (rootfs 8 Go quasiment statique) s'effectue uniquement de manière manuelle avant toute opération de maintenance en `--mode stop`. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-stale-nfs-filehandle-jellyfin-mergerfs).
+Le datastore PBS et la médiathèque partagent le même disque. La copie hors site des sauvegardes et la protection des données du NAS sont suivies dans la [feuille de route](/roadmap).
 
----
+## Planification
 
-## 🕒 Chronologie Nocturne Consolidée
+| Heure | Tâche | Où |
+| --- | --- | --- |
+| 02:00 chaque jour | Sauvegarde du pool `backup`, mode snapshot | Proxmox VE (**Datacenter → Backup**) |
+| 03:00 chaque jour | Sauvegarde locale de LXC 103 | Proxmox VE, stockage `local` |
+| Chaque jour | Élagage : 7 quotidiennes, 4 hebdomadaires, 3 mensuelles | PBS |
+| Samedi 03:00 | Nettoyage des blocs inutilisés | PBS |
+| Dimanche 04:00 | Vérification d'intégrité | PBS |
 
-| Heure | Job | Emplacement | Détail & Comportement |
-|---|---|---|---|
-| **02:00** | Backup PBS — VM 104 (Coolify) | Host Proxmox → PBS (NFS) | Mode Snapshot, incrémental dédupliqué |
-| **03:00** | Backup local — LXC 103 (PBS) | Host Proxmox → Storage `local` (NVMe) | Mode Snapshot, rootfs uniquement (8 Go alloués) |
-| **04:00** | Verify PBS | LXC PBS (103) | Vérification d'intégrité anti-corruption du datastore PBS |
-| **~04:00** | Sync mirrors GitHub (Forgejo) | VM Coolify | Synchronisation automatique des dépôts miroirs secondaires |
-| **Manual** | Backup local — LXC 100 (NAS) | Host Proxmox → Storage `local` (NVMe) | **Manuel uniquement** (`--mode stop` lors des maintenances) |
+La rétention est portée par le PBS, pas par le job Proxmox.
 
-<Info>
-**Exclusion de LXC 100 de la Chronologie Nocturne** : Le job de sauvegarde automatique `backup-6b92bcb1-ad11` sur LXC 100 a été désactivé pour éliminer les invalidations NFS intempestives sur Jellyfin, HomeFlix et PhotoPrism.
-</Info>
+## Mise en place du job
 
----
-
-## ⚙️ Détail Technique des Jobs & Pièges Système
-
-### 1. Sauvegarde PBS — VM 104 (IMS-Coolify)
+Faite une fois, le 24/10/2026, sur un nœud Proxmox :
 
 ```bash
-# Configuré via Datacenter → Backup dans l'UI Proxmox
-vzdump 104 --storage pbs-coolify --mode snapshot
-```
-- **Storage** : `pbs-coolify` (datastore PBS via NFS, forcé en NFSv3 — voir l'[ADR-003](/history/adr/adr-003-partitionnement-stockage-nfs)).
-
-### 2. Sauvegarde Locale NVMe — LXC 103 (PBS) & LXC 100 (NAS Manuel)
-
-```bash
-# LXC 100 (NAS) — Mode STOP obligatoire
-vzdump 100 --storage local --mode stop
-
-# LXC 103 (PBS) — Mode SNAPSHOT
-vzdump 103 --storage local --mode snapshot
+pveum pool add backup --comment "Sauvegarde quotidienne vers le PBS (ims-ops)"
+pveum pool modify backup --vms 104,105,106
+pvesh create /cluster/backup --schedule 02:00 --storage pbs-coolify --mode snapshot \
+  --pool backup --enabled 1 --notes-template '{{guestname}}' \
+  --notification-mode notification-system --comment "Pool backup vers PBS (ims-ops)"
 ```
 
-<Warning>
-**Storage `local` (type `dir`, `/var/lib/vz`)** : Ne pas utiliser `local-lvm` (LVM-Thin refuse le stockage de type archive `backup` avec l'erreur `wrong content type`).
-</Warning>
+Notifications, dans l'interface de Proxmox VE puis du PBS : cible webhook `ntfy` (`POST https://ntfy.ims-world.fr/ims-alerts`, en-tête `Authorization: Bearer {{ secrets.token }}`, secret `token` égal au jeton Ntfy de l'outil), et règle `echecs-ntfy` sur les sévérités `error` et `warning`. Sur le PBS, le datastore est en mode de notification **Notification System**.
 
-<Info>
-**Stabilisation post-retrait de MergerFS** :
-L'avertissement historique `failed to open /mnt/pbs-datastore: Stale file handle` et le risque d'invalidation des handles lors des arrêts du NAS découlaient de l'export NFS d'un système FUSE (MergerFS). Avec le passage au **bind-mount direct ext4** sur `/mnt/storage` (23/10/2026), les handles NFS du datastore restent stables et persistants.
-</Info>
+## Sauvegarder à la main avant une intervention
 
-*Taille moyenne des archives : ~2 à 2.5 Go par conteneur, temps d'exécution observés : 7 à 10 secondes.*
+<Steps>
+  <Step title="Sauvegarder la machine dans le PBS">
+    Dans Proxmox VE : sélectionner la machine, **Backup → Backup now**, stockage `pbs-coolify`. En ligne de commande, depuis le nœud :
 
----
+    ```bash
+    vzdump <vmid> --storage pbs-coolify --mode snapshot
+    ```
+  </Step>
+  <Step title="Pour le NAS : sauvegarde locale">
+    ```bash
+    vzdump 100 --mode stop --compress zstd --storage local
+    ```
+    Les disques de données sont exclus (`backup=0`).
+  </Step>
+  <Step title="Pour Coolify : exporter aussi sa base et sa clé">
+    Depuis la VM 104 :
 
-## 📊 Matrice de Rétention & Restauration
+    ```bash
+    mkdir -p ~/sauvegarde-coolify && cd ~/sauvegarde-coolify
+    docker exec coolify-db pg_dump -U coolify -d coolify -F c > coolify-$(date +%F).dump
+    sudo cp /data/coolify/source/.env coolify-env-$(date +%F)
+    ```
+    Le fichier `.env` contient la clé d'application : sans elle, une base restaurée ne peut pas déchiffrer les secrets de Coolify.
+  </Step>
+  <Step title="Pour une base applicative précise">
+    ```bash
+    # PostgreSQL (Authentik, Immich, Forgejo, Zipline…)
+    docker exec -t <conteneur-db> pg_dump -U <utilisateur> -d <base> -F c > <base>-$(date +%F).dump
+    # MariaDB (PhotoPrism)
+    docker exec -t <conteneur-db> mariadb-dump -u <utilisateur> -p <base> > <base>-$(date +%F).sql
+    ```
+  </Step>
+</Steps>
 
-| Cible | Type de Backup | Stockage Cible | Rétention | Procédure de Restauration |
-|---|---|---|---|---|
-| **VM 104 (Coolify)** | Snapshot PBS | PBS Datastore (NFS) | 7 quotidiens, 4 hebdomadaires | [Restaurer la VM Coolify (PRA)](/procedures/plan-reprise-activite-pra#étape-3--restauration-de-la-vm-coolify-vm-104) |
-| **LXC 103 (PBS)** | vzdump Snapshot | Host NVMe (`local`) | 3 roulements | `pctrestore <vmid> /var/lib/vz/dump/vzdump-lxc-103-*.tar.zst` |
-| **LXC 100 (NAS)** | vzdump Stop | Host NVMe (`local`) | 3 roulements | `pctrestore <vmid> /var/lib/vz/dump/vzdump-lxc-100-*.tar.zst` |
+## Pièges connus
 
----
-*Dernière révision de cette fiche : 17 août 2026*
+| Symptôme | Cause | Solution |
+| --- | --- | --- |
+| `wrong content type` en sauvegardant vers `local-lvm` | Un stockage LVM-Thin n'accepte pas les archives | Utiliser `local` (`/var/lib/vz`) |
+| `namespace not found` | Le datastore ne répond plus (NFS périmé), ou un namespace inexistant est configuré sur `pbs-coolify` | Vérifier le montage sur le PBS, puis le champ **Namespace** du stockage (vide) |
+| `ESTALE: Stale file handle` | Montage NFS du datastore périmé | `umount -l /mnt/pbs-datastore && mount /mnt/pbs-datastore`, puis `systemctl restart proxmox-backup-proxy proxmox-backup` |
+
+## Voir aussi
+
+- [Plan de reprise](/procedures/plan-reprise-activite-pra)
+- [ims-pbs](/infrastructure/ims-pbs)

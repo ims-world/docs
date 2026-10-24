@@ -21,3 +21,4 @@ Un ADR (Architecture Decision Record) consigne une décision, son contexte et le
 | [009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only) | Services d'administration restreints au tailnet (`vpn-only`, `userland-proxy`) | Accepté | 18/08/2026 |
 | [010](/history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster) | Port SSH 22 et nom d'hôte `pve` conservés dans le cluster | Accepté | 23/08/2026 |
 | [011](/history/adr/adr-011-organisation-ims-infra-par-lots) | Organisation du dépôt IMS-INFRA par lots | Caduc : dépôt remplacé par ims-ops | 19/10/2026 |
+| [014](/history/adr/adr-014-sauvegarde-par-pool-unique) | Sauvegarde par un pool unique, alertes sur Ntfy | Accepté | 24/10/2026 |
