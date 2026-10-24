@@ -13,10 +13,15 @@ Cette page rassemble les **commandes copier-coller indispensables** pour interve
 
 <CodeGroup>
 ```bash État Général du Cluster
-# Lister le statut de toutes les VM et conteneurs LXC
-pvesh get /nodes/localhost/tasks --limit 10
+# État de toutes les VM et de tous les conteneurs du cluster
+pvesh get /cluster/resources --type vm
+
+# Invités du nœud courant
 pct list
 qm list
+
+# Dernières tâches du nœud courant (sauvegardes, démarrages…)
+pvesh get /nodes/$(hostname)/tasks --limit 10
 ```
 
 ```bash Redémarrage d'urgence d'un Guest
@@ -28,8 +33,10 @@ qm reboot 104
 ```
 
 ```bash Inspecter la Mémoire & les Disques Hôte
-# Vérifier la consommation RAM / SWAP réelle de l'hôte MS-01
-free -h && zfs list 2>/dev/null || df -h /
+# Mémoire, disque système et stockages Proxmox de l'hôte
+free -h
+df -h /
+pvesm status
 
 # Vérifier la santé SMART du HDD 3To physique (depuis le host MS-01)
 smartctl -H /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ
@@ -48,11 +55,12 @@ docker restart coolify-proxy
 # Afficher les 100 dernières lignes de log d'un conteneur
 docker logs --tail 100 -f <container_name_or_id>
 
-# Purger les logs Docker qui remplissent le disque
-sudo truncating-logs --all 2>/dev/null || sudo sh -c 'truncate -s 0 /var/lib/docker/containers/*/*-json.log'
+# Vider les journaux Docker si le disque est plein
+# (rarement utile : daemon.json limite déjà chaque journal à 3 fichiers de 10 Mo)
+sudo sh -c 'truncate -s 0 /var/lib/docker/containers/*/*-json.log'
 ```
 
-```bash Vérifier les Montages FUSE / NFS dans un Conteneur
+```bash Vérifier les Montages NFS dans un Conteneur
 # Tester l'accès au stockage NAS depuis un conteneur applicatif
 docker exec -it <container_id> df -h /mnt/nas-storage
 ```
@@ -70,7 +78,7 @@ tailscale up --login-server=https://vpn.ims-world.fr --reset
 ```
 
 ```bash Test de Filtrage Middleware vpn-only
-# Tester le blocage WAN (doit renvoyer un 403 Forbidden hors VPN)
+# Tester le blocage hors tailnet (la requête doit être refusée)
 curl -Iv https://qbit.ims-world.fr
 
 # Tester la résolution interne du proxy Traefik
@@ -78,7 +86,7 @@ curl -Iv -H "Host: auth.ims-world.fr" http://127.0.0.1
 ```
 </CodeGroup>
 
-## 📁 Stockage & Montage NFS / FUSE
+## 📁 Stockage & Montage NFS
 
 <CodeGroup>
 ```bash Re-montage d'urgence NFS

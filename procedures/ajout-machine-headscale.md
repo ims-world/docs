@@ -23,8 +23,8 @@ Avant d'enregistrer une machine, déterminer le profil approprié :
 | Profil | Type d'Équipement | Méthode d'Authentification | Exemples |
 |---|---|---|---|
 | **Utilisateur Classique** | Appareils personnels & mobiles avec navigateur Web | **Interactive via Authentik SSO OIDC** (`auth.ims-world.fr` + 2FA TOTP) | Smartphones (iOS/Android), Laptops, PC de bureau |
-| **Profil `infrastructure` (Manuel)** | Serveurs physiques & virtuels headless existants | **Non-interactive via Clé de Pré-Authentification** (*Pre-Auth Key*) | MS-01, VM 104 Coolify, PBS 103, Mac Mini, RPi, NAS |
-| **Profil `infrastructure` (Automatisé)** | Nouvelles VM Linux clonées sur Proxmox VE | **Automatique au boot via Cloud-Init `vendor-data` (Template 8000)** | Nouvelles VM instanciées depuis le template |
+| **Profil `infra` (manuel)** | Serveurs physiques & virtuels headless existants | **Non-interactive via Clé de Pré-Authentification** (*Pre-Auth Key*) | MS-01, VM 104 Coolify, PBS 103, Mac Mini, RPi, NAS |
+| **Profil `infra` (ims-ops)** | Hôtes gérés par ims-ops, dont les VM créées par `just vm` | **Rôle Ansible `tailscale`, clé lue dans le coffre** | `just setup <hôte> tailscale` |
 
 ---
 
@@ -69,7 +69,7 @@ Ce mode est indispensable pour les serveurs sans interface graphique (*headless*
 
 <Steps>
   <Step title="Générer une Clé de Pré-Authentification (Pre-Auth Key)">
-    La clé doit être associée à l'utilisateur Headscale dédié **`infrastructure`**.
+    La clé doit être associée à l'utilisateur Headscale **`infra`**, qui regroupe toutes les VM et tous les conteneurs.
 
     <Info>
     **💡 Que signifie l'Expiration d'une Pre-Auth Key ?**
@@ -82,7 +82,7 @@ Ce mode est indispensable pour les serveurs sans interface graphique (*headless*
     <Tabs>
       <Tab title="🌐 Via la Console Web Headplane">
         1. Se connecter à la console **Headplane Admin** : `https://admin.vpn.ims-world.fr/admin` *(suffixe `/admin` obligatoire)*.
-        2. Dans le menu de gauche, sélectionner l'utilisateur **`infrastructure`**.
+        2. Dans le menu de gauche, sélectionner l'utilisateur **`infra`**.
         3. Accéder à l'onglet **Pre-Auth Keys**.
         4. Cliquer sur **Create Pre-Auth Key** :
            - **Expiration** : Sélectionner `90d` ou `999d` (délai disponible pour réaliser le premier enregistrement).
@@ -95,8 +95,11 @@ Ce mode est indispensable pour les serveurs sans interface graphique (*headless*
         # Se connecter en SSH à la VM Coolify
         ssh cmolotkoff@100.64.0.4
 
-        # Générer une Pre-Auth Key pour l'utilisateur infrastructure
-        docker exec -it headscale-i136ix2bmrrbeovnyrh1o72w headscale preauthkeys create --user infrastructure --expiration 999d
+        # Identifier l'ID de l'utilisateur infra
+        docker exec -it headscale-i136ix2bmrrbeovnyrh1o72w headscale users list
+
+        # Générer une clé réutilisable pour cet utilisateur
+        docker exec -it headscale-i136ix2bmrrbeovnyrh1o72w headscale preauthkeys create --user <ID> --reusable --expiration 365d
         ```
       </Tab>
     </Tabs>
@@ -159,28 +162,20 @@ Ce mode est indispensable pour les serveurs sans interface graphique (*headless*
 
 ---
 
-## ⚡ Option C : Enrôlement automatique au boot (Template VM 8000 Cloud-Init)
+## Option C : hôte géré par ims-ops
 
-Pour toute nouvelle machine virtuelle déployée sur le cluster Proxmox VE, l'enregistrement Tailscale est entièrement automatisé sans aucune commande manuelle.
+Pour un hôte déclaré dans l'inventaire ims-ops, l'enrôlement passe par le rôle Ansible `tailscale`. La clé de pré-authentification de l'utilisateur `infra` est lue dans le coffre chiffré du dépôt : elle n'est jamais copiée sur l'hôte ni dans un snippet Proxmox.
 
-<Steps>
-  <Step title="Cloner le template VMID 8000 avec le snippet vendor-data">
-    Sur l'hyperviseur Proxmox VE :
-    ```bash
-    qm clone 8000 <NOUVEAU_VMID> --name "<nom-vm>" --full --storage local-lvm
-    qm set <NOUVEAU_VMID> --cicustom "vendor=local:snippets/vendor-data.yaml"
-    qm start <NOUVEAU_VMID>
-    ```
-  </Step>
+```bash
+just check <hôte> tailscale   # simulation
+just setup <hôte> tailscale   # application
+```
 
-  <Step title="Connexion automatique au premier amorçage">
-    Au démarrage, Cloud-Init installe `tailscale` et exécute automatiquement :
-    ```bash
-    tailscale up --authkey="<PREAUTH_KEY>" --login-server="https://vpn.ims-world.fr" --accept-dns=false --hostname="$(hostname)"
-    ```
-    La VM apparaît immédiatement enregistrée sous l'utilisateur `infrastructure` dans Headscale et reçoit son IP `100.64.0.x`. Voir la documentation du [Template Proxmox 8000](/infrastructure/proxmox-host#template-de-vm-ubuntu-2404-vmid-8000--automatisation-tailscale).
-  </Step>
-</Steps>
+Une VM créée par `just vm <nom> … full` est enrôlée de la même façon, puis son IP Tailscale est inscrite dans l'inventaire.
+
+<Warning>
+L'ancienne méthode (template 8000 et snippet Cloud-Init `vendor-data.yaml` contenant la clé en clair) est abandonnée depuis le 24/10/2026. Le template et le snippet ont été supprimés.
+</Warning>
 
 ---
 

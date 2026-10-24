@@ -48,10 +48,10 @@ Ce catalogue répertorie **l'ensemble des procédures opératoires du homelab IM
   <Card title="Backup & Restauration Vaultwarden" icon="shield-halved" href="/services/vaultwarden#acces-rapides--administration">
     Procédure d'arrêt à chaud et d'archivage sécurisé des fichiers WAL du coffre-fort SQLite Vaultwarden.
   </Card>
-  <Card title="Ajouter un Hôte au Monitoring (Alloy)" icon="plus" href="/services/monitoring#exploitation--procedures">
+  <Card title="Ajouter un Hôte au Monitoring (Alloy)" icon="plus" href="/services/monitoring">
     Installation d'Alloy en binaire systemd, configuration du push Remote-Write (`10.10.10.2`) et validation Grafana.
   </Card>
-  <Card title="Créer une Règle d'Alerte Grafana → Ntfy" icon="bell" href="/services/monitoring#exploitation--procedures">
+  <Card title="Créer une Règle d'Alerte Grafana → Ntfy" icon="bell" href="/services/monitoring#alerting--contact-point-ntfy">
     Création de requêtes PromQL instantanées, réglage du *No data state* à Normal et association du Contact Point Ntfy.
   </Card>
 </CardGroup>

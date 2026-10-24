@@ -258,11 +258,11 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
     | Service / Nœud | Adresse / Port | Exposition | Méthode d'Authentification |
     | --- | --- | --- | --- |
     | **SSH Système** | Port `22` (PVE, Mac Mini, PBS, NAS, Coolify, Worker, vm-test) | 🏠 LAN / 🔐 Tailnet | Clés SSH uniquement (compte `cmolotkoff`, sudo journalisé `log_subcmds`, pas de mot de passe) |
-    | **Proxmox VE GUI** | `{ips.pveLan}:8006` / `100.64.0.9:8006` | 🏠 LAN / 🔐 Tailnet | PAM / Compte `cmolotkoff` |
-    | **PBS Web GUI** | `{ips.pbsLan}:8007` / `100.64.0.2:8007` | 🏠 LAN / 🔐 Tailnet | Auth PBS `cmolotkoff@pbs` |
-    | **NAS SMB** | `{ips.nasLan}:445` / `{ips.nas}:445` | 🏠 LAN / 🔐 Tailnet | Auth SMB `cmolotkoff` (UID 1000) |
+    | **Proxmox VE GUI** | <code>{ips.pveLan}:8006</code> / `100.64.0.9:8006` | 🏠 LAN / 🔐 Tailnet | PAM / Compte `cmolotkoff` |
+    | **PBS Web GUI** | <code>{ips.pbsLan}:8007</code> / `100.64.0.2:8007` | 🏠 LAN / 🔐 Tailnet | Auth PBS `cmolotkoff@pbs` |
+    | **NAS SMB** | <code>{ips.nasLan}:445</code> / <code>{ips.nas}:445</code> | 🏠 LAN / 🔐 Tailnet | Auth SMB `cmolotkoff` (UID 1000) |
     | **NAS NFS** | `10.10.10.1:2049` | 🔒 `vmbr1` Isolé | Subnet IP `10.10.10.0/24` |
-    | **Home Assistant (LAN)** | `{ips.haLan}` (Port 80) / Observer (:4357) | 🏠 LAN Native | Auth native Home Assistant |
+    | **Home Assistant (LAN)** | <code>{ips.haLan}</code> (Port 80) / Observer (:4357) | 🏠 LAN Native | Auth native Home Assistant |
   </Tab>
 </Tabs>
 

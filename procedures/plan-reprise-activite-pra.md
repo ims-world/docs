@@ -68,7 +68,7 @@ sequenceDiagram
   <Step title="Phase 1 — Préparation de la machine de remplacement">
     1. **Si remplacement du MS-01** par un nouvel ordinateur/serveur :
        - Installer Proxmox VE 9.x depuis une clé USB de boot ISO.
-       - Configurer l'IP hôte (ex: `{ips.pveLan}/24`, gateway `192.168.1.254`).
+       - Configurer l'IP hôte (ex: <code>{ips.pveLan}/24</code>, gateway `192.168.1.254`).
        - S'assurer que le bridge `vmbr0` est rattaché à la carte réseau physique principale.
     2. **Si bascule temporaire d'urgence sur le Mac Mini 2012 (Standby)** :
        - Démarrer le Mac Mini dans le rack [Labrax](/infrastructure/labrax).

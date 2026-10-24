@@ -80,6 +80,7 @@ graph TD
     SOURCES --> BROWSER
     BROWSER --> MAIN_DISP
     SCRIPT -->|Uptime & Statut| OLED_DISP
+```
 
 ---
 

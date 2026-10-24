@@ -136,7 +136,7 @@ Le montage MergerFS sur `/mnt/storage` a été définitivement supprimé au prof
 
 | Propriété | Valeur |
 |---|---|
-| **Partage SMB** | `smb://`{ips.nasLan}`/storage` (LAN) ou `smb://`{ips.nas}`/storage` (Tailnet) |
+| **Partage SMB** | <code>smb://{ips.nasLan}/storage</code> (LAN) ou <code>smb://{ips.nas}/storage</code> (Tailnet) |
 | **Utilisateur système & SMB** | `cmolotkoff` (UID `1000`, GID `1000`) |
 | **Shell système** | `/bin/bash` |
 | **Droits sudo** | `NOPASSWD: ALL` dans `/etc/sudoers.d/cmolotkoff` |
@@ -149,7 +149,7 @@ Le compte d'administration `cmolotkoff` est **strictement identique** à l'utili
 
 ## Accès Distant & Client Tailscale
 
-Le conteneur LXC 100 est enrôlé dans le Tailnet sous le hostname `ims-pve-100-nas` avec l'adresse IP `{ips.nas}` (utilisateur Headscale `infra`).
+Le conteneur LXC 100 est enrôlé dans le Tailnet sous le hostname `ims-pve-100-nas` avec l'adresse IP <code>{ips.nas}</code> (utilisateur Headscale `infra`).
 
 <Steps>
   <Step title="Pass-through du périphérique TUN">
@@ -174,17 +174,25 @@ L'agent **Grafana Alloy** est déployé en tant que service systemd pour la coll
 **`smartd` et `hd-idle` ne peuvent PAS tourner dans ce LXC** — le passthrough mountpoint ne donne pas accès au device bloc brut nécessaire à ces outils. Les deux tournent sur le **host**. Voir [Dépannage courant](/procedures/depannage-courant) pour le détail de cette découverte.
 </Warning>
 
-## Outillage de Gestion & Déduplication (`jdupes`)
+## Détection des doublons (`jdupes`)
 
-L'utilitaire CLI **`jdupes`** est installé sur le NAS pour analyser rapidement l'arborescence des disques (`/mnt/storage` et `/mnt/storage-hot`) et dédupliquer les fichiers identiques :
+`jdupes` est installé sur le NAS pour le rapport de doublons de la médiathèque, lancé depuis ims-ops :
 
 ```bash
-# Identifier les fichiers doublons de manière récursive (lecture seule)
-jdupes -r /mnt/storage/documents
-
-# Dédupliquer en remplaçant les doublons par des hardlinks (gain d'espace sans perte)
-jdupes -r -L /mnt/storage/documents
+just duplicates
 ```
+
+Le rapport est produit en lecture seule, directement sur le NAS (jamais au travers de NFS). Il liste :
+
+- les fichiers identiques, liens physiques exclus ;
+- les titres présents en plusieurs fichiers ;
+- les téléchargements qui ne sont reliés à aucun fichier de la bibliothèque.
+
+La suppression se fait depuis le client torrent (torrent et fichiers), jamais à la main sur le disque : un fichier supprimé hors du client casse le partage et les liens de Radarr et Sonarr.
+
+<Warning>
+Ne pas utiliser `jdupes -L` (remplacement des doublons par des liens physiques) sur la médiathèque : la commande modifie les fichiers suivis par qBittorrent, Radarr et Sonarr sans qu'ils le sachent.
+</Warning>
 
 ## Sauvegardes & Stratégie d'Exclusion Proxmox (vzdump)
 

@@ -1,22 +1,23 @@
-name: Mintlify Broken Links Check
+name: Vérification de la documentation
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
 
 jobs:
-  check-links:
+  liens:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Validate Mintlify Links
-        run: npx -y mintlify@latest broken-links
+      # Version épinglée : la mettre à jour volontairement, pas à chaque exécution
+      - name: Liens internes
+        run: npx -y mint@4.2.997 broken-links
+
+      - name: Compilation stricte (MDX, docs.json)
+        run: npx -y mint@4.2.997 validate

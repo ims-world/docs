@@ -133,7 +133,7 @@ Les enregistrements internes configurés dans `config.yaml` (`dns.extra_records`
 ```yaml
 extra_records:
   - name: "coolify-old.ims-world.fr"
-    value: "{ips.macmini}"   # accès de secours à l'ancienne instance Mac Mini
+    value: "100.64.0.6"   # accès de secours à l'ancienne instance Mac Mini
 ```
 
 ## Sécurité Réseau & Protection des Hôtes

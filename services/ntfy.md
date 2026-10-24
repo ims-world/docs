@@ -19,7 +19,7 @@ import { ips, domains } from "/snippets/variables.mdx";
       Interface web du serveur ntfy. Accessible sur `ntfy.ims-world.fr`.
     </Card>
     <Card title="App Mobile (Android / iOS)" icon="mobile">
-      Configurer l'application avec le serveur `https://ntfy.ims-world.fr`, le topic `ims-alerts` et vos identifiants ntfy.
+      Configurer l'application avec le serveur `https://ntfy.ims-world.fr`, le topic `ims-alerts` et un compte en lecture seule.
     </Card>
   </Tab>
   <Tab title="⚡ Commandes CLI & Maintenance">
@@ -29,10 +29,10 @@ import { ips, domains } from "/snippets/variables.mdx";
 
     # Gérer les utilisateurs (nom de conteneur Coolify : ntfy-j5akn2e9pr6g7c2pjvdj78w0)
     docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user list
-    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user add --role=admin cmolotkoff
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy access
 
-    # Générer un token d'accès (ex: pour Grafana)
-    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy token add --label="grafana-alerting" cmolotkoff
+    # Jeton d'un outil : toujours sur l'utilisateur de cet outil, jamais sur un compte admin
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy token add --label="<usage>" <outil>
 
     # Test d'envoi manuel
     curl -H "Authorization: Bearer <token>" -d "Alerte de test" https://ntfy.ims-world.fr/ims-alerts
@@ -66,23 +66,37 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 - **Inscription désactivée** (`NTFY_ENABLE_SIGNUP=false`).
 - **Accès par défaut refusé** (`NTFY_AUTH_DEFAULT_ACCESS=deny-all`).
-- **Comptes & Tokens** : La gestion des droits s'effectue directement en CLI dans le conteneur (`ntfy user` et `ntfy token`). Les accès applicatifs (comme le Contact Point [Grafana](/services/monitoring#alerting--contact-point-ntfy)) utilisent des tokens d'API dédiés.
+- **Comptes et jetons** : gérés en CLI dans le conteneur (`ntfy user`, `ntfy access`, `ntfy token`).
+- **Un utilisateur par outil, en écriture seule** sur `ims-alerts`, avec un jeton par usage. Exemple : utilisateur `proxmox`, jetons `pve` et `pbs`. Un jeton compromis ne permet alors ni de lire les alertes ni d'administrer le serveur, et se révoque sans toucher aux autres outils.
+- Les comptes humains (application mobile) ont un accès en lecture seule. Le [point de contact Grafana](/services/monitoring#alerting--contact-point-ntfy) suit la même règle.
 
 ---
 
 ## Exploitation & Procédures CLI
 
 <AccordionGroup>
-  <Accordion title="Créer un utilisateur ou un token d'API">
+  <Accordion title="Raccorder un nouvel outil (utilisateur dédié et jeton)">
     ```bash
-    # Créer un compte utilisateur
-    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user add --role=admin nouvel_utilisateur
+    # 1. Créer l'utilisateur de l'outil (rôle user, mot de passe demandé puis inutilisé)
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user add <outil>
 
-    # Attribuer les droits d'accès sur le topic ims-alerts
-    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy access nouvel_utilisateur ims-alerts read-write
+    # 2. Écriture seule sur le topic d'alertes
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy access <outil> ims-alerts write-only
 
-    # Générer un token pour une application
-    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy token add --label="mon-application" cmolotkoff
+    # 3. Un jeton par usage, à stocker dans l'outil (jamais dans un dépôt)
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy token add --label="<usage>" <outil>
+    ```
+  </Accordion>
+  <Accordion title="Créer un compte de lecture (application mobile)">
+    ```bash
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user add <personne>
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy access <personne> ims-alerts read-only
+    ```
+  </Accordion>
+  <Accordion title="Révoquer un jeton">
+    ```bash
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy token list <outil>
+    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy token remove <outil> <jeton>
     ```
   </Accordion>
 </AccordionGroup>

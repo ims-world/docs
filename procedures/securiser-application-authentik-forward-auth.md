@@ -99,7 +99,7 @@ sequenceDiagram
     ```
 
     <Warning>
-    **Champ Domains dans Coolify** : Laisser le champ *Domains* **vide** dans l'UI Coolify pour éviter que Coolify n'ajoute un routeur automatique parallèle sans le middleware Forward-Auth. Voir la [Règle d'Or de Routage Traefik](/reseau/traefik-proxy#️-règle-dor-de-routage--ui-coolify-vs-labels-compose-manuels).
+    **Champ Domains dans Coolify** : Laisser le champ *Domains* **vide** dans l'UI Coolify pour éviter que Coolify n'ajoute un routeur automatique parallèle sans le middleware Forward-Auth. Voir la [Règle d'Or de Routage Traefik](/reseau/traefik-proxy).
     </Warning>
   </Step>
 </Steps>
