@@ -1,58 +1,50 @@
 ---
 title: "IT-Tools"
-description: "Boîte à outils développeur & IT en ligne"
+description: "Boîte à outils en ligne : générateurs, convertisseurs, encodeurs, utilitaires réseau."
 icon: "toolbox"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
+last_reviewed: "2026-10-25"
 app_version: "latest"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
+## Accès
 
-<Badge color="green">🟢 Production Active</Badge>
+<CardGroup cols={2}>
+  <Card title="IT-Tools" icon="toolbox" href="https://tools.ims-world.fr">
+    Liste des outils, recherche.
+  </Card>
+</CardGroup>
 
-## Accès Rapides & Administration
-
-<Tabs>
-  <Tab title="🌐 Interface Web">
-    <Card title="IT-Tools Web UI" icon="toolbox" href="https://tools.ims-world.fr">
-      Boîte à outils développeur (générateurs, convertisseurs, utilitaires réseau) sur `tools.ims-world.fr` (protégée par SSO Authentik).
-    </Card>
-  </Tab>
-  <Tab title="⚡ Commandes CLI & Maintenance">
-    ```bash
-    # Se connecter à la VM Coolify
-    ssh cmolotkoff@100.64.0.4
-
-    # Accéder au dossier du service IT-Tools
-    cd /data/coolify/services/yefujwl3pxvum45edpsbsru7/
-
-    # Inspecter les logs du conteneur
-    docker compose logs -f --tail=100
-    ```
-  </Tab>
-</Tabs>
-
----
-
-## Fiche Service
+## Fiche
 
 | Propriété | Valeur |
-|---|---|
-| **Domaine** | `tools.ims-world.fr` |
-| **Rôle** | Utilitaires développeur & IT en ligne |
-| **Image Docker** | `corentinth/it-tools:latest` |
-| **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
-| **UUID Coolify** | `yefujwl3pxvum45edpsbsru7` |
-| **Chemin sur la VM** | `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` |
-| **Stockage** | Volume Docker nommé (`it-tools-data:/app/data`) |
-| **Authentification** | **Forward-Auth Authentik Outpost** (`ak-outpost-ims-outpost:9000`) |
-| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
+| --- | --- |
+| Domaine | `tools.ims-world.fr` |
+| Accès | Public ; forward-auth Authentik (administrateurs, `membres`, `invites`) |
+| Hôte | VM 104 |
+| Coolify | UUID `yefujwl3pxvum45edpsbsru7`, chemin `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` |
+| Image | `corentinth/it-tools:latest` |
+| Données | Volume `it-tools-data` (préférences) |
+| Sauvegarde | Avec la VM 104 |
+| Supervision | Sonde Uptime Kuma |
+| Mise en service | 11/08/2026 |
 
----
+## Fonctionnement
 
-## Sécurité (Authentik Forward-Auth Outpost)
+Application web statique : tous les calculs se font dans le navigateur. Sans authentification propre, elle est placée derrière le [forward-auth](/procedures/securiser-application-authentik-forward-auth) d'Authentik.
 
-IT-Tools ne disposant pas d'un système d'authentification natif, l'accès à `tools.ims-world.fr` est sécurisé en amont au niveau du reverse proxy Traefik via l'**Outpost Forward-Auth Authentik** (`ak-outpost-ims-outpost:9000`).
+## Données et sauvegarde
 
-Toute requête est interceptée par Traefik et nécessite une session Authentik active avant d'atteindre l'interface IT-Tools. Pour le fonctionnement détaillé du middleware, voir la fiche [Authentik](/services/authentik#outpost-proxy--forward-auth).
+Sans objet : aucune donnée utilisateur.
+
+## Exploitation
+
+L'image est en `latest`, contrairement à la règle des tags figés. L'épinglage sur un tag daté est suivi dans la [feuille de route](/roadmap).
+
+## Pièges connus
+
+Sans objet.
+
+## Voir aussi
+
+- [Authentik](/services/authentik)

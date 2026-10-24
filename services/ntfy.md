@@ -1,93 +1,74 @@
 ---
-title: "Ntfy — Notifications Push"
-description: "Serveur de notifications push pour l'alerting et les applications mobile"
+title: "Ntfy"
+description: "Serveur de notifications push : toutes les alertes du homelab arrivent sur le topic ims-alerts, lu par l'application mobile."
 icon: "bell"
 iconType: "duotone"
-last_reviewed: "2026-09-14"
+last_reviewed: "2026-10-25"
 app_version: "v2.28.0"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
+## Accès
 
-<Badge color="green">🟢 Production Active</Badge>
+<CardGroup cols={2}>
+  <Card title="Ntfy" icon="bell" href="https://ntfy.ims-world.fr">
+    Interface web.
+  </Card>
+  <Card title="Application mobile" icon="mobile">
+    Serveur `https://ntfy.ims-world.fr`, topic `ims-alerts`, compte en lecture seule.
+  </Card>
+</CardGroup>
 
-## Accès Rapides & Administration
+```bash
+# Depuis la VM 104
+docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user list
+docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy access
+curl -H "Authorization: Bearer <jeton>" -d "Test" https://ntfy.ims-world.fr/ims-alerts
+```
 
-<Tabs>
-  <Tab title="🌐 Interface Web & Mobile">
-    <Card title="Ntfy Web UI" icon="bell" href="https://ntfy.ims-world.fr">
-      Interface web du serveur ntfy. Accessible sur `ntfy.ims-world.fr`.
-    </Card>
-    <Card title="App Mobile (Android / iOS)" icon="mobile">
-      Configurer l'application avec le serveur `https://ntfy.ims-world.fr`, le topic `ims-alerts` et un compte en lecture seule.
-    </Card>
-  </Tab>
-  <Tab title="⚡ Commandes CLI & Maintenance">
-    ```bash
-    # Se connecter à la VM Coolify
-    ssh cmolotkoff@100.64.0.4
-
-    # Gérer les utilisateurs (nom de conteneur Coolify : ntfy-j5akn2e9pr6g7c2pjvdj78w0)
-    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user list
-    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy access
-
-    # Jeton d'un outil : toujours sur l'utilisateur de cet outil, jamais sur un compte admin
-    docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy token add --label="<usage>" <outil>
-
-    # Test d'envoi manuel
-    curl -H "Authorization: Bearer <token>" -d "Alerte de test" https://ntfy.ims-world.fr/ims-alerts
-    ```
-  </Tab>
-</Tabs>
-
----
-
-## Fiche Service
+## Fiche
 
 | Propriété | Valeur |
-|---|---|
-| **Domaine** | `ntfy.ims-world.fr` |
-| **Rôle** | Serveur de Notifications Push (Grafana Alerting & notifications système) |
-| **Version** | `binwiederhier/ntfy:v2.28.0` |
-| **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
-| **UUID Coolify** | `j5akn2e9pr6g7c2pjvdj78w0` |
-| **Chemin sur la VM** | `/data/coolify/services/j5akn2e9pr6g7c2pjvdj78w0/` |
-| **Topic Principal** | `ims-alerts` |
-| **Exposition** | **Publique** (accès mobile hors VPN) |
-| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
+| --- | --- |
+| Domaine | `ntfy.ims-world.fr` |
+| Accès | Public (réception sur le téléphone hors du tailnet) ; inscription fermée, accès refusé par défaut |
+| Hôte | VM 104 |
+| Coolify | UUID `j5akn2e9pr6g7c2pjvdj78w0`, chemin `/data/coolify/services/j5akn2e9pr6g7c2pjvdj78w0/` |
+| Image | `binwiederhier/ntfy:v2.28.0` |
+| Données | Base des utilisateurs, droits et jetons |
+| Sauvegarde | Avec la VM 104 |
+| Supervision | Sonde Uptime Kuma |
+| Mise en service | 11/08/2026 |
 
-<Warning>
-**Exposition publique assumée pour l'alerting mobile** : Ntfy est délibérément accessible sur Internet sans filtrage Tailnet afin de garantir la réception des alertes push sur smartphone en mobilité hors du réseau privé. La sécurité repose sur les directives système `NTFY_ENABLE_SIGNUP=false` (pas d'inscription libre) et `NTFY_AUTH_DEFAULT_ACCESS=deny-all` (authentification obligatoire par compte ou token Bearer pour lire ou publier).
-</Warning>
+## Fonctionnement
 
----
+Ntfy est public par choix : les alertes doivent arriver sur le téléphone en toutes circonstances. La protection tient à deux réglages : `NTFY_ENABLE_SIGNUP=false` et `NTFY_AUTH_DEFAULT_ACCESS=deny-all` (compte ou jeton obligatoire pour lire comme pour publier).
 
-## Configuration & Authentification
+| Émetteur | Topic |
+| --- | --- |
+| Grafana (alertes de supervision) | `ims-alerts` |
+| Uptime Kuma (indisponibilités) | `ims-alerts` |
+| fail2ban (bannissements sur les hôtes) | `ims-alerts` |
+| Proxmox VE et PBS (échecs de sauvegarde), utilisateur `proxmox` | `ims-alerts` |
+| WUD (nouvelles versions d'images) | `ims-alerts` |
 
-- **Inscription désactivée** (`NTFY_ENABLE_SIGNUP=false`).
-- **Accès par défaut refusé** (`NTFY_AUTH_DEFAULT_ACCESS=deny-all`).
-- **Comptes et jetons** : gérés en CLI dans le conteneur (`ntfy user`, `ntfy access`, `ntfy token`).
-- **Un utilisateur par outil, en écriture seule** sur `ims-alerts`, avec un jeton par usage. Exemple : utilisateur `proxmox`, jetons `pve` et `pbs`. Un jeton compromis ne permet alors ni de lire les alertes ni d'administrer le serveur, et se révoque sans toucher aux autres outils.
-- Les comptes humains (application mobile) ont un accès en lecture seule. Le [point de contact Grafana](/services/monitoring#alerting--contact-point-ntfy) suit la même règle.
+**Règle :** un utilisateur Ntfy par outil, en écriture seule, et un jeton par usage (exemple : utilisateur `proxmox`, jetons `pve` et `pbs`). Un jeton compromis ne permet ni de lire les alertes ni d'administrer le serveur, et se révoque sans toucher aux autres. Les comptes humains sont en lecture seule.
 
----
+## Données et sauvegarde
 
-## Exploitation & Procédures CLI
+Sauvegardé avec la VM 104. Une perte oblige à recréer utilisateurs et jetons, et à les reporter dans chaque outil.
+
+## Exploitation
 
 <AccordionGroup>
-  <Accordion title="Raccorder un nouvel outil (utilisateur dédié et jeton)">
+  <Accordion title="Raccorder un nouvel outil">
     ```bash
-    # 1. Créer l'utilisateur de l'outil (rôle user, mot de passe demandé puis inutilisé)
     docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user add <outil>
-
-    # 2. Écriture seule sur le topic d'alertes
     docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy access <outil> ims-alerts write-only
-
-    # 3. Un jeton par usage, à stocker dans l'outil (jamais dans un dépôt)
     docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy token add --label="<usage>" <outil>
     ```
+    Le mot de passe demandé à la création n'est pas utilisé. Le jeton se stocke dans l'outil, jamais dans un dépôt.
   </Accordion>
-  <Accordion title="Créer un compte de lecture (application mobile)">
+  <Accordion title="Créer un compte de lecture">
     ```bash
     docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy user add <personne>
     docker exec -it ntfy-j5akn2e9pr6g7c2pjvdj78w0 ntfy access <personne> ims-alerts read-only
@@ -100,3 +81,15 @@ import { ips, domains } from "/snippets/variables.mdx";
     ```
   </Accordion>
 </AccordionGroup>
+
+## Pièges connus
+
+| Symptôme | Cause | Solution |
+| --- | --- | --- |
+| Jeton refusé par fail2ban (ims-ops) | Valeur saisie avec le préfixe `Bearer` | Ne garder que la valeur `tk_…` dans le coffre |
+| Un hôte n'arrive pas à joindre Ntfy | L'hôte n'utilise pas le DNS du tailnet | ims-ops force l'adresse `192.168.1.52` pour fail2ban |
+
+## Voir aussi
+
+- [Supervision](/services/monitoring)
+- [Politique de sauvegarde](/procedures/politique-sauvegardes) (notifications PVE et PBS)

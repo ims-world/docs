@@ -41,7 +41,7 @@ flowchart LR
 | Service | Domaine | Zone | Authentification |
 | --- | --- | --- | --- |
 | [Authentik](/services/authentik) | `auth.ims-world.fr` | Publique | Native, double facteur |
-| [Vaultwarden](/services/vaultwarden) | `vault.ims-world.fr` | Publique | Native (mot de passe maître) |
+| [Vaultwarden](/services/vaultwarden) | `vault.ims-world.fr` | Publique | OIDC Authentik ; mot de passe maître pour le déchiffrement ; `/admin` restreint au tailnet |
 | [HomeFlix (Jellyfin)](/services/homeflix) | `homeflix.ims-world.fr` | Publique | Native Jellyfin |
 | [Vidéoclub (Jellyseerr)](/services/homeflix) | `videoclub.ims-world.fr` | Publique | Comptes Jellyfin |
 | [Immich](/services/immich) | `photos.ims-world.fr` | Publique | OIDC Authentik ou native |

@@ -1,108 +1,64 @@
 ---
 title: "Vaultwarden"
-description: "Coffre-fort de mots de passe centralisé"
-icon: "shield-halved"
+description: "Gestionnaire de mots de passe compatible Bitwarden, connexion par Authentik."
+icon: "vault"
 iconType: "duotone"
-last_reviewed: "2026-08-12"
+last_reviewed: "2026-10-25"
 app_version: "1.32.7"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
+import { domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Production Active</Badge>
+## Accès
 
-## Accès Rapides & Administration
+<CardGroup cols={2}>
+  <Card title="Coffre web" icon="shield-halved" href="https://vault.ims-world.fr">
+    Interface web ; extensions et applications Bitwarden configurées sur ce serveur.
+  </Card>
+  <Card title="Administration" icon="gear" href="https://vault.ims-world.fr/admin">
+    Panneau d'administration, restreint au tailnet.
+  </Card>
+</CardGroup>
 
-<Tabs>
-  <Tab title="🌐 Interfaces Web">
-    <Card title="Vaultwarden Web Vault" icon="shield-halved" href="https://vault.ims-world.fr">
-      Coffre-fort de mots de passe compatible Bitwarden. Accessible sur `vault.ims-world.fr`.
-    </Card>
-  </Tab>
-  <Tab title="⚡ Commandes CLI & Maintenance">
-    ```bash
-    # Arrêt bref du conteneur pour figer la mémoire partagée WAL
-    docker stop vaultwarden-i5ae953riutbot9afjcboptb
-    
-    # Archivage du dossier data persistent
-    sudo tar czf ~/vaultwarden-data.tar.gz -C /data/coolify/services/i5ae953riutbot9afjcboptb/data .
-    
-    # Redémarrage du service
-    docker start vaultwarden-i5ae953riutbot9afjcboptb
-    ```
-  </Tab>
-</Tabs>
-
----
-
-## Fiche Service
+## Fiche
 
 | Propriété | Valeur |
-|---|---|
-| **Domaine** | {domains.vault} |
-| **Rôle** | Gestionnaire de Mots de Passe Chiffré |
-| **Base de Données** | SQLite (mode Write-Ahead Log WAL) |
-| **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
-| **UUID Coolify** | `i5ae953riutbot9afjcboptb` |
-| **Chemin sur la VM** | `/data/coolify/services/i5ae953riutbot9afjcboptb/` |
-| **Volumes & Stockage** | `/var/lib/docker/volumes/i5ae953riutbot9afjcboptb_vaultwarden-data/_data` |
-| **Moniteur Disponibilité** | [Surveillance Uptime Kuma (`status.ims-world.fr`)](https://status.ims-world.fr) |
-| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
+| --- | --- |
+| Domaine | {domains.vault} |
+| Accès | Public ; OIDC Authentik, mot de passe maître pour le déchiffrement. `/admin` restreint au tailnet |
+| Hôte | VM 104 |
+| Coolify | UUID `i5ae953riutbot9afjcboptb`, chemin `/data/coolify/services/i5ae953riutbot9afjcboptb/` |
+| Image | `vaultwarden/server:1.32.7` |
+| Données | Volume `i5ae953riutbot9afjcboptb_vaultwarden-data` : base SQLite, `rsa_key.pem`, pièces jointes |
+| Sauvegarde | Avec la VM 104 |
+| Supervision | Sonde Uptime Kuma |
+| Mise en service | Août 2026 |
 
----
+## Fonctionnement
 
-## Architecture & Topologie
+Un seul conteneur, base SQLite en mode WAL. Le domaine est figé dans `config.json` (`vault.ims-world.fr`). Les inscriptions sont fermées (`SIGNUPS_ALLOWED=false`) : un nouvel utilisateur passe par une invitation.
 
-```mermaid
-graph TD
-    subgraph CLIENTS ["📱 Extension Navigateur / App Bitwarden / Web UI"]
-        REQ["Requêtes HTTPS (vault.ims-world.fr)"]
-    end
+## Données et sauvegarde
 
-    subgraph PROXY ["🚦 Traefik Proxy Engine"]
-        TLS["Certificat SSL Wildcard Let's Encrypt"]
-    end
+Le volume est sauvegardé avec la VM 104. `rsa_key.pem` doit être restauré avec la base : sans lui, les pièces jointes sont illisibles. Pour une copie ponctuelle cohérente, arrêter brièvement le conteneur :
 
-    subgraph VAULT_CONTAINER ["🔒 Vaultwarden Container (VM 104 Docker)"]
-        ENGINE["Vaultwarden Rust Engine"]
-        CFG["config.json (Domaine Figé: vault.ims-world.fr)"]
-
-        subgraph SQLITE_WAL ["💾 Stockage Persistent SQLite"]
-            DB["db.sqlite3 (Base Principale)"]
-            SHM["db.sqlite3-shm (Shared Memory)"]
-            WAL["db.sqlite3-wal (Write-Ahead Log)"]
-        end
-
-        subgraph RSA_KEYS ["🔑 Keys & Attachments"]
-            RSA["rsa_key.pem / rsa_key.pub"]
-            ATT["attachments/ (PJ chiffrees)"]
-        end
-    end
-
-    REQ --> TLS
-    TLS --> ENGINE
-    ENGINE <--> CFG
-    ENGINE <--> DB
-    DB --- SHM
-    DB --- WAL
-    ENGINE <--> RSA
-    ENGINE <--> ATT
-
-    classDef client fill:#2c3e50,stroke:#34495e,color:#fff;
-    classDef proxy fill:#F97316,stroke:#FB923C,color:#fff;
-    classDef vault fill:#1a2b3c,stroke:#F97316,color:#fff;
-    class REQ client;
-    class TLS proxy;
-    class ENGINE,CFG,DB,SHM,WAL,RSA,ATT vault;
+```bash
+docker stop vaultwarden-i5ae953riutbot9afjcboptb
+sudo tar czf ~/vaultwarden-$(date +%F).tar.gz -C /var/lib/docker/volumes/i5ae953riutbot9afjcboptb_vaultwarden-data/_data .
+docker start vaultwarden-i5ae953riutbot9afjcboptb
 ```
 
----
+## Exploitation
 
-## Stockage & Politique de Sécurité (Hardening)
+Mise à jour : changer le tag dans Coolify et redéployer. Lire les notes de version avant un changement de version majeure.
 
-- **Fermeture des Inscriptions (`SIGNUPS_ALLOWED=false`)** : Une fois le coffre-fort initial configuré, l'option d'enregistrement de nouveaux utilisateurs est fermée au niveau des variables d'environnement afin de prévenir toute création de compte non autorisée.
-- **Accès Administration Restreint (`/admin`)** : L'accès au panneau d'administration (`vault.ims-world.fr/admin`) est strictement filtré par le middleware Traefik `vpn-only` et accessible uniquement depuis les appareils connectés au Tailnet (`100.64.0.0/10`).
+## Pièges connus
 
-<Warning>
-Mapping Authentik custom requis pour `email_verified: true` — sans lui, le SSO OIDC casse silencieusement.
-</Warning>
+| Symptôme | Cause | Solution |
+| --- | --- | --- |
+| La connexion par Authentik échoue sans message | Authentik n'envoie pas `email_verified: true` | Ajouter un mappage de propriété qui renvoie `email_verified: true` |
+
+## Voir aussi
+
+- [Authentik](/services/authentik)
+- [Plan de reprise](/procedures/plan-reprise-activite-pra)

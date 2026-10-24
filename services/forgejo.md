@@ -1,134 +1,77 @@
 ---
 title: "Forgejo"
-description: "Forge Git self-hosted (versioning, Pull Requests, miroir de sécurité GitHub)"
+description: "Forge Git auto-hébergée : dépôts, tickets, demandes de fusion, et miroir de sécurité des dépôts GitHub."
 icon: "code-branch"
 iconType: "duotone"
-last_reviewed: "2026-08-14"
+last_reviewed: "2026-10-25"
 app_version: "11"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
+## Accès
 
-<Badge color="green">🟢 Production Active</Badge>
+<CardGroup cols={2}>
+  <Card title="Forgejo" icon="code-branch" href="https://forge.ims-world.fr">
+    Interface web.
+  </Card>
+  <Card title="Git en SSH" icon="terminal">
+    `ssh://git@forge.ims-world.fr:2222/<compte>/<dépôt>.git`
+  </Card>
+</CardGroup>
 
-## Accès Rapides & Administration
-
-<Tabs>
-  <Tab title="🌐 Interface Web">
-    <Card title="Forgejo Web UI" icon="code-branch" href="https://forge.ims-world.fr">
-      Plateforme de gestion de dépôts Git, d'issues et de miroir de sauvegardes sur `forge.ims-world.fr`.
-    </Card>
-  </Tab>
-  <Tab title="⚡ Commandes CLI & Maintenance">
-    ```bash
-    # Se connecter à la VM Coolify
-    ssh cmolotkoff@100.64.0.4
-
-    # Accéder au dossier du service Forgejo
-    cd /data/coolify/services/culcigf0vwg0fbdvegbkzoan/
-
-    # Inspecter les logs du conteneur applicatif et de la base Postgres
-    docker compose logs -f --tail=100
-
-    # Test de clonage d'un dépôt en SSH (Port 2222)
-    git clone ssh://git@forge.ims-world.fr:2222/cmolotkoff/mon-depot.git
-    ```
-  </Tab>
-</Tabs>
-
----
-
-## Fiche Service
-
-| Propriété | Valeur |
-|---|---|
-| **Domaine Web** | `forge.ims-world.fr` |
-| **Port SSH Git** | `forge.ims-world.fr:2222` (NAT Bbox TCP 2222) |
-| **Rôle** | Forge Git self-hosted et miroir de sauvegarde automatique de dépôts GitHub |
-| **Image Docker** | `codeberg.org/forgejo/forgejo:11` |
-| **Base de Données** | PostgreSQL 16 (`postgres:16-alpine`) |
-| **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
-| **UUID Coolify** | `culcigf0vwg0fbdvegbkzoan` |
-| **Chemin sur la VM** | `/data/coolify/services/culcigf0vwg0fbdvegbkzoan/` |
-| **Stockage** | Bind-mounts locaux (`./data` et `./postgres`) |
-| **Relais Mailer** | Resend SMTP (`smtp.resend.com:587`, `forgejo@ims-world.fr`) |
-| **Authentification** | **SSO Authentik OIDC Natif** (`DISABLE_REGISTRATION=true`) |
-| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
-
----
-
-## Architecture & Topologie
-
-```mermaid
-graph TB
-    subgraph INGRESS ["🌐 Accès Web WAN & SSH (Zone 1)"]
-        USER_WEB["👤 Utilisateur Web (HTTPS)"]
-        USER_GIT["💻 Client Git CLI (SSH 2222)"]
-        TRAEFIK["Traefik Proxy (DNS-01 TLS)"]
-        BBOX_NAT["📡 NAT Bbox (Port 2222)"]
-        AUTHENTIK["🔐 Authentik SSO (auth.ims-world.fr)"]
-    end
-
-    subgraph FORGEJO_STACK ["📦 Stack Forgejo (VM 104 Docker)"]
-        FORGEJO_APP["Forgejo Engine (Port 3000 / SSH 2222)"]
-        DB[("🐘 Postgres 16")]
-        DATA["📁 Volume ./data"]
-    end
-
-    subgraph EXTERNAL ["☁️ Services Distants"]
-        RESEND["📧 Resend SMTP Mailer"]
-        GITHUB["🐙 GitHub.com (Pull Mirrors)"]
-    end
-
-    USER_WEB -->|Port 443| TRAEFIK
-    TRAEFIK --> FORGEJO_APP
-    USER_GIT -->|Port 2222| BBOX_NAT
-    BBOX_NAT -->|TCP 2222| FORGEJO_APP
-
-    FORGEJO_APP <-->|OIDC Natif| AUTHENTIK
-    FORGEJO_APP <--> DB
-    FORGEJO_APP --> DATA
-    FORGEJO_APP -->|STARTTLS 587| RESEND
-    FORGEJO_APP <-->|Pull Synchro| GITHUB
-
-    classDef web fill:#F97316,stroke:#FB923C,color:#fff;
-    classDef forge fill:#0F6E56,stroke:#16A085,color:#fff;
-    class USER_WEB,USER_GIT,TRAEFIK,BBOX_NAT,AUTHENTIK web;
-    class FORGEJO_APP,DB,DATA forge;
+```bash
+# Depuis la VM 104
+cd /data/coolify/services/culcigf0vwg0fbdvegbkzoan/ && docker compose logs -f --tail=100
 ```
 
----
+## Fiche
 
-## Composants & Exposition Réseau
-
-| Composant | Image / Port | Rôle |
-|---|---|---|
-| **`forgejo`** | `codeberg.org/forgejo/forgejo:11` | Application web Forgejo (HTTP 3000 / SSH 2222) |
-| **`forgejo-db`** | `postgres:16-alpine` | Base de données PostgreSQL v16 |
-| **`./data`** | Bind-mount hôte | Stockage des dépôts Git bruts, LFS et avatars |
-| **`./postgres`** | Bind-mount hôte | Données système et utilisateurs de la base de données |
-
-<Warning>
-**Exposition du Port SSH 2222** : Contrairement aux requêtes HTTP/HTTPS qui passent par Traefik, les opérations Git via SSH (port `2222`) utilisent un port-mapping TCP direct Docker (`ports: - '2222:2222'`). La sécurité repose intégralement sur l'authentification par clé SSH de Forgejo. Pour plus de détails, voir l'[ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
-</Warning>
-
----
-
-## Miroirs GitHub & Exploitation
-
-### 1. Authentification & SSO OIDC
-- **Authentification OIDC Native** : Forgejo est configuré en OIDC Natif avec Authentik (`auth.ims-world.fr`). Le conteneur utilise `extra_hosts: auth.ims-world.fr:host-gateway` pour résoudre et valider les jetons OAuth en interne.
-- **Fermeture des inscriptions** : Les inscriptions publiques directes sont désactivées (`DISABLE_REGISTRATION=true`). L'authentification passe par Authentik ou des comptes locaux provisionnés.
-
-### 2. Dépôts Miroirs de Sauvegarde (Pull Mirrors)
+| Propriété | Valeur |
+| --- | --- |
+| Domaine | `forge.ims-world.fr` ; SSH sur le port 2222 |
+| Accès | Public ; OIDC Authentik, inscriptions fermées (`DISABLE_REGISTRATION=true`) ; clés SSH pour Git |
+| Hôte | VM 104 |
+| Coolify | UUID `culcigf0vwg0fbdvegbkzoan`, chemin `/data/coolify/services/culcigf0vwg0fbdvegbkzoan/` |
+| Image | `codeberg.org/forgejo/forgejo:11`, `postgres:16-alpine` |
+| Données | `./data` (dépôts, LFS, avatars) et `./postgres` dans le dossier du service |
+| Sauvegarde | Avec la VM 104 |
+| Supervision | Sonde Uptime Kuma |
+| Mise en service | 14/08/2026 |
 
 <Info>
-Forgejo est utilisé comme **miroir de sécurité secondaire**, la plateforme principale de développement restant GitHub. Plusieurs dépôts sont configurés en synchronisation automatique périodique.
+Un dossier `forgejo-data` existe aussi sur le SSD du NAS (`/mnt/storage-hot`). L'emplacement réellement utilisé par le conteneur est à confirmer (`docker inspect`) : s'il s'agit du NAS, les dépôts ne sont pas dans la sauvegarde de la VM 104.
 </Info>
 
-Lors de la migration du service, les Personal Access Tokens (PAT) GitHub stockés en base de données doivent être renouvelés pour réactiver la synchronisation automatique :
+## Fonctionnement
 
-1. Accéder à l'interface web `forge.ims-world.fr`.
-2. Pour chaque dépôt miroir (`sentryx`, `FailyBanDiscordBot`, `my_printf`, `MonitoringServer`, `Intra-IMS`, `default-ansible`) :
-   - Naviguer dans **Paramètres du dépôt → Miroir**.
-   - Mettre à jour le jeton d'accès GitHub (PAT avec scope `repo`).
+| Conteneur | Rôle |
+| --- | --- |
+| `forgejo` | Application, HTTP 3000 derrière Traefik, SSH 2222 publié directement |
+| `forgejo-db` | PostgreSQL 16 |
+
+- Le port 2222 est redirigé par la Bbox et publié par Docker (`ports: '2222:2222'`), sans passer par Traefik ni Authentik. La sécurité repose sur les clés SSH des comptes Forgejo ([ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox)).
+- `extra_hosts: auth.ims-world.fr:host-gateway` : le conteneur joint Authentik par l'hôte pour valider les jetons.
+- Courriels sortants par Resend (`smtp.resend.com:587`, expéditeur `forgejo@ims-world.fr`).
+
+## Miroirs GitHub
+
+GitHub reste la plateforme principale ; Forgejo garde une copie à jour de plusieurs dépôts, synchronisée automatiquement (vers 04:00). Chaque miroir utilise un jeton d'accès personnel GitHub (portée `repo`), à renouveler à son expiration : **Paramètres du dépôt → Miroir**.
+
+## Données et sauvegarde
+
+Base et dépôts sauvegardés avec la VM 104 (sous réserve de l'emplacement signalé plus haut). Les dépôts miroirs se reconstruisent depuis GitHub.
+
+## Exploitation
+
+Mise à jour : changer le tag dans Coolify, redéployer. Une version majeure peut migrer la base : sauvegarder la VM avant.
+
+## Pièges connus
+
+| Symptôme | Cause | Solution |
+| --- | --- | --- |
+| Miroirs arrêtés | Jeton GitHub expiré | Renouveler le jeton dans chaque dépôt miroir |
+| Connexion OIDC en échec | Le conteneur ne joint pas `auth.ims-world.fr` | Vérifier `extra_hosts` |
+
+## Voir aussi
+
+- [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox)
+- [Matrice d'exposition](/reseau/matrice-securite-exposition)
