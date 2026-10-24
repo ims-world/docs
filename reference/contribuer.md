@@ -24,17 +24,22 @@ Une donnée n'est écrite qu'à un seul endroit. Les autres pages y renvoient pa
 
 ## Organisation
 
-| Dossier | Contenu |
-| --- | --- |
-| `infrastructure/` | Fiches des hôtes : matériel, nœuds Proxmox, VM et conteneurs |
-| `reseau/` | Architecture réseau, reverse proxy, matrice d'exposition |
-| `services/` | Fiches des applications |
-| `procedures/` | Procédures d'exploitation, sauvegarde et reprise, feuille de route |
-| `history/adr/` | Décisions d'architecture |
-| `history/incidents/` | Analyses d'incidents |
-| `history/chronologie.md` | Journal des chantiers |
-| `snippets/` | Variables partagées (IP, domaines) |
-| `_modeles/` | Modèles vides par type de page, non publiés |
+| Emplacement | Contenu | Onglet |
+| --- | --- | --- |
+| `index.md` | Vue d'ensemble | Homelab |
+| `infrastructure/` | Fiches des hôtes : matériel, nœuds Proxmox, VM et conteneurs | Homelab |
+| `reseau/` | Architecture réseau, reverse proxy, matrice d'exposition, tailnet, CrowdSec | Homelab |
+| `services/` | Fiches des applications | Homelab |
+| `procedures/` | Urgence, administration, sécurisation, sauvegarde et reprise | Exploitation |
+| `roadmap.md` | Feuille de route | Feuille de route |
+| `history/adr/` | Décisions d'architecture et leur index | Décisions et historique |
+| `history/incidents/` | Analyses d'incidents et leur index | Décisions et historique |
+| `history/chronologie.md` | Journal des chantiers | Décisions et historique |
+| `reference/` | Glossaire, ce guide | Référence |
+| `snippets/` | Variables partagées (IP, domaines) | Non publié |
+| `_modeles/` | Modèles vides par type de page | Non publié |
+
+Un déplacement de page s'accompagne d'une redirection dans la section `redirects` de `docs.json`, pour que les anciens liens restent valides.
 
 ## Rédaction
 
@@ -59,7 +64,7 @@ Une donnée n'est écrite qu'à un seul endroit. Les autres pages y renvoient pa
 
 - Pas de chiffre d'état sans date : « 61 880 photos au 17/08/2026 ». Un lien vers le tableau de bord est préférable.
 - La version d'une image n'apparaît que dans la fiche du service (ligne **Image**) et dans `app_version`.
-- Pas de « en cours », « bientôt », « à venir » : décrire l'état actuel, et renvoyer vers la [feuille de route](/procedures/roadmap) pour la suite.
+- Pas de « en cours », « bientôt », « à venir » : décrire l'état actuel, et renvoyer vers la [feuille de route](/roadmap) pour la suite.
 
 ### Fichiers de configuration et secrets
 
@@ -206,7 +211,7 @@ flowchart LR
 
 - La fiche concernée est à jour.
 - La [matrice d'exposition](/reseau/matrice-securite-exposition) est à jour si un domaine ou un accès change.
-- La [feuille de route](/procedures/roadmap) est à jour si un chantier change d'état.
+- La [feuille de route](/roadmap) est à jour si un chantier change d'état.
 - La [chronologie](/history/chronologie) a un bloc si le changement est notable.
 - Les commandes ont été testées par copier-coller.
 - Les deux contrôles passent sans erreur (ils tournent aussi en CI) :

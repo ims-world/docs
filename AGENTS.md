@@ -2,7 +2,7 @@
 
 Documentation Mintlify du homelab IMS-WORLD : pages MDX avec frontmatter YAML, navigation dans `docs.json`, variables dans `snippets/variables.mdx`.
 
-Le guide complet est la page `history/comment-fonctionne-cette-doc.md` (« Contribuer et guide de style »). Le lire avant toute modification. Partir des modèles de `_modeles/` pour une nouvelle page.
+Le guide complet est la page `reference/contribuer.md` (« Contribuer et guide de style »). Le lire avant toute modification. Partir des modèles de `_modeles/` pour une nouvelle page.
 
 ## Règles impératives
 

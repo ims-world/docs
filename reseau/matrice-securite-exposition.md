@@ -162,7 +162,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
         **Domaine** : `videoclub.ims-world.fr` **Auth** : SSO / Auth Jellyfin **Protection** : DNS-01 TLS
       </Card>
 
-      <Card title="Headscale VPN Server" icon="network-wired" href="/services/headscale-headplane">
+      <Card title="Headscale VPN Server" icon="network-wired" href="/reseau/headscale-headplane">
         **Domaine** : `vpn.ims-world.fr` **Auth** : Noise Key Protocol \+ OIDC SSO **Protection** : Port-forwarding dédié 443
       </Card>
 
@@ -213,7 +213,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
         **Domaine** : `coolify.ims-world.fr` **Protection** : `vpn-only.yaml` Traefik File Provider (`100.64.0.0/10`)
       </Card>
 
-      <Card title="Headplane Admin" icon="sliders" href="/services/headscale-headplane">
+      <Card title="Headplane Admin" icon="sliders" href="/reseau/headscale-headplane">
         **URL** : `https://admin.vpn.ims-world.fr/admin` _(**`/admin` obligatoire**)_ **Protection** : `vpn-only.yaml` \+ Split-Horizon MagicDNS (`100.64.0.4`)
       </Card>
 
@@ -241,7 +241,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
         **Domaine** : `wud.ims-world.fr` **Protection** : `vpn-only.yaml` File Provider (`100.64.0.0/10` \+ `192.168.1.0/24`) \+ Auth native WUD v9
       </Card>
 
-      <Card title="CrowdSec Shield" icon="shield-check" href="/services/crowdsec">
+      <Card title="CrowdSec Shield" icon="shield-check" href="/reseau/crowdsec">
         **Domaine** : `shield.ims-world.fr` **Protection** : `vpn-only.yaml` \+ SSO Authentik OIDC (Rôle ADMIN)
       </Card>
 
@@ -272,7 +272,7 @@ class COOL_VM,NAS_LXC,PBS_LXC iso;
 
 | Source | Destination | Protocole / Port | Usage & Sécurité |
 |---|---|---|---|
-| **VM IMS-Coolify** (`192.168.1.52`) | **Hôtes du LAN** (`192.168.1.0/24`) | TCP `22` (SSH) | Administration Termix : connexions sortantes vers les hôtes administrés (compte `termix-usr`, clé Ed25519 restreinte avec `from="192.168.1.52"`). Voir [Termix](/services/termix) et [Infrastructure as Code](/iac/index). |
+| **VM IMS-Coolify** (`192.168.1.52`) | **Hôtes du LAN** (`192.168.1.0/24`) | TCP `22` (SSH) | Administration Termix : connexions sortantes vers les hôtes administrés (compte `termix-usr`, clé Ed25519 restreinte avec `from="192.168.1.52"`). Voir [Termix](/services/termix) et [Infrastructure as Code](https://github.com/ims-world/ims-ops). |
 
 ---
 

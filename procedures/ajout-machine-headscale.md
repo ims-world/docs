@@ -198,7 +198,7 @@ Si le nouvel équipement enrôlé héberge un service privé qui doit être prot
 ---
 
 <CardGroup cols={2}>
-  <Card title="Headscale & Headplane" icon="network-wired" href="/services/headscale-headplane">
+  <Card title="Headscale & Headplane" icon="network-wired" href="/reseau/headscale-headplane">
     Fiche service et console de gestion du réseau VPN Overlay.
   </Card>
   <Card title="Sécuriser un Service vpn-only" icon="shield" href="/procedures/securiser-service-vpn-only">

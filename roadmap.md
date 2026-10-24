@@ -57,8 +57,8 @@ import { ips, domains } from "/snippets/variables.mdx";
 | **Sauvegardes & Domotique** | Sauvegarde PBS nocturne de la VM 106 (HAOS) | <Badge color="red">🔴 Priorité 1</Badge> | Mac Mini / PBS | ⏳ En attente |
 | **UX & Sécurité HA** | Routeur Traefik HTTPS vpn-only pour Home Assistant (`https://home.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Traefik) | ✅ 14/09/2026 |
 | **Automatisation & Workflows** | Déploiement n8n sur Coolify avec PostgreSQL 16 (`automation.ims-world.fr`) | <Badge color="green">🟢 Effectué</Badge> | VM 104 (Coolify) | ✅ 22/09/2026 |
-| **Automatisation & IaC** | Refonte du dépôt IMS-INFRA en scripts documentés + Makefile ([IaC](/iac/index)) | <Badge color="green">🟢 Court Terme</Badge> | Mac (opérateur) | 🚧 En cours |
-| **Automatisation & IaC** | Raccordement Termix des hôtes du parc ([IaC](/iac/index)) | <Badge color="green">🟢 Effectué</Badge> | 7 hôtes du parc | ✅ 24/10/2026 |
+| **Automatisation & IaC** | Refonte du dépôt IMS-INFRA en scripts documentés + Makefile ([IaC](https://github.com/ims-world/ims-ops)) | <Badge color="green">🟢 Court Terme</Badge> | Mac (opérateur) | 🚧 En cours |
+| **Automatisation & IaC** | Raccordement Termix des hôtes du parc ([IaC](https://github.com/ims-world/ims-ops)) | <Badge color="green">🟢 Effectué</Badge> | 7 hôtes du parc | ✅ 24/10/2026 |
 | **Réseau & Tailnet** | Enrôlement Tailscale des LXC 100 (NAS) et 105 (Worker) | <Badge color="green">🟢 Effectué</Badge> | LXC 100 & 105 | ✅ 22/10/2026 |
 | **Automatisation & Socle** | Durcissement SSH transversal & sudo journalisé ([Changelog](/history/chronologie)) | <Badge color="green">🟢 Effectué</Badge> | 7 hôtes du parc | ✅ 23/10/2026 |
 | **Sécurité & Tailnet** | Renouvellement de la clé pre-auth Headscale infra (avant le 21/01/2027) | <Badge color="amber">🟡 Moyen Terme</Badge> | Headscale | ⏳ Échéance 2027 |
@@ -312,7 +312,7 @@ import { ips, domains } from "/snippets/variables.mdx";
   </Accordion>
 
   <Accordion title="🛡️ Détection d'Intrusions CrowdSec v1.7.8 & WAF AppSec — 22/08/2026">
-    Déploiement de l'agent CrowdSec, du plugin bouncer Traefik (mode stream fail-open `updateMaxFailure: -1`), du WAF AppSec (196 règles inband), des allowlists `tailscale`/`home-lan` et de l'IHM locale **Shield** (`shield.ims-world.fr`). Voir [CrowdSec](/services/crowdsec).
+    Déploiement de l'agent CrowdSec, du plugin bouncer Traefik (mode stream fail-open `updateMaxFailure: -1`), du WAF AppSec (196 règles inband), des allowlists `tailscale`/`home-lan` et de l'IHM locale **Shield** (`shield.ims-world.fr`). Voir [CrowdSec](/reseau/crowdsec).
   </Accordion>
 
   <Accordion title="📊 Stack Monitoring LGTM (Grafana / Loki / Prometheus / Alloy) — 10-21/08/2026">

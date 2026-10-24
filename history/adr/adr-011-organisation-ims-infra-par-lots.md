@@ -27,7 +27,7 @@ Le dépôt IMS-INFRA avait été conçu pour des VMs issues du template 9000, qu
 4. **Connexion d'Ansible** : Compte `cmolotkoff` + sudo, jamais root. IP Tailscale pour les hôtes du tailnet, rebond par pve pour les LXC sans Tailscale. `host_key_checking` activé.
 5. **Périmètre des playbooks** : Le durcissement (`security.yml`) ne cible que `[vms]`. Chaque playbook cible un groupe explicite, jamais `all`.
 6. **Qualité** : `ansible-lint` en profil production, simulation `--check --diff` avant toute application, échec explicite si une variable obligatoire manque.
-7. **Documentation à deux niveaux** : Le dépôt donne les commandes, Mintlify explique le contexte et les choix (section [Infrastructure as Code](/iac/index)).
+7. **Documentation à deux niveaux** : Le dépôt donne les commandes, Mintlify explique le contexte et les choix (section [Infrastructure as Code](https://github.com/ims-world/ims-ops)).
 
 ---
 

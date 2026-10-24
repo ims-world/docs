@@ -130,7 +130,7 @@ graph TB
     | **Authentik** | `auth.ims-world.fr` | Provider d'identité centralisé (SSO / OIDC \+ 2FA) | [Authentik](/services/authentik) |
     | **Vaultwarden** | `vault.ims-world.fr` | Coffre-fort de mots de passe compatible Bitwarden | [Vaultwarden](/services/vaultwarden) |
     | **HomeFlix** | `homeflix.ims-world.fr` | Stack médias complète (Jellyfin, \*arr, qBittorrent, Gluetun) | [HomeFlix](/services/homeflix) |
-    | **Headscale \+ Headplane** | `vpn.ims-world.fr` | Control plane VPN Tailscale self-hosted | [Headscale](/services/headscale-headplane) |
+    | **Headscale \+ Headplane** | `vpn.ims-world.fr` | Control plane VPN Tailscale self-hosted | [Headscale](/reseau/headscale-headplane) |
   </Tab>
   <Tab title="🖥️ Infrastructure Physique & Hyperviseur">
     | Composant | Rôle | Statut | Page associée |
@@ -168,7 +168,7 @@ graph TB
     Extension MergerFS ou bascule storage-hot.
   </Card>
 
-  <Card title="Feuille de Route & TODOs" icon="list-check" href="/procedures/roadmap">
+  <Card title="Feuille de Route & TODOs" icon="list-check" href="/roadmap">
     Liste des chantiers techniques et optimisations à venir.
   </Card>
 

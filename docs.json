@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "IMS-WORLD Documentation homelab",
-  "description": "Documentation technique de l'infrastructure self-hosted IMS-WORLD (v1.0)",
+  "description": "Documentation technique de l'infrastructure auto-hébergée IMS-WORLD",
   "logo": {
     "light": "/assets/logo-ims.png",
     "dark": "/assets/logo-ims.png",
@@ -23,59 +23,49 @@
       },
       {
         "type": "external",
-        "label": "PVE",
-        "href": "https://ims-pve-ms01.ts.ims-world.fr:8006/"
+        "label": "Proxmox",
+        "href": "https://100.64.0.9:8006"
       },
       {
         "type": "external",
-        "label": "GitHub",
-        "href": "https://github.com/ims-world/ims-infra"
+        "label": "ims-ops",
+        "href": "https://github.com/ims-world/ims-ops"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "🚀 Coolify",
+      "label": "Coolify",
       "href": "https://coolify.ims-world.fr"
     }
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/ims-world/ims-infra",
+      "github": "https://github.com/ims-world/docs",
       "website": "https://ims-world.fr"
     }
   },
   "navigation": {
     "tabs": [
       {
-        "tab": "Infrastructure & Services",
+        "tab": "Homelab",
         "groups": [
           {
             "group": "Accueil",
-            "icon": "house",
             "pages": [
-              "index",
-              "history/comment-fonctionne-cette-doc"
+              "index"
             ]
           },
           {
-            "group": "Rack 10\" & Physique",
-            "icon": "cubes",
+            "group": "Matériel",
             "pages": [
-              "infrastructure/labrax"
-            ]
-          },
-          {
-            "group": "Hôtes Physiques (Compute)",
-            "icon": "server",
-            "pages": [
+              "infrastructure/labrax",
               "infrastructure/proxmox-host",
               "infrastructure/mac-mini",
               "infrastructure/rpi-monitor"
             ]
           },
           {
-            "group": "Virtualisation (LXC & VM)",
-            "icon": "box",
+            "group": "Machines virtuelles et conteneurs",
             "pages": [
               "infrastructure/ims-nas",
               "infrastructure/ims-pbs",
@@ -85,77 +75,85 @@
             ]
           },
           {
-            "group": "Réseau",
-            "icon": "network-wired",
+            "group": "Réseau et sécurité",
             "pages": [
               "reseau/architecture-reseau",
               "reseau/traefik-proxy",
-              "reseau/matrice-securite-exposition"
+              "reseau/matrice-securite-exposition",
+              "reseau/headscale-headplane",
+              "reseau/crowdsec"
             ]
           },
           {
-            "group": "Services",
-            "icon": "cubes",
+            "group": "Services — identité et accès",
             "pages": [
               "services/authentik",
               "services/vaultwarden",
-              "services/homeflix",
-              "services/headscale-headplane",
+              "services/termix"
+            ]
+          },
+          {
+            "group": "Services — supervision",
+            "pages": [
               "services/monitoring",
-              "services/crowdsec",
+              "services/uptime-kuma",
               "services/ntfy",
               "services/dozzle",
-              "services/whatsupdocker",
+              "services/whatsupdocker"
+            ]
+          },
+          {
+            "group": "Services — médias",
+            "pages": [
+              "services/homeflix",
               "services/immich",
-              "services/uptime-kuma",
+              "services/photoprism"
+            ]
+          },
+          {
+            "group": "Services — outils",
+            "pages": [
+              "services/forgejo",
+              "services/n8n",
+              "services/patrimo",
               "services/it-tools",
               "services/stirling-pdf",
-              "services/zipline",
-              "services/forgejo",
-              "services/patrimo",
-              "services/photoprism",
-              "services/n8n",
-              "services/termix"
+              "services/zipline"
             ]
           }
         ]
       },
       {
-        "tab": "Procédures & PRA",
+        "tab": "Exploitation",
         "groups": [
           {
-            "group": "Urgence & Diagnostic",
-            "icon": "bolt",
+            "group": "Urgence",
             "pages": [
-              "procedures/catalogue-procedures",
               "procedures/commandes-urgence",
               "procedures/depannage-courant"
             ]
           },
           {
-            "group": "Exploitation & Déploiement",
-            "icon": "gears",
+            "group": "Administrer le parc",
             "pages": [
               "procedures/deploiement-service",
-              "procedures/sauvegarde-manuelle-coolify",
+              "procedures/ajout-machine-headscale",
               "procedures/ajout-nouveau-disque"
             ]
           },
           {
-            "group": "Sécurité & Authentification",
-            "icon": "shield-lock",
+            "group": "Sécuriser un service",
             "pages": [
               "procedures/securiser-service-vpn-only",
               "procedures/securiser-application-authentik-forward-auth",
-              "procedures/integration-service-authentik-oidc",
-              "procedures/ajout-machine-headscale"
+              "procedures/integration-service-authentik-oidc"
             ]
           },
           {
-            "group": "Reprise d'Activité (PRA)",
-            "icon": "shield-alert",
+            "group": "Sauvegarde et reprise",
             "pages": [
               "procedures/politique-sauvegardes",
+              "procedures/sauvegarde-manuelle-coolify",
               "procedures/plan-reprise-activite-pra",
               "procedures/simulation-crash-restauration"
             ]
@@ -163,24 +161,23 @@
         ]
       },
       {
-        "tab": "Feuille de Route",
+        "tab": "Feuille de route",
         "groups": [
           {
-            "group": "Suivi & Backlog Homelab",
-            "icon": "list-check",
+            "group": "Feuille de route",
             "pages": [
-              "procedures/roadmap"
+              "roadmap"
             ]
           }
         ]
       },
       {
-        "tab": "ADR & Décisions",
+        "tab": "Décisions et historique",
         "groups": [
           {
-            "group": "Architectural Decision Records",
-            "icon": "file-code",
+            "group": "Décisions (ADR)",
             "pages": [
+              "history/adr/index",
               "history/adr/adr-001-stack-monitoring-lgtm",
               "history/adr/adr-002-pattern-forward-auth-authentik",
               "history/adr/adr-003-partitionnement-stockage-nfs",
@@ -193,58 +190,74 @@
               "history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster",
               "history/adr/adr-011-organisation-ims-infra-par-lots"
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Historique & Post-Mortems",
-        "groups": [
-          {
-            "group": "Traçabilité & Gouvernance",
-            "icon": "clock-rotate-left",
-            "pages": [
-              "history/chronologie"
-            ]
           },
           {
-            "group": "Post-Mortems & Incidents",
-            "icon": "triangle-exclamation",
+            "group": "Incidents",
             "pages": [
+              "history/incidents/index",
               "history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix",
               "history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband",
-              "history/incidents/2026-08-24-bypass-sso-dozzle-traefik-file-provider",
               "history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr",
+              "history/incidents/2026-08-24-bypass-sso-dozzle-traefik-file-provider",
               "history/incidents/2026-08-19-stale-nfs-filehandle-jellyfin-mergerfs",
               "history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri",
               "history/incidents/2026-08-18-blocage-traefik-vpn-only-docker-proxy"
             ]
-          }
-        ]
-      },
-      {
-        "tab": "Infrastructure as Code",
-        "groups": [
+          },
           {
-            "group": "Vue d'ensemble",
-            "icon": "code",
+            "group": "Chronologie",
             "pages": [
-              "iac/index"
+              "history/chronologie"
             ]
           }
         ]
       },
       {
-        "tab": "Glossaire",
+        "tab": "Référence",
         "groups": [
           {
-            "group": "Référentiel & Termes",
-            "icon": "book",
+            "group": "Référence",
             "pages": [
-              "history/glossaire"
+              "reference/glossaire",
+              "reference/contribuer"
             ]
           }
         ]
       }
     ]
-  }
+  },
+  "redirects": [
+    {
+      "source": "/procedures/roadmap",
+      "destination": "/roadmap"
+    },
+    {
+      "source": "/services/headscale-headplane",
+      "destination": "/reseau/headscale-headplane"
+    },
+    {
+      "source": "/services/crowdsec",
+      "destination": "/reseau/crowdsec"
+    },
+    {
+      "source": "/history/glossaire",
+      "destination": "/reference/glossaire"
+    },
+    {
+      "source": "/history/comment-fonctionne-cette-doc",
+      "destination": "/reference/contribuer"
+    },
+    {
+      "source": "/procedures/catalogue-procedures",
+      "destination": "/procedures/commandes-urgence"
+    },
+    {
+      "source": "/iac/index",
+      "destination": "/reference/contribuer"
+    },
+    {
+      "source": "/iac",
+      "destination": "/reference/contribuer"
+    }
+  ]
 }

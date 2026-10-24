@@ -125,10 +125,10 @@ command:
 
 - **Mode d'Opération** : `stream` (synchronisation des décisions toutes les 60s, zéro latence par requête HTTP).
 - **Politique de Secours (Fail-Open)** : Variable `updateMaxFailure: -1` explicitement définie pour garantir qu'aucune interruption de service ne survienne si l'agent CrowdSec s'arrête (fail-open validé par test réel).
-- **Règle de Redéploiement** : En cas de modification de la configuration du plugin, exécuter impérativement `docker compose -f /data/coolify/proxy/docker-compose.yml up -d --force-recreate` sur la VM 104. Voir la fiche [CrowdSec](/services/crowdsec).
+- **Règle de Redéploiement** : En cas de modification de la configuration du plugin, exécuter impérativement `docker compose -f /data/coolify/proxy/docker-compose.yml up -d --force-recreate` sur la VM 104. Voir la fiche [CrowdSec](/reseau/crowdsec).
 
 <Warning>
-Contrairement aux autres services (Environment Variables Coolify avec option "Is Secret"), les credentials OVH du proxy sont actuellement **en clair** dans le `docker-compose.yml` — limitation propre à cette partie de Coolify. À sécuriser via un `.env` séparé (voir [Roadmap](/procedures/roadmap)).
+Contrairement aux autres services (Environment Variables Coolify avec option "Is Secret"), les credentials OVH du proxy sont actuellement **en clair** dans le `docker-compose.yml` — limitation propre à cette partie de Coolify. À sécuriser via un `.env` séparé (voir [Roadmap](/roadmap)).
 </Warning>
 
 ---

@@ -50,19 +50,19 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Configuration du Compte cmolotkoff sur le NAS (LXC 100)** — Tu as configuré le compte d'administration avec `sudo NOPASSWD` et ta clé SSH. Ce compte est aussi l'utilisateur Samba (UID 1000) : son shell est passé de `nologin` à `/bin/bash` et son mot de passe système reste verrouillé (`passwd -l`). Son UID 1000 ne doit jamais être modifié ni supprimé.
   - **Création du Compte cmolotkoff sur le Worker Coolify (LXC 105)** — Tu as créé le compte `cmolotkoff` avec `sudo NOPASSWD` et ta clé SSH, permettant l'accès direct Ansible sur le worker.
   - **Réparation de l'Accès cmolotkoff sur Proxmox Backup Server (LXC 103)** — Tu as réparé la clé SSH qui était refusée, rétablissant les connexions d'administration sur PBS.
-  - **Validation en Production du Bootstrap Admin** — Ces interventions valident en conditions réelles la préparation des accès administrateur sur les trois conteneurs LXC du homelab. Voir [Infrastructure as Code](/iac/index).
+  - **Validation en Production du Bootstrap Admin** — Ces interventions valident en conditions réelles la préparation des accès administrateur sur les trois conteneurs LXC du homelab. Voir [Infrastructure as Code](https://github.com/ims-world/ims-ops).
 </Update>
 
 <Update label="19/10/2026" description="Termix 26.10.2 en Production, Validation Accès Pilote IMS-PBS & Refonte d'IMS-INFRA">
   ### 🖥️ Gestion Centralisée des Hôtes & Accès Distant (Termix)
 
   - **Mise en Production de Termix 26.10.2 (`termix.ims-world.fr`)** — Déploiement sur la VM 104 (`ims-coolify`, UUID `ot8tjxw5ruhoqyis3rkb4ll5`) avec conteneur `guacd:1.6.0` isolé. Accès réservé au Tailnet (`vpn-only.yaml`), authentification OIDC Authentik native (groupe `admins`) avec admin local de secours TOTP, et secrets gérés dans Coolify. Voir [Termix](/services/termix).
-  - **Validation de l'Accès termix-usr sur l'Hôte Pilote IMS-PBS** — Déploiement et validation du compte dédié non-root `termix-usr` sur le LXC 103 (`192.168.1.51`) : clé Ed25519 restreinte à `192.168.1.52`, sudo `NOPASSWD` avec `log_subcmds`, traçabilité temps réel dans Loki via Alloy. Voir [Infrastructure as Code](/iac/index).
+  - **Validation de l'Accès termix-usr sur l'Hôte Pilote IMS-PBS** — Déploiement et validation du compte dédié non-root `termix-usr` sur le LXC 103 (`192.168.1.51`) : clé Ed25519 restreinte à `192.168.1.52`, sudo `NOPASSWD` avec `log_subcmds`, traçabilité temps réel dans Loki via Alloy. Voir [Infrastructure as Code](https://github.com/ims-world/ims-ops).
 
   ### ⚙️ Refonte du Dépôt d'Automatisation (IMS-INFRA)
 
   - **Refonte Modulaire par Scripts & Point d'Entrée Makefile** — Restructuration complète du dépôt **IMS-INFRA** en scripts et playbooks d'automatisation avec un `Makefile` universel comme interface unique (`make help`, simulation `--check --diff`).
-  - **Nettoyage du Code Mort & Protection du Cluster Proxmox** — Retrait des rôles obsolètes (`node_exporter`, `nfs_client`), restriction stricte des playbooks de durcissement SSH/fail2ban/CrowdSec au seul groupe `[vms]` pour préserver le root SSH inter-nœuds du cluster Proxmox. Voir [Infrastructure as Code](/iac/index) et l'[ADR-011](/history/adr/adr-011-organisation-ims-infra-par-lots).
+  - **Nettoyage du Code Mort & Protection du Cluster Proxmox** — Retrait des rôles obsolètes (`node_exporter`, `nfs_client`), restriction stricte des playbooks de durcissement SSH/fail2ban/CrowdSec au seul groupe `[vms]` pour préserver le root SSH inter-nœuds du cluster Proxmox. Voir [Infrastructure as Code](https://github.com/ims-world/ims-ops) et l'[ADR-011](/history/adr/adr-011-organisation-ims-infra-par-lots).
 </Update>
 
 <Update label="22/09/2026" description="Déploiement Plateforme d'Automatisation n8n v2.10.4 (Queue Mode, Redis & Task Runners) sur Coolify">
@@ -84,17 +84,17 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 
   - **Traefik (Coolify Proxy) `v3.7.13`** — Mise à niveau du moteur de reverse proxy central sur la VM 104 avec maintien du bouncer CrowdSec. Voir [Traefik (Coolify Proxy)](/reseau/traefik-proxy).
   - **Gluetun `v3.41.3` (Stack HomeFlix)** — Montée de version de `qmcgaw/gluetun:v3.40.0` vers `v3.41.3` pour corriger le deadlock critique sur la réattribution dynamique de port ProtonVPN. Modernisation des variables DNS (`DNS_SERVER: 'on'`, `DNS_UPSTREAM_RESOLVERS: cloudflare`). Voir [HomeFlix](/services/homeflix).
-  - **Headscale `v0.29.3` & Headplane `0.7.1`** — Montée de version et résolution des incompatibilités de configuration de Headscale v0.29 (suppression de la directive obsolète `randomize_client_port` et imbrication de `node.ephemeral.inactivity_timeout: 30m`). Voir [Headscale & Headplane](/services/headscale-headplane).
+  - **Headscale `v0.29.3` & Headplane `0.7.1`** — Montée de version et résolution des incompatibilités de configuration de Headscale v0.29 (suppression de la directive obsolète `randomize_client_port` et imbrication de `node.ephemeral.inactivity_timeout: 30m`). Voir [Headscale & Headplane](/reseau/headscale-headplane).
   - **Immich `v3.2.0`** — Migration majeure du serveur et du conteneur de machine learning avec réindexation des modèles d'inférence. Voir [Immich](/services/immich).
   - **Uptime Kuma `v2.5.4`** — Mise à jour du moteur de supervision actif et de la page de statut. Voir [Uptime Kuma](/services/uptime-kuma).
   - **Ntfy `v2.28.0`** — Mise à jour du serveur de notifications push. Voir [Ntfy](/services/ntfy).
   - **Dozzle `v11.0.1`** — Passage en version majeure v11 de l'afficheur live des logs Docker. Voir [Dozzle](/services/dozzle).
-  - **CrowdSec Agent `v1.8.1` & Shield Web UI `2026.8.3`** — Mise à jour du moteur d'analyse comportementale et de l'interface de gestion du pare-feu. Voir [CrowdSec](/services/crowdsec).
+  - **CrowdSec Agent `v1.8.1` & Shield Web UI `2026.8.3`** — Mise à jour du moteur d'analyse comportementale et de l'interface de gestion du pare-feu. Voir [CrowdSec](/reseau/crowdsec).
 
   ### 🖥️ Automatisation Proxmox & Template Cloud-Init (VM 8000)
 
   - **Enrôlement Automatique Tailscale sur Template Ubuntu 24.04** — Ajout d'une configuration Cloud-Init `vendor-data.yaml` sur le template Proxmox (`VMID 8000`). Toute nouvelle VM clonée installe Tailscale et rejoint automatiquement le Tailnet privé sur `vpn.ims-world.fr` dès son premier boot via une clé réutilisable. Voir [Hôte Proxmox MS-01](/infrastructure/proxmox-host) et [Ajout d'une machine Headscale](/procedures/ajout-machine-headscale).
-  - **Chantiers Ansible & Audit des Procédures** — Inscription à la feuille de route des playbooks d'automatisation de création de VM, du portail self-service de VM éphémères et de l'audit complet des procédures opérationnelles (Chantier 1.6). Voir [Feuille de Route](/procedures/roadmap).
+  - **Chantiers Ansible & Audit des Procédures** — Inscription à la feuille de route des playbooks d'automatisation de création de VM, du portail self-service de VM éphémères et de l'audit complet des procédures opérationnelles (Chantier 1.6). Voir [Feuille de Route](/roadmap).
 
   ### 🏠 Domotique & Déploiement VM HAOS (Mac Mini)
 
@@ -107,20 +107,20 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   ### 🔐 Fédération d'Identité & Contrôle d'Accès (OIDC)
 
   - **Interconnexion Authentik ➔ Headscale OIDC** — Déploiement d'un fournisseur d'identité OAuth2/OIDC dédié (`headscale-oidc`) sur Authentik avec chiffrement PKCE et restriction stricte aux groupes `admins` et `membres`.
-  - **Validation du Premier Enrôlement Utilisateur** — Enregistrement réussi du premier compte utilisateur (`cmolotkoff`) sur le Tailnet avec redirection web interactive via `https://vpn.ims-world.fr/oidc/callback`. Création automatique de l'espace de nommage utilisateur dans Headscale. Voir [Headscale & Headplane](/services/headscale-headplane) et [Authentik](/services/authentik).
+  - **Validation du Premier Enrôlement Utilisateur** — Enregistrement réussi du premier compte utilisateur (`cmolotkoff`) sur le Tailnet avec redirection web interactive via `https://vpn.ims-world.fr/oidc/callback`. Création automatique de l'espace de nommage utilisateur dans Headscale. Voir [Headscale & Headplane](/reseau/headscale-headplane) et [Authentik](/services/authentik).
   - **Mise à Jour de la Matrice de Sécurité** — Formalisation des niveaux d'habilitation OIDC et des accès réseau pour les membres du Tailnet. Voir [Matrice de Sécurité](/reseau/matrice-securite-exposition).
 
   ### 📋 Planification & Résilience
 
   - **Cadrage des Accès Elo & VM Dédiée** — Inscription à la feuille de route de la procédure d'accès Tailnet restreint et du dimensionnement d'une VM de travail dédiée.
-  - **Supervision & Sauvegardes VM** — Inscription du chantier d'audit global des snapshots PBS et de la validation des alertes Ntfy sur l'ensemble des machines virtuelles. Voir [Feuille de Route](/procedures/roadmap).
+  - **Supervision & Sauvegardes VM** — Inscription du chantier d'audit global des snapshots PBS et de la validation des alertes Ntfy sur l'ensemble des machines virtuelles. Voir [Feuille de Route](/roadmap).
 </Update>
 
 <Update label="29/08/2026 - 31/08/2026" description="Cadrage Roadmap : Services IA (Page Agent Alibaba, Meetilty) & Audit Nœud Worker">
   ### 💡 Innovation & Backlog Applicatif
 
   - **Cadrage Nouveaux Services IA** — Intégration dans la feuille de route de **Page Agent** (automatisation de navigation par agent IA browser Alibaba) et de **Meetilty** (prise de notes et transcription locale de réunions).
-  - **Audit de Résilience Multi-Nœuds** — Consolidation de la documentation sur le Nœud Worker LXC 105 du Mac Mini et intégration des règles de redondance Traefik. Voir [Feuille de Route](/procedures/roadmap).
+  - **Audit de Résilience Multi-Nœuds** — Consolidation de la documentation sur le Nœud Worker LXC 105 du Mac Mini et intégration des règles de redondance Traefik. Voir [Feuille de Route](/roadmap).
 </Update>
 
 <Update label="28/08/2026" description="Topologie Multi-Nœuds Coolify v4.3.14 (Master VM 104 + Worker LXC 105 Mac Mini)">
@@ -137,7 +137,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 
   ### 🛡️ Sécurité & WAF
 
-  - **Correction des Faux Positifs AppSec WAF** — Neutralisation des bannissements automatiques intempestifs générés par le scénario `crowdsecurity/crowdsec-appsec-outofband` sur les requêtes AJAX légitimes (Grafana, Jellyfin, Patrimo). Ajustement du profil `/etc/crowdsec/profiles.yaml` pour conserver l'enregistrement des alertes sans bloquer l'accès. Voir le [Post-Mortem du 26/08/2026](/history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband) et la fiche [CrowdSec](/services/crowdsec#pare-feu-applicatif-waf-appsec--tuning-anti-faux-positifs).
+  - **Correction des Faux Positifs AppSec WAF** — Neutralisation des bannissements automatiques intempestifs générés par le scénario `crowdsecurity/crowdsec-appsec-outofband` sur les requêtes AJAX légitimes (Grafana, Jellyfin, Patrimo). Ajustement du profil `/etc/crowdsec/profiles.yaml` pour conserver l'enregistrement des alertes sans bloquer l'accès. Voir le [Post-Mortem du 26/08/2026](/history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband) et la fiche [CrowdSec](/reseau/crowdsec#pare-feu-applicatif-waf-appsec--tuning-anti-faux-positifs).
 </Update>
 
 <Update label="24/08/2026" description="Alloy Mac Mini, Migration Authentik v2026.8.0, Incident Bypass SSO Dozzle & Incident DNS Wildcard">
@@ -172,7 +172,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 
   - **Déploiement de l'Agent CrowdSec v1.7.8 & WAF AppSec** — Activation du moteur de détection L3/L4/L7 sur la VM 104 (`ims-coolify`). Configuration de l'acquisition des logs Docker (`acquis.yaml`), du pare-feu applicatif AppSec (Virtual Patching inband), et création des allowlists de protection anti-auto-ban (`tailscale` `100.64.0.0/10` et `home-lan` `192.168.1.0/24`).
   - **Integration du Plugin Bouncer Traefik v1.6.0** — Activation du filtrage dynamique en mode `stream` (sync 60s) sur les entrypoints HTTP/HTTPS avec garantie fail-open (`updateMaxFailure: -1`).
-  - **Déploiement de l'Interface Web Shield (`shield.ims-world.fr`)** — Publication de la console de gestion locale CrowdSec Web UI protégée en `vpn-only` \+ SSO Authentik OIDC (rôle `ADMIN` strict). Voir [CrowdSec & Shield](/services/crowdsec).
+  - **Déploiement de l'Interface Web Shield (`shield.ims-world.fr`)** — Publication de la console de gestion locale CrowdSec Web UI protégée en `vpn-only` \+ SSO Authentik OIDC (rôle `ADMIN` strict). Voir [CrowdSec & Shield](/reseau/crowdsec).
 </Update>
 
 <Update label="21/08/2026" description="Refonte Complète & Monitoring Avancé (SMART, Uptime Kuma, Dashboards)">

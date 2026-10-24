@@ -268,7 +268,7 @@ Entrée dans `extra_records` (via Headplane) :
 
 ## Raccordement des hôtes
 
-Les hôtes sont raccordés à Termix par l'automatisation du dépôt IMS-INFRA : un compte dédié `termix-usr`, une nouvelle clé SSH déployée le 24/10/2026 restreinte à Traefik (`from="192.168.1.52"`), et un sudo sans mot de passe journalisé (`Defaults log_subcmds`) dans Loki via Alloy. Voir [Infrastructure as Code](/iac/index).
+Les hôtes sont raccordés à Termix par l'automatisation du dépôt IMS-INFRA : un compte dédié `termix-usr`, une nouvelle clé SSH déployée le 24/10/2026 restreinte à Traefik (`from="192.168.1.52"`), et un sudo sans mot de passe journalisé (`Defaults log_subcmds`) dans Loki via Alloy. Voir [Infrastructure as Code](https://github.com/ims-world/ims-ops).
 
 | Hôte | Statut | Rôle & Remarque |
 |---|---|---|
