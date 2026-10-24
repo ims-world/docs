@@ -1,15 +1,16 @@
 ---
-title: "ADR-011 : Organisation d'IMS-INFRA par Scripts et Modules"
+title: "ADR-011 — Organisation d'IMS-INFRA par lots"
 description: "Structuration du dépôt IMS-INFRA en scripts et modules documentés avec un Makefile comme point d'entrée, et règles de connexion d'Ansible"
 icon: "file-code"
 iconType: "duotone"
-last_reviewed: "2026-10-19"
+last_reviewed: "2026-10-25"
 ---
 
-<Badge color="green">🟢 Décision Acceptée & Implémentée</Badge>
+## Statut
 
-## Contexte & Enjeu
+Remplacé par [ADR-013](/history/adr/adr-013-administration-par-ims-ops) — 24/10/2026 (décision initiale du 19/10/2026)
 
+## Contexte
 Le dépôt IMS-INFRA avait été conçu pour des VMs issues du template 9000, qui ne sont jamais entrées en service. La production (nœuds Proxmox, LXC, VM 104) a été configurée à la main. En conséquence :
 - Le groupe d'inventaire `[vms]` ne contenait qu'une adresse morte ;
 - Plusieurs rôles ne servaient à rien (`node_exporter`, alors que la supervision utilise Alloy ; `nfs_client`, sans client NFS géré) ;
@@ -19,8 +20,7 @@ Le dépôt IMS-INFRA avait été conçu pour des VMs issues du template 9000, qu
 
 ---
 
-## Décisions Actées
-
+## Décision
 1. **Organisation par lots** : Chaque fonctionnalité est un dossier `lots/NN-<nom>/` avec son `README.md`. Le `README.md` racine sert de sommaire, avec une colonne de statut.
 2. **Un seul point d'entrée (le Makefile)** : Chaque action a une cible (`make help`). Les commandes destructrices exigent `CONFIRM=oui`.
 3. **Script ou Ansible** : Script shell pour une action ponctuelle sur une machine, Ansible pour un état à maintenir sur plusieurs hôtes.
@@ -40,8 +40,7 @@ Le dépôt IMS-INFRA avait été conçu pour des VMs issues du template 9000, qu
 
 ---
 
-## Alternatives Écartées
-
+## Alternatives écartées
 - **Refonte complète en Infrastructure as Code** (audit puis convergence de toute la couche système) : plus ambitieuse, mais disproportionnée pour le besoin actuel. Elle reste possible lot par lot.
 - **Tests Molecule** : coût de maintenance élevé pour six hôtes. La simulation `--check --diff` sur le vrai parc est préférée.
 - **Terraform** : écarté de longue date, les VMs ne sont pas assez volatiles pour le justifier.

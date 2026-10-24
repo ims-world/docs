@@ -1,13 +1,14 @@
 ---
-title: "ADR-004 — Architecture Réseau en 3 Zones d'Exposition"
+title: "ADR-004 — Réseau en trois zones d'exposition"
 description: "Décision d'architecture concernant le cloisonnement et la matrice de sécurité du homelab"
 icon: "network-wired"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
 ## Statut
 
-<Badge color="green">🟢 Accepté & Déployé</Badge> _(2026-08-12)_
+Accepté — 12/08/2026, amendé le 23/08/2026
 
 <Update label="23/08/2026" description="Amendement — SSH ramené au port 22">
   Le port SSH système mentionné en Zone 3 (`4242/22`) a depuis été recentralisé sur le port **22 standard** sur l'ensemble des nœuds. Décision actée par l'[ADR-010](/history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster) du 23/08/2026 (abandon de la migration vers le port 4242 pour préserver Corosync/PMXCFS). Le texte original de la décision ci-dessous est conservé pour l'historique.
@@ -23,7 +24,7 @@ Exposer des services d'administration d'infrastructure (GUI Proxmox 8006, PBS 80
 
 ## Décision
 
-Nous avons découpé l'ensemble du réseau en **3 zones de confiance étanches** :
+Décision : découper l'ensemble du réseau en **3 zones de confiance étanches** :
 
 1. **Zone 1 — Public WAN (Internet)** : Services ouverts sur le Web (`auth`, `vault`, `photos`, `homeflix`, `videoclub`, `status`, `tools`). Protégés par Traefik, certificat TLS Let's Encrypt DNS-01, et authentification système (SSO OIDC ou Forward-Auth Outpost).
 2. **Zone 2 — Tailnet Overlay (VPN WireGuard `100.64.0.0/10`)** : Services d'administration applicative (`qbit`, `radarr`, `sonarr`, `prowlarr`, `monitoring`, `headplane`). Filtrage HTTP obligatoire par le provider file Traefik `vpn-only.yaml` (**HTTP 403 Forbidden** hors Tailnet) avec préservation d'IP source via `"userland-proxy": false` (CIS Docker Benchmark). Voir l'[ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only).
@@ -39,6 +40,5 @@ Nous avons découpé l'ensemble du réseau en **3 zones de confiance étanches**
 - **Protection en profondeur** : Même en cas de découverte d'un sous-domaine privé, le provider file Traefik `vpn-only.yaml` rejette la connexion HTTP avec un **403 Forbidden** avant d'atteindre l'application.
 - **Accès Admin Sécurisé** : L'administration SSH et l'accès aux interfaces GUI Proxmox/PBS restent réservés au LAN local et au réseau virtuel Tailscale.
 
-### Négatives / Contraintes
-
+### Contraintes
 - Obligation d'être connecté au VPN Tailscale/Headscale pour administrer les arrs, la métrologie, Headplane ou accéder en SSH à distance.

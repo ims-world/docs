@@ -1,72 +1,50 @@
 ---
-title: "Changelog & Historique"
-description: "Chronologie du projet et journal exhaustif des livraisons de l'infrastructure Homelab"
+title: "Chronologie"
+description: "Journal des chantiers du homelab, du plus récent au plus ancien."
+last_reviewed: "2026-10-25"
 ---
 
-<Update label="24/10/2026" description="Raccordement Termix Généralisé (7 Hôtes), Nouvelle Clé SSH, Déduplication jdupes sur le NAS & Optimisation Alloy LXC">
-  ### 🏰 Administration Centralisée & Accès Distant (Termix)
-
-  - **Raccordement Généralisé de Termix (7 Hôtes)** — Tu as déployé le compte de service dédié non-root `termix-usr` sur l'ensemble des 7 hôtes Linux gérés du homelab (`pve`, `pve-macmini`, `ims-pbs`, `ims-nas`, `ims-coolify`, `ims-coolify-worker`, `vm-test`). La VM domotique HAOS (VM 106) n'est pas raccordée pour le moment.
-  - **Déploiement de la Nouvelle Clé SSH Termix** — Tu as configuré une nouvelle clé SSH autorisée pour `termix-usr` avec restriction stricte d'IP source à l'adresse de Traefik (`from="192.168.1.52"`).
-  - **Sudo Sans Mot de Passe Journalisé** — Chaque élévation `sudo` de `termix-usr` est tracée au format `log_subcmds` dans le journal systemd et répercutée en temps réel dans Loki via l'agent Grafana Alloy. Voir [Termix](/services/termix).
-
-  ### 🗄️ Stockage & Maintenance (NAS LXC 100)
-
-  - **Intégration de l'Utilitaire `jdupes`** — Tu as installé `jdupes` sur le conteneur de stockage NAS (LXC 100) pour auditer les doublons volumineux et optimiser l'espace disque sur `/mnt/storage` et `/mnt/storage-hot` via déduplication par hardlinks (`jdupes -r -L`). Voir [IMS-NAS (LXC 100)](/infrastructure/ims-nas).
-
-  ### 📊 Métrologie & Supervision (Grafana Alloy)
-
-  - **Optimisation des Agents Alloy sur les Conteneurs LXC** — Tu as désactivé le collecteur physique `hwmon` dans la configuration Node Exporter d'Alloy sur tous les conteneurs LXC (`ims-nas`, `ims-pbs`, `ims-coolify-worker`), éliminant définitivement les erreurs de logs récurrentes dues à l'inaccessibilité de `/sys/class/hwmon` en conteneur non privilégié. La surveillance matérielle reste assurée sur les hyperviseurs hôtes. Voir [Stack Monitoring](/services/monitoring).
+<Update label="25/10/2026" description="Refonte de la documentation">
+  - Guide de style, plans par type de page et modèles ([Contribuer](/reference/contribuer)) ; navigation en cinq onglets avec redirections.
+  - Fiches d'hôtes et de services réécrites au même gabarit ; nouvelle page [Socle commun des hôtes](/infrastructure/socle-commun) ; page [Administration avec ims-ops](/procedures/administration-ims-ops).
+  - [Plan de reprise](/procedures/plan-reprise-activite-pra) réécrit sur le rattachement du datastore PBS, avec une procédure de test ; [index des ADR](/history/adr/index) et [des incidents](/history/incidents/index) ; ADR-012 à 014.
 </Update>
 
-<Update label="23/10/2026" description="Standardisation & Durcissement Global du Parc (SSH, Fail2ban, Alloy), Résolution ESTALE NFS & Retrait de MergerFS">
-  ### 🛡️ Standardisation & Durcissement Système (7 Hôtes)
-
-  - **Durcissement SSH Transversal (`00-ims-ops.conf`)** — Tu as désactivé l'authentification par mot de passe partout (`PasswordAuthentication no`), coupé le X11 forwarding et configuré le fichier `/etc/ssh/sshd_config.d/00-ims-ops.conf`. L'accès root SSH est restreint à la clé uniquement (`prohibit-password`) sur les hyperviseurs, conteneurs et Coolify, et formellement interdit (`no`) sur `vm-test`.
-  - **Sécurisation & Traçabilité Sudo (`cmolotkoff`)** — Tu as restreint les clés autorisées à `clementm@MacBook-Pro-de-Clement.local` et activé la journalisation systématique des commandes (`Defaults log_subcmds`) dans `/etc/sudoers.d/cmolotkoff`.
-  - **Généralisation de Fail2ban (7 Hôtes)** — Tu as étendu Fail2ban à l'ensemble du parc (`pve`, `pve-macmini`, `ims-pbs`, `ims-nas`, `ims-coolify-worker`, `ims-coolify`, `vm-test`) avec les jails `sshd` et `recidive` (bannissement 1h doublé par récidive, plafond 1 semaine) et transmission des alertes push Ntfy directement via l'IP LAN de Traefik (`192.168.1.52`).
-  - **Socle Système Unifié** — Tu as appliqué le fuseau horaire `Europe/Paris`, la persistance du journal systemd et le lot de paquets standard (`curl`, `git`, `htop`, `jq`, `ncdu`, `rsync`, `bind9-dnsutils`, `bash-completion`, `acl`, `tmux`, plus `qemu-guest-agent` sur les VM).
-  - **Extension de la Supervision Alloy** — Tu as installé l'agent Alloy sur le Worker Coolify (LXC 105, `host: ims-coolify-worker`) et sur `vm-test` (VM 101). Le niveau de log de tous les agents Alloy a été ajusté de `debug` à `info`.
-  - **Enrôlement Tailscale de vm-test (VM 101)** — Tu as connecté la VM 101 au Tailnet sous le nom `vm-test` (`100.64.0.13`, utilisateur `infra`) avec son socle complet.
-  - **Clé de Pré-Authentification Headscale** — Tu as généré une clé réutilisable pour l'utilisateur `infra`, valide jusqu'au 21/01/2027 et stockée dans le coffre chiffré.
-
-  ### 🗄️ Stockage & Résilience NFS (NAS LXC 100 & PBS LXC 103)
-
-  - **Suppression Définitive de MergerFS sur le NAS** — Tu as remplacé le pool FUSE MergerFS `/mnt/storage` par un bind-mount `ext4` direct (`/mnt/disk1` vers `/mnt/storage`) dans le `/etc/fstab` du LXC 100.
-  - **Résolution Définitive des Erreurs ESTALE** — Les requêtes NFS accèdent directement aux inodes stables du système de fichiers natif `ext4`. Les erreurs `ESTALE: Stale file handle` qui bloquaient les sauvegardes vzdump de la VM 104 (`unable to get shared lock`) et provoquaient le crash de Jellyfin (code 140) après chaque redémarrage du NAS sont définitivement éliminées.
-  - **Résolution de l'Erreur Trompeuse `namespace not found` sur PBS** — Lors d'un incident `ESTALE` sur le point de montage `/mnt/pbs-coolify`, le démon PBS ne pouvait pas lire la racine du datastore et retournait cette erreur même en l'absence de namespace configuré. Le montage direct `ext4` fiabilise l'accès au datastore.
-  - **Restauration Propriétaire `/home/cmolotkoff`** — Tu as rétabli la propriété du dossier utilisateur à `cmolotkoff` sur le NAS (LXC 100).
-  - **Documentation & Post-Mortem** — Tu as publié le rapport d'incident complet [Incidents ESTALE NFS](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix) et mis à jour l'[ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash) marquée obsolète.
+<Update label="24/10/2026" description="Termix sur le parc, clé Ed25519, sauvegarde par pool, template 9001">
+  - Compte de service `termix-usr` déployé par ims-ops sur les hôtes gérés, sauf `lab-elo` ; nouvelle clé, acceptée seulement depuis la VM 104 (et le réseau Docker `coolify` sur la VM 104 elle-même). Voir [Termix](/services/termix).
+  - Clé SSH d'administration remplacée par une clé Ed25519 sur tout le parc.
+  - Pool de sauvegarde `backup` (104, 105, 106) et job PBS unique ; alertes de Proxmox VE et du PBS sur Ntfy ([ADR-014](/history/adr/adr-014-sauvegarde-par-pool-unique)).
+  - Template 9001 et commandes `just vm` et `just vm-destroy` ; suppression de `vm-test`, du template 9000 et du snippet `vendor-data.yaml` ; expiration des anciennes clés Headscale (clé active jusqu'au 18/10/2027).
+  - `jdupes` sur le NAS et rapport `just duplicates` ; collecteur `hwmon` désactivé dans les conteneurs LXC.
+  - Plan d'adressage du LAN et plage DHCP de la Bbox ramenée à `.100-.190` ([architecture réseau](/reseau/architecture-reseau)) ; sonde Uptime Kuma sur Home Assistant.
 </Update>
 
-<Update label="22/10/2026" description="Enrôlement Tailscale des LXC 100 (NAS) et 105 (Worker), Déploiement & Réparation des Comptes Admin cmolotkoff">
-  ### 🔐 Extension du Tailnet aux Conteneurs LXC (NAS & Worker)
+<Update label="23/10/2026" description="Socle commun appliqué par ims-ops, retrait de MergerFS">
+  - Socle SSH, fail2ban, paquets, journal persistant et fuseau horaire appliqués par ims-ops aux hôtes gérés ([socle commun](/infrastructure/socle-commun)).
+  - Agent Alloy installé sur le worker 105 ; journaux des agents au niveau `info`.
+  - MergerFS remplacé par un bind-mount ext4 sur le NAS : fin des erreurs `ESTALE` ([incident](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix), [ADR-012](/history/adr/adr-012-retrait-de-mergerfs)).
+  - Propriétaire de `/home/cmolotkoff` rétabli sur le NAS.
+</Update>
 
-  - **Enrôlement Tailscale du NAS (LXC 100)** — Tu as connecté le conteneur de stockage au Tailnet avec l'adresse IP `100.64.0.11`, le hostname `ims-pve-100-nas` et l'utilisateur Headscale `infra`. Tu as activé l'accès au périphérique `/dev/net/tun` dans la configuration Proxmox du conteneur. Voir [IMS-NAS (LXC 100)](/infrastructure/ims-nas).
-  - **Enrôlement Tailscale du Worker Coolify (LXC 105)** — Tu as enrôlé le conteneur worker dans le Tailnet avec l'IP `100.64.0.10`, le hostname `ims-pve-105-coolify-worker` et l'utilisateur Headscale `infra`. Tu as configuré le pass-through de `/dev/net/tun` sur le nœud Mac Mini. Voir [LXC 105 — Coolify Worker](/infrastructure/lxc-coolify-worker).
-
-  ### 🛡️ Déploiement et Réparation des Comptes d'Administration (cmolotkoff)
-
-  - **Configuration du Compte cmolotkoff sur le NAS (LXC 100)** — Tu as configuré le compte d'administration avec `sudo NOPASSWD` et ta clé SSH. Ce compte est aussi l'utilisateur Samba (UID 1000) : son shell est passé de `nologin` à `/bin/bash` et son mot de passe système reste verrouillé (`passwd -l`). Son UID 1000 ne doit jamais être modifié ni supprimé.
-  - **Création du Compte cmolotkoff sur le Worker Coolify (LXC 105)** — Tu as créé le compte `cmolotkoff` avec `sudo NOPASSWD` et ta clé SSH, permettant l'accès direct Ansible sur le worker.
-  - **Réparation de l'Accès cmolotkoff sur Proxmox Backup Server (LXC 103)** — Tu as réparé la clé SSH qui était refusée, rétablissant les connexions d'administration sur PBS.
-  - **Validation en Production du Bootstrap Admin** — Ces interventions valident en conditions réelles la préparation des accès administrateur sur les trois conteneurs LXC du homelab. Voir [Infrastructure as Code](https://github.com/ims-world/ims-ops).
+<Update label="22/10/2026" description="NAS et worker dans le tailnet, comptes d'administration">
+  - NAS (`100.64.0.11`) et worker (`100.64.0.10`) enrôlés dans le tailnet, utilisateur `infra`.
+  - Compte `cmolotkoff` configuré sur le NAS (aussi utilisateur Samba, UID 1000), créé sur le worker, clé réparée sur le PBS.
 </Update>
 
 <Update label="19/10/2026" description="Termix 26.10.2 en Production, Validation Accès Pilote IMS-PBS & Refonte d'IMS-INFRA">
-  ### 🖥️ Gestion Centralisée des Hôtes & Accès Distant (Termix)
+  ###  Gestion Centralisée des Hôtes & Accès Distant (Termix)
 
   - **Mise en Production de Termix 26.10.2 (`termix.ims-world.fr`)** — Déploiement sur la VM 104 (`ims-coolify`, UUID `ot8tjxw5ruhoqyis3rkb4ll5`) avec conteneur `guacd:1.6.0` isolé. Accès réservé au Tailnet (`vpn-only.yaml`), authentification OIDC Authentik native (groupe `admins`) avec admin local de secours TOTP, et secrets gérés dans Coolify. Voir [Termix](/services/termix).
   - **Validation de l'Accès termix-usr sur l'Hôte Pilote IMS-PBS** — Déploiement et validation du compte dédié non-root `termix-usr` sur le LXC 103 (`192.168.1.51`) : clé Ed25519 restreinte à `192.168.1.52`, sudo `NOPASSWD` avec `log_subcmds`, traçabilité temps réel dans Loki via Alloy. Voir [Infrastructure as Code](https://github.com/ims-world/ims-ops).
 
-  ### ⚙️ Refonte du Dépôt d'Automatisation (IMS-INFRA)
+  ###  Refonte du Dépôt d'Automatisation (IMS-INFRA)
 
   - **Refonte Modulaire par Scripts & Point d'Entrée Makefile** — Restructuration complète du dépôt **IMS-INFRA** en scripts et playbooks d'automatisation avec un `Makefile` universel comme interface unique (`make help`, simulation `--check --diff`).
   - **Nettoyage du Code Mort & Protection du Cluster Proxmox** — Retrait des rôles obsolètes (`node_exporter`, `nfs_client`), restriction stricte des playbooks de durcissement SSH/fail2ban/CrowdSec au seul groupe `[vms]` pour préserver le root SSH inter-nœuds du cluster Proxmox. Voir [Infrastructure as Code](https://github.com/ims-world/ims-ops) et l'[ADR-011](/history/adr/adr-011-organisation-ims-infra-par-lots).
 </Update>
 
 <Update label="22/09/2026" description="Déploiement Plateforme d'Automatisation n8n v2.10.4 (Queue Mode, Redis & Task Runners) sur Coolify">
-  ### ⚡ Orchestration & Automatisation de Flux (n8n)
+  ###  Orchestration & Automatisation de Flux (n8n)
 
   - **Mise en Service de la Stack n8n sur Coolify** — Déploiement du template officiel Coolify haute performance pour **n8n v2.10.4** sur la VM 104 (`ims-coolify`, UUID `uifode0ypia57wbkyoertbxh`). Architecture en **Queue Mode** articulée autour de 5 conteneurs : `n8n` (serveur HTTP/webhooks), `n8n-worker` (travailleur asynchrone), `redis:6-alpine` (broker Bull Queue), `task-runners:2.10.4` (exécuteur Python natif sandboxed) et `postgres:16-alpine`.
   - **Exposition Publique Sécurisée (`automation.ims-world.fr`)** — Routage Traefik v3 avec terminaison TLS 1.3 Let's Encrypt (DNS-01 OVH) et protection bouncer CrowdSec. Résolution immédiate via le wildcard DNS `*.ims-world.fr`.
@@ -74,13 +52,13 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="14/09/2026" description="Déploiement WhatsUpDocker (WUD), Vague de Mises à Jour Applicatives (8 services) & Template VM 8000 Tailscale">
-  ### 🔔 Supervision des Mises à Jour (WhatsUpDocker)
+  ###  Supervision des Mises à Jour (WhatsUpDocker)
 
   - **Déploiement de WhatsUpDocker (WUD)** — Mise en service du conteneur `getwud/wud:9.0.2` sur la VM 104 (UUID `qwe5jrqlqtwqneevgkf6mwr9`). Il analyse en continu les registres Docker pour détecter les nouvelles versions stables selon la norme SemVer.
   - **Alerting Push Immédiat via Ntfy** — Intégration directe du trigger Ntfy avec authentification par jeton (`WUD_TRIGGER_NTFY_DEFAULT_AUTH_TOKEN`) pour notifier les nouvelles versions sur le topic `ims-alerts`.
   - **Sécurisation Réseau & Faux Positif qBittorrent** — Isolation stricte du tableau de bord WUD en Zone 2 (`vpn-only.yaml`) sans exposition WAN. Diagnostic du faux positif SemVer sur qBittorrent (`20.04.1` provenant d'un ancien tag de build Ubuntu 2021) et recommandation de maintien en version `5.0.4`. Voir [WhatsUpDocker](/services/whatsupdocker).
 
-  ### 📦 Vague de Mises à Jour Applicatives (8 Services)
+  ###  Vague de Mises à Jour Applicatives (8 Services)
 
   - **Traefik (Coolify Proxy) `v3.7.13`** — Mise à niveau du moteur de reverse proxy central sur la VM 104 avec maintien du bouncer CrowdSec. Voir [Traefik (Coolify Proxy)](/reseau/traefik-proxy).
   - **Gluetun `v3.41.3` (Stack HomeFlix)** — Montée de version de `qmcgaw/gluetun:v3.40.0` vers `v3.41.3` pour corriger le deadlock critique sur la réattribution dynamique de port ProtonVPN. Modernisation des variables DNS (`DNS_SERVER: 'on'`, `DNS_UPSTREAM_RESOLVERS: cloudflare`). Voir [HomeFlix](/services/homeflix).
@@ -91,12 +69,12 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
   - **Dozzle `v11.0.1`** — Passage en version majeure v11 de l'afficheur live des logs Docker. Voir [Dozzle](/services/dozzle).
   - **CrowdSec Agent `v1.8.1` & Shield Web UI `2026.8.3`** — Mise à jour du moteur d'analyse comportementale et de l'interface de gestion du pare-feu. Voir [CrowdSec](/reseau/crowdsec).
 
-  ### 🖥️ Automatisation Proxmox & Template Cloud-Init (VM 8000)
+  ###  Automatisation Proxmox & Template Cloud-Init (VM 8000)
 
   - **Enrôlement Automatique Tailscale sur Template Ubuntu 24.04** — Ajout d'une configuration Cloud-Init `vendor-data.yaml` sur le template Proxmox (`VMID 8000`). Toute nouvelle VM clonée installe Tailscale et rejoint automatiquement le Tailnet privé sur `vpn.ims-world.fr` dès son premier boot via une clé réutilisable. Voir [Hôte Proxmox MS-01](/infrastructure/proxmox-host) et [Ajout d'une machine Headscale](/procedures/ajout-machine-headscale).
   - **Chantiers Ansible & Audit des Procédures** — Inscription à la feuille de route des playbooks d'automatisation de création de VM, du portail self-service de VM éphémères et de l'audit complet des procédures opérationnelles (Chantier 1.6). Voir [Feuille de Route](/roadmap).
 
-  ### 🏠 Domotique & Déploiement VM HAOS (Mac Mini)
+  ###  Domotique & Déploiement VM HAOS (Mac Mini)
 
   - **Bascule d'Architecture & Déploiement HAOS (VMID 106)** — Abandon de l'ancien conteneur Docker sur Coolify et déploiement d'une machine virtuelle dédiée **Home Assistant OS 18.2 / Core 2026.9.2** sur le Mac Mini (`pve-macmini`). Raccordement natif au bridge `vmbr0` pour restaurer la découverte mDNS/Bonjour directe (Philips Hue, Apple HomeKit Bridge).
   - **Routage HTTPS Traefik (Zone 2 `vpn-only`) & Découverte UI HTTP HAOS 2026+** — Configuration du reverse proxy centralisé Traefik sur la VM 104 (`vpn-only.yaml`) acheminant `https://home.ims-world.fr` vers le backend LAN `http://192.168.1.92:80` avec certificat Let's Encrypt. Diagnostic et résolution du blocage HTTP 400 consécutif à l'obsolescence du bloc `http:` dans `configuration.yaml` au profit de la nouvelle interface graphique **Paramètres > Système > Réseau > Serveur HTTP** (activation de `X-Forwarded-For` et déclaration des `trusted_proxies`).
@@ -104,71 +82,71 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="13/09/2026" description="Intégration OIDC Authentik - Headscale (Groupe Membres) & Validation Premier Enrôlement">
-  ### 🔐 Fédération d'Identité & Contrôle d'Accès (OIDC)
+  ###  Fédération d'Identité & Contrôle d'Accès (OIDC)
 
-  - **Interconnexion Authentik ➔ Headscale OIDC** — Déploiement d'un fournisseur d'identité OAuth2/OIDC dédié (`headscale-oidc`) sur Authentik avec chiffrement PKCE et restriction stricte aux groupes `admins` et `membres`.
+  - **Interconnexion Authentik → Headscale OIDC** — Déploiement d'un fournisseur d'identité OAuth2/OIDC dédié (`headscale-oidc`) sur Authentik avec chiffrement PKCE et restriction stricte aux groupes `admins` et `membres`.
   - **Validation du Premier Enrôlement Utilisateur** — Enregistrement réussi du premier compte utilisateur (`cmolotkoff`) sur le Tailnet avec redirection web interactive via `https://vpn.ims-world.fr/oidc/callback`. Création automatique de l'espace de nommage utilisateur dans Headscale. Voir [Headscale & Headplane](/reseau/headscale-headplane) et [Authentik](/services/authentik).
   - **Mise à Jour de la Matrice de Sécurité** — Formalisation des niveaux d'habilitation OIDC et des accès réseau pour les membres du Tailnet. Voir [Matrice de Sécurité](/reseau/matrice-securite-exposition).
 
-  ### 📋 Planification & Résilience
+  ###  Planification & Résilience
 
   - **Cadrage des Accès Elo & VM Dédiée** — Inscription à la feuille de route de la procédure d'accès Tailnet restreint et du dimensionnement d'une VM de travail dédiée.
   - **Supervision & Sauvegardes VM** — Inscription du chantier d'audit global des snapshots PBS et de la validation des alertes Ntfy sur l'ensemble des machines virtuelles. Voir [Feuille de Route](/roadmap).
 </Update>
 
 <Update label="29/08/2026 - 31/08/2026" description="Cadrage Roadmap : Services IA (Page Agent Alibaba, Meetilty) & Audit Nœud Worker">
-  ### 💡 Innovation & Backlog Applicatif
+  ###  Innovation & Backlog Applicatif
 
   - **Cadrage Nouveaux Services IA** — Intégration dans la feuille de route de **Page Agent** (automatisation de navigation par agent IA browser Alibaba) et de **Meetilty** (prise de notes et transcription locale de réunions).
   - **Audit de Résilience Multi-Nœuds** — Consolidation de la documentation sur le Nœud Worker LXC 105 du Mac Mini et intégration des règles de redondance Traefik. Voir [Feuille de Route](/roadmap).
 </Update>
 
 <Update label="28/08/2026" description="Topologie Multi-Nœuds Coolify v4.3.14 (Master VM 104 + Worker LXC 105 Mac Mini)">
-  ### 🚀 Orchestration & Multi-Nœuds
+  ###  Orchestration & Multi-Nœuds
 
   - **Mise à Jour Coolify `v4.3.14` & Enrôlement Nœud Worker Distant** — Passage de l'instance principale en **Coolify v4.3.14** (Master / Control Plane sur VM 104 `ims-coolify`) et création du Nœud Worker LXC 105 (`pve-macmini-worker_LXC-105` sur Debian 13, IP `192.168.1.198`) sur le Mac Mini.
   - **Securisation SSH & Nettoyage RAM** — Authentification SSH dédiée via la clé `coolify-secondary-node` (`prohibit-password`), routage réseau unifié sur le Traefik principal VM 104 et suppression des conteneurs d'IHM autonomes pour préserver la RAM du Mac Mini. Voir [Coolify Worker LXC 105](/infrastructure/lxc-coolify-worker) et [VM Coolify](/infrastructure/vm-coolify).
 </Update>
 
 <Update label="26/08/2026" description="Pages d'Erreur Custom 404/5xx Traefik & Tuning CrowdSec AppSec WAF">
-  ### 🖼️ Reverse Proxy & UX
+  ###  Reverse Proxy & UX
 
   - **Mise en Production des Pages d'Erreur Custom Traefik** — Déploiement du conteneur helper Nginx (`vciwi7dolcl0hw1mffvjcfha`) et des middlewares `error-404@file` & `error-5xx@file`. Masquage de sécurité des erreurs 403 (`vpn-only`) en 404 générique pour la discrétion réseau (stealth) et affichage dynamique des codes 5xx via paramètre d'URL. Voir [Traefik (Coolify Proxy)](/reseau/traefik-proxy#-gestion-globale-des-pages-derreur-custom-404-403-masqué--5xx).
 
-  ### 🛡️ Sécurité & WAF
+  ###  Sécurité & WAF
 
   - **Correction des Faux Positifs AppSec WAF** — Neutralisation des bannissements automatiques intempestifs générés par le scénario `crowdsecurity/crowdsec-appsec-outofband` sur les requêtes AJAX légitimes (Grafana, Jellyfin, Patrimo). Ajustement du profil `/etc/crowdsec/profiles.yaml` pour conserver l'enregistrement des alertes sans bloquer l'accès. Voir le [Post-Mortem du 26/08/2026](/history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband) et la fiche [CrowdSec](/reseau/crowdsec#pare-feu-applicatif-waf-appsec--tuning-anti-faux-positifs).
 </Update>
 
 <Update label="24/08/2026" description="Alloy Mac Mini, Migration Authentik v2026.8.0, Incident Bypass SSO Dozzle & Incident DNS Wildcard">
-  ### 📊 Supervision & Infrastructure
+  ###  Supervision & Infrastructure
 
   - **Réintégration de l'Agent Alloy sur le Mac Mini (`pve-macmini`)** — Redéploiement complet du démon systemd Grafana Alloy sur le Nœud 2 du cluster (`100.64.0.6`) avec `node_exporter` (CPU/RAM/disque), tâche cron 5m `smartmon.sh` (monitoring SMART du SSD 256 Go) et transmission des logs journald vers Loki (`10.10.10.2:3100`). Voir [Stack Monitoring](/services/monitoring) et [Mac Mini](/infrastructure/mac-mini).
 
-  ### 🔑 Mises à jour Applicatives
+  ###  Mises à jour Applicatives
 
-  - **Montée de Version Authentik `2026.5.0` ➔ `2026.8.0`** — Migration réussie du serveur SSO, du worker et réconciliation forcée du conteneur Outpost proxy (`ak-outpost-ims-outpost`). Procédure de redéploiement et piège du socket Docker documentés sur [Authentik](/services/authentik#montées-de-version--réconciliation-des-outposts-upgrade-202680).
+  - **Montée de Version Authentik `2026.5.0` → `2026.8.0`** — Migration réussie du serveur SSO, du worker et réconciliation forcée du conteneur Outpost proxy (`ak-outpost-ims-outpost`). Procédure de redéploiement et piège du socket Docker documentés sur [Authentik](/services/authentik#montées-de-version--réconciliation-des-outposts-upgrade-202680).
   - **Mise à Jour Dozzle `v10.7.4`** — Passage en version **v10.7.4** de la console de visualisation live des logs Docker (`logs.ims-world.fr`). Voir [Dozzle](/services/dozzle).
 
-  ### 🐛 Incidents & Post-Mortems
+  ###  Incidents & Post-Mortems
 
   - **Correction du Bypass SSO Dozzle (`logs.ims-world.fr`)** — Résolution du contournement du SSO Authentik causé par la priorité du routeur Traefik Dynamic File Provider (`vpn-only.yaml`) sur les labels du provider Docker. Ajout obligatoire du middleware `authentik-dozzle@docker`. Voir le [Post-Mortem du 24/08/2026](/history/incidents/2026-08-24-bypass-sso-dozzle-traefik-file-provider).
   - **Résolution de l'Incident DNS `share.ims-world.fr` (Zipline)** — Diagnostic et correction de l'erreur `503 No Available Server` causée par le masquage silencieux du wildcard DNS `*.ims-world.fr` par des enregistrements `_acme-challenge.share` TXT résiduels dans la zone OVH. Nettoyage préventif des résidus ACME sur l'ensemble de la zone. Voir le [Post-Mortem du 24/08/2026](/history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr).
 </Update>
 
 <Update label="23/08/2026" description="Cluster Proxmox VE ims-cluster (Mac Mini + MS-01) & Durcissement Fail2ban Ntfy">
-  ### 🖥️ Cluster Proxmox VE (`ims-cluster`)
+  ###  Cluster Proxmox VE (`ims-cluster`)
 
   - **Création du Cluster Proxmox VE à 2 Nœuds** — Alignement de la version Proxmox VE en **9.2.11** sur le MS-01 et installation sur le Mac Mini 2012 (`pve-macmini.ims-world.fr`). Création du cluster `ims-cluster` et jointure du Mac Mini (Quorum 2/2 votes, réplication des comptes PAM et clés SSH). Voir [Mac Mini](/infrastructure/mac-mini) et [MS-01 Proxmox Host](/infrastructure/proxmox-host).
   - **Décision d'Architecture ADR-010** — Retrait de la migration du port SSH (port 22 conservé sur tous les nœuds) et maintien du hostname `pve` sur le MS-01 pour prévenir toute casse Corosync/PMXCFS du cluster. Voir [ADR-010](/history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster).
 
-  ### 🛡️ Harmonisation & Durcissement Fail2ban (3 Hôtes)
+  ###  Harmonisation & Durcissement Fail2ban (3 Hôtes)
 
-  - **Déploiement Harmonisé Fail2ban & Alertes Ntfy** — Déploiement d'instances Fail2ban indépendantes sur les 3 hôtes (MS-01, Mac Mini et VM Coolify). Configuration du `jail.local` avec escalade progressive (`1h` à `1 semaine`), prison `recidive` (3 bannes en 24h ➔ 1 semaine) et transmission des alertes SSH en direct sur le topic Ntfy **`ims-alerts`**.
+  - **Déploiement Harmonisé Fail2ban & Alertes Ntfy** — Déploiement d'instances Fail2ban indépendantes sur les 3 hôtes (MS-01, Mac Mini et VM Coolify). Configuration du `jail.local` avec escalade progressive (`1h` à `1 semaine`), prison `recidive` (3 bannes en 24h → 1 semaine) et transmission des alertes SSH en direct sur le topic Ntfy **`ims-alerts`**.
 </Update>
 
 <Update label="22/08/2026" description="Déploiement Détection d'Intrusions CrowdSec, Plugin Bouncer Traefik & Web UI Shield">
-  ### 🛡️ Sécurité & Détection d'Intrusions (CrowdSec)
+  ###  Sécurité & Détection d'Intrusions (CrowdSec)
 
   - **Déploiement de l'Agent CrowdSec v1.7.8 & WAF AppSec** — Activation du moteur de détection L3/L4/L7 sur la VM 104 (`ims-coolify`). Configuration de l'acquisition des logs Docker (`acquis.yaml`), du pare-feu applicatif AppSec (Virtual Patching inband), et création des allowlists de protection anti-auto-ban (`tailscale` `100.64.0.0/10` et `home-lan` `192.168.1.0/24`).
   - **Integration du Plugin Bouncer Traefik v1.6.0** — Activation du filtrage dynamique en mode `stream` (sync 60s) sur les entrypoints HTTP/HTTPS avec garantie fail-open (`updateMaxFailure: -1`).
@@ -176,7 +154,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="21/08/2026" description="Refonte Complète & Monitoring Avancé (SMART, Uptime Kuma, Dashboards)">
-  ### 📊 Métrologie & Supervision Avancée (Stack LGTM)
+  ###  Métrologie & Supervision Avancée (Stack LGTM)
 
   - **Monitoring SMART Bare-Metal (`ms01-pve`)** — Déploiement du _textfile collector_ Node Exporter alimenté par `smartmon.sh` (cron 5 min) pour remonter la santé SMART, températures et heures de vol des disques physiques (`nvme0n1`, `sda` SSD, `sdb` HDD) avec respect strict du spin-down (`smartctl -n standby`).
   - **Scrape Uptime Kuma (Pull) & Métriques SSL** — Ingestion des métriques d'Uptime Kuma (`/metrics` Basic Auth) avec calcul des SLO 24h/7j/30j et suivi d'expiration des certificats SSL/TLS.
@@ -185,18 +163,18 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="20/08/2026" description="Mises à Jour Applicatives & Avancement Châssis Labrax">
-  ### 📦 Mises à Jour Applicatives
+  ###  Mises à Jour Applicatives
 
   - **Coolify v4.3.9** — Mise à niveau du moteur d'orchestration applicatif sur la VM 104.
   - **Jellyseerr v3.4.1** — Mise à jour du portail de requêtes média de la stack HomeFlix (`videoclub.ims-world.fr`).
 
-  ### 🖨️ Hardware & Châssis 3D Labrax
+  ###  Hardware & Châssis 3D Labrax
 
   - **Impression 3D Châssis Terminée** — L'impression 3D de l'intégralité des pièces du châssis rackable 10" Labrax s'est achevée avec succès cette nuit. L'étape suivante concerne le montage physique et l'intégration des composants.
 </Update>
 
 <Update label="19/08/2026 - 20/08/2026" description="Isolation Réseau vpn-only, CIS Benchmark & Bypass SNAT Tailscale">
-  ### 🛡️ Refonte Réseau & Résolution Double Incident vpn-only (ADR-009)
+  ###  Refonte Réseau & Résolution Double Incident vpn-only (ADR-009)
 
   - **Durcissement Démon Docker (`"userland-proxy": false`)** — Application de la recommandation officielle du **CIS Docker Benchmark** sur la VM Coolify. Basculement natif du noyau Linux (iptables `DNAT` \+ `MASQUERADE` \+ `net.ipv4.route_localnet`), éliminant la substitution d'IP par le binaire `docker-proxy`.
   - **Bypass du SNAT Tailscale (`--snat-subnet-routes=false`)** — Résolution du 2nd bug apparu post-reboot MS-01 en désactivant le masquage automatique `ts-postrouting` de Tailscale sur le trafic forwardé vers le bridge Docker (`coolify`).
@@ -205,7 +183,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="19/08/2026" description="Incident Stale NFS Filehandle Jellyfin & Optimization Backup LXC 100">
-  ### 🚨 Incident Rétabli & Arbitrage Sauvegardes
+  ###  Incident Rétabli & Arbitrage Sauvegardes
 
   - **Échecs de lecture Jellyfin post-vzdump** — Résolution des échecs de lecture vidéo causés par l'invalidation irréversible des descripteurs NFS (`Stale filehandle`) lors du redémarrage quotidien de MergerFS FUSE par le job de sauvegarde `vzdump --mode stop` de la LXC 100 (`ims-nas`).
   - **Désactivation du Backup Automatique LXC 100** — Suppression du job automatique quotidien. La sauvegarde du rootfs (8 Go statique) est désormais uniquement manuelle avant maintenance.
@@ -213,7 +191,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="19/08/2026" description="Incident GPU Passthrough (/dev/dri) & Métapaquet Kernels">
-  ### 🚨 Incident Rétabli
+  ###  Incident Rétabli
 
   - **Disparition de `/dev/dri` au redémarrage complet** — Résolution d'un dysfonctionnement au boot de la VM Coolify provoquant l'échec de Jellyfin et Sonarr avec l'erreur `error gathering device information while adding custom device "/dev/dri": no such file or directory`.
   - **Cause racine identifiée** : La mise à jour automatique en arrière-plan (`unattended-upgrades`) vers le noyau Ubuntu `6.8.0-138-generic` n'avait pas tiré le paquet `linux-modules-extra` correspondant (qui contient le pilote `i915`).
@@ -221,7 +199,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="18/08/2026" description="Tier Storage-Hot SSD 4To & ADR-009">
-  ### ⚡ Stockage & Sécurité
+  ###  Stockage & Sécurité
 
   - **Bascule réussie du tier `storage-hot` sur SSD 4To dédié** — Migration de `storage-hot` (données applicatives chaudes d'Immich et Forgejo) depuis un bind-mount HDD vers un SSD Samsung 870 EVO 4To raccordé en SATA natif sur le contrôleur ASM1166 du MS-01.
   - **Libération de 934 Go sur le HDD principal** — La suppression de l'ancienne copie après validation a libéré 934 Go sur `/mnt/disk1`. Le tier `storage-hot` dispose désormais de 3.6 To utiles (443 Go utilisés, 3.0 To libres). Voir [Ajout d'un nouveau disque](/procedures/ajout-nouveau-disque).
@@ -231,7 +209,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="17/08/2026" description="PhotoPrism, Décommissionnement Mac Mini & ADR-008">
-  ### 📸 PhotoPrism & Décommissionnement
+  ###  PhotoPrism & Décommissionnement
 
   - **PhotoPrism en production sur MS-01** — Migration réussie de la bibliothèque photo & studio d'archivage RAW sur `studio.ims-world.fr` (UUID Coolify `yfotvbtkqj8cqw5alox6gfpr`). Restauration confirmée de **24 565 photos** via dump/restore SQL MariaDB 11.8.8. Voir [PhotoPrism](/services/photoprism).
   - **Architecture de stockage hybride PhotoPrism** — Les originaux RAW (`originals/`, ~574 Go) et métadonnées YAML (`storage/sidecar/`, 42 Go) résident sur le pool capacitif NFS HDD (`storage`), tandis que MariaDB tourne sur un volume nommé Docker local (`photoprism-mariadb-data`) sur le SSD de la VM Coolify.
@@ -244,7 +222,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="16/08/2026" description="Audit Hardlinks HomeFlix, Nettoyage NAS (~330 Go) & ADR-007">
-  ### 🧹 Stockage & Diagnostic
+  ###  Stockage & Diagnostic
 
   - **Audit & Nettoyage des Orphelins `downloads/`** — Résolution d'un problème d'accumulation de fichiers orphelins dans `downloads/` causé par la suppression de contenus dans Radarr/Sonarr sans suppression du torrent qBittorrent associé. Un script de scan par comparaison d'inodes réels a permis de libérer **~330 Go d'espace disque** (disponibilité portée de 791 Go à 1.1 To). Voir [HomeFlix](/services/homeflix#detection--nettoyage-des-orphelins-downloads-audit--script-inodes).
   - **Formalisation de l'ADR-007 (MergerFS `inodecalc=path-hash`)** — Documentation de la règle d'or pour le diagnostic d'inodes et de hardlinks : les calculs d'inodes virtuels par FUSE/MergerFS faussant les résultats via `/mnt/storage` ou NFS, tout diagnostic de hardlink doit s'effectuer en SSH direct sur le LXC NAS 100 sur le point de montage physique (`/mnt/disk1/`). Voir [ADR-007](/history/adr/adr-007-calcul-inodes-mergerfs-path-hash).
@@ -252,7 +230,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="14/08/2026" description="Forgejo, Patrimo, Zipline & Coolify v4.3.2">
-  ### 🚀 Nouveaux Services & CPU Host Mode
+  ###  Nouveaux Services & CPU Host Mode
 
   - **Forgejo en production** — Forge Git self-hosted sur `forge.ims-world.fr` pour héberger dépôts, issues et Pull Requests, avec miroir de sauvegarde automatique de dépôts GitHub (`sentryx`, `FailyBanDiscordBot`, `my_printf`, `MonitoringServer`, `Intra-IMS`, `default-ansible`). SSO Authentik OIDC natif. Voir [Forgejo](/services/forgejo).
   - **Git SSH accessible partout (ADR-006)** — Trafic Git SSH sortant par le port dédié `2222` en NAT Bbox direct (`git clone ssh://git@forge.ims-world.fr:2222/...`). Port SSH système préservé sur `4242`. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
@@ -264,14 +242,14 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="13/08/2026" description="Stirling PDF en production">
-  ### 📄 Outillage PDF Stateless
+  ###  Outillage PDF Stateless
 
   - **Stirling PDF en production** — Boîte à outils PDF (fusion, découpe, conversion, OCR Tesseract v5) sur `pdf.ims-world.fr`, en mode _stateless_ (aucun document conservé après traitement). Authentification native désactivée (`DOCKER_ENABLE_SECURITY=false`). Voir [Stirling PDF](/services/stirling-pdf).
   - **Forward-Auth Authentik étendu** — L'Outpost Proxy Authentik (`ak-outpost-ims-outpost:9000`) s'intercale via Traefik en amont de Stirling PDF. Voir [Authentik](/services/authentik#outpost-proxy--forward-auth-traefik).
 </Update>
 
 <Update label="11/08/2026" description="Statuspage Uptime Kuma, IT-Tools & Immich">
-  ### 📊 Monitoring, Tools & Médiathèque Photo
+  ###  Monitoring, Tools & Médiathèque Photo
 
   - **Uptime Kuma & Alerting Ntfy** — Statuspage et monitoring actif sur `status.ims-world.fr` avec notifications push mobiles instantanées via Ntfy (templates LiquidJS pour états _down_ et _recovered_). Voir [Uptime Kuma](/services/uptime-kuma).
   - **IT-Tools en production** — Boîte à outils développeur (générateurs, convertisseurs, utilitaires réseau) sur `tools.ims-world.fr`. Voir [IT-Tools](/services/it-tools).
@@ -280,25 +258,25 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="10/08/2026" description="Ntfy, Dozzle & Stack Monitoring LGTM">
-  ### 🔔 Push Alerts, Logs Live & Stack LGTM
+  ###  Push Alerts, Logs Live & Stack LGTM
 
   - **Ntfy en production** — Serveur de notifications push sur `ntfy.ims-world.fr` (`ims-alerts`) servant de point de sortie unique pour toutes les alertes du homelab. Voir [Ntfy](/services/ntfy).
   - **Dozzle en production** — Viewer de logs Docker en direct sur `logs.ims-world.fr` protégé par Forward-Auth Authentik. Voir [Dozzle](/services/dozzle).
   - **Stack Monitoring LGTM** — Grafana, Loki et Prometheus sur `monitoring.ims-world.fr` avec agent Grafana Alloy en `remote-write` et SSO Authentik OIDC (`Grafana Admins`, `Editors`, `Viewers`). Voir [Monitoring](/services/monitoring).
   - **Alerting Grafana → Ntfy** — Webhook contact point poussant les alertes _firing_ (priorité 4) et _resolved_ (priorité 3) sur mobile.
-  - **Règle d'or de routage Traefik/Coolify formalisée** — Documentation de l'obligation de laisser le champ _Domains_ vide dans l'UI Coolify dès qu'un service utilise un middleware sur-mesure (`vpn-only`, forward-auth) pour éviter l'exposition publique par un routeur parallèle automatique. Voir [Traefik Proxy](/reseau/traefik-proxy#️-règle-dor-de-routage--ui-coolify-vs-labels-compose-manuels).
+  - **Règle d'or de routage Traefik/Coolify formalisée** — Documentation de l'obligation de laisser le champ _Domains_ vide dans l'UI Coolify dès qu'un service utilise un middleware sur-mesure (`vpn-only`, forward-auth) pour éviter l'exposition publique par un routeur parallèle automatique. Voir [Traefik Proxy](/reseau/traefik-proxy#-règle-dor-de-routage--ui-coolify-vs-labels-compose-manuels).
 </Update>
 
 <Update label="06/08/2026" description="Audit sécurité vpn-only & RBAC Authentik">
-  ### 🔐 Sécurité & Droits d'Accès
+  ###  Sécurité & Droits d'Accès
 
   - **Groupes & Rôles RBAC Authentik** — Structuration des 3 groupes (`admins`, `membres`, `invites`) et procédure d'invitation par email Resend (`no-reply@ims-world.fr`). Voir [Authentik](/services/authentik#-groupes--rôles-rbac).
-  - **Durcissement Vaultwarden** — Fermeture des inscriptions (`SIGNUPS_ALLOWED=false`) et restriction de l'URL `/admin` au Tailnet (`100.64.0.0/10`) via le middleware Traefik `vpn-only`. Voir [Vaultwarden](/services/vaultwarden#🛡️-politique-de-sécurité--durcissement-hardening).
+  - **Durcissement Vaultwarden** — Fermeture des inscriptions (`SIGNUPS_ALLOWED=false`) et restriction de l'URL `/admin` au Tailnet (`100.64.0.0/10`) via le middleware Traefik `vpn-only`. Voir [Vaultwarden](/services/vaultwarden#-politique-de-sécurité--durcissement-hardening).
   - **Étanchéité `vpn-only` sur Stack HomeFlix** — Confirmation du renvoi HTTP `403 Forbidden` depuis le WAN sur qBittorrent, Radarr, Sonarr et Prowlarr.
 </Update>
 
 <Update label="04/08/2026 - 05/08/2026" description="Passthrough GPU Jellyfin, RPi 3B+ & Tarpit SSH">
-  ### 🎬 GPU Passthrough & Hardware Rack
+  ###  GPU Passthrough & Hardware Rack
 
   - **Transcodage matériel Jellyfin (QuickSync)** — Attribution PCIe de l'iGPU Intel Iris Xe à la VM Coolify. HomeFlix accélère le H.264/HEVC/AV1 avec charge CPU minimale. Voir [HomeFlix](/services/homeflix).
   - **Afficheur Kiosk Raspberry Pi 3B\+** — Écran principal Wisecoco 7.84" (1280x400) et OLED 0.91" (128x32) dans un module 2U 3D pour le rack Labrax. Bouton poussoir GPIO (court = switch source, long 3s = extinction). Voir [Raspberry Pi 3B\+](/infrastructure/rpi-monitor).
@@ -308,7 +286,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="02/08/2026" description="Cutover complet sur MS-01">
-  ### 🎉 Cutover de Production
+  ###  Cutover de Production
 
   - **Bascule en production des 4 services majeurs** (Authentik, Vaultwarden, HomeFlix, Headscale/Headplane) du Mac Mini vers l'hyperviseur MS-01.
   - **Port-forward Bbox** — Bascule du bloc de redirections et découverte de l'impossibilité de bascule partielle (tout le trafic public bascule d'un coup).
@@ -317,7 +295,7 @@ description: "Chronologie du projet et journal exhaustif des livraisons de l'inf
 </Update>
 
 <Update label="15/07/2026 - 31/07/2026" description="Socle Proxmox, Challenge DNS-01 & Migrations Fichiers">
-  ### 🏗️ Socle d'Infrastructure & Migrations de Masse
+  ###  Socle d'Infrastructure & Migrations de Masse
 
   - **Challenge DNS-01 OVH (31/07)** — Configuration du challenge DNS-01 (OVH) sur Traefik MS-01 pour les certificats HTTPS jokers. Résolution du blocage de renouvellement sur le Mac Mini.
   - **Migration HomeFlix 1.6 To (30/07)** — Transfert de 1.6 To avec préservation des 426 hardlinks (`rdfind`). Restructuration du stockage (config/cache sur SSD, médias sur NAS). Résolution du problème WebUI qBittorrent (`HostHeaderValidation`). Découverte et documentation du piège `du` vs `df`.

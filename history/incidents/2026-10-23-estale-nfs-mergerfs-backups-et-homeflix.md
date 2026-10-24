@@ -1,18 +1,24 @@
 ---
-title: "Incident — Échecs ESTALE NFS sur Backups PBS et HomeFlix (Retrait de MergerFS)"
+title: "Incident du 23/10/2026 — Sauvegardes en échec et HomeFlix coupé"
 description: "Déconnexions NFS en cascade et échecs de sauvegarde causés par l'invalidation des descripteurs FUSE MergerFS lors des redémarrages du NAS, résolus par le passage en bind-mount ext4 direct"
 icon: "hard-drive"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-25"
 ---
 
-<Badge color="green">🟢 Résolu & Correctif Structurel Déployé</Badge> *(2026-10-23)*
+## Résumé
 
-*Incidents survenus entre le 15/10 et le 23/10/2026, analysés et corrigés définitivement le 23/10/2026.*
+| Propriété | Valeur |
+| --- | --- |
+| Date | 15 au 23/10/2026 |
+| Durée | Cinq nuits sans sauvegarde ; HomeFlix indisponible le 23/10 |
+| Impact | Sauvegardes de la VM 104 en échec, lecture vidéo impossible |
+| Détection | Manuelle (19/10 et 23/10) : alertes envoyées à une boîte non lue |
+| Statut | Résolu |
 
 ---
 
-## Chronologie des Faits
+## Chronologie
 
 ### 1. Incident n°1 — Échec récurrent des sauvegardes de la VM 104 (15/10 → 19/10)
 
@@ -53,7 +59,7 @@ Le 22 octobre au soir, le conteneur LXC 100 (`ims-nas`) a été redémarré dans
 
 ---
 
-## Cause Racine (Root Cause)
+## Cause
 
 Le point de montage `/mnt/storage` sur le NAS (LXC 100) était agrégé via **MergerFS**, un système de fichiers en espace utilisateur (**FUSE**), puis réexporté via le serveur de noyau NFS (`nfsd`).
 
@@ -64,7 +70,7 @@ Le point de montage `/mnt/storage` sur le NAS (LXC 100) était agrégé via **Me
 
 ---
 
-## Correctif Appliqué — Retrait de MergerFS sur `/mnt/storage`
+## Correction
 
 Plutôt que d'empiler des scripts de surveillance et de reconnexion automatique, la décision a été prise de **supprimer purement et simplement MergerFS** du chemin critique de stockage :
 
@@ -79,8 +85,15 @@ Plutôt que d'empiler des scripts de surveillance et de reconnexion automatique,
 
 ---
 
-## Enseignements & Actions Préventives
+## Leçons
 
 1. **Règle d'or de stockage** : Ne jamais exporter en NFS un système de fichiers FUSE.
 2. **Surveillance des sauvegardes (Ntfy)** : L'incident n°1 a mis en évidence le danger d'une alerte cantonnée à `mail-to-root`. Le branchement d'une notification push Ntfy sur le topic `ims-alerts` via l'interface Proxmox VE (**Datacenter → Notifications**) est inscrit en priorité haute dans la roadmap.
 3. **Interprétation de `namespace not found`** : Cette erreur sur un job vzdump PBS ne signifie pas uniquement un namespace absent dans la configuration, mais peut être le symptôme direct d'un datastore PBS inaccessible suite à une erreur `ESTALE`.
+
+## Actions
+
+| Action | Statut | Lien |
+| --- | --- | --- |
+| Retirer MergerFS | Fait | [ADR-012](/history/adr/adr-012-retrait-de-mergerfs) |
+| Envoyer les échecs de sauvegarde sur Ntfy | Fait le 24/10/2026 | [ADR-014](/history/adr/adr-014-sauvegarde-par-pool-unique) |

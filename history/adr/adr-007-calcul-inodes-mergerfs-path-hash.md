@@ -1,13 +1,13 @@
 ---
-title: "ADR-007 — Calcul d'Inodes MergerFS (path-hash) & Diagnostic de Hardlinks"
+title: "ADR-007 — Inodes MergerFS et diagnostic des liens physiques"
 description: "Décision concernant l'impact de la politique inodecalc=path-hash sur la vérification des inodes et des hardlinks"
 icon: "hard-drive"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-25"
 ---
 
 ## Statut
-<Badge color="amber">🟡 Obsolète / Remplacé (23/10/2026)</Badge>
+Remplacé par [ADR-012](/history/adr/adr-012-retrait-de-mergerfs) — 23/10/2026 (décision initiale du 16/08/2026)
 
 <Warning>
 **Décision rendue caduque par le retrait de MergerFS (23/10/2026)** :
@@ -61,5 +61,5 @@ Un hardlink est confirmé valide uniquement si la paire `device:inode` retourné
 - **Fiabilité absolue des diagnostics** : Évite d'interpréter à tort des hardlinks valides comme des doublons ou des fichiers cassés.
 - **Transparence sur l'espace disque réel** : Mesures d'occupation mémoire exactes via `/mnt/disk1`.
 
-### Négatives / Contraintes
+### Contraintes
 - Impossibilité de valider l'intégrité d'un hardlink depuis la VM Coolify ou via les points de montage NFS (obligation de passer par le NAS LXC 100).

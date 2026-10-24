@@ -1,15 +1,24 @@
 ---
-title: "Incident — Double Blocage HTTP 403 du Middleware vpn-only (docker-proxy & Tailscale SNAT)"
+title: "Incident du 18/08/2026 — Refus 403 généralisé sur vpn-only"
 description: "Analyse des deux pannes successives de masquage d'IP source (userland-proxy Docker & ts-postrouting Tailscale SNAT) et résolutions définitives"
 icon: "shield-exclamation"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
-<Badge color="green">🟢 Résolu & Fix Définitif Implémenté</Badge> *(2026-08-19)*
+## Résumé
+
+| Propriété | Valeur |
+| --- | --- |
+| Date | 18/08/2026, puis 19-20/08/2026 après redémarrage |
+| Durée | Non mesurée |
+| Impact | Services d'administration inaccessibles depuis le tailnet |
+| Détection | Utilisation |
+| Statut | Résolu |
 
 ---
 
-## Synthèse de l'Incident
+## Synthèse
 
 Deux dysfonctionnements distincts provoquant exactement le même symptôme applicatif (**HTTP 403 Forbidden** systématique sur les services filtrés `vpn-only` Traefik) sont survenus coup sur coup :
 
@@ -18,12 +27,12 @@ Deux dysfonctionnements distincts provoquant exactement le même symptôme appli
 
 ---
 
-## Phase 1 — Incident `docker-proxy` (18/08/2026)
+## Phase 1 : `docker-proxy` (18/08/2026)
 
 ### Symptôme
 Lors des accès aux services d'administration (`qbit`, `radarr`, `sonarr`, `prowlarr`, `monitoring`), l'intégralité des requêtes des utilisateurs légitimes du VPN Tailscale (`100.64.0.0/10`) était rejetée en `HTTP 403 Forbidden`.
 
-### Cause Racine (Root Cause)
+### Cause
 Le démon Docker s'exécutait avec le paramètre par défaut **`userland-proxy: true`**. Lorsqu'un port est publié (`-p 80:80`), le binaire `docker-proxy` intercepte le trafic et ouvre une nouvelle connexion TCP vers Traefik sourcée depuis l'IP de la passerelle du bridge Docker (**`10.0.1.1`**). Traefik ne recevant que `10.0.1.1`, le middleware `vpn-only` rejetait tout le monde.
 
 ### Fix Phase 1 (CIS Docker Benchmark)
@@ -31,7 +40,7 @@ Inscription de `"userland-proxy": false` dans `/etc/docker/daemon.json` sur la V
 
 ---
 
-## Phase 2 — Incident Post-Reboot SNAT Tailscale (19-20/08/2026)
+## Phase 2 : Post-Reboot SNAT Tailscale (19-20/08/2026)
 
 ### Symptôme
 Après un redémarrage complet (*cold reboot*) du serveur physique MS-01, le filtrage `vpn-only` a de nouveau bloqué tout le monde en `HTTP 403 Forbidden`.
@@ -47,7 +56,7 @@ Après un redémarrage complet (*cold reboot*) du serveur physique MS-01, le fil
    Les logs Traefik affichent toujours l'IP source `10.0.1.1` (passerelle du bridge `coolify`).
 3. **Conclusion** : Le paquet arrive intact sur `tailscale0`, mais la réécriture d'adresse (SNAT) se produit *après*, entre l'entrée sur l'interface VPN et l'arrivée au conteneur Traefik.
 
-### Cause Racine (Root Cause)
+### Cause
 Le démon `tailscaled` installe sa propre chaîne iptables NAT nommée **`ts-postrouting`** avec une règle basée sur un marquage de paquets (*fwmark*) :
 
 ```text
@@ -75,7 +84,7 @@ Cette commande désactive le masque SNAT automatique de Tailscale sur le trafic 
 
 ---
 
-## Pistes Écartées lors du Diagnostic
+## Fausses pistes
 
 Avant d'isoler la chaîne `ts-postrouting`, une règle `DNAT` manuelle avait été insérée en test dans la chaîne `PREROUTING` :
 
@@ -88,13 +97,13 @@ sudo iptables -t nat -I PREROUTING -i tailscale0 -p tcp --dport 80 -j DNAT --to-
 
 ---
 
-## Hypothèse de l'Apparition Post-Reboot
+## Pourquoi après le redémarrage
 
 Le fix `userland-proxy: false` initial avait été appliqué via un simple `systemctl restart docker` (sans reboot de l'hôte). Lors du reboot complet du MS-01, les démons `docker` et `tailscaled` ont démarré à froid en parallèle. L'ordre d'insertion de la chaîne `ts-postrouting` par rapport aux chaînes Docker dans la table iptables `POSTROUTING` a pu varier, faisant basculer la correspondance `fwmark`. L'application de `--snat-subnet-routes=false` garantit un comportement déterministe et explicite quel que soit l'ordre de boot.
 
 ---
 
-## Check-List de Vérification & Persistance Post-Reboot
+## Vérification après redémarrage
 
 ### 1. Vérification de l'État Tailscale
 ```bash
@@ -104,7 +113,7 @@ sudo tailscale status --json | grep -i snat
 ```
 
 ### 2. Validation de la Persistance au Redémarrage
-- **Restart du démon `tailscaled`** : `sudo systemctl restart tailscaled` → ✅ **Persistance validée**.
+- **Restart du démon `tailscaled`** : `sudo systemctl restart tailscaled` →  **Persistance validée**.
 - **Reboot Physique du MS-01** : Inscrit au plan de maintenance pour validation définitive lors de la prochaine fenêtre.
 
 ### 3. Tests de Connectivité Réels
@@ -114,3 +123,9 @@ curl -sI https://monitoring.ims-world.fr
 curl -sI https://coolify.ims-world.fr
 # -> Attendu : HTTP 200 OK (IP source préservée dans les logs Traefik)
 ```
+
+## Actions
+
+| Action | Statut | Lien |
+| --- | --- | --- |
+| Désactiver userland-proxy et le SNAT Tailscale | Fait | [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only) |

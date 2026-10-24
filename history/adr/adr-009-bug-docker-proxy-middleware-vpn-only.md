@@ -1,14 +1,19 @@
 ---
-title: "ADR-009 — Isolation Réseau des Services d'Administration (vpn-only & userland-proxy)"
+title: "ADR-009 — Services d'administration restreints au tailnet"
 description: "Décision d'architecture pour le durcissement du réseau Docker (CIS Benchmark) et la centralisation des accès privés via Traefik File Provider"
 icon: "shield-check"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
 ## Statut
-<Badge color="green">🟢 Implémenté & Validé</Badge> *(Août 2026)*
+Accepté — 18/08/2026
 
 ---
+
+<Update label="25/10/2026" description="Précision">
+  La liste des routeurs ci-dessous date de la décision. Elle a grandi depuis (Dozzle, WUD, Termix, Home Assistant…) ; la liste à jour est dans [Traefik](/reseau/traefik-proxy#services-restreints-au-tailnet).
+</Update>
 
 ## Contexte
 
@@ -18,13 +23,12 @@ Initialement, un middleware Traefik `vpn-only` (`ipAllowList: 100.64.0.0/10`) av
 
 ---
 
-## Décision d'Architecture
-
+## Décision
 ### 1. Les Deux Piliers Réseau de Préservation de l'IP Source
 La préservation de l'adresse IP source réelle du client jusqu'au conteneur Traefik repose sur deux configurations réseau complémentaires et indissociables :
 
 #### Volet A — Durcissement du Démon Docker (`"userland-proxy": false`)
-Nous avons désactivé le proxy applicatif userland de Docker dans `/etc/docker/daemon.json`. Conforme au **CIS Docker Benchmark (Section 2.12)**, Docker bascule l'intégralité du routage sur les mécanismes natifs du noyau Linux (iptables `DNAT` + `MASQUERADE` et paramètre `net.ipv4.route_localnet`), éliminant la substitution d'IP par le relais `docker-proxy` (`10.0.1.1`).
+Le proxy applicatif de Docker est désactivé : le proxy applicatif userland de Docker dans `/etc/docker/daemon.json`. Conforme au **CIS Docker Benchmark (Section 2.12)**, Docker bascule l'intégralité du routage sur les mécanismes natifs du noyau Linux (iptables `DNAT` + `MASQUERADE` et paramètre `net.ipv4.route_localnet`), éliminant la substitution d'IP par le relais `docker-proxy` (`10.0.1.1`).
 
 ```json
 // /etc/docker/daemon.json
@@ -158,8 +162,7 @@ Pour résoudre l'incompatibilité entre le serveur de coordination VPN et l'inte
 
 ---
 
-## Alternatives Envisagées & Rejetées
-
+## Alternatives écartées
 ### 1. Mode Réseau Host sur Traefik (`network_mode: host`)
 - **Rejetée** : Augmente de manière inacceptable la surface d'attaque de Traefik en cas de compromission (accès direct à tous les services écoutant sur `127.0.0.1` de l'hôte). Exige de retirer Traefik du réseau `coolify`, risquant de rompre la résolution des 20 réseaux isolés.
 
@@ -174,8 +177,7 @@ Pour résoudre l'incompatibilité entre le serveur de coordination VPN et l'inte
 
 ---
 
-## Conséquences & Bénéfices
-
+## Conséquences
 - **Sécurité en Profondeur (CIS Benchmark)** : Préservation absolue de l'IP source réelle sans dépendre d'un proxy userland fragile.
 - **Zéro Concurrence de Routeurs** : La suppression du domaine dans l'UI Coolify garantit que Traefik applique exclusivement les règles centralisées du fichier `vpn-only.yaml`.
 - **Hot-Reload Instantané** : Toute modification de `vpn-only.yaml` est prise en compte instantanément par Traefik sans aucun redémarrage du proxy.

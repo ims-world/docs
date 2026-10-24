@@ -1,47 +1,76 @@
 ---
-title: "Glossaire & Lexique Technique"
-description: "Définitions des concepts, sigles et technologies de l'infrastructure homelab IMS-WORLD"
+title: "Glossaire"
+description: "Termes, sigles et noms propres employés dans cette documentation, avec leur sens dans le homelab."
 icon: "book-bookmark"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
-<Info>
-  Ce glossaire rassemble et détaille l'ensemble des termes techniques, acronymes et choix d'architecture utilisés à travers la documentation du homelab IMS-WORLD.
-</Info>
+## Virtualisation
 
-## 🖥️ Virtualisation & Conteneurisation
-
-| Terme | Définition & Contexte Homelab |
+| Terme | Définition |
 | --- | --- |
-| **LXC (LXC Container)** | Conteneur d'OS virtuel Linux partageant directement le noyau (_kernel_) du serveur hôte Proxmox VE. Très économe en RAM et CPU. Utilisé pour **IMS-NAS (100)** et **IMS-PBS (103)**. |
-| **LXC Privilégié** | Conteneur LXC exécuté avec les privilèges root de l'hôte (UID/GID non décalés). Nécessaire sur IMS-NAS et IMS-PBS pour permettre les montages NFS et l'accès direct aux points de montage FUSE. |
-| **VM QEMU/KVM** | Machine Virtuelle avec isolation matérielle et noyau propre complet (ex: **IMS-Coolify VM 104** sous Ubuntu 24.04). Garantit une étanchéité totale pour le moteur Docker et Traefik. |
-| **Pass-through `mp0`** | Montage direct d'un dossier de l'hôte Proxmox dans un conteneur LXC via le fichier de configuration `/etc/pve/lxc/<vmid>.conf`. |
+| Cluster `ims-cluster` | Les deux nœuds Proxmox (`pve`, `pve-macmini`), qui partagent leur configuration (`/etc/pve`) et se votent mutuellement le quorum |
+| Conteneur LXC | Système Linux isolé qui partage le noyau du nœud. Plus léger qu'une VM. Utilisé pour le NAS, le PBS et le worker Coolify |
+| LXC privilégié | Conteneur dont root correspond au root du nœud. Nécessaire pour monter du NFS ou servir des exports (NAS, PBS) |
+| VM | Machine virtuelle QEMU/KVM, avec son propre noyau (VM 104, Home Assistant, Windows) |
+| VMID | Numéro d'un invité Proxmox (100, 104…). Les VM créées par ims-ops reçoivent le prochain numéro libre |
+| Template | VM modèle, clonée pour créer des VM. Le template actuel est `ubuntu-2404-ims-ops` (9001) |
+| Cloud-Init | Configuration appliquée au premier démarrage d'une VM clonée. Ici, seulement le nom, le compte et la clé SSH |
+| Passthrough | Transmission d'un périphérique du nœud à un invité : disques du NAS (`mp0`, `mp1`), iGPU de la VM 104 (`hostpci0`) |
+| Pool `backup` | Pool Proxmox qui désigne les machines sauvegardées chaque nuit |
 
-## 💾 Stockage & Système de Fichiers
+## Stockage et sauvegarde
 
-| Terme | Définition & Contexte Homelab |
+| Terme | Définition |
 | --- | --- |
-| **FUSE MergerFS** | Système de fichiers d'union (FUSE) permettant d'unifier plusieurs disques physiques ou dossiers sous un point de montage unique (`/mnt/storage`). Permet l'extension de stockage sans RAID dur. |
-| **Option `inodecalc=path-hash`** | Option d'optimisation MergerFS calculant les inœuds par hachage de chemin. Essentielle pour garantir des identifiants stables lors des partages NFS long terme. |
-| **`storage-hot`** | Espace de stockage haute performance dédié aux bases de données et index applicatifs (Immich, Forgejo, Authentik). Basculé sur SSD 4 To dédié depuis le 18/08/2026. |
-| **Datastore PBS** | Dossier de stockage dédupliqué géré par Proxmox Backup Server (`/mnt/pbs-datastore`), découpant les sauvegardes des VM/LXC en morceaux (_chunks_) chiffrés et dédupliqués. |
-| **`vzdump`** | Outil de sauvegarde natif de Proxmox VE générant des archives compressées (`.vma.zst`) du système entier d'un LXC ou d'une VM. |
+| `storage` | Partage du HDD de 3 To : médiathèque, photos RAW, documents, datastore PBS |
+| `storage-hot` | Partage du SSD de 4 To : Immich, Forgejo |
+| Bind-mount | Montage d'un dossier à un second emplacement. `/mnt/storage` est un bind-mount de `/mnt/disk1` |
+| FUSE, MergerFS | Système de fichiers en espace utilisateur. MergerFS agrégeait des disques sous `/mnt/storage` ; retiré le 23/10/2026 car incompatible avec un export NFS ([ADR-012](/history/adr/adr-012-retrait-de-mergerfs)) |
+| `ESTALE` | Erreur NFS « Stale file handle » : le client tient une référence que le serveur ne reconnaît plus |
+| Lien physique (hardlink) | Deuxième nom pour un même fichier, sans copie. Radarr et Sonarr relient ainsi les téléchargements à la bibliothèque |
+| PBS | Proxmox Backup Server : stocke les sauvegardes des invités par blocs dédupliqués |
+| Datastore | Espace de stockage du PBS (`pve-backups`, sur le HDD du NAS) |
+| `vzdump` | Outil de sauvegarde de Proxmox VE ; vers un stockage PBS, il envoie des blocs, pas une archive |
+| Élagage (prune) | Suppression des sauvegardes au-delà de la rétention |
 
-## 🌐 Réseau & Sécurité
+## Réseau et sécurité
 
-| Terme | Définition & Contexte Homelab |
+| Terme | Définition |
 | --- | --- |
-| **Challenge DNS-01 (ACME)** | Méthode d'obtention de certificats SSL Let's Encrypt valides en créant dynamiquement un enregistrement TXT chez l'hébergeur DNS (OVH). Permet de certifier des domaines et sous-domaines non exposés publiquement. |
-| **Tailnet Overlay** | Réseau virtuel privé mesh (VPN) basé sur WireGuard et géré par le control plane **Headscale**. Permet l'interconnexion sécurisée des appareils distants sur le sous-réseau `100.64.0.0/10`. |
-| **Protocol Noise** | Protocole d'échange de clés cryptographiques utilisé par Tailscale / Headscale pour authentifier les machines du VPN sans serveur centralisé lisant le trafic. |
-| **Middleware `vpn-only`** | Règle de filtrage IP configurée dans Traefik restriction l'accès HTTPS aux seules adresses IPs clientes appartenant au sous-réseau Tailscale (`100.64.0.0/10`). |
-| **Tarpit SSH (_Endlessh_)** | Service leurre écoutant sur le port 22 standard. Envoie une bannière SSH infinie et ultra-lente pour piéger et paralyser les robots de scan automatisés. |
+| Tailnet | Réseau privé WireGuard entre les machines enrôlées, coordonné par Headscale (`100.64.0.0/10`) |
+| Headscale, Headplane | Serveur de coordination du tailnet, et son interface d'administration |
+| Utilisateur `infra` | Utilisateur Headscale de toutes les VM et de tous les conteneurs |
+| Clé de pré-authentification | Jeton qui permet à une machine de rejoindre le tailnet sans connexion interactive |
+| `extra_records` | Noms DNS servis aux clients du tailnet, pointés vers l'IP tailnet de Traefik |
+| `vmbr0`, `vmbr1` | Ponts réseau de Proxmox : LAN, et réseau interne sans passerelle entre le NAS, le PBS et la VM 104 |
+| Traefik | Reverse proxy unique du homelab, géré par Coolify |
+| `vpn-only` | Middleware Traefik qui n'accepte que le tailnet et le LAN ; fichier `vpn-only.yaml` |
+| Forward-auth | Traefik demande à l'outpost Authentik si l'utilisateur est connecté avant de transmettre la requête |
+| OIDC | OpenID Connect : l'application délègue la connexion à Authentik |
+| Défi DNS-01 | Preuve de propriété d'un domaine par un enregistrement TXT, pour obtenir un certificat Let's Encrypt |
+| CrowdSec, bouncer, AppSec | Détection d'attaques à partir des journaux ; le bouncer applique les bannissements dans Traefik ; AppSec est son pare-feu applicatif |
+| fail2ban | Bannissement local des adresses qui échouent en SSH sur les hôtes |
+| Compte de service | Compte réservé à un outil, avec une clé acceptée seulement depuis ses adresses (`termix-usr`) |
 
-## ⚡ Matériel & Alimentation
+## Administration
 
-| Terme | Définition & Contexte Homelab |
+| Terme | Définition |
 | --- | --- |
-| **Rack Labrax 3D** | Structure de rack 10 pouces imprimée en 3D (modèle MakerWorld Révision Core IMS-01) hébergeant l'ensemble des équipements informatiques. |
-| **PicoPSU-160-XT** | Mini-alimentation ATX haute efficacité recevant du courant continu 12V DC externe et alimentant les disques durs SATA et accessoires du rack. |
-| **Module 2U Raspberry Pi** | Panneau d'intégration 2U imprimé en 3D hébergeant le Raspberry Pi 3B\+, l'écran LCD de statut et les ports Keystones RJ45 en façade. |
+| ims-ops | Dépôt d'administration du parc : Ansible et `just` ([page](/procedures/administration-ims-ops)) |
+| `just` | Lanceur de commandes du dépôt (`just check`, `just setup`, `just vm`…) |
+| Socle commun | Configuration appliquée par ims-ops à tous les hôtes ([page](/infrastructure/socle-commun)) |
+| Rebond SSH (ProxyJump) | Connexion à une machine en passant par une autre ; utilisé pour une VM pas encore dans le tailnet |
+| Coolify, worker | Orchestrateur des services Docker (VM 104) et son nœud d'exécution distant (LXC 105) |
+| Alloy | Agent de Grafana qui envoie métriques et journaux à Prometheus et Loki |
+| ADR | Architecture Decision Record : trace d'une décision et de ses raisons ([index](/history/adr/index)) |
+
+## Matériel
+
+| Terme | Définition |
+| --- | --- |
+| Labrax | Rack 10 pouces imprimé en 3D qui accueille le matériel ([page](/infrastructure/labrax)) |
+| MS-01 | Minisforum MS-01, nœud principal (`pve`) |
+| PicoPSU-160-XT | Petite alimentation 12 V qui alimente les disques et le ventilateur du rack |
+| ASM1166 | Contrôleur SATA du MS-01 ; ne gère pas le branchement à chaud |

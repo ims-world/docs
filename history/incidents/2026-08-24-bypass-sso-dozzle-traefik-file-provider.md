@@ -1,13 +1,20 @@
 ---
-title: "Incident — Bypass de l'Authentification SSO Dozzle via vpn-only.yaml"
+title: "Incident du 24/08/2026 — Dozzle accessible sans SSO"
 description: "Contournement silencieux du middleware Forward-Auth Authentik causé par la priorité du routeur Traefik Dynamic File Provider sur le provider Docker"
 icon: "shield-exclamation"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
-<Badge color="green">🟢 Résolu — Middleware `authentik-dozzle@docker` Ajouté dans vpn-only.yaml</Badge> *(2026-08-24)*
+## Résumé
 
-*Découvert et corrigé le 24/08/2026.*
+| Propriété | Valeur |
+| --- | --- |
+| Date | 24/08/2026 |
+| Durée | Inconnue (défaut préexistant) |
+| Impact | Dozzle accessible sans Authentik, depuis le tailnet seulement |
+| Détection | Audit |
+| Statut | Résolu |
 
 ---
 
@@ -25,7 +32,7 @@ labels:
 
 ---
 
-## Cause Racine Identifiée
+## Cause
 
 Dozzle est référencé dans `/data/coolify/proxy/dynamic/vpn-only.yaml` (routeur `dozzle-admin`, provider **file**), au même titre que Grafana, Coolify, Headplane, Sonarr/Radarr/Prowlarr, qBittorrent et `crowdsec-web-ui`. Ce routeur définit sa **propre** liste de middlewares pour `logs.ims-world.fr` :
 
@@ -48,7 +55,7 @@ Résultat : les labels `authentik-dozzle` sur le conteneur n'avaient aucun effet
 
 ---
 
-## Fix Appliqué
+## Correction
 
 Ajout explicite du middleware Authentik au routeur `dozzle-admin` dans `/data/coolify/proxy/dynamic/vpn-only.yaml`, avec le suffixe obligatoire **`@docker`** (nécessaire car le middleware est déclaré côté provider Docker mais consommé depuis un routeur du provider File) :
 
@@ -72,7 +79,7 @@ Un simple hot-reload du provider File a été suffisant (aucun redémarrage `--f
 
 ---
 
-## ⚠️ Point de Vigilance & Règle d'Or Traefik
+## Leçons
 
 <Warning>
 **Règle d'Or Traefik File Provider vs Docker Provider** : Tout service dont le routeur est défini dans `vpn-only.yaml` et qui nécessite à la fois l'isolation VPN et l'authentification SSO doit **explicitement déclarer le middleware SSO avec la syntaxe `nom-middleware@docker`** dans `vpn-only.yaml`. Les labels Docker seuls seront ignorés au profit du routeur File Provider.
@@ -85,3 +92,10 @@ Vérifier en priorité l'ensemble des routeurs déclarés dans `/data/coolify/pr
 # Commande utile pour détecter si un domaine est surchargé par le provider File :
 grep -rl "logs.ims-world.fr" /data/coolify/proxy/dynamic/
 ```
+
+## Actions
+
+| Action | Statut | Lien |
+| --- | --- | --- |
+| Ajouter authentik-dozzle@docker au routeur | Fait | [Traefik](/reseau/traefik-proxy) |
+| Revoir les middlewares de chaque routeur de vpn-only.yaml | À faire | [Feuille de route](/roadmap) |

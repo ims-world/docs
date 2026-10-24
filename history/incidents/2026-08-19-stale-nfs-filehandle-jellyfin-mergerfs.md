@@ -1,11 +1,20 @@
 ---
-title: "Incident — Stale NFS Filehandles sur Jellyfin (vzdump stop LXC 100)"
+title: "Incident du 19/08/2026 — Descripteurs NFS périmés sur Jellyfin"
 description: "Invalidation des descripteurs de fichiers NFS causée par le redémarrage quotidien de MergerFS FUSE et suppression de la sauvegarde automatique LXC 100"
 icon: "hard-drive"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
-<Badge color="green">🟢 Résolu & Choix d'Architecture Acté</Badge> *(2026-08-19)*
+## Résumé
+
+| Propriété | Valeur |
+| --- | --- |
+| Date | 19/08/2026 (récurrent) |
+| Durée | Après chaque sauvegarde du NAS |
+| Impact | Lecture vidéo impossible dans Jellyfin |
+| Détection | Utilisation |
+| Statut | Résolu définitivement le 23/10/2026 |
 
 <Info>
 **Mise à jour du 23/10/2026 — Résolution Structurelle Définitive** :
@@ -20,7 +29,7 @@ Après quelques jours d'uptime sans incident, la lecture de films et séries sur
 
 ---
 
-## Cause Racine (Root Cause)
+## Cause
 
 Le conteneur **LXC 100 (`ims-nas`)** agrège le pool de stockage froid (`storage`) via **MergerFS**, qui s'exécute en tant que système de fichiers en espace utilisateur (**FUSE**).
 
@@ -31,7 +40,7 @@ Le conteneur **LXC 100 (`ims-nas`)** agrège le pool de stockage froid (`storage
 
 ---
 
-## Pourquoi le Mode Snapshot n'était pas une Option
+## Pourquoi pas le mode snapshot
 
 L'alternative consistant à passer le job de sauvegarde de LXC 100 en `--mode snapshot` (pour éviter le `stop`) a été expérimentée mais a **échoué** :
 - Lors de la phase d'instantané, Proxmox tente d'exécuter un gel (*freeze*) du système de fichiers du conteneur.
@@ -40,7 +49,7 @@ L'alternative consistant à passer le job de sauvegarde de LXC 100 en `--mode sn
 
 ---
 
-## Découverte Annexe & Correctif d'Urgence
+## Découverte annexe
 
 Au cours du diagnostic, un risque d'escalade critique a été identifié : le point de montage `mp1` (SSD Samsung 870 EVO 4 To, hébergeant `storage-hot` pour Immich et Forgejo) ne possédait pas la directive `backup=0`.
 
@@ -56,7 +65,7 @@ Les deux points de montage `mp0` (MergerFS HDD) et `mp1` (SSD Hot) sont désorma
 
 ---
 
-## Décisions d'Architecture & Correctifs
+## Décisions
 
 1. **Suppression de la Sauvegarde Automatique Quotidienne de LXC 100** :
    - La sauvegarde automatique de LXC 100 ne protégeait qu'un système de fichiers racine (*rootfs*) de 8 Go quasiment statique.
@@ -68,6 +77,14 @@ Les deux points de montage `mp0` (MergerFS HDD) et `mp1` (SSD Hot) sont désorma
 
 ---
 
-## Point d'Attention à Surveiller
+## Suivi
 
 Une entrée `NFSD: starting 90-second grace period` observée dans le `dmesg` à 03h00 le 19/08 reste à confirmer (potentiellement liée à l'exécution du job de sauvegarde de la LXC 103 PBS). À surveiller si le symptôme réapparaît hors intervention.
+
+## Actions
+
+| Action | Statut | Lien |
+| --- | --- | --- |
+| Supprimer la sauvegarde quotidienne du NAS | Fait (contournement) | — |
+| Retirer MergerFS | Fait le 23/10/2026 | [ADR-012](/history/adr/adr-012-retrait-de-mergerfs) |
+| Surveiller la période de grâce NFSD | Abandonné : cause supprimée | — |

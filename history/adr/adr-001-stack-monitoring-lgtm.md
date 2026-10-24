@@ -1,14 +1,19 @@
 ---
-title: "ADR-001 — Stack Monitoring LGTM & Maintien de Dozzle"
+title: "ADR-001 — Supervision LGTM, Dozzle conservé"
 description: "Décision d'architecture concernant l'adoption de la stack LGTM/Alloy, l'abandon de Beszel et le maintien de Dozzle pour le live-tailing"
 icon: "chart-line"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
 ## Statut
-<Badge color="green">🟢 Accepté & Déployé</Badge> *(2026-08-12, révisé le 2026-08-17)*
+Accepté — 12/08/2026, révisé le 17/08/2026
 
 ---
+
+<Update label="25/10/2026" description="Précisions">
+  Les agents Alloy des hôtes hors du réseau interne `vmbr1` envoient vers `192.168.1.52`, pas vers `10.10.10.2`. Le Mac Mini n'est plus en attente : c'est le second nœud du cluster. Les agents sont désormais installés par ims-ops ([socle commun](/infrastructure/socle-commun#supervision)).
+</Update>
 
 ## Contexte
 
@@ -22,8 +27,7 @@ Plusieurs options d'observabilité ont été évaluées :
 
 ---
 
-## Décisions
-
+## Décision
 ### 1. Adoption de la Stack LGTM (Grafana + Loki + Alloy)
 Toute la métrologie, la collecte de logs et l'alerting du homelab sont unifiés au sein de la stack Grafana hébergée sur `monitoring.ims-world.fr` :
 - **Grafana (v13.1.3)** : Interface unique d'exploration, dashboards PromQL/LogQL et gestion des règles d'alerte.
@@ -43,8 +47,7 @@ Dozzle répond à un besoin d'exploitation distinct et complémentaire :
 
 ---
 
-## Synthèse de la Dualité d'Observabilité
-
+## Synthèse
 | Outil | Domaine | Rôle & Usage Principal | Accès |
 |---|---|---|---|
 | **Dozzle** | `logs.ims-world.fr` | **Debug en temps réel** (Live-tailing 1 clic, streaming WebSockets) | Forward-Auth Outpost |
@@ -60,6 +63,6 @@ Dozzle répond à un besoin d'exploitation distinct et complémentaire :
 - **Sécurité réseau** : Ingestion télémétrique cantonnée à la carte virtuelle isolée `10.10.10.2` (`vmbr1`).
 - **Confort d'exploitation** : Conservation d'un outil de debug ultra-rapide en direct (Dozzle) couplé à une plateforme d'analyse poussée (Grafana).
 
-### Négatives / Contraintes
+### Contraintes
 - Empreinte mémoire de la stack LGTM sur la VM Coolify (~2 Go RAM).
 - Nécessite d'installer et maintenir le binaire `alloy` sur chaque nœud distant.

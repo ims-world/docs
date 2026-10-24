@@ -189,6 +189,8 @@
               "history/adr/adr-009-bug-docker-proxy-middleware-vpn-only",
               "history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster",
               "history/adr/adr-011-organisation-ims-infra-par-lots",
+              "history/adr/adr-012-retrait-de-mergerfs",
+              "history/adr/adr-013-administration-par-ims-ops",
               "history/adr/adr-014-sauvegarde-par-pool-unique"
             ]
           },

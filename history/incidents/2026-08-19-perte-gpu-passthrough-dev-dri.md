@@ -1,15 +1,24 @@
 ---
-title: "Incident — Perte du Périphérique /dev/dri post-reboot (Noyau Ubuntu)"
+title: "Incident du 19/08/2026 — Perte de /dev/dri après redémarrage"
 description: "Désynchronisation entre linux-image et linux-modules-extra post-unattended-upgrades et résolution par le métapaquet générique"
 icon: "triangle-exclamation"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
-<Badge color="green">🟢 Résolu & Fix Préventif Appliqué</Badge> *(2026-08-19)*
+## Résumé
+
+| Propriété | Valeur |
+| --- | --- |
+| Date | 19/08/2026 |
+| Durée | Jusqu'au rétablissement à chaud |
+| Impact | Jellyfin et Sonarr ne démarrent plus |
+| Détection | Échec au démarrage des conteneurs |
+| Statut | Résolu |
 
 ---
 
-## Symptômes
+## Symptôme
 
 Après un redémarrage complet de l'infrastructure homelab, les services **HomeFlix (Jellyfin)** et **Sonarr** ont échoué au démarrage sur la VM IMS-Coolify avec le message d'erreur Docker suivant dans l'IHM Coolify et en CLI :
 
@@ -19,7 +28,7 @@ Error response from daemon: error gathering device information while adding cust
 
 ---
 
-## Cause Racine (Root Cause)
+## Cause
 
 Le module noyau **`i915`** (pilote d'affichage et de transcodage matériel de l'iGPU Intel Iris Xe) était **absent** pour la version du noyau sur laquelle la VM venait de démarrer (`6.8.0-138-generic`).
 
@@ -31,7 +40,7 @@ Sur les images d'installation minimales Ubuntu Cloud (24.04 LTS) :
 
 ---
 
-## Arbre de Diagnostic Pas-à-Pas
+## Diagnostic
 
 L'inspection s'effectue de haut en bas (Hôte Proxmox → VM → Driver Noyau) :
 
@@ -59,7 +68,7 @@ dpkg -l | grep "linux-modules-extra-$(uname -r)"
 
 ---
 
-## Action de Rétablissement à Chaud (Fix Réalisé)
+## Correction
 
 ```bash
 # Installation du paquet extra pour la version courante
@@ -84,7 +93,7 @@ Aucun redémarrage de la VM n'a été nécessaire. Dès que `modprobe i915` a é
 
 ---
 
-## Correctif Préventif (Prévention des Récurrences)
+## Prévention
 
 Pour éviter que les futures mises à jour automatiques du noyau par `unattended-upgrades` ne provoquent la même dérive silencieuse, le **métapaquet générique** a été installé :
 
@@ -98,7 +107,13 @@ sudo apt autoremove --purge
 
 ---
 
-## Impact sur les Fiches de Documentation
+## Documentation mise à jour
 
 - **[ADR-008 — Passthrough GPU](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe)** : Remplacement de l'instruction d'installation manuelle par `linux-modules-extra-generic`.
 - **[Dépannage Courant](/procedures/depannage-courant#échec-démarrage-jellyfin---devdri-no-such-file-or-directory)** : Ajout de la procédure de diagnostic rapide.
+
+## Actions
+
+| Action | Statut | Lien |
+| --- | --- | --- |
+| Installer le métapaquet linux-modules-extra-generic | Fait | [VM 104](/infrastructure/vm-coolify#gpu) |

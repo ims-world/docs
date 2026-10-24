@@ -1,13 +1,13 @@
 ---
-title: "ADR-003 — Partitionnement du Stockage NFS (storage vs storage-hot)"
+title: "ADR-003 — Stockage NFS en deux niveaux"
 description: "Décision d'architecture concernant le découpage du stockage partagé du NAS IMS-NAS"
 icon: "hard-drive"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-25"
 ---
 
 ## Statut
-<Badge color="green">🟢 Accepté & Déployé</Badge> *(2026-08-12, actualisé le 23/10/2026)*
+Accepté — 12/08/2026, amendé le 23/10/2026
 
 <Info>
 **Évolution du Tier `storage` (23/10/2026)** :
@@ -28,7 +28,7 @@ Un point de montage NFS unique risquait de provoquer de la contention E/S sur le
 
 ## Décision
 
-Nous avons formalisé un **découpage du stockage partagé NFS en 2 tiers distincts** entre le NAS (LXC 100) et la VM Coolify (VM 104) :
+Décision : un **découpage du stockage partagé NFS en 2 tiers distincts** entre le NAS (LXC 100) et la VM Coolify (VM 104) :
 
 1. **`storage` (`/mnt/nas-storage`)** :
    - Usage : Stockage de masse, médias et archives froides (HomeFlix Jellyfin, Radarr, Sonarr, qBittorrent, téléchargements).
@@ -47,5 +47,5 @@ Nous avons formalisé un **découpage du stockage partagé NFS en 2 tiers distin
 - **Organisation claire des volumes Docker** : Séparation stricte des bind-mounts applicatifs.
 - **Règles de sauvegarde différenciées** : Fréquence et rétention de snapshot PBS ajustables selon le tier de stockage.
 
-### Négatives / Contraintes
+### Contraintes
 - Nécessite de maintenir 2 points de montage NFS distincts dans `/etc/fstab` de la VM Coolify avec l'option `nofail,_netdev`.

@@ -1,23 +1,30 @@
 ---
-title: "Incident — DNS Wildcard Shadowing sur share.ims-world.fr"
+title: "Incident du 24/08/2026 — share.ims-world.fr ne résout plus"
 description: "Erreur 503 causée par le masquage du wildcard DNS OVH dû aux enregistrements résiduels _acme-challenge TXT"
 icon: "globe"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
-<Badge color="green">🟢 Résolu — Enregistrements ACME TXT Nettoyés sur OVH</Badge> _(2026-08-24)_
+## Résumé
 
-_Rédigé le 24/08/2026 — Zone `ims-world.fr` (OVH)._
+| Propriété | Valeur |
+| --- | --- |
+| Date | 24/08/2026 |
+| Durée | Quelques heures |
+| Impact | Zipline injoignable (503) |
+| Détection | Mise en service de Zipline |
+| Statut | Résolu |
 
 ---
 
-## Symptôme Initial
+## Symptôme
 
 Zipline (conteneur `zipline-kbcknnnkswmcnlgmupxoyheh`) démarre normalement (logs applicatifs propres, healthcheck OK), mais `share.ims-world.fr` renvoie **503 "no available server"** dans le navigateur.
 
 ---
 
-## Fausses Pistes Explorées (dans l'Ordre)
+## Fausses pistes
 
 1. **CrowdSec / Bouncer Traefik** — Écarté d'emblée : un `503` générique n'est pas la signature d'un blocage CrowdSec (qui produit un `403`, avec trace explicite dans les access logs Traefik, `backend "-"`).
 2. **Backend Zipline Injoignable** — Écarté : test direct depuis le conteneur Traefik (`wget` vers `zipline-kbcknnnkswmcnlgmupxoyheh:3000`) répond `200 OK`. Le conteneur est sur le bon réseau Docker (`kbcknnnkswmcnlgmupxoyheh`), labels Traefik corrects (port 3000, règle `Host` correcte), Traefik a bien ce réseau attaché.
@@ -26,7 +33,7 @@ Zipline (conteneur `zipline-kbcknnnkswmcnlgmupxoyheh`) démarre normalement (log
 
 ---
 
-## Cause Racine Identifiée
+## Cause
 
 **Résolution DNS cassée pour `share.ims-world.fr` uniquement**, malgré un wildcard `*.ims-world.fr` actif et fonctionnel sur la zone (confirmé via un sous-domaine aléatoire qui résout vers `176.151.43.50`).
 
@@ -46,7 +53,7 @@ _acme-challenge.share    120 IN TXT  "2AAxLaW9..."
 
 ---
 
-## Portée du Problème
+## Portée
 
 Même schéma potentiellement présent sur d'autres sous-domaines de la zone ayant un `_acme-challenge.<nom>` sans A/CNAME propre par ailleurs : `radarr`, `system`, `tools`, `coolify-old`. À valider après le fix (voir ci-dessous).
 
@@ -54,7 +61,7 @@ Même schéma potentiellement présent sur d'autres sous-domaines de la zone aya
 
 ---
 
-## Fix Appliqué
+## Correction
 
 Suppression des enregistrements `_acme-challenge.*` résiduels dans la zone OVH `ims-world.fr` :
 
@@ -67,7 +74,7 @@ Suppression des enregistrements `_acme-challenge.*` résiduels dans la zone OVH 
 
 ---
 
-## Validation Post-Fix
+## Vérification
 
 ```bash
 dig +short share.ims-world.fr
@@ -80,10 +87,17 @@ dig +short tools.ims-world.fr
 
 ---
 
-## Leçon / Piège à Retenir
+## Leçons
 
 <Warning>
   **Un enregistrement `_acme-challenge.<nom>` non nettoyé après validation ACME peut masquer un wildcard DNS pour `<nom>` lui-même**, même si un certificat valide existe déjà et que le service fonctionnait normalement jusque-là. Symptôme trompeur côté client : 503 générique plutôt qu'une erreur de résolution DNS explicite.
 </Warning>
 
 **Action de fond à envisager** : automatiser le nettoyage des TXT `_acme-challenge.*` après émission (hook post-validation côté Traefik/ACME), ou vérifier périodiquement la zone OVH pour des résidus — plutôt que de découvrir le problème un service à la fois.
+
+## Actions
+
+| Action | Statut | Lien |
+| --- | --- | --- |
+| Supprimer les TXT _acme-challenge résiduels | Fait | — |
+| Contrôle périodique ou nettoyage automatique des TXT | À faire | [Feuille de route](/roadmap) |
