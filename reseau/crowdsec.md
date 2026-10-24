@@ -1,225 +1,110 @@
 ---
-title: "CrowdSec & Shield (Web UI)"
-description: "Moteur de détection d'intrusions, WAF AppSec, bouncer Traefik et interface Web d'administration Shield"
+title: "CrowdSec"
+description: "Détection d'intrusions et pare-feu applicatif devant Traefik, avec une interface locale de gestion des bannissements."
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-09-14"
+last_reviewed: "2026-10-25"
 app_version: "v1.8.1 / 2026.8.3"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
-
-<Badge color="green">🟢 Production Active (v1.8.1 + Web UI 2026.8.3)</Badge>
-
-## Accès Rapides & Administration
-
-<Tabs>
-  <Tab title="🌐 Interface Web (Shield)">
-    <Card title="CrowdSec Web UI (Shield)" icon="shield-check" href="https://shield.ims-world.fr">
-      Console de gestion locale des alertes, bouncers et décisions de bannissement sur `shield.ims-world.fr` (`vpn-only` + SSO Authentik OIDC rôle ADMIN).
-    </Card>
-  </Tab>
-  <Tab title="⚡ Commandes CLI `cscli` (Agent)">
-    ```bash
-    # Se connecter à la VM Coolify
-    ssh cmolotkoff@100.64.0.4
-
-    # Alias pratique pour exécuter cscli dans le conteneur agent
-    alias cscli="docker exec -it crowdsec-8bqmp4lkzgfoooqx0wrndfkt cscli"
-
-    # Décisions & Bans
-    cscli decisions list                           # Voir les bans actifs
-    cscli decisions delete --id <id>               # Débannir par ID
-    cscli decisions delete --ip <ip>               # Débannir par IP
-
-    # Allowlists (Bypass de ban)
-    cscli allowlists list                          # Lister les allowlists actives
-    cscli allowlists inspect tailscale             # Inspecter l'allowlist Tailscale
-    cscli allowlists add home-lan 192.168.1.50 -d "IP test" # Ajouter une entrée
-
-    # Diagnostics & Métriques
-    cscli metrics                                  # Métriques complètes (parsers, AppSec, logs)
-    cscli bouncers list                            # Lister les bouncers enregistrés (Traefik)
-
-    # Redéploiement forcé Traefik après modif de config du bouncer
-    # (Obligatoire : le hot-reload du provider file ne suffit pas pour ce plugin)
-    docker compose -f /data/coolify/proxy/docker-compose.yml up -d --force-recreate
-    ```
-  </Tab>
-</Tabs>
-
----
-
-## Fiche Service
-
-| Propriété | Valeur |
-|---|---|
-| **Domaine Admin Web UI** | `shield.ims-world.fr` |
-| **Rôle** | Détection d'Intrusions L3/L4/L7, WAF AppSec, Bouncer Traefik & Administration des Bans |
-| **Version Agent** | `crowdsecurity/crowdsec:v1.8.1` |
-| **Version Web UI** | `ghcr.io/theduffman85/crowdsec-web-ui:2026.8.3` |
-| **Version Bouncer Traefik** | `crowdsec-bouncer-traefik-plugin` v1.6.0 (Plugin dynamique) |
-| **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
-| **UUID Coolify** | `8bqmp4lkzgfoooqx0wrndfkt` |
-| **Chemin Stockage Host** | `/data/coolify/services/8bqmp4lkzgfoooqx0wrndfkt/` |
-| **Exposition Web UI** | **VPN-Only** (`vpn-only.yaml`) + **SSO Authentik OIDC** (Rôle `ADMIN` strict) |
-| **Mode d'Opération Proxy** | **Stream Mode** (Sync 60s, cache local, Fail-Open `updateMaxFailure: -1`) |
-| **Date de Mise en Prod** | **22 août 2026** |
-| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
-
----
-
-## Architecture & Topologie du Composant
-
-```mermaid
-graph TB
-    subgraph FLUX ["🌐 Trafic Réseau Entrant"]
-        WAN["Internet Public / Bbox"]
-        LAN["LAN Domestique (192.168.1.0/24)"]
-        VPN["Tailnet Private Overlay (100.64.0.0/10)"]
-    end
-
-    subgraph PROXY ["🚦 Reverse Proxy Traefik (VM 104)"]
-        TRAEFIK["Traefik v3.7 Proxy Engine"]
-        PLUGIN["Plugin Bouncer crowdsec-bouncer@file (Global entrypoints)"]
-        VPN_MID["Middleware vpn-only (Accès Shield)"]
-        OIDC_MID["SSO Authentik OIDC (Rôle ADMIN)"]
-    end
-
-    subgraph CROWDSEC_RESOURCE ["🛡️ Ressemble Coolify CrowdSec (8bqmp4lkzgfoooqx0wrndfkt)"]
-        AGENT["Conteneur Agent CrowdSec v1.8.1"]
-        APPSEC["WAF AppSec (Port 7422)"]
-        LAPI["LAPI Local (Port 8080 - Interne)"]
-        METRICS["Metrics Prometheus (Port 6060)"]
-        DB["SQLite DB (/var/lib/crowdsec/data)"]
-        WEBUI["Conteneur crowdsec-web-ui (Shield)"]
-    end
-
-    subgraph MONITORING ["📊 Supervision"]
-        PROM["Prometheus (rrw19kmye6gng961igtzqpgw)"]
-        GRAFANA["Grafana (Dashboard ID 19010)"]
-    end
-
-    WAN & LAN & VPN --> TRAEFIK
-    TRAEFIK <-->|Filtre Inband Stream / Sync 60s| PLUGIN
-    PLUGIN <-->|Port 8080 LAPI| LAPI
-    TRAEFIK -->|Inspect AppSec L7| APPSEC
-    
-    TRAEFIK -->|Shield Request| VPN_MID --> OIDC_MID --> WEBUI
-    
-    AGENT <--> LAPI
-    AGENT <--> DB
-    WEBUI <-->|Compte Machine dédié| LAPI
-    
-    METRICS -->|Scrape 6060| PROM --> GRAFANA
-
-    classDef proxy fill:#F97316,stroke:#FB923C,color:#fff;
-    classDef cs fill:#0F6E56,stroke:#16A085,color:#fff;
-    classDef ui fill:#2980b9,stroke:#3498db,color:#fff;
-    class TRAEFIK,PLUGIN,VPN_MID,OIDC_MID proxy;
-    class AGENT,APPSEC,LAPI,DB cs;
-    class WEBUI ui;
-```
-
----
-
-## Composants Déployés & Stockage
-
-### 1. Organisation des Emplacements de Stockage (Bind Mounts)
-Les données sont stockées en **bind-mounts relatifs directs sur l'hôte** (pas de volumes Docker nommés) pour permettre l'inspection et l'édition directe sans passer par `docker exec` :
-
-- `/data/coolify/services/8bqmp4lkzgfoooqx0wrndfkt/config` ➔ `/etc/crowdsec` *(Configurations, acquisitions `acquis.yaml`, collections)*
-- `/data/coolify/services/8bqmp4lkzgfoooqx0wrndfkt/data` ➔ `/var/lib/crowdsec/data` *(Base SQLite locale, décisions de ban, alertes)*
-- `/data/coolify/services/8bqmp4lkzgfoooqx0wrndfkt/webui-data` ➔ `/app/data` *(Cache SQLite local de l'interface Web UI Shield)*
-
-### 2. Configuration de l'Acquisition des Logs (`acquis.yaml`)
-L'agent lit les logs directement auprès du démon Docker via l'API socket (`source: docker`). Chaque conteneur surveillé possède un fichier d'acquisition dédié dans `/etc/crowdsec/acquis.d/` (`type: traefik`, `type: appsec`, `type: immich`, etc.).
-
-<Warning>
-**Piège de syntaxe `container_name_regexp`** : Les noms de conteneurs dans le moteur Docker sont préfixés d'un slash `/` en interne. La Regex ne doit **jamais comporter d'ancre de début `^`** (ex: `container_name_regexp: ".*traefik.*"`).
-</Warning>
-
----
-
-## Configuration du Bouncer Traefik & Comportement Fail-Open
-
-### 1. Plugin Bouncer Traefik (`crowdsec-bouncer@file`)
-Le bouncer est intégré comme plugin Traefik v1.6.0 et appliqué **globalement sur les entrypoints HTTP et HTTPS** dans la configuration statique de Traefik :
-
-```text
---entrypoints.https.http.middlewares=crowdsec-bouncer@file
---entrypoints.http.http.middlewares=crowdsec-bouncer@file
-```
-
-### 2. Mode Stream & Mode Fail-Open (`updateMaxFailure: -1`)
-- **Mode Stream Retenu** : Le bouncer maintient une copie locale des décisions synchronisée toutes les 60s avec la LAPI. Contrairement au mode `live` (qui effectue une requête HTTP bloquante par paquet), le mode stream n'ajoute **aucune latence** sur les connexions longues (WebSocket, SSE, transcodage vidéo).
-- **Garantie Fail-Open** : La variable `updateMaxFailure` est explicitement définie à **`-1`**. Si le conteneur agent CrowdSec est arrêté ou en panne, Traefik **ne bloque aucun trafic légitime** (fail-open assumé et validé par test d'arrêt réel de 90 secondes).
-
-<Warning>
-**Exigence de Redémarrage Forcé de Traefik** : Toute modification de la configuration du plugin bouncer (mode, clé API, seuils) nécessite impérativement un redémarrage forcé du conteneur Traefik (`docker compose up -d --force-recreate traefik`). Le simple hot-reload du provider file ne suffit pas pour ce plugin.
-</Warning>
-
----
-
-## Pare-Feu Applicatif WAF (AppSec) & Tuning Anti-Faux-Positifs
-
-Le module AppSec fonctionne sur deux niveaux de filtrage complémentaires :
-
-1. **Blocage Actif (Inband)** : `appsec-virtual-patching` + `appsec-generic-rules` (196 règles). Intercepte et bloque immédiatement les attaques d'injections SQL, XSS, Path Traversal et CVEs connues sur le port `7422`.
-2. **Analyse Asynchrone (Outofband)** : `appsec-crs` (OWASP Core Rule Set). 
-
-<Warning>
-**Tuning `profiles.yaml` (Désactivation des Bans Out-of-Band)** :
-À la suite de faux positifs successifs déclenchés par des requêtes AJAX légitimes sur **Grafana**, **Jellyfin/HomeFlix** ou **Patrimo** (règle CRS 920420 et requêtes de suivi de lecture vidéo), le profil d'action `/etc/crowdsec/profiles.yaml` a été ajusté.
-
-Le scénario `crowdsecurity/crowdsec-appsec-outofband` a été configuré avec `on_success: continue` **sans remédiation de bannissement**. Les alertes CRS restent enregistrées et visibles dans la console **Shield** et sur Grafana, mais **ne provoquent plus de ban d'IP intempestif**.
-
-Voir le [Post-Mortem d'Incident du 26/08/2026](/history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband).
-</Warning>
-
----
-
-## Allowlists (Whitelists Anti-Auto-Ban)
-
-Afin d'éviter tout verrouillage accidentel des administrateurs, deux règles d'exclusion (`allowlists`) ont été configurées dans l'agent CrowdSec :
-
-- **`tailscale` (`100.64.0.0/10`)** : Exempté de tout bannissement pour sécuriser les accès d'administration VPN.
-- **`home-lan` (`192.168.1.0/24`)** : Exempté de ban pour prévenir les faux positifs provoqués par le hairpin NAT de la Bbox sur les requêtes LAN locales.
-
-<Info>
-**Remarque** : Les événements d'attaque provenant des plages autorisées sont toujours enregistrés dans les métriques et alertes, mais **l'action de bannissement est neutralisée**.
-</Info>
-
----
-
-## Interface d'Administration Locale (Shield / `crowdsec-web-ui`)
-
-- **URL d'Accès** : `https://shield.ims-world.fr`
-- **Authentification & Sécurité** : Déployée en réseau privé `vpn-only` et protégée par **Authentik OIDC SSO**. Seuls les utilisateurs possédant le rôle **`ADMIN`** peuvent ouvrir l'interface.
-- **Compte Machine Dédié** : L'interface communique avec l'agent via un compte machine dédié (`cscli machines add crowdsec-web-ui --password '<pwd>'`).
-- **Validation** : Testée et confirmée fonctionnelle avec capacité de débannissement d'IP en direct.
-
-<Info>
-**Pourquoi pas la Console SaaS app.crowdsec.net ?**
-Sur le plan gratuit, la gestion des décisions à distance depuis la console SaaS est désactivée. L'interface locale **Shield** offre la gestion complète des décisions en local sans aucun coût récurrent ni dépendance cloud.
-</Info>
-
----
-
-## Retours d'Expérience & Pièges Connus
-
-1. **Mode `live` à proscrire** : Provoque une latence sévère et coupe les connexions WebSocket/SSE.
-2. **`updateMaxFailure` doit être à `-1`** : La valeur par défaut `0` bascule Traefik en mode fail-closed (blocage total du site) si l'agent CrowdSec s'arrête.
-3. **Faux positifs Grafana / PromQL** : Les requêtes JSON/PromQL complexes générées par les dashboards Grafana déclenchent des détections mineures sur le CRS OWASP. Ces détections s'accumulent dans le scénario `crowdsecurity/crowdsec-appsec-outofband`. L'allowlist `home-lan` neutralise ce risque.
-4. **Incompatibilité `firix/authentik`** : Le parser communautaire Authentik s'attend à des logs au format syslog/journald et échoue sur une acquisition Docker directe.
-
----
+## Accès
 
 <CardGroup cols={2}>
-  <Card title="Traefik Proxy Engine" icon="route" href="/reseau/traefik-proxy">
-    Configuration du bouncer CrowdSec et des middlewares d'entrypoints.
-  </Card>
-  <Card title="Intégrer une App en OIDC" icon="key" href="/procedures/integration-service-authentik-oidc">
-    Procédure d'intégration SSO OIDC et capture de la Redirect URI de Shield.
+  <Card title="Interface CrowdSec" icon="shield-check" href="https://shield.ims-world.fr">
+    Alertes, bouncers, bannissements et débannissements.
   </Card>
 </CardGroup>
+
+```bash
+# Depuis la VM 104
+alias cscli="docker exec -it crowdsec-8bqmp4lkzgfoooqx0wrndfkt cscli"
+cscli decisions list
+cscli decisions delete --ip <ip>
+cscli allowlists list
+cscli metrics
+cscli bouncers list
+```
+
+## Fiche
+
+| Propriété | Valeur |
+| --- | --- |
+| Domaine | `shield.ims-world.fr` (interface) |
+| Accès | Tailnet ; OIDC Authentik, rôle administrateur |
+| Hôte | VM 104 |
+| Coolify | UUID `8bqmp4lkzgfoooqx0wrndfkt`, chemin `/data/coolify/services/8bqmp4lkzgfoooqx0wrndfkt/` |
+| Image | `crowdsecurity/crowdsec:v1.8.1`, `ghcr.io/theduffman85/crowdsec-web-ui:2026.8.3` ; plugin Traefik `crowdsec-bouncer-traefik-plugin` v1.6.0 |
+| Données | `config/` (`/etc/crowdsec`), `data/` (base SQLite des alertes et décisions), `webui-data/` |
+| Sauvegarde | Avec la VM 104 |
+| Supervision | Métriques (port 6060) dans Prometheus, tableau Grafana 19010 |
+| Mise en service | 22/08/2026 |
+
+## Fonctionnement
+
+```mermaid
+flowchart LR
+  requete[Requête] --> traefik[Traefik]
+  traefik -->|décisions, toutes les 60 s| bouncer[Bouncer]
+  traefik -->|inspection| appsec[AppSec<br/>port 7422]
+  agent[Agent CrowdSec] -->|journaux Docker| lapi[API locale]
+  bouncer --> lapi
+  ui[Interface] --> lapi
+  class requete externe
+  class traefik,bouncer reseau
+  class appsec,agent,lapi,ui service
+  classDef service fill:#e8f3eb,stroke:#2e6b3f,color:#1b2129
+  classDef reseau fill:#fdf2e3,stroke:#a35a00,color:#1b2129
+  classDef externe fill:#f1f2f4,stroke:#6b7480,color:#1b2129,stroke-dasharray:4 3
+```
+
+- L'agent lit les journaux des conteneurs par le socket Docker (`source: docker`), un fichier d'acquisition par conteneur dans `/etc/crowdsec/acquis.d/`.
+- Le bouncer, plugin de Traefik, applique les décisions à tous les points d'entrée. Mode `stream` : copie locale des décisions, synchronisée toutes les 60 secondes, sans latence par requête.
+- `updateMaxFailure: -1` : si l'agent s'arrête, le trafic passe (fail-open, validé par un arrêt de 90 secondes).
+
+## Pare-feu applicatif (AppSec)
+
+| Niveau | Règles | Effet |
+| --- | --- | --- |
+| En ligne | `appsec-virtual-patching`, `appsec-generic-rules` | Requête malveillante bloquée immédiatement (injections, traversée de chemin, CVE connues) |
+| Hors ligne | `appsec-crs` (OWASP CRS) | Alertes journalisées, **sans bannissement** |
+
+Le scénario `crowdsecurity/crowdsec-appsec-outofband` ne bannit plus : il produisait des faux positifs en série sur Grafana, Jellyfin et Patrimo ([incident du 26/08/2026](/history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband)). Le profil correspondant, en tête de `/etc/crowdsec/profiles.yaml`, a `on_success: continue` sans remédiation. Les bannissements pour force brute et balayage restent actifs.
+
+## Listes d'exemption
+
+| Liste | Plage | Raison |
+| --- | --- | --- |
+| `tailscale` | `100.64.0.0/10` | Ne jamais bloquer l'administration |
+| `home-lan` | `192.168.1.0/24` | Requêtes du LAN qui reviennent par la Bbox |
+
+Les événements de ces plages restent journalisés ; seul le bannissement est neutralisé.
+
+## Interface locale
+
+L'interface parle à l'API locale avec un compte machine dédié (`cscli machines add crowdsec-web-ui`). Elle remplace la console en ligne de CrowdSec, qui ne permet pas de gérer les décisions sur l'offre gratuite.
+
+## Données et sauvegarde
+
+Données en bind-mounts sur la VM 104, sauvegardées avec elle. Perdre la base efface l'historique des alertes et les décisions en cours, sans autre conséquence.
+
+## Exploitation
+
+Après une modification du plugin (mode, clé, seuils), recréer Traefik : la relecture à chaud ne suffit pas.
+
+```bash
+docker compose -f /data/coolify/proxy/docker-compose.yml up -d --force-recreate
+```
+
+## Pièges connus
+
+| Symptôme | Cause | Solution |
+| --- | --- | --- |
+| Latence, coupures WebSocket | Bouncer en mode `live` | Mode `stream` |
+| Site entièrement bloqué quand l'agent s'arrête | `updateMaxFailure` à `0` (valeur par défaut) | `-1` |
+| Une acquisition ne lit rien | Ancre `^` dans `container_name_regexp` : les noms Docker commencent par `/` | `".*traefik.*"` |
+| Le parseur Authentik échoue | Il attend du syslog, pas des journaux Docker | Ne pas utiliser `firix/authentik` en acquisition Docker |
+
+## Voir aussi
+
+- [Traefik](/reseau/traefik-proxy)
+- [Socle commun des hôtes](/infrastructure/socle-commun) (fail2ban sur les hôtes)
