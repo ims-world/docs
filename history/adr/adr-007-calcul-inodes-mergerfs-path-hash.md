@@ -44,10 +44,10 @@ En conséquence :
 # Entrer dans le LXC NAS 100 depuis l'hôte Proxmox
 sudo pct enter 100
 
-# ❌ NE JAMAIS DIAGNOSTIQUER ICI (MergerFS path-hash fausse l'inode) :
+# NE JAMAIS DIAGNOSTIQUER ICI (MergerFS path-hash fausse l'inode) :
 stat -c '%d:%i' /mnt/storage/homeflix/movies/Film.mkv
 
-# ✅ TOUJOURS DIAGNOSTIQUER ICI (Disque physique réel) :
+# TOUJOURS DIAGNOSTIQUER ICI (Disque physique réel) :
 stat -c '%d:%i %s %n' /mnt/disk1/homeflix/movies/Film.mkv
 ```
 
