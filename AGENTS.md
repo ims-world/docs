@@ -1,15 +1,28 @@
-# Documentation project instructions
+# Consignes pour les assistants IA
 
-## About this project
+Documentation Mintlify du homelab IMS-WORLD : pages MDX avec frontmatter YAML, navigation dans `docs.json`, variables dans `snippets/variables.mdx`.
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
-- Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
+Le guide complet est la page `history/comment-fonctionne-cette-doc.md` (« Contribuer et guide de style »). Le lire avant toute modification. Partir des modèles de `_modeles/` pour une nouvelle page.
 
-## Style preferences
+## Règles impératives
 
-- Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
-- Use sentence case for headings
-- Bold for UI elements: Click **Settings**
-- Code formatting for file names, commands, paths, and code references
+- Français, forme impersonnelle : jamais « tu », « vous » ni « nous ». Étapes à l'infinitif.
+- Aucun emoji. Titres en français, majuscule au premier mot seulement.
+- Plans par type de page : respecter l'ordre et les intitulés exacts du guide.
+- Une donnée à un seul endroit ; ailleurs, un lien.
+- Aucun secret, même partiel. Placeholders entre chevrons : `<jeton>`, `<hôte>`.
+- Variables : `{ips.x}` dans le texte, `<code>{ips.x}</code>` dans du code en ligne, valeur réelle dans un bloc de code.
+- Ne pas modifier `last_reviewed` sans avoir relu et vérifié toute la page.
+- ADR, incidents et chronologie sont figés : amender par un bloc `<Update>` daté, ne pas réécrire le passé.
+- Les commandes d'administration du parc vivent dans le dépôt ims-ops : renvoyer vers lui, ne pas recopier son README.
+
+## Vérifier avant de rendre la main
+
+```bash
+npx -y mint@4.2.997 validate
+npx -y mint@4.2.997 broken-links
+```
+
+## Branches
+
+Retouche d'une page : commit sur `main` possible. Chantier sur plusieurs pages ou déplacement de fichier : branche et pull request.
