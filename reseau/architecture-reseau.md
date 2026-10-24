@@ -1,145 +1,96 @@
 ---
 title: "Architecture réseau"
-description: "Bridges Proxmox, Tailscale/Headscale, DNS, port-forward"
+description: "Réseaux du homelab (LAN, réseau interne des invités, tailnet), plan d'adressage, redirections de la Bbox et DNS."
 icon: "network-wired"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-25"
 ---
 
 import { ips, domains } from "/snippets/variables.mdx";
 
-## Diagramme Réseau Global
+## Réseaux
+
+| Réseau | Plage | Rôle |
+| --- | --- | --- |
+| LAN (`vmbr0`) | `192.168.1.0/24`, passerelle Bbox `192.168.1.254` | Accès humain, SMB, interfaces d'administration, trafic Traefik vers le worker et Home Assistant |
+| Réseau interne (`vmbr1`, sur `pve` seulement) | `10.10.10.0/24`, sans passerelle | NFS entre le NAS, le PBS et la VM 104 ; envoi Alloy de ces trois hôtes |
+| Tailnet (Headscale) | `100.64.0.0/10`, `fd7a:115c:a1e0::/48` | Administration à distance, services restreints au tailnet |
 
 ```mermaid
-graph TB
-    subgraph WAN ["🌐 Internet Public"]
-        CLIENT_EXT["Client Internet"]
-        OVH_DNS["DNS Wildcard OVH (*.ims-world.fr)"]
-    end
-
-    subgraph BBOX ["📡 Bbox / Routeur WAN (IP Publique)"]
-        NAT80["NAT Port 80"]
-        NAT443["NAT Port 443"]
-        NAT2222["NAT Port 2222 (Git SSH)"]
-    end
-
-    subgraph PROXMOX_NET ["🖥️ Hyperviseur Proxmox MS-01 (192.168.1.41)"]
-        subgraph VMBR0 ["Bridge LAN (vmbr0: 192.168.1.0/24)"]
-            NAS_LAN["IMS-NAS (192.168.1.50)\n[SMB / Management]"]
-            PBS_LAN["IMS-PBS (192.168.1.51)\n[PBS Web GUI]"]
-            COOL_LAN["IMS-Coolify (192.168.1.52)\n[Traefik 80/443 & GUI 8000]"]
-        end
-
-        subgraph VMBR1 ["Bridge Isolé (vmbr1: 10.10.10.0/24) — Trafic NFS Interne"]
-            NAS_ISO["NAS NFS Target (10.10.10.1)"]
-            PBS_ISO["PBS NFS Client (10.10.10.3)"]
-            COOL_ISO["Coolify NFS Client (10.10.10.2)"]
-        end
-    end
-
-    subgraph TAILNET_HEADSCALE ["🔐 Network Overlay (Tailscale 100.64.0.0/10)"]
-        HEADSCALE_SRV["Headscale Control Plane\n(vpn.ims-world.fr)"]
-        PBS_TS["PBS Client (100.64.0.2)"]
-        COOL_TS["Coolify Client (100.64.0.4)"]
-        MAC_TS["Mac Mini Cluster (100.64.0.6)"]
-        PVE_TS["PVE Host (100.64.0.9)"]
-        NAS_TS["NAS Storage (100.64.0.11)"]
-        WORKER_TS["Coolify Worker (100.64.0.10)"]
-        RPI_TS["Raspberry Pi Kiosk (100.64.0.12)"]
-        VMTEST_TS["vm-test (100.64.0.13)"]
-    end
-
-    %% Flux WAN -> Bbox -> Traefik
-    CLIENT_EXT -->|Requête HTTPS| OVH_DNS
-    OVH_DNS -->|IP Publique Bbox| BBOX
-    NAT80 -->|Port 80 -> 192.168.1.52:80| COOL_LAN
-    NAT443 -->|Port 443 -> 192.168.1.52:443| COOL_LAN
-
-    %% Flux NFS
-    COOL_ISO <-->|Montage /mnt/nas-storage & /mnt/nas-hot| NAS_ISO
-    PBS_ISO <-->|Sauvegarde /mnt/pbs-datastore| NAS_ISO
-
-    %% Flux Tailscale VPN
-    HEADSCALE_SRV --- PBS_TS
-    HEADSCALE_SRV --- COOL_TS
-    HEADSCALE_SRV --- MAC_TS
-    HEADSCALE_SRV --- PVE_TS
-    HEADSCALE_SRV --- NAS_TS
-    HEADSCALE_SRV --- WORKER_TS
-    HEADSCALE_SRV --- RPI_TS
-    HEADSCALE_SRV --- VMTEST_TS
-
-    classDef wan fill:#2c3e50,stroke:#34495e,color:#fff;
-    classDef lan fill:#0F6E56,stroke:#16A085,color:#fff;
-    classDef iso fill:#16A085,stroke:#0F6E56,color:#fff;
-    classDef vpn fill:#1a2b3c,stroke:#0F6E56,color:#fff;
-    class CLIENT_EXT,OVH_DNS,NAT80,NAT443 wan;
-    class NAS_LAN,PBS_LAN,COOL_LAN lan;
-    class NAS_ISO,PBS_ISO,COOL_ISO iso;
-    class HEADSCALE_SRV,PBS_TS,COOL_TS,MAC_TS,PVE_TS,NAS_TS,WORKER_TS,RPI_TS,VMTEST_TS vpn;
+%%{init: {'flowchart': {'defaultRenderer': 'elk'}}}%%
+flowchart LR
+  internet[Internet] --> bbox[Bbox<br/>80, 443, 2222]
+  bbox -->|LAN| vm104[VM 104<br/>Traefik]
+  tailnet[Appareils du tailnet] -->|100.64.0.0/10| vm104
+  vm104 -->|vmbr1| nas[(ims-nas<br/>10.10.10.1)]
+  pbs[ims-pbs<br/>10.10.10.3] -->|vmbr1| nas
+  vm104 -->|LAN| worker[Worker 105]
+  vm104 -->|LAN| haos[Home Assistant]
+  class internet,tailnet externe
+  class bbox reseau
+  class vm104,nas,pbs,worker,haos hote
+  classDef hote fill:#e6eef6,stroke:#2f5d8a,color:#1b2129
+  classDef reseau fill:#fdf2e3,stroke:#a35a00,color:#1b2129
+  classDef externe fill:#f1f2f4,stroke:#6b7480,color:#1b2129,stroke-dasharray:4 3
 ```
 
-## Bridges Proxmox
+## Plan d'adressage du LAN
 
-| Bridge | Plage réseau | Rôle & Usage |
+| Plage | Usage | Attribution |
 | --- | --- | --- |
-| `vmbr0` | `192.168.1.0/24` | LAN principal — SMB, SSH, interfaces d'administration locales |
-| `vmbr1` | `10.10.10.0/24` (sans gateway) | Réseau virtuel isolé — trafic NFS haute vitesse entre l'hôte et les guests (NAS ↔ PBS ↔ Coolify) |
+| `192.168.1.1` à `.99` | Infrastructure : nœuds, conteneurs, VM permanentes | IP fixe ou bail réservé |
+| `192.168.1.100` à `.190` | Appareils du foyer | DHCP de la Bbox |
+| `192.168.1.191` à `.199` | IP fixes diverses | IP fixe |
+| `192.168.1.200` à `.249` | VM créées par `just vm` | Attribuée par la commande |
+| `192.168.1.254` | Bbox (passerelle) | — |
 
-## Plan d'Adressage IP Complet (LAN, NFS & Tailnet)
+Le DNS des VM créées par ims-ops est `1.1.1.1`.
 
-| Équipement / Guest | `vmbr0` (LAN) | `vmbr1` (NFS Isolé) | Tailscale IP | Hostname Tailnet | Rôle |
-| --- | --- | --- | --- | --- | --- |
-| **Host Proxmox (MS-01)** | {ips.pveLan} | — | {ips.ms01} | `ims-pve-ms01` | Hyperviseur Principal Proxmox VE 9 |
-| **Mac Mini 2012** | `192.168.1.42` | — | {ips.macmini} | `ims-pve-macmini` | Nœud 2 Cluster Proxmox VE |
-| **IMS-NAS (LXC 100)** | {ips.nasLan} | `10.10.10.1` | {ips.nas} | `ims-pve-100-nas` | Stockage central ext4 direct & NFS/SMB |
-| **IMS-PBS (LXC 103)** | {ips.pbsLan} | `10.10.10.3` | {ips.pbs} | `ims-pve-103-pbs` | Proxmox Backup Server |
-| **IMS-Coolify (VM 104)** | {ips.coolifyLan} | `10.10.10.2` | {ips.coolify} | `ims-pve-104-coolify` | Moteur Docker, Traefik v3.7 & Coolify Master |
-| **Coolify Worker (LXC 105)** | {ips.coolifyWorkerLan} | — | {ips.coolifyWorker} | `ims-pve-105-coolify-worker` | Nœud d'exécution Docker distant (Mac Mini) |
-| **Raspberry Pi 3B\+** | `192.168.1.x` | — | {ips.rpi} | `ims-rpi-monitor` | Affichage Kiosk 2U |
-| **vm-test (VM 101)** | `192.168.1.x` | — | {ips.vmTest} | `vm-test` | Banc de test & VM générique |
+## Adresses des hôtes
 
-## Headscale — Control Plane Tailscale Self-Hosted
+| Hôte | LAN | `vmbr1` | Tailnet | Nom dans le tailnet |
+| --- | --- | --- | --- | --- |
+| [`pve`](/infrastructure/proxmox-host) | <code>{ips.pveLan}</code> | — | <code>{ips.ms01}</code> | `ims-pve-ms01` |
+| [`pve-macmini`](/infrastructure/mac-mini) | <code>{ips.macminiLan}</code> | — | <code>{ips.macmini}</code> | `ims-pve-macmini` |
+| [`ims-nas`](/infrastructure/ims-nas) (LXC 100) | <code>{ips.nasLan}</code> | `10.10.10.1` | <code>{ips.nas}</code> | `ims-pve-100-nas` |
+| [`ims-pbs`](/infrastructure/ims-pbs) (LXC 103) | <code>{ips.pbsLan}</code> | `10.10.10.3` | <code>{ips.pbs}</code> | `ims-pve-103-pbs` |
+| [`ims-coolify`](/infrastructure/vm-coolify) (VM 104) | <code>{ips.coolifyLan}</code> | `10.10.10.2` | <code>{ips.coolify}</code> | `ims-pve-104-coolify` |
+| [`ims-coolify-worker`](/infrastructure/lxc-coolify-worker) (LXC 105) | <code>{ips.coolifyWorkerLan}</code> | — | <code>{ips.coolifyWorker}</code> | `ims-pve-105-coolify-worker` |
+| [Home Assistant](/infrastructure/vm-home-assistant) (VM 106) | <code>{ips.haLan}</code> | — | <code>{ips.ha}</code> | `ha-macmini` |
+| `lab-elo` (VM 107) | <code>{ips.labEloLan}</code> | — | <code>{ips.labElo}</code> | — |
+| [Raspberry Pi](/infrastructure/rpi-monitor) | — | — | <code>{ips.rpi}</code> | `ims-rpi-monitor` |
 
-| Propriété | Valeur |
-| --- | --- |
-| **Serveur Control Plane** | {domains.headscale} |
-| **Orchestration** | VM IMS-Coolify (VM 104) |
-| **Plage Tailnet** | `100.64.0.0/10` (IPv4), `fd7a:115c:a1e0::/48` (IPv6) |
-| **MagicDNS** | `*.ts.ims-world.fr` |
+Headscale réattribue d'anciennes adresses : une alerte de clé d'hôte SSH peut être légitime après la création d'une machine. Vérifier l'empreinte sur l'hôte avant d'effacer l'ancienne entrée (`ssh-keygen -R`).
 
-## Port-Forward Bbox
+## Redirections de la Bbox
 
-| Règle Bbox | Port Externe | Port Interne | Cible |
+| Règle | Port externe | Cible | Usage |
 | --- | --- | --- | --- |
-| `Coolify_HTTP` | 80 | 80 | VM Coolify ({ips.coolifyLan}) |
-| `Coolify_HTTPS` | 443 | 443 | VM Coolify ({ips.coolifyLan}) |
-| `Forgejo_SSH` | 2222 | 2222 | VM Coolify ({ips.coolifyLan}) |
+| `Coolify_HTTP` | 80 | <code>{ips.coolifyLan}:80</code> | Traefik (redirection vers HTTPS) |
+| `Coolify_HTTPS` | 443 | <code>{ips.coolifyLan}:443</code> | Traefik |
+| `Forgejo_SSH` | 2222 | <code>{ips.coolifyLan}:2222</code> | Git en SSH ([ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox)) |
+
+Aucun port SSH d'administration n'est redirigé : l'administration se fait depuis le LAN ou le tailnet.
+
+## DNS
+
+| Zone | Fonctionnement |
+| --- | --- |
+| Publique (OVH) | Enregistrement générique `*.ims-world.fr` vers l'IP publique de la Bbox : un nouveau sous-domaine fonctionne sans créer d'enregistrement. Certificats Let's Encrypt par défi DNS-01 (API OVH) |
+| Tailnet (Headscale) | `extra_records` : certains noms pointent vers l'IP tailnet de Traefik (<code>{ips.coolify}</code>) pour les clients du tailnet, par exemple `home.ims-world.fr` et `admin.vpn.ims-world.fr`. Liste dans [Headscale](/reseau/headscale-headplane) |
+| MagicDNS | `*.ts.ims-world.fr` |
 
 <Warning>
-  **Politique d'Isolation SSH Système — Port 22 Fermé sur le WAN** : Aucune règle de port-forward SSH d'administration système n'existe sur le routeur Bbox. L'accès SSH d'administration (MS-01, LXC NAS, VM Coolify, Mac Mini) est **strictement inaccessible depuis l'Internet public**. Il nécessite d'être physiquement connecté au **LAN local (`192.168.1.0/24`)** ou d'être authentifié sur le **VPN Overlay Tailscale (`100.64.0.0/10`)**. Seul le port **`2222`** (dédié aux opérations de `git clone`/`git push` SSH sur Forgejo) est exposé publiquement via Bbox. Voir [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox).
+Un enregistrement `_acme-challenge.<nom>` oublié dans la zone OVH masque le générique pour `<nom>` : le sous-domaine ne résout plus. Voir l'[incident du 24/08/2026](/history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr).
 </Warning>
 
-## DNS Public Wildcard (OVH)
+## Choix
 
-- **Configuration Wildcard `*.ims-world.fr`** : La zone DNS publique chez OVH redirige tout le trafic du domaine wildcard `*.ims-world.fr` vers l'IP publique dynamique de la Bbox.
-- **Routage Automatique Coolify & Traefik** : Cette configuration permet à Coolify d'attribuer et de déployer n'importe quel nouveau sous-domaine (`auth.ims-world.fr`, `homeflix.ims-world.fr`, `vault.ims-world.fr`, etc.) instantanément, sans avoir à créer manuellement un nouvel enregistrement A dans la console OVH à chaque nouveau service.
-- **Certificats HTTPS** : Génération et renouvellement automatisés des certificats TLS Let's Encrypt via le challenge DNS-01 (API OVH).
+- **Pas de route du LAN dans le tailnet.** La plage `192.168.1.0/24` entre en conflit avec la plupart des réseaux extérieurs, et la route exposerait tout le LAN au tailnet. Les hôtes sont joints par leur propre IP tailnet. Une renumérotation du LAN lèverait le conflit ; c'est un chantier distinct.
+- **SNAT désactivé sur les routes du tailnet** (`--snat-subnet-routes=false`) sur la VM 104, pour que Traefik voie l'IP réelle des clients.
 
-## Enregistrements Spéciaux Headscale (`extra_records`)
+## Voir aussi
 
-Les enregistrements internes configurés dans `config.yaml` (`dns.extra_records`) de Headscale permettent de mapper des noms FQDN personnalisés uniquement résolubles par les appareils connectés au Tailnet :
-
-```yaml
-extra_records:
-  - name: "coolify-old.ims-world.fr"
-    value: "100.64.0.6"   # accès de secours à l'ancienne instance Mac Mini
-```
-
-## Sécurité Réseau & Protection des Hôtes
-
-| Composant | Rôle |
-| --- | --- |
-| **CrowdSec** | Détection d'intrusions L3/L4/L7, WAF AppSec & Plugin Bouncer Traefik (Stream Fail-Open) |
-| **Fail2ban** | Bannissement dynamique d'IP actif sur **l'ensemble des hôtes gérés** (`pve`, `pve-macmini`, `ims-pbs`, `ims-nas`, `ims-coolify-worker`, `ims-coolify`, `vm-test`). Prisons `sshd` et `recidive` (1h doublé à chaque récidive, plafond 1 semaine), alertes Ntfy envoyées directement via l'IP LAN de Traefik (`192.168.1.52`). |
-| **Firewall Proxmox (Roadmap)** | Filtrage 3 niveaux (Host → Datacenter → Guest) en cours de déploiement |
+- [Matrice d'exposition](/reseau/matrice-securite-exposition)
+- [Traefik](/reseau/traefik-proxy)
+- [Socle commun des hôtes](/infrastructure/socle-commun) (fail2ban, SSH)

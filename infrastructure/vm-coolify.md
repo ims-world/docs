@@ -1,168 +1,54 @@
 ---
-title: "VM IMS-Coolify (VM 104)"
-description: "Serveur d'orchestration Docker et Reverse Proxy Traefik de production"
+title: "ims-coolify (VM 104)"
+description: "VM principale des services : Coolify, Traefik, CrowdSec, Authentik, supervision et la plupart des applications Docker."
 icon: "box"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-25"
 app_version: "v4.3.14"
 ---
 
-<Badge color="green">🟢 Production Active (VM 104 — Master Control Plane)</Badge>
+import { ips } from "/snippets/variables.mdx";
 
-<Note>
-🖥️ **Type d'Instance** : **Machine Virtuelle QEMU/KVM 104** (Ubuntu 24.04 LTS) — Control Plane principal de l'orchestrateur Coolify v4.3.14 et Reverse Proxy central Traefik.
-</Note>
-
-## Rôle
-
-Héberge l'interface web Coolify Master, la base de données de gestion et orchestre l'ensemble de la stack applicative locale et des nœuds d'exécution distants (comme le [Worker Coolify LXC 105](/infrastructure/lxc-coolify-worker) sur le Mac Mini). C'est le point d'entrée de production principal de l'infrastructure.
-
-## Fiche technique
+## Fiche
 
 | Propriété | Valeur |
-|---|---|
-| **VMID** | 104 |
-| **OS** | Ubuntu 24.04 LTS (clonée depuis template Cloud-Init `8000`) |
-| **Fuseau horaire** | `Europe/Paris` (aligné le 23/10/2026 pour les logs système de la VM) |
-| **CPU / RAM** | 6 cores (mode CPU `host` — `x86-64-v2`) / 18 Go RAM |
-| **Disque** | 128 Go NVMe |
-| **Réseau** | `vmbr0` (192.168.1.52/24) + `vmbr1` (10.10.10.2/24) + client Tailscale dédié |
-| **Accès SSH** | Clé uniquement (`PasswordAuthentication no`, `PermitRootLogin prohibit-password` pour Coolify) |
-| **Comptes** | `cmolotkoff` (sudo journalisé `log_subcmds`), `root` par clé (auto-gestion Coolify) |
-| **Mises à jour** | `unattended-upgrades` automatiques (**redémarrage automatique interdit**) |
-| **Version Coolify** | `v4.3.14` |
-| **Rôle Topology** | **Master / Control Plane** (Orchestre la VM 104 et le Worker LXC 105) |
-| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
+| --- | --- |
+| Type | VM QEMU/KVM, chipset `q35`, processeur `host` ([ADR-005](/history/adr/adr-005-cpu-vm-coolify-mode-host)) |
+| Nœud et VMID | `pve`, 104 |
+| Noms | Proxmox `ims-coolify` · inventaire `ims-coolify` · tailnet `ims-pve-104-coolify` |
+| OS | Ubuntu 24.04 LTS |
+| CPU et RAM | 6 cœurs · 18 Go |
+| Disques | 128 Go sur `local-lvm` ; partages NFS du NAS |
+| IP LAN | `192.168.1.52` ; réseau interne `vmbr1` : `10.10.10.2` |
+| IP tailnet | <code>{ips.coolify}</code> |
+| Sauvegarde | Pool `backup`, chaque nuit vers le PBS |
+| Statut | En service |
 
-## Coolify & Architecture Docker
+## Ce qui tourne dessus
 
-```mermaid
-graph TD
-    subgraph VM ["🚀 VM 104 (IMS-Coolify — 6 vCPU / 18 Go RAM)"]
-        subgraph FS ["Filesystem Local & ACL"]
-            DATA["/data/coolify/services (ACL cmolotkoff:rwX)"]
-            PROXY_CFG["/data/coolify/proxy (Traefik Dynamic Config)"]
-        end
+- Coolify v4.3.14, maître : il orchestre cette VM et le [worker 105](/infrastructure/lxc-coolify-worker).
+- [Traefik](/reseau/traefik-proxy) (conteneur `coolify-proxy`), seul point d'entrée HTTP et HTTPS du homelab, et [CrowdSec](/reseau/crowdsec).
+- [Headscale et Headplane](/reseau/headscale-headplane).
+- Les services de la navigation, sauf Home Assistant : identité et accès, supervision, médias, outils.
 
-        subgraph DOCKER ["🐳 Moteur Docker & Services"]
-            TRAEFIK["coolify-proxy (Traefik v3.7.13)"]
-            AUTH["Authentik (SSO)"]
-            VAULT["Vaultwarden"]
-            HOMEFLIX["HomeFlix Stack (9 containers)"]
-            HEADSCALE["Headscale + Headplane"]
-            CROWDSEC["CrowdSec Agent v1.8.1 + Shield Web UI"]
-        end
+L'UUID Coolify et le chemin de chaque service figurent dans sa fiche.
 
-        subgraph NFS_MNT ["📁 Points de Montage NFS (via 10.10.10.1)"]
-            MNT_STOR["/mnt/nas-storage (NFS -> /mnt/storage)"]
-            MNT_HOT["/mnt/nas-hot (NFS -> /mnt/storage-hot)"]
-        end
-    end
+## Stockage
 
-    TRAEFIK --> AUTH
-    TRAEFIK --> VAULT
-    TRAEFIK --> HOMEFLIX
-    TRAEFIK --> HEADSCALE
-
-    HOMEFLIX --> MNT_STOR
-    AUTH --> MNT_STOR
-    HEADSCALE --> DATA
-
-    classDef vm fill:#2c3e50,stroke:#34495e,color:#fff;
-    classDef docker fill:#0F6E56,stroke:#16A085,color:#fff;
-    classDef nfs fill:#1a2b3c,stroke:#0F6E56,color:#fff;
-    class DATA,PROXY_CFG vm;
-    class TRAEFIK,AUTH,VAULT,HOMEFLIX,HEADSCALE docker;
-    class MNT_STOR,MNT_HOT nfs;
-```
-
-## Cartographie des services Coolify (UUIDs & Chemins)
-
-| Service | UUID Coolify | Chemin d'accès sur la VM | Statut |
-|---|---|---|---|
-| **Authentik** | `k5mxvc2r6c4zlb6j3d443h7b` | `/data/coolify/services/k5mxvc2r6c4zlb6j3d443h7b/` | <Badge color="green">🟢 Production</Badge> |
-| **Vaultwarden** | `i5ae953riutbot9afjcboptb` | `/data/coolify/services/i5ae953riutbot9afjcboptb/` | <Badge color="green">🟢 Production</Badge> |
-| **HomeFlix** (Jellyfin/Sonarr/Radarr/Prowlarr/qBit/Gluetun) | `w39uebmcnse7yctsft8hzed8` | `/data/coolify/services/w39uebmcnse7yctsft8hzed8/` | <Badge color="green">🟢 Production</Badge> |
-| **Headscale + Headplane** | `i136ix2bmrrbeovnyrh1o72w` | `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` | <Badge color="green">🟢 Production</Badge> |
-| **Monitoring LGTM** (Grafana/Loki/Prometheus) | `rrw19kmye6gng961igtzqpgw` | `/data/coolify/services/rrw19kmye6gng961igtzqpgw/` | <Badge color="green">🟢 Production</Badge> |
-| **CrowdSec + Shield** (WAF AppSec & Agent) | `8bqmp4lkzgfoooqx0wrndfkt` | `/data/coolify/services/8bqmp4lkzgfoooqx0wrndfkt/` | <Badge color="green">🟢 Production</Badge> |
-| **Ntfy** (Push Notifications) | `j5akn2e9pr6g7c2pjvdj78w0` | `/data/coolify/services/j5akn2e9pr6g7c2pjvdj78w0/` | <Badge color="green">🟢 Production</Badge> |
-| **Dozzle** (Logs Docker Live) | `ejdn7jiuwiyixrmp8nffjkcj` | `/data/coolify/services/ejdn7jiuwiyixrmp8nffjkcj/` | <Badge color="green">🟢 Production</Badge> |
-| **Immich** (Médiathèque Photo/Vidéo IA) | `p3ujda5c7sc8nf4j9zzd8lck` | `/data/coolify/services/p3ujda5c7sc8nf4j9zzd8lck/` | <Badge color="green">🟢 Production</Badge> |
-| **Uptime Kuma** (Monitoring Actif & Status) | `il53bmpdybmss5q14sfy0umm` | `/data/coolify/services/il53bmpdybmss5q14sfy0umm/` | <Badge color="green">🟢 Production</Badge> |
-| **IT-Tools** (Boîte à outils développeur) | `yefujwl3pxvum45edpsbsru7` | `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` | <Badge color="green">🟢 Production</Badge> |
-| **Stirling PDF** (Traitement & OCR PDF) | `p6lm9p4zf1caqruekeuocnje` | `/data/coolify/services/p6lm9p4zf1caqruekeuocnje/` | <Badge color="green">🟢 Production</Badge> |
-| **Zipline** (Partage Fichiers & ShareX) | `kbcknnnkswmcnlgmupxoyheh` | `/data/coolify/services/kbcknnnkswmcnlgmupxoyheh/` | <Badge color="green">🟢 Production</Badge> |
-| **Forgejo** (Forge Git & Miroir GitHub) | `culcigf0vwg0fbdvegbkzoan` | `/data/coolify/services/culcigf0vwg0fbdvegbkzoan/` | <Badge color="green">🟢 Production</Badge> |
-| **Patrimo** (App Node.js — Git Build) | *Application Git* | `/var/lib/docker/volumes/...` (Volume nommé) | <Badge color="green">🟢 Production</Badge> |
-| **PhotoPrism** (Studio Photo RAW & Archivage) | `yfotvbtkqj8cqw5alox6gfpr` | `/data/coolify/services/yfotvbtkqj8cqw5alox6gfpr/` | <Badge color="green">🟢 Production</Badge> |
-| **Termix** (Gestion SSH, SFTP & Administration) | `ot8tjxw5ruhoqyis3rkb4ll5` | `/data/coolify/services/ot8tjxw5ruhoqyis3rkb4ll5/` | <Badge color="orange">🟠 Déploiement en cours</Badge> |
-
----
-
-## 🛡️ Stratégie & Politique de Sauvegarde (PBS)
-
-<Info>
-**Principe d'Architecture** : **Coolify ne gère aucune sauvegarde nativement** (aucun job de backup applicatif automatisé n'est configuré dans l'UI Coolify). La sécurité et l'historisation des données reposent intégralement sur **Proxmox Backup Server (PBS)**, qui effectue un snapshot dédupliqué quotidien à chaud de la **VM 104 (IMS-Coolify)** complète au niveau hyperviseur.
-
-Ce snapshot englobe à la fois le système d'exploitation Ubuntu, l'arborescence `/data/coolify/` (configurations & bind-mounts localisés) et l'intégralité des **volumes Docker nommés** (`/var/lib/docker/volumes/` comme les bases Postgres et MariaDB). Voir la [Politique de Sauvegarde & Tâches Planifiées](/procedures/politique-sauvegardes).
-</Info>
-
----
-
-## Stockage NFS
-
-```bash
+```text
+# /etc/fstab
 10.10.10.1:/mnt/storage      /mnt/nas-storage  nfs  defaults,nofail,_netdev  0 0
 10.10.10.1:/mnt/storage-hot  /mnt/nas-hot      nfs  defaults,nofail,_netdev  0 0
 ```
 
-<Check>
-Contrairement à PBS (LXC unprivileged), le montage NFS sur une VM fonctionne sans restriction — accès kernel complet, aucun des blocages user-namespace rencontrés ailleurs.
-</Check>
+Les bases de données (PostgreSQL, MariaDB) restent sur le disque local de la VM, dans des volumes Docker nommés ; seuls les fichiers volumineux sont sur le NAS.
 
-## Accès filesystem Coolify — ACL
+## Réseau Docker et IP source
 
-Pour éviter `sudo` à chaque commande sur `/data/coolify/services/` et `/data/coolify/proxy/` :
-
-```bash
-sudo setfacl -R -m u:cmolotkoff:rwX /data/coolify/services
-sudo setfacl -R -d -m u:cmolotkoff:rwX /data/coolify/services
-sudo setfacl -m u:cmolotkoff:--x /data/coolify        # traversée du parent uniquement
-sudo setfacl -R -m u:cmolotkoff:rwX /data/coolify/proxy
-sudo setfacl -R -d -m u:cmolotkoff:rwX /data/coolify/proxy
-```
-
-<Tip>
-`chown` évité volontairement — casserait potentiellement des vérifications de permissions internes à Coolify (user `9999`).
-</Tip>
-
-## Docker sans sudo
-
-```bash
-sudo usermod -aG docker cmolotkoff
-# reconnexion nécessaire, ou `newgrp docker`
-```
-
-<Warning>
-Être dans le groupe `docker` équivaut en pratique à un accès root sur la machine. Acceptable ici (seul admin), à garder en tête si un autre utilisateur devait accéder à cette VM.
-</Warning>
-
-<Info>
-**Maintenance Noyau Ubuntu & GPU Passthrough** : Pour éviter que les mises à jour automatiques du noyau (`unattended-upgrades`) ne suppriment le pilote DRM `i915` (`/dev/dri`), le métapaquet **`linux-modules-extra-generic`** doit rester installé. Nettoyage préventif des noyaux orphelins via `sudo apt autoremove --purge`. Voir le [Post-Mortem du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri).
-</Info>
-
----
-
-## 🔒 Réglages Réseau & Sécurité Système (Préservation IP Source)
-
-<Check>
-**Les 2 Piliers Réseau vpn-only (CIS Benchmark & Tailscale SNAT Bypass)** :
-Pour préserver l'adresse IP source réelle des clients (`100.64.0.x`) jusqu'au conteneur Traefik sans masquage en `10.0.1.1`, la VM Coolify exige deux configurations système impératives :
-</Check>
+Deux réglages permettent à Traefik de voir la vraie IP des clients du tailnet, condition du filtrage `vpn-only` ([ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only)) :
 
 ```json
-// 1. /etc/docker/daemon.json (CIS Docker Benchmark Section 2.12)
+// /etc/docker/daemon.json
 {
   "log-driver": "json-file",
   "log-opts": { "max-size": "10m", "max-file": "3" },
@@ -172,39 +58,38 @@ Pour préserver l'adresse IP source réelle des clients (`100.64.0.x`) jusqu'au 
 ```
 
 ```bash
-# 2. Configuration du démon Tailscale (Désactivation du SNAT automatique ts-postrouting)
 sudo tailscale set --snat-subnet-routes=false
 ```
 
----
+## GPU
 
-## ⚠️ Règle d'Or : Routage Dynamic File Provider (`vpn-only.yaml`) vs UI Coolify
+L'iGPU du MS-01 est attribuée à la VM ([ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe)). Le pilote `i915` vient du métapaquet `linux-modules-extra-generic`, qui doit rester installé : sans lui, une mise à jour du noyau fait disparaître `/dev/dri` au redémarrage suivant ([incident du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri)).
 
-<Warning>
-**Gestion des Domaines d'Administration Privés** :
+## Particularités
 
-- **Services Publics / OIDC** : Renseigner le sous-domaine dans le champ *Domains* de l'UI Coolify.
-- **Services Privés `vpn-only`** (Coolify, Headplane, qBittorrent, Sonarr, Radarr, Prowlarr, Grafana) : **Laisser le champ Domains VIDE dans l'UI Coolify** et déclarer le routeur et le service dans `/data/coolify/proxy/dynamic/vpn-only.yaml`.
-</Warning>
+- Écarts au [socle commun](/infrastructure/socle-commun) : root par clé (Coolify gère son hôte en SSH), envoi Alloy par `10.10.10.2`, collecteurs Docker et Traefik, `termix-usr` accepté aussi depuis `10.0.1.0/24`.
+- Pas de snapshot Proxmox possible (périphérique PCI transmis) : sauvegarder les fichiers touchés avant une modification manuelle.
+- Les domaines restreints au tailnet ne sont pas déclarés dans l'interface Coolify mais dans `/data/coolify/proxy/dynamic/vpn-only.yaml` (voir [Traefik](/reseau/traefik-proxy)).
+- Accès aux fichiers de Coolify sans `sudo`, par ACL :
 
----
+  ```bash
+  sudo setfacl -m u:cmolotkoff:--x /data/coolify
+  sudo setfacl -R -m u:cmolotkoff:rwX /data/coolify/services /data/coolify/proxy
+  sudo setfacl -R -d -m u:cmolotkoff:rwX /data/coolify/services /data/coolify/proxy
+  ```
 
-## 🔧 Procédure Post-Mise à Jour Coolify (Perte IHM)
+  Le propriétaire n'est pas modifié : Coolify vérifie ses propres permissions (utilisateur `9999`).
+- `cmolotkoff` est dans le groupe `docker`, ce qui équivaut à un accès root.
 
-<Warning>
-**Gotcha connu après mise à jour** : Lors des montées en version de Coolify (ex: v4.3.2 → v4.3.6), le proxy d'administration interne `coolify-proxy` peut perdre la liaison avec l'application web, rendant `coolify.ims-world.fr` inaccessible (erreur 502 / 504 / Connection refused).
+## Sauvegarde et reprise
 
-**Procédure de déblocage (SSH VM Coolify 104)** :
-```bash
-# Redémarrer le conteneur du proxy d'administration Coolify
-docker restart coolify-proxy
-```
-L'interface web redevient immédiatement disponible après cette commande.
-</Warning>
+Coolify ne fait aucune sauvegarde applicative. La VM entière, volumes Docker compris, est sauvegardée chaque nuit par le PBS. Les données sur le NAS (médiathèque, photos) ne sont pas dans cette sauvegarde. Voir la [politique de sauvegarde](/procedures/politique-sauvegardes).
 
----
+## Supervision
 
-## 🛡️ Sécurité système Fail2ban & Alertes Ntfy
+Agent Alloy avec journaux Docker et métriques Traefik. Sondes Uptime Kuma sur les services exposés.
 
-La VM Coolify intègre l'instance **Fail2ban** (`fail2ban.service`) harmonisée avec les hôtes physiques MS-01 et Mac Mini (`jail.local` avec escalade de ban `1h` à `1 semaine`, prison `recidive` pour 3 bans en 24h et alertes SSH Ntfy en direct sur `ims-alerts`).
+## Voir aussi
 
+- [Worker Coolify (LXC 105)](/infrastructure/lxc-coolify-worker)
+- [Déployer un service](/procedures/deploiement-service)

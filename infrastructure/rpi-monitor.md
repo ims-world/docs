@@ -1,90 +1,86 @@
 ---
-title: "Raspberry Pi 3B+ & Écrans (Kiosk)"
-description: "Affichage Kiosk physique du rack Labrax — Écran Wisecoco 7.84\" + OLED 0.91\""
+title: "Raspberry Pi (écrans du rack)"
+description: "Raspberry Pi 3B+ du module 2U de Labrax : pilote l'écran de façade et l'écran OLED. Actuellement éteint."
 icon: "desktop"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
 import { ips } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Production Active (Afficheur Kiosk 2U)</Badge>
+<Badge color="gray">Éteint</Badge>
 
-## Rôle & Fonctionnement Réel
+## Fiche
 
-<Info>
-Le **Raspberry Pi 3B+** est une unité d'affichage physique dédiée. Contrairement à une sonde de monitoring actif (pas de healthchecks ICMP/HTTP ni d'alertes Ntfy configurés actuellement), son rôle est de piloter l'affichage visuel en façade du rack [Labrax](/infrastructure/labrax) via un **navigateur web headless en mode kiosk**.
-</Info>
+| Propriété | Valeur |
+| --- | --- |
+| Type | Machine physique, Raspberry Pi 3B+ (BCM2837B0, 4 cœurs, 1 Go) |
+| Nœud et VMID | — |
+| Noms | tailnet `ims-rpi-monitor` |
+| OS | Raspberry Pi OS (ARM) |
+| CPU et RAM | 4 cœurs 1,4 GHz · 1 Go |
+| Disques | Carte microSD |
+| IP LAN | — |
+| IP tailnet | <code>{ips.rpi}</code> |
+| Sauvegarde | Aucune |
+| Statut | Éteint (problème d'alimentation), hors gestion ims-ops |
 
-### Contrôle Physique par Bouton Poussoir
-Un bouton poussoir raccordé aux GPIOs du Raspberry Pi permet d'interagir directement sans clavier :
-- 🔘 **Appui court** : Basculer vers la source d'affichage suivante (rotation).
-- ⏹️ **Appui long (3 secondes)** : Éteindre l'écran principal.
+## Rôle
 
----
+Le Raspberry Pi pilote les écrans du module 2U en façade du rack [Labrax](/infrastructure/labrax), par un navigateur en mode kiosque. Ce n'est pas une sonde de supervision.
 
-## Conception 3D & Matériel du Module 2U
+| Élément | Caractéristiques | Usage |
+| --- | --- | --- |
+| Écran principal | Wisecoco 7,84 pouces LCD, 1280×400 | Rotation : bannière IMS, pages web en mode lecture |
+| Écran secondaire | OLED 0,91 pouce, 128×32 | Statut et temps de fonctionnement |
+| Bouton | Bouton poussoir GPIO avec LED | Appui court : source suivante. Appui long (3 s) : extinction de l'écran |
 
-<Card title="Module 3D MakerWorld — Raspberry Pi 2U" icon="cube" href="https://makerworld.com/fr/models/2233953-screen-module-for-10-inch-rack-raspberry-pi-2u#profileId-2521672">
-  Module d'intégration 2U personnalisé pour rack 10 pouces (**Screen module for 10-inch rack - Raspberry Pi 2U**). Héberge les 2 écrans, le bouton poussoir de contrôle, 2 ports RJ45 Keystones et le Raspberry Pi 3B+.
+## Module 2U
+
+<Card title="Module MakerWorld « Screen module for 10-inch rack - Raspberry Pi 2U »" icon="cube" href="https://makerworld.com/fr/models/2233953-screen-module-for-10-inch-rack-raspberry-pi-2u#profileId-2521672">
+  Accueille les deux écrans, le bouton, deux prises RJ45 et le Raspberry Pi.
 </Card>
 
 <Tabs>
-  <Tab title="🖼️ Face Principale (Façade 2U & Vitre)">
-    <Frame caption="Façade 2U avec vitre encastrée, écran Wisecoco 7.84 et OLED 0.91">
-      ![Module 2U Raspberry Pi & Écran — Façade](/assets/rpi-module-front.png)
+  <Tab title="Façade">
+    <Frame caption="Façade 2U : écran Wisecoco 7,84 pouces et OLED 0,91 pouce">
+      ![Module 2U, façade](/assets/rpi-module-front.png)
     </Frame>
   </Tab>
-  <Tab title="📐 Vue Isométrique 3D & Intérieur Tray">
-    <Frame caption="Vue isométrique 3D montrant l'intégration du Raspberry Pi 3B+ et du câblage interne">
-      ![Module 2U Raspberry Pi & Écran — Vue 3D Intérieure](/assets/rpi-module-iso.png)
+  <Tab title="Vue intérieure">
+    <Frame caption="Intégration du Raspberry Pi et du câblage">
+      ![Module 2U, vue intérieure](/assets/rpi-module-iso.png)
     </Frame>
   </Tab>
 </Tabs>
 
-## Fiche Technique des Écrans
-
-| Composant / Écran | Spécifications | Usage Actuel & Prévu |
-|---|---|---|
-| **Écran Principal** | **Wisecoco 7.84 pouces LCD** (Résolution `1280x400`) | Rotation entre bannière PNG IMS et sites web en mode lisibilité. *(Prévu : Dashboard Grafana)* |
-| **Écran Secondaire** | **Module OLED 0.91 pouces** (`128x32`, affichage blanc/bleu) | Affichage direct des métriques de statut et uptime. |
-| **Carte Mère** | Raspberry Pi 3B+ (Broadcom BCM2837B0 quad-core 1.4GHz, 1 Go RAM) | Exécute le script de rotation et le navigateur Chromium headless. |
-| **Bouton de Contrôle** | Bouton poussoir GPIO avec LED | Appui court = Change source / Appui long 3s = Éteint l'écran. |
-| **Réseau & Tailnet** | Ethernet RJ45 + Client Tailscale ({ips.rpi}) | Hostname Tailnet: `ims-rpi-monitor` |
-| **Statut** | <Badge color="green">🟢 Production</Badge> | Affichage Kiosk |
-
----
-
-## Schéma d'Architecture d'Affichage Kiosk
+## Fonctionnement
 
 ```mermaid
-graph TD
-    subgraph SENSOR ["🍓 Raspberry Pi 3B+ (Module 2U MakerWorld — 100.64.0.12)"]
-        SCRIPT["Script Python / Bash (Gestionnaire de Kiosk)"]
-        BROWSER["Chromium Headless (Mode Kiosk)"]
-        GPIO["Gestionnaire GPIO (Bouton Poussoir)"]
-    end
-
-    subgraph SOURCES ["🖼️ Sources d'Affichage en Rotation"]
-        IMG_LOCAL["Bannière PNG Local IMS-WORLD"]
-        READABILITY["Pages Web en mode Lisibilité"]
-        GRAFANA["Dashboard Grafana (Objectif Futur)"]
-    end
-
-    subgraph DISPLAYS ["🖥️ Écrans Physique en Façade 2U"]
-        MAIN_DISP["Écran Principal Wisecoco 7.84'' LCD (1280x400)"]
-        OLED_DISP["Écran Secondaire OLED 0.91'' (128x32 Blanc/Bleu)"]
-    end
-
-    GPIO -->|Appui Court: Change Source\nAppui Long 3s: Power Off| SCRIPT
-    SCRIPT --> SOURCES
-    SOURCES --> BROWSER
-    BROWSER --> MAIN_DISP
-    SCRIPT -->|Uptime & Statut| OLED_DISP
+flowchart LR
+  bouton[Bouton GPIO] --> script[Script de kiosque]
+  script --> navigateur[Chromium en kiosque]
+  navigateur --> ecran[Écran 7,84 pouces]
+  script --> oled[Écran OLED]
+  class bouton,script,navigateur service
+  class ecran,oled hote
+  classDef hote fill:#e6eef6,stroke:#2f5d8a,color:#1b2129
+  classDef service fill:#e8f3eb,stroke:#2e6b3f,color:#1b2129
 ```
 
----
+## Particularités
 
-## 📊 Supervision & Agent Alloy (Stack LGTM)
+- Architecture ARM : à prendre en compte pour tout logiciel ajouté.
+- À sa remise en service : l'ajouter à l'inventaire ims-ops (socle, Alloy vers `192.168.1.52`), puis étudier le rôle de QDevice Corosync pour le quorum du cluster (voir la [feuille de route](/roadmap)).
 
-Le Raspberry Pi 3B+ héberge également un agent **Alloy systemd** (`rpi-alloy`) connecté au serveur central de métrologie LGTM sur le MS-01 :
-- **Push Métriques & Logs** : Collecte des métriques système (CPU, RAM, température SoC BCM2837B0) et transmission en Remote-Write vers Prometheus (`10.10.10.2`) et Loki. Voir la fiche [Stack Monitoring](/services/monitoring).
+## Sauvegarde et reprise
+
+Aucune sauvegarde : la configuration se reconstruit.
+
+## Supervision
+
+Aucune tant qu'il est éteint.
+
+## Voir aussi
+
+- [Labrax](/infrastructure/labrax)

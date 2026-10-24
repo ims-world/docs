@@ -67,6 +67,7 @@
           {
             "group": "Machines virtuelles et conteneurs",
             "pages": [
+              "infrastructure/socle-commun",
               "infrastructure/ims-nas",
               "infrastructure/ims-pbs",
               "infrastructure/vm-coolify",
@@ -136,6 +137,7 @@
           {
             "group": "Administrer le parc",
             "pages": [
+              "procedures/administration-ims-ops",
               "procedures/deploiement-service",
               "procedures/ajout-machine-headscale",
               "procedures/ajout-nouveau-disque"
@@ -253,11 +255,11 @@
     },
     {
       "source": "/iac/index",
-      "destination": "/reference/contribuer"
+      "destination": "/procedures/administration-ims-ops"
     },
     {
       "source": "/iac",
-      "destination": "/reference/contribuer"
+      "destination": "/procedures/administration-ims-ops"
     }
   ]
 }

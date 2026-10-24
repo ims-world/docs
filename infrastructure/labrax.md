@@ -1,67 +1,65 @@
 ---
-title: "Labrax — Rack Physique"
-description: "Index matériel, châssis 3D et distribution électrique du rack Labrax"
+title: "Labrax (rack)"
+description: "Rack 10 pouces imprimé en 3D qui accueille tout le matériel du homelab : inventaire par étage, alimentation, câblage."
+last_reviewed: "2026-10-25"
 icon: "cubes"
 iconType: "duotone"
 ---
 
-<Info>
-  **LABRAX** (Révision Core IMS-01) est le rack serveur physique 10 pouces 3D-printé qui héberge l'ensemble du matériel informatique IMS-WORLD. Cette page documente la vue générale du châssis, l'inventaire physique **étage par étage**, la distribution électrique et le câblage.
-</Info>
 
-## 📐 Vue Globale & Conception du Châssis 3D
+## Châssis
 
 <Tabs>
-  <Tab title="🖼️ Face Principale 3D">
+  <Tab title="Face avant">
     ![Rack Physique Labrax — Face](/assets/labrax-main.png)
   </Tab>
-  <Tab title="🔌 Vue Arrière & Alimentation">
+  <Tab title="Arrière et alimentation">
     ![Rack Physique Labrax — Vue Arrière & Alimentation](/assets/labrax-rear.png)
   </Tab>
 </Tabs>
 
-### Spécifications Matérielles du Châssis & Alimentation
+### Caractéristiques
 
-| Élément | Spécification & Détails |
+| Élément | Détail |
 | --- | --- |
 | **Modèle Original 3D** | Projet [Lab Rax — A 3D Printable Modular 10" Rack System (The DIY Life)](https://the-diy-life.com/introducing-lab-rax-a-3d-printable-modular-10-rack-system/) |
 | **Structure** | Châssis modulable 10" 3D-printé (PETG/PLA\+ gris renforcé avec poignées supérieures) |
-| **Statut Impression 3D** | <Badge color="green">🟢 Impression 3D Terminée (20/08)</Badge> — Montage physique & assemblage des modules en cours |
+| **Impression 3D** | Terminée le 20/08/2026 |
 | **Panneaux Latéraux** | Acrylique teinté noir profond (encastré dans les fentes intérieures du plastique) |
 | **Refroidissement Supérieur** | Ventilateur Noctua NF-A12x25 G2 PWM chromax.black (extraction d'air chaud par le haut) |
 | **Distribution Électrique** | Multiprise rackée à l'arrière (PDU 230V) alimentant : (1) PicoPSU-160-XT \+ LEICKE 150W 12V (disques & ventilateur Noctua G2), (2) bloc d'alimentation Switch NETGEAR, (3) bloc d'alimentation MS-01, (4) alim secteur Mac Mini |
 
 ---
 
-## 🗄️ Inventaire Physique Étage par Étage (du Haut vers le Bas)
+## Inventaire par étage
 
-| Étage / Slot | Hauteur (U) | Équipement Physique Encastré | Connectivité & Ports | Fiche Détaillée (Vérité Terrain) |
+| Étage | Hauteur | Équipement | Connexion | Fiche |
 | --- | --- | --- | --- | --- |
-| **Étage 1** | **2U** | Module 2U avec écran Wisecoco 7.84" LCD, OLED 0.91", bouton GPIO & RPi 3B\+ | Port Switch #4 (100M) • IP `100.64.0.12` | 📺 [Raspberry Pi Kiosk](/infrastructure/rpi-monitor) |
-| **Étage 2** | **1U** | Mac Mini 2012 (Nœud 2 Cluster `ims-cluster`) | Port Switch #3 (1G) • IP `100.64.0.6` | 🍎 [Mac Mini 2012](/infrastructure/mac-mini) |
-| **Étage 3** | **1U** | Switch NETGEAR GS308EV4 (8p Gérés) \+ Patch Panel RJ45 12p | Ports 1 à 4 câblés • Uplink Bbox | 🔌 _(Voir câblage ci-dessous)_ |
-| **Étage 4** | **2U** | Minisforum MS-01 (Carte SATA PCIe Tbest ASM1166 6 ports) | Port Switch #2 (2.5G) • IP `100.64.0.9` | 💻 [Host Proxmox (MS-01)](/infrastructure/proxmox-host) |
-| **Étage 5** | **2 x 1U** | 4-Pack Hard Drive Tray Caddy 3.5" Dell (HDD 3To Seagate \+ adaptateur 2.5" SSD) | Nappe SATA via carte PCIe MS-01 | 🗄️ [IMS-NAS (LXC 100)](/infrastructure/ims-nas) |
+| **Étage 1** | **2U** | Module 2U avec écran Wisecoco 7.84" LCD, OLED 0.91", bouton GPIO & RPi 3B\+ | Port Switch #4 (100M) • IP `100.64.0.12` | [Raspberry Pi](/infrastructure/rpi-monitor) |
+| **Étage 2** | **1U** | Mac Mini Late 2012 (`pve-macmini`) | Port Switch #3 (1G) • IP `100.64.0.6` | [Mac Mini](/infrastructure/mac-mini) |
+| **Étage 3** | **1U** | Switch NETGEAR GS308EV4 (8p Gérés) \+ Patch Panel RJ45 12p | Ports 1 à 4 câblés • Uplink Bbox | _(Voir câblage ci-dessous)_ |
+| **Étage 4** | **2U** | Minisforum MS-01 (Carte SATA PCIe Tbest ASM1166 6 ports) | Port Switch #2 (2.5G) • IP `100.64.0.9` | [MS-01](/infrastructure/proxmox-host) |
+| **Étage 5** | **2 x 1U** | 4-Pack Hard Drive Tray Caddy 3.5" Dell (HDD 3To Seagate \+ adaptateur 2.5" SSD) | Nappe SATA via carte PCIe MS-01 | [ims-nas](/infrastructure/ims-nas) |
 
 ---
 
-## 🔌 Interconnexion Réseau & Câblage du Switch (Étage 3)
+## Câblage du switch
 
 | Port Switch NETGEAR | Équipement Raccordé | Vitesse & Câblage |
 | --- | --- | --- |
 | **Port 1 (Uplink WAN)** | Routeur Bbox | RJ45 Cat 6 |
 | **Port 2 (Compute)** | Minisforum MS-01 (Hyperviseur PVE) | RJ45 Cat 6 (2.5G) |
-| **Port 3 (Standby)** | Mac Mini 2012 | RJ45 Cat 6 (1G) |
+| **Port 3** | Mac Mini | RJ45 Cat 6 (1G) |
 | **Port 4 (Kiosk)** | Raspberry Pi 3B\+ (Module 2U Écran) | RJ45 Cat 6 (100M) |
 | **Port SFP\+** | Port SFP\+ 10G | Réservé pour évolution réseau 10G |
 
 ---
 
-## Schéma d'Architecture & Câblage Électrique / Réseau
+## Alimentation et réseau
 
 ```mermaid
 graph TB
-    subgraph POWER_DIST ["⚡ Distribution Électrique (Rack PDU 230V Arrière)"]
+    subgraph POWER_DIST [" Distribution Électrique (Rack PDU 230V Arrière)"]
         SECTEUR["Prise Secteur 230V"]
         PDU["Multiprise Rackée Arrière (PDU 230V)"]
         
@@ -84,14 +82,14 @@ graph TB
         PDU --> ALIM_MAC
     end
 
-    subgraph SWITCH ["🌐 Étage 3 — Switch NETGEAR GS308EV4 (1U)"]
+    subgraph SWITCH [" Étage 3 — Switch NETGEAR GS308EV4 (1U)"]
         NETGEAR["Switch NETGEAR 8 Ports"]
         BBOX["Uplink Routeur BBox (Port 1)"]
         BBOX <--> NETGEAR
         ALIM_SWITCH --> NETGEAR
     end
 
-    subgraph SLOTS ["🗄️ Rack LABRAX 10'' (Inventaire Étage par Étage)"]
+    subgraph SLOTS [" Rack LABRAX 10'' (Inventaire Étage par Étage)"]
         RPI["Étage 1 (2U): Module RPi Kiosk (Port 4 — 100.64.0.12)"]
         MAC_MINI["Étage 2 (1U): Mac Mini Cluster (Port 3 — 100.64.0.6)"]
         MS01["Étage 4 (2U): Minisforum MS-01 (Port 2 — 100.64.0.9)"]

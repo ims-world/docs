@@ -1,93 +1,56 @@
 ---
-title: "Mac Mini (Nœud 2 Cluster ims-cluster)"
-description: "Second nœud du cluster Proxmox VE — Hyperviseur physique de secours et support de basculement"
+title: "Mac Mini (pve-macmini)"
+description: "Second nœud du cluster Proxmox ims-cluster : héberge le worker Coolify et Home Assistant."
 icon: "apple"
 iconType: "duotone"
-last_reviewed: "2026-10-23"
+last_reviewed: "2026-10-25"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
+import { ips } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Production Active (Nœud 2 Cluster)</Badge>
-
-<Info>
-Le **Mac Mini 2012** (Macmini6,1/6,2) constitue le **second nœud d'hypervision physique** du cluster Proxmox VE (`ims-cluster`). Il apporte de la tolérance de panne et héberge les conteneurs de haute disponibilité en cas de maintenance du nœud principal MS-01.
-</Info>
-
----
-
-## Fiche Technique & Spécifications Matérielles
+## Fiche
 
 | Propriété | Valeur |
-|---|---|
-| **Modèle Matériel** | Apple Mac Mini (Late 2012 — Macmini6,1/6,2) |
-| **Processeur (CPU)** | Intel Core i5 Dual-Core (4 threads) |
-| **Mémoire RAM** | **16 Go** DDR3 |
-| **Stockage Système** | SSD SATA Apple `SM0256F` (256 Go) |
-| **Carte Réseau** | Gigabit Ethernet Broadcom `tg3` (Support Linux natif) |
-| **OS / Hyperviseur** | **Proxmox VE 9.2.11** (Noyau 6.8+ Debian 13 Trixie) |
-| **Cluster Proxmox** | Membre actif du cluster **`ims-cluster`** (2/2 votes, Quorate: Yes) |
-| **Hostname FQDN** | `pve-macmini.ims-world.fr` |
-| **IP LAN Native** | `192.168.1.42` |
-| **IP Tailscale VPN** | {ips.macmini} (`pve-macmini`) |
-| **Compte Admin SSH** | Clé uniquement (`PasswordAuthentication no`, `PermitRootLogin prohibit-password`, `cmolotkoff` avec `sudo` journalisé `log_subcmds`, Port 22) |
-| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
+| --- | --- |
+| Type | Machine physique, Apple Mac Mini Late 2012 (Macmini6,1) |
+| Nœud et VMID | Nœud `pve-macmini` du cluster `ims-cluster` |
+| Noms | Proxmox `pve-macmini` · système `pve-macmini` · inventaire `pve-macmini` · tailnet `ims-pve-macmini` |
+| OS | Proxmox VE 9.2.11 (Debian 13) |
+| CPU et RAM | Intel Core i5 double cœur, 4 threads · 16 Go DDR3 |
+| Disques | SSD SATA Apple `SM0256F`, 256 Go |
+| IP LAN | `192.168.1.42` |
+| IP tailnet | <code>{ips.macmini}</code> |
+| Sauvegarde | Non sauvegardé : se réinstalle ; ses invités sont dans le pool `backup` |
+| Statut | En service |
 
----
+## Ce qui tourne dessus
 
-## Installation & Déploiement Proxmox VE
+| VMID | Nom | Type | Rôle |
+| --- | --- | --- | --- |
+| 105 | `ims-coolify-worker` | LXC non privilégié, Debian 13 | [Worker Coolify](/infrastructure/lxc-coolify-worker) |
+| 106 | Home Assistant | VM, Home Assistant OS | [Domotique](/infrastructure/vm-home-assistant) |
 
-### 1. Caractéristiques de l'Installation
-- **Architecture EFI Native** : Pas de puce de sécurité Apple T2, démarrage EFI natif sans patch de noyau nécessaire.
-- **Dépôts Proxmox** : Suppression des dépôts payants `pve-enterprise.sources` et `ceph.sources` (format deb822 Debian Trixie `.sources`) et activation du dépôt gratuit `pve-no-subscription`.
-- **Mise à Jour** : Alignement strict sur la version **Proxmox VE 9.2.11** (identique au MS-01). Mises à jour maintenues manuelles (aucun redémarrage ou update automatique sur les hyperviseurs).
+## Limites du nœud
 
-### 2. Intégration au Cluster (`ims-cluster`)
-- Le Mac Mini a rejoint le cluster Proxmox VE créé sur le MS-01 via la commande `pvecm add`.
-- **Partage de Configuration Cluster** : Synchronisation automatique des comptes utilisateur (`/etc/pve/user.cfg`), des rôles RBAC (`cmolotkoff@pam`) et des clés SSH autorisées entre les deux hyperviseurs.
+- 16 Go de RAM et pas d'iGPU partageable : le Mac Mini ne peut pas reprendre la VM 104 en cas de panne du MS-01.
+- Ports USB 3.0 uniquement : une clé radio Zigbee doit passer par une rallonge USB 2.0 blindée (voir [Home Assistant](/infrastructure/vm-home-assistant)).
+- Le cluster n'a que deux votes : la perte d'un nœud fait perdre le quorum. Un QDevice sur le Raspberry Pi est suivi dans la [feuille de route](/roadmap).
 
----
+## Particularités
 
-## 🛡️ Sécurité & Protection Host (Fail2ban, SSH & Ntfy)
+- Écarts au [socle commun](/infrastructure/socle-commun) : root par clé (cluster), mises à jour manuelles.
+- Démarrage EFI natif, sans patch de noyau. Carte réseau Broadcom `tg3` reconnue nativement.
+- Dépôts `pve-enterprise.sources` et `ceph.sources` désactivés, `pve-no-subscription` activé.
 
-Le socle SSH standardisé `/etc/ssh/sshd_config.d/00-ims-ops.conf` et **Fail2ban** (`fail2ban.service`) protègent le nœud `pve-macmini` :
-- **SSH Durci** : Connexions par mot de passe désactivées (`PasswordAuthentication no`), X11 désactivé, `PermitRootLogin prohibit-password` pour autoriser le root par clé SSH entre nœuds du cluster. Clé orpheline `audit@ims-world` retirée.
-- **Fail2ban avec escalade** : Configuration `/etc/fail2ban/jail.local` avec prisons `sshd` et `recidive`. Alertes transmises à Ntfy directement via l'IP LAN de Traefik (`192.168.1.52`).
+## Sauvegarde et reprise
 
----
+Les invités 105 et 106 sont sauvegardés chaque nuit dans le PBS (pool `backup`). Le nœud se réinstalle puis rejoint le cluster (`pvecm add`).
 
-## 📊 Supervision & Agent Alloy (Stack LGTM)
+## Supervision
 
-Le Mac Mini héberge un agent **Grafana Alloy systemd** (`macmini-alloy`) déployé à l'identique du pattern bare-metal du MS-01 :
-- **Node Exporter & CPU/RAM/Disque** : Collecte des métriques bare-metal du système Proxmox VE 9.2.11.
-- **Collecteur SMART (`smartmon.sh`)** : Tâche cron 5m (`/etc/cron.d/smartmon`) pour le suivi d'usure du SSD interne Apple 256 Go (`ata-APPLE_SSD_SM0256F`).
-- **Logs Système Loki** : Centralisation des journald/syslog vers Loki (`10.10.10.2:3100`). Voir [Stack Monitoring](/services/monitoring).
+Agent Alloy avec le collecteur SMART du SSD interne (`/etc/cron.d/smartmon`, toutes les 5 minutes). Envoi vers `192.168.1.52`.
 
----
+## Voir aussi
 
-## 🐳 Conteneurs & Workloads Hébergés
-
-Le Nœud 2 `pve-macmini` héberge des workloads d'exécution isolés du cluster :
-
-| ID / Hostname | Type | Distribution / OS | Adresse IP | Role & Description | Statut |
-|---|---|---|---|---|---|
-| **LXC 105** (`pve-macmini-worker_LXC-105`) | LXC Unprivileged | Debian 13 (Trixie) | `192.168.1.198` | **Coolify Worker** — Moteur d'exécution Docker distant (voir [LXC 105](/infrastructure/lxc-coolify-worker)) | <Badge color="green">🟢 Actif</Badge> |
-| **VM 106** (`haos18.2`) | VM KVM Dédiée | Home Assistant OS 18.2 | `192.168.1.92` / `100.64.0.5` | **Home Assistant** — Serveur domotique et passerelle IoT locale (voir [Home Assistant](/infrastructure/vm-home-assistant)) | <Badge color="green">🟢 Actif</Badge> |
-
----
-
-## Rôle & Prochaines Étapes
-
-- **Support de Basculement** : Utilisé comme nœud récepteur pour la migration à chaud/à froid de conteneurs et VM.
-- **Feuille de Route** : Intégration de la VM 106 dans les sauvegardes PBS et déploiement du **QDevice Corosync** sur le Raspberry Pi pour sécuriser le quorum.
-
----
-
-<CardGroup cols={2}>
-  <Card title="Hyperviseur Principal (MS-01)" icon="server" href="/infrastructure/proxmox-host">
-    Fiche technique et administration du nœud 1 de ims-cluster.
-  </Card>
-  <Card title="Politique de Sauvegarde" icon="shield-check" href="/procedures/politique-sauvegardes">
-    Sauvegardes PBS et protection des VM/LXC du cluster.
-  </Card>
-</CardGroup>
+- [MS-01 (pve)](/infrastructure/proxmox-host)
+- [Politique de sauvegarde](/procedures/politique-sauvegardes)
