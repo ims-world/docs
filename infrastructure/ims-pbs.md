@@ -26,10 +26,10 @@ Le PBS reçoit chaque nuit les sauvegardes des invités du pool `backup`. Son da
 | Statut | En service |
 
 <CardGroup cols={2}>
-  <Card title="Interface web (tailnet)" icon="globe" href={`https://${ips.pbs}:8007`}>
+  <Card color="#3B82F6" title="Interface web (tailnet)" icon="globe" href={`https://${ips.pbs}:8007`}>
     <code>https://{ips.pbs}:8007</code>
   </Card>
-  <Card title="Interface web (LAN)" icon="house" href={`https://${ips.pbsLan}:8007`}>
+  <Card color="#3B82F6" title="Interface web (LAN)" icon="house" href={`https://${ips.pbsLan}:8007`}>
     <code>https://{ips.pbsLan}:8007</code>
   </Card>
 </CardGroup>
@@ -95,6 +95,6 @@ Agent Alloy, collecteur `hwmon` désactivé. Notifications PBS sur Ntfy.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">Partages NFS et SMB.</Card>
-  <Card title="Incident du 23/10/2026" icon="triangle-exclamation" href="/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix">Sauvegardes en échec par ESTALE.</Card>
+  <Card color="#8B5CF6" title="ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">Partages NFS et SMB.</Card>
+  <Card color="#DC2626" title="Incident du 23/10/2026" icon="triangle-exclamation" href="/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix">Sauvegardes en échec par ESTALE.</Card>
 </CardGroup>

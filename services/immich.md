@@ -12,7 +12,7 @@ app_version: "v3.2.0"
 Public, avec connexion Authentik ou compte natif. Les applications mobiles se configurent sur ce serveur.
 
 <CardGroup cols={2}>
-  <Card title="Immich" icon="images" href="https://photos.ims-world.fr">
+  <Card color="#8B5CF6" title="Immich" icon="images" href="https://photos.ims-world.fr">
     Interface web ; applications iOS et Android sur ce serveur.
   </Card>
 </CardGroup>
@@ -41,10 +41,10 @@ cd /data/coolify/services/p3ujda5c7sc8nf4j9zzd8lck/ && docker compose logs -f --
 Quatre conteneurs : le serveur, l'apprentissage automatique, la base et la file des tâches.
 
 <CardGroup cols={2}>
-  <Card title="immich-server" icon="images">API et interface web, port 2283.</Card>
-  <Card title="immich-machine-learning" icon="brain">Reconnaissance des visages et recherche par description (CLIP), sur le processeur.</Card>
-  <Card title="database" icon="database">PostgreSQL avec l'extension vectorielle VectorChord.</Card>
-  <Card title="redis" icon="layer-group">File des tâches.</Card>
+  <Card color="#8B5CF6" title="immich-server" icon="images">API et interface web, port 2283.</Card>
+  <Card color="#16A34A" title="immich-machine-learning" icon="brain">Reconnaissance des visages et recherche par description (CLIP), sur le processeur.</Card>
+  <Card color="#8B5CF6" title="database" icon="database">PostgreSQL avec l'extension vectorielle VectorChord.</Card>
+  <Card color="#16A34A" title="redis" icon="layer-group">File des tâches.</Card>
 </CardGroup>
 
 Dossiers dans `/mnt/nas-hot/immich-data` : `upload/` (originaux), `library/`, `thumbs/`, `encoded-video/`, `profile/`, `backups/`.
@@ -101,6 +101,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">Partages NFS et SMB.</Card>
-  <Card title="PhotoPrism" icon="camera" href="/services/photoprism">Bibliothèque des photos RAW.</Card>
+  <Card color="#8B5CF6" title="ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">Partages NFS et SMB.</Card>
+  <Card color="#16A34A" title="PhotoPrism" icon="camera" href="/services/photoprism">Bibliothèque des photos RAW.</Card>
 </CardGroup>

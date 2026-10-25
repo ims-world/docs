@@ -12,10 +12,10 @@ app_version: "v2.28.0"
 Public, pour recevoir les alertes sur le téléphone hors du tailnet. Lecture et publication exigent un compte ou un jeton.
 
 <CardGroup cols={2}>
-  <Card title="Ntfy" icon="bell" href="https://ntfy.ims-world.fr">
+  <Card color="#16A34A" title="Ntfy" icon="bell" href="https://ntfy.ims-world.fr">
     Interface web.
   </Card>
-  <Card title="Application mobile" icon="mobile">
+  <Card color="#16A34A" title="Application mobile" icon="mobile">
     Serveur `https://ntfy.ims-world.fr`, topic `ims-alerts`, compte en lecture seule.
   </Card>
 </CardGroup>
@@ -108,6 +108,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Supervision" icon="chart-line" href="/services/monitoring">Métriques, journaux et alertes.</Card>
-  <Card title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Notifications PVE et PBS.</Card>
+  <Card color="#16A34A" title="Supervision" icon="chart-line" href="/services/monitoring">Métriques, journaux et alertes.</Card>
+  <Card color="#8B5CF6" title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Notifications PVE et PBS.</Card>
 </CardGroup>

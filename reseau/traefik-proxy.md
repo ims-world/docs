@@ -204,7 +204,7 @@ Les identifiants de l'API OVH sont en clair dans la configuration du proxy, Cool
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
-  <Card title="Restreindre un service au tailnet" icon="list-check" href="/procedures/securiser-service-vpn-only">Procédure de restriction au tailnet.</Card>
-  <Card title="Forward-auth Authentik" icon="list-check" href="/procedures/securiser-application-authentik-forward-auth">Procédure de protection par Authentik.</Card>
+  <Card color="#FF6B00" title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
+  <Card color="#FF6B00" title="Restreindre un service au tailnet" icon="list-check" href="/procedures/securiser-service-vpn-only">Procédure de restriction au tailnet.</Card>
+  <Card color="#FF6B00" title="Forward-auth Authentik" icon="list-check" href="/procedures/securiser-application-authentik-forward-auth">Procédure de protection par Authentik.</Card>
 </CardGroup>

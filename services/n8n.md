@@ -12,7 +12,7 @@ app_version: "2.10.4"
 Public : l'éditeur exige un compte natif avec double facteur, les webhooks restent ouverts.
 
 <CardGroup cols={2}>
-  <Card title="n8n" icon="diagram-project" href="https://automation.ims-world.fr">
+  <Card color="#16A34A" title="n8n" icon="diagram-project" href="https://automation.ims-world.fr">
     Éditeur de flux, identifiants, exécutions.
   </Card>
 </CardGroup>
@@ -60,11 +60,11 @@ flowchart LR
 ```
 
 <CardGroup cols={2}>
-  <Card title="n8n" icon="diagram-project">Interface, API et réception des webhooks ; place les exécutions dans la file.</Card>
-  <Card title="n8n-worker" icon="gears">Exécute les flux de la file (`EXECUTIONS_MODE=queue`, `OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true`).</Card>
-  <Card title="task-runners" icon="code">Exécution isolée du code Python et JavaScript des nœuds (broker sur le port 5679).</Card>
-  <Card title="redis" icon="layer-group">File d'attente.</Card>
-  <Card title="postgresql" icon="database">Base.</Card>
+  <Card color="#16A34A" title="n8n" icon="diagram-project">Interface, API et réception des webhooks ; place les exécutions dans la file.</Card>
+  <Card color="#16A34A" title="n8n-worker" icon="gears">Exécute les flux de la file (`EXECUTIONS_MODE=queue`, `OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true`).</Card>
+  <Card color="#16A34A" title="task-runners" icon="code">Exécution isolée du code Python et JavaScript des nœuds (broker sur le port 5679).</Card>
+  <Card color="#16A34A" title="redis" icon="layer-group">File d'attente.</Card>
+  <Card color="#8B5CF6" title="postgresql" icon="database">Base.</Card>
 </CardGroup>
 
 **Choix : authentification native.** La connexion OIDC est réservée à l'offre Enterprise de n8n, et un forward-auth bloquerait les webhooks entrants en les redirigeant vers la page de connexion. Le compte propriétaire a un mot de passe fort et le double facteur ; CrowdSec filtre en amont.
@@ -118,5 +118,5 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
+  <Card color="#FF6B00" title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
 </CardGroup>

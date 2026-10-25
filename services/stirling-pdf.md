@@ -12,7 +12,7 @@ app_version: "latest"
 Public, derrière une connexion Authentik.
 
 <CardGroup cols={2}>
-  <Card title="Stirling PDF" icon="file-pdf" href="https://pdf.ims-world.fr">
+  <Card color="#16A34A" title="Stirling PDF" icon="file-pdf" href="https://pdf.ims-world.fr">
     Outils PDF.
   </Card>
 </CardGroup>
@@ -62,5 +62,5 @@ Sans objet.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Protéger une application par forward-auth" icon="list-check" href="/procedures/securiser-application-authentik-forward-auth">Procédure de protection par Authentik.</Card>
+  <Card color="#FF6B00" title="Protéger une application par forward-auth" icon="list-check" href="/procedures/securiser-application-authentik-forward-auth">Procédure de protection par Authentik.</Card>
 </CardGroup>

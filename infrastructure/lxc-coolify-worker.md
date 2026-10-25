@@ -73,6 +73,6 @@ Agent Alloy : système, journaux, métriques et journaux Docker (étiquette `hos
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="VM 104" icon="server" href="/infrastructure/vm-coolify">Coolify maître, Traefik et services.</Card>
-  <Card title="Mac Mini" icon="server" href="/infrastructure/mac-mini">Second nœud du cluster.</Card>
+  <Card color="#3B82F6" title="VM 104" icon="server" href="/infrastructure/vm-coolify">Coolify maître, Traefik et services.</Card>
+  <Card color="#3B82F6" title="Mac Mini" icon="server" href="/infrastructure/mac-mini">Second nœud du cluster.</Card>
 </CardGroup>

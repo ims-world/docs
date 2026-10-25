@@ -18,8 +18,8 @@ Headscale est une implémentation libre du serveur de coordination Tailscale. Il
 Le serveur de coordination est public, car un client doit le joindre avant d'être dans le tailnet. Headplane ne répond que depuis le tailnet.
 
 <CardGroup cols={2}>
-  <Card title="Coordination" icon="network-wired" href="https://vpn.ims-world.fr">Adresse à donner aux clients Tailscale. Public.</Card>
-  <Card title="Headplane" icon="sliders" href="https://admin.vpn.ims-world.fr/admin">Machines, utilisateurs, clés, DNS. Tailnet.</Card>
+  <Card color="#FF6B00" title="Coordination" icon="network-wired" href="https://vpn.ims-world.fr">Adresse à donner aux clients Tailscale. Public.</Card>
+  <Card color="#FF6B00" title="Headplane" icon="sliders" href="https://admin.vpn.ims-world.fr/admin">Machines, utilisateurs, clés, DNS. Tailnet.</Card>
 </CardGroup>
 
 ```bash
@@ -48,8 +48,8 @@ docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale preauthkeys list --user
 Deux sortes d'utilisateurs Headscale, selon le type de machine.
 
 <CardGroup cols={2}>
-  <Card title="infra" icon="server">Toutes les VM et tous les conteneurs, nœuds et VM de tiers compris. Clé de pré-authentification réutilisable, utilisée par le rôle Ansible `tailscale`.</Card>
-  <Card title="Comptes personnels" icon="laptop">Téléphones, ordinateurs. Enrôlement par OIDC Authentik (groupes administrateurs et `membres`).</Card>
+  <Card color="#FF6B00" title="infra" icon="server">Toutes les VM et tous les conteneurs, nœuds et VM de tiers compris. Clé de pré-authentification réutilisable, utilisée par le rôle Ansible `tailscale`.</Card>
+  <Card color="#FF6B00" title="Comptes personnels" icon="laptop">Téléphones, ordinateurs. Enrôlement par OIDC Authentik (groupes administrateurs et `membres`).</Card>
 </CardGroup>
 
 La clé de pré-authentification active de `infra` expire le 18/10/2027. Elle est conservée dans le coffre d'ims-ops ; les anciennes clés sont expirées. La renouveler avant cette date et mettre à jour le coffre.
@@ -122,6 +122,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Ajouter une machine au tailnet" icon="list-check" href="/procedures/ajout-machine-headscale">Enrôler un appareil ou une VM.</Card>
-  <Card title="Authentik" icon="key" href="/services/authentik">Connexion unique des services.</Card>
+  <Card color="#FF6B00" title="Ajouter une machine au tailnet" icon="list-check" href="/procedures/ajout-machine-headscale">Enrôler un appareil ou une VM.</Card>
+  <Card color="#FF6B00" title="Authentik" icon="key" href="/services/authentik">Connexion unique des services.</Card>
 </CardGroup>

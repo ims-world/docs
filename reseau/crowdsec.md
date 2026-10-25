@@ -12,7 +12,7 @@ app_version: "v1.8.1 / 2026.8.3"
 Interface restreinte au tailnet. Les opérations courantes passent par `cscli`, depuis la VM 104.
 
 <CardGroup cols={2}>
-  <Card title="Interface CrowdSec" icon="shield-check" href="https://shield.ims-world.fr">
+  <Card color="#FF6B00" title="Interface CrowdSec" icon="shield-check" href="https://shield.ims-world.fr">
     Alertes, bouncers, bannissements et débannissements.
   </Card>
 </CardGroup>
@@ -129,6 +129,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Traefik" icon="route" href="/reseau/traefik-proxy">Reverse proxy et routeurs.</Card>
-  <Card title="Socle commun des hôtes" icon="layer-group" href="/infrastructure/socle-commun">Fail2ban sur les hôtes.</Card>
+  <Card color="#FF6B00" title="Traefik" icon="route" href="/reseau/traefik-proxy">Reverse proxy et routeurs.</Card>
+  <Card color="#3B82F6" title="Socle commun des hôtes" icon="layer-group" href="/infrastructure/socle-commun">Fail2ban sur les hôtes.</Card>
 </CardGroup>

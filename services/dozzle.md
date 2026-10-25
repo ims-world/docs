@@ -12,7 +12,7 @@ app_version: "v11.0.1"
 Restreint au tailnet, puis connexion Authentik réservée aux administrateurs.
 
 <CardGroup cols={2}>
-  <Card title="Dozzle" icon="list" href="https://logs.ims-world.fr">
+  <Card color="#16A34A" title="Dozzle" icon="list" href="https://logs.ims-world.fr">
     Journaux en direct de chaque conteneur.
   </Card>
 </CardGroup>
@@ -65,5 +65,5 @@ Voir l'incident cité plus haut : tout middleware d'authentification d'un servic
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Supervision" icon="chart-line" href="/services/monitoring">Métriques, journaux et alertes.</Card>
+  <Card color="#16A34A" title="Supervision" icon="chart-line" href="/services/monitoring">Métriques, journaux et alertes.</Card>
 </CardGroup>

@@ -174,6 +174,19 @@ Une page doit se parcourir d'un coup d'œil avant d'être lue.
 - Deux encadrés au plus par page, hors `Warning`.
 - Un service de plus de deux composants a un schéma de son flux dans Fonctionnement.
 
+### Code couleur
+
+Les icônes de cartes (`color` de `Card`) suivent le domaine de la page visée, avec les mêmes teintes que les schémas.
+
+| Couleur | Code | Domaine |
+| --- | --- | --- |
+| Bleu | `#3B82F6` | Hôtes et matériel |
+| Vert | `#16A34A` | Services, accès public |
+| Orange | `#FF6B00` | Réseau et sécurité, accès restreint au tailnet |
+| Violet | `#8B5CF6` | Stockage et sauvegarde |
+| Gris | `#64748B` | Procédures, décisions, référence |
+| Rouge | `#DC2626` | Incidents, accès de secours |
+
 ## Schémas
 
 - Mermaid uniquement, rendu nativement par Mintlify.

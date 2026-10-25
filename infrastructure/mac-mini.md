@@ -30,10 +30,10 @@ Second nœud du cluster, plus modeste : il porte le worker Coolify et Home Assis
 Deux invités, tous deux dans le pool de sauvegarde.
 
 <CardGroup cols={2}>
-  <Card title="105 · ims-coolify-worker" icon="cubes" href="/infrastructure/lxc-coolify-worker">
+  <Card color="#3B82F6" title="105 · ims-coolify-worker" icon="cubes" href="/infrastructure/lxc-coolify-worker">
     LXC non privilégié, Debian 13. Worker Coolify.
   </Card>
-  <Card title="106 · Home Assistant" icon="house-signal" href="/infrastructure/vm-home-assistant">
+  <Card color="#3B82F6" title="106 · Home Assistant" icon="house-signal" href="/infrastructure/vm-home-assistant">
     VM, Home Assistant OS. Domotique.
   </Card>
 </CardGroup>
@@ -65,6 +65,6 @@ Agent Alloy avec le collecteur SMART du SSD interne (`/etc/cron.d/smartmon`, tou
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="MS-01 (pve)" icon="server" href="/infrastructure/proxmox-host">Nœud principal du cluster.</Card>
-  <Card title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Ce qui est sauvegardé, quand, où.</Card>
+  <Card color="#3B82F6" title="MS-01 (pve)" icon="server" href="/infrastructure/proxmox-host">Nœud principal du cluster.</Card>
+  <Card color="#8B5CF6" title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Ce qui est sauvegardé, quand, où.</Card>
 </CardGroup>

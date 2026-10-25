@@ -12,7 +12,7 @@ app_version: "v2.5.4"
 Public, derrière une connexion Authentik réservée aux administrateurs.
 
 <CardGroup cols={2}>
-  <Card title="Uptime Kuma" icon="heart-pulse" href="https://status.ims-world.fr">
+  <Card color="#16A34A" title="Uptime Kuma" icon="heart-pulse" href="https://status.ims-world.fr">
     Sondes, historique, notifications.
   </Card>
 </CardGroup>
@@ -41,9 +41,9 @@ cd /data/coolify/services/il53bmpdybmss5q14sfy0umm/ && docker compose logs -f --
 Uptime Kuma tourne dans le réseau Docker de la VM 104, pas dans le tailnet. Trois familles de sondes :
 
 <CardGroup cols={3}>
-  <Card title="Services publics" icon="globe">Domaine public en HTTPS (Authentik, Vaultwarden, Headscale, Jellyfin, Jellyseerr, Immich, Ntfy…) : teste le chemin complet, certificat compris.</Card>
-  <Card title="Services restreints" icon="lock">Nom du conteneur sur le réseau Docker : par le domaine, la sonde serait refusée par `vpn-only` (fausse panne).</Card>
-  <Card title="Hôtes et hors Docker" icon="server">Port TCP, ou HTTPS pour Home Assistant : un ping prouve que la machine répond, pas le service.</Card>
+  <Card color="#16A34A" title="Services publics" icon="globe">Domaine public en HTTPS (Authentik, Vaultwarden, Headscale, Jellyfin, Jellyseerr, Immich, Ntfy…) : teste le chemin complet, certificat compris.</Card>
+  <Card color="#16A34A" title="Services restreints" icon="lock">Nom du conteneur sur le réseau Docker : par le domaine, la sonde serait refusée par `vpn-only` (fausse panne).</Card>
+  <Card color="#16A34A" title="Hôtes et hors Docker" icon="server">Port TCP, ou HTTPS pour Home Assistant : un ping prouve que la machine répond, pas le service.</Card>
 </CardGroup>
 
 Sondes internes :
@@ -117,6 +117,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Supervision" icon="chart-line" href="/services/monitoring">Métriques, journaux et alertes.</Card>
-  <Card title="Ntfy" icon="bell" href="/services/ntfy">Réception des alertes.</Card>
+  <Card color="#16A34A" title="Supervision" icon="chart-line" href="/services/monitoring">Métriques, journaux et alertes.</Card>
+  <Card color="#16A34A" title="Ntfy" icon="bell" href="/services/ntfy">Réception des alertes.</Card>
 </CardGroup>

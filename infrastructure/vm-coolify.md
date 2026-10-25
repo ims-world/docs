@@ -31,16 +31,16 @@ La VM 104 porte presque tous les services du homelab, ainsi que Traefik, seul po
 L'orchestrateur, la couche réseau et les services.
 
 <CardGroup cols={2}>
-  <Card title="Coolify v4.3.14" icon="cubes">
+  <Card color="#3B82F6" title="Coolify v4.3.14" icon="cubes">
     Maître : il orchestre cette VM et le [worker 105](/infrastructure/lxc-coolify-worker).
   </Card>
-  <Card title="Traefik et CrowdSec" icon="route" href="/reseau/traefik-proxy">
+  <Card color="#FF6B00" title="Traefik et CrowdSec" icon="route" href="/reseau/traefik-proxy">
     Conteneur `coolify-proxy`, seul point d'entrée HTTP et HTTPS du homelab, protégé par CrowdSec.
   </Card>
-  <Card title="Headscale et Headplane" icon="network-wired" href="/reseau/headscale-headplane">
+  <Card color="#FF6B00" title="Headscale et Headplane" icon="network-wired" href="/reseau/headscale-headplane">
     Coordination du tailnet.
   </Card>
-  <Card title="Services" icon="grip">
+  <Card color="#3B82F6" title="Services" icon="grip">
     Tous ceux de la navigation, sauf Home Assistant : identité et accès, supervision, médias, outils.
   </Card>
 </CardGroup>
@@ -117,6 +117,6 @@ Agent Alloy avec journaux Docker et métriques Traefik. Sondes Uptime Kuma sur l
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Worker Coolify (LXC 105)" icon="server" href="/infrastructure/lxc-coolify-worker">Nœud d'exécution secondaire.</Card>
-  <Card title="Déployer un service" icon="list-check" href="/procedures/deploiement-service">Étapes d'un nouveau service.</Card>
+  <Card color="#3B82F6" title="Worker Coolify (LXC 105)" icon="server" href="/infrastructure/lxc-coolify-worker">Nœud d'exécution secondaire.</Card>
+  <Card color="#64748B" title="Déployer un service" icon="list-check" href="/procedures/deploiement-service">Étapes d'un nouveau service.</Card>
 </CardGroup>

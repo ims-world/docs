@@ -14,7 +14,7 @@ import { domains } from "/snippets/variables.mdx";
 Portail public, protégé par double facteur. Les applications y redirigent pour la connexion.
 
 <CardGroup cols={2}>
-  <Card title="Authentik" icon="shield-halved" href="https://auth.ims-world.fr">
+  <Card color="#16A34A" title="Authentik" icon="shield-halved" href="https://auth.ims-world.fr">
     Portail de connexion et console d'administration.
   </Card>
 </CardGroup>
@@ -43,10 +43,10 @@ docker exec -it authentik-worker-k5mxvc2r6c4zlb6j3d443h7b ak create_recovery_key
 Deux modes d'intégration, selon que l'application sait déléguer sa connexion ou non.
 
 <CardGroup cols={2}>
-  <Card title="OIDC" icon="id-card" href="/procedures/integration-service-authentik-oidc">
+  <Card color="#FF6B00" title="OIDC" icon="id-card" href="/procedures/integration-service-authentik-oidc">
     L'application dialogue avec Authentik. Grafana, Headplane, Headscale, Immich, Zipline, Forgejo, PhotoPrism, Termix, interface CrowdSec.
   </Card>
-  <Card title="Forward-auth" icon="door-closed" href="/procedures/securiser-application-authentik-forward-auth">
+  <Card color="#FF6B00" title="Forward-auth" icon="door-closed" href="/procedures/securiser-application-authentik-forward-auth">
     Traefik demande à l'outpost avant de transmettre ([ADR-002](/history/adr/adr-002-pattern-forward-auth-authentik)). Dozzle, Uptime Kuma, IT-Tools, Stirling PDF.
   </Card>
 </CardGroup>
@@ -117,6 +117,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
-  <Card title="Headscale" icon="network-wired" href="/reseau/headscale-headplane">Enrôlement par OIDC.</Card>
+  <Card color="#FF6B00" title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
+  <Card color="#FF6B00" title="Headscale" icon="network-wired" href="/reseau/headscale-headplane">Enrôlement par OIDC.</Card>
 </CardGroup>

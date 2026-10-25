@@ -12,10 +12,10 @@ app_version: "260728 / MariaDB 11.8.8"
 Public, avec connexion Authentik. Le dépôt de photos passe par le WebDAV de PhotoPrism.
 
 <CardGroup cols={2}>
-  <Card title="PhotoPrism" icon="camera" href="https://studio.ims-world.fr">
+  <Card color="#16A34A" title="PhotoPrism" icon="camera" href="https://studio.ims-world.fr">
     Bibliothèque, recherche, albums.
   </Card>
-  <Card title="Dépôt WebDAV" icon="upload">
+  <Card color="#16A34A" title="Dépôt WebDAV" icon="upload">
     `https://studio.ims-world.fr/import/`
   </Card>
 </CardGroup>
@@ -45,9 +45,9 @@ docker exec -it $(docker ps -qf "name=photoprism_photoprism") photoprism index  
 Les fichiers sont sur le NAS, la base sur le disque local de la VM 104.
 
 <CardGroup cols={3}>
-  <Card title="originals/" icon="images">Photos et fichiers RAW.</Card>
-  <Card title="storage/sidecar/" icon="file-code">Modifications manuelles (mots-clés, visages, lieux) en YAML, à conserver avec les originaux.</Card>
-  <Card title="photoprism-mariadb-data" icon="database">Base MariaDB en local : une base relationnelle sur NFS pose des problèmes de verrous et de performances.</Card>
+  <Card color="#8B5CF6" title="originals/" icon="images">Photos et fichiers RAW.</Card>
+  <Card color="#8B5CF6" title="storage/sidecar/" icon="file-code">Modifications manuelles (mots-clés, visages, lieux) en YAML, à conserver avec les originaux.</Card>
+  <Card color="#8B5CF6" title="photoprism-mariadb-data" icon="database">Base MariaDB en local : une base relationnelle sur NFS pose des problèmes de verrous et de performances.</Card>
 </CardGroup>
 
 ## Dépôt de photos par WebDAV
@@ -122,6 +122,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Immich" icon="images" href="/services/immich">Photos et vidéos du téléphone.</Card>
-  <Card title="ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">Partages NFS et SMB.</Card>
+  <Card color="#16A34A" title="Immich" icon="images" href="/services/immich">Photos et vidéos du téléphone.</Card>
+  <Card color="#8B5CF6" title="ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">Partages NFS et SMB.</Card>
 </CardGroup>

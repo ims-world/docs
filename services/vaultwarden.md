@@ -14,10 +14,10 @@ import { domains } from "/snippets/variables.mdx";
 Coffre public avec connexion Authentik ; le panneau d'administration ne répond que depuis le tailnet.
 
 <CardGroup cols={2}>
-  <Card title="Coffre web" icon="shield-halved" href="https://vault.ims-world.fr">
+  <Card color="#16A34A" title="Coffre web" icon="shield-halved" href="https://vault.ims-world.fr">
     Interface web ; extensions et applications Bitwarden configurées sur ce serveur.
   </Card>
-  <Card title="Administration" icon="gear" href="https://vault.ims-world.fr/admin">
+  <Card color="#FF6B00" title="Administration" icon="gear" href="https://vault.ims-world.fr/admin">
     Panneau d'administration, restreint au tailnet.
   </Card>
 </CardGroup>
@@ -69,6 +69,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Authentik" icon="key" href="/services/authentik">Connexion unique des services.</Card>
-  <Card title="Plan de reprise" icon="life-ring" href="/procedures/plan-reprise-activite-pra">Restauration après une panne.</Card>
+  <Card color="#FF6B00" title="Authentik" icon="key" href="/services/authentik">Connexion unique des services.</Card>
+  <Card color="#8B5CF6" title="Plan de reprise" icon="life-ring" href="/procedures/plan-reprise-activite-pra">Restauration après une panne.</Card>
 </CardGroup>

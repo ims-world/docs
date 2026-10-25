@@ -12,10 +12,10 @@ app_version: "11"
 Interface publique avec connexion Authentik ; Git en SSH par le port 2222.
 
 <CardGroup cols={2}>
-  <Card title="Forgejo" icon="code-branch" href="https://forge.ims-world.fr">
+  <Card color="#16A34A" title="Forgejo" icon="code-branch" href="https://forge.ims-world.fr">
     Interface web.
   </Card>
-  <Card title="Git en SSH" icon="terminal">
+  <Card color="#16A34A" title="Git en SSH" icon="terminal">
     `ssh://git@forge.ims-world.fr:2222/<compte>/<dépôt>.git`
   </Card>
 </CardGroup>
@@ -44,8 +44,8 @@ cd /data/coolify/services/culcigf0vwg0fbdvegbkzoan/ && docker compose logs -f --
 Deux conteneurs : l'application et sa base.
 
 <CardGroup cols={2}>
-  <Card title="forgejo" icon="code-branch">Application, HTTP 3000 derrière Traefik, SSH 2222 publié directement.</Card>
-  <Card title="forgejo-db" icon="database">PostgreSQL 16.</Card>
+  <Card color="#16A34A" title="forgejo" icon="code-branch">Application, HTTP 3000 derrière Traefik, SSH 2222 publié directement.</Card>
+  <Card color="#8B5CF6" title="forgejo-db" icon="database">PostgreSQL 16.</Card>
 </CardGroup>
 
 - Le port 2222 est redirigé par la Bbox et publié par Docker (`ports: '2222:2222'`), sans passer par Traefik ni Authentik. La sécurité repose sur les clés SSH des comptes Forgejo ([ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox)).
@@ -84,6 +84,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="ADR-006" icon="scale-balanced" href="/history/adr/adr-006-exposition-port-ssh-forgejo-bbox">Pourquoi le port SSH est exposé.</Card>
-  <Card title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
+  <Card color="#64748B" title="ADR-006" icon="scale-balanced" href="/history/adr/adr-006-exposition-port-ssh-forgejo-bbox">Pourquoi le port SSH est exposé.</Card>
+  <Card color="#FF6B00" title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
 </CardGroup>

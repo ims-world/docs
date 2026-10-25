@@ -14,6 +14,9 @@
     "light": "#FF8800",
     "dark": "#D45500"
   },
+  "background": {
+    "decoration": "gradient"
+  },
   "navbar": {
     "links": [
       {

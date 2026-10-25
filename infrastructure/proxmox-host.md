@@ -26,10 +26,10 @@ Le MS-01 porte l'essentiel du homelab : stockage, sauvegarde et services. Le Mac
 | Statut | En service |
 
 <CardGroup cols={2}>
-  <Card title="Interface web (tailnet)" icon="globe" href={`https://${ips.ms01}:8006`}>
+  <Card color="#3B82F6" title="Interface web (tailnet)" icon="globe" href={`https://${ips.ms01}:8006`}>
     <code>https://{ips.ms01}:8006</code>
   </Card>
-  <Card title="Interface web (LAN)" icon="house" href={`https://${ips.pveLan}:8006`}>
+  <Card color="#3B82F6" title="Interface web (LAN)" icon="house" href={`https://${ips.pveLan}:8006`}>
     <code>https://{ips.pveLan}:8006</code>
   </Card>
 </CardGroup>
@@ -39,22 +39,22 @@ Le MS-01 porte l'essentiel du homelab : stockage, sauvegarde et services. Le Mac
 Trois invités forment le cœur du homelab (NAS, PBS, VM 104) ; les autres sont occasionnels.
 
 <CardGroup cols={2}>
-  <Card title="100 · ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">
+  <Card color="#8B5CF6" title="100 · ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">
     LXC privilégié, 2 cœurs, 1 Go. Stockage NFS et SMB.
   </Card>
-  <Card title="103 · ims-pbs" icon="box-archive" href="/infrastructure/ims-pbs">
+  <Card color="#8B5CF6" title="103 · ims-pbs" icon="box-archive" href="/infrastructure/ims-pbs">
     LXC privilégié, 2 cœurs, 1 Go. Proxmox Backup Server.
   </Card>
-  <Card title="104 · ims-coolify" icon="cubes" href="/infrastructure/vm-coolify">
+  <Card color="#3B82F6" title="104 · ims-coolify" icon="cubes" href="/infrastructure/vm-coolify">
     VM, 6 cœurs, 18 Go, 128 Go. Coolify et services.
   </Card>
-  <Card title="102 · Windows" icon="desktop">
+  <Card color="#3B82F6" title="102 · Windows" icon="desktop">
     VM. Poste Windows, démarré à la demande.
   </Card>
-  <Card title="107 · lab-elo" icon="flask">
+  <Card color="#3B82F6" title="107 · lab-elo" icon="flask">
     VM d'un tiers, souvent éteinte.
   </Card>
-  <Card title="9001 · ubuntu-2404-ims-ops" icon="clone">
+  <Card color="#3B82F6" title="9001 · ubuntu-2404-ims-ops" icon="clone">
     Template, base des VM créées par `just vm`.
   </Card>
 </CardGroup>
@@ -111,10 +111,10 @@ Le nœud n'a plus de sortie vidéo. Pour retrouver une console physique, retirer
 Les outils qui parlent directement au disque tournent sur le nœud, jamais dans le LXC du NAS : le montage transmis au conteneur ne donne pas accès au périphérique bloc.
 
 <CardGroup cols={2}>
-  <Card title="hd-idle" icon="moon">
+  <Card color="#3B82F6" title="hd-idle" icon="moon">
     Mise en veille du HDD après 30 minutes d'inactivité (`/etc/default/hd-idle`, option `-i 1800`).
   </Card>
-  <Card title="smartd et smartmon.sh" icon="heart-pulse">
+  <Card color="#3B82F6" title="smartd et smartmon.sh" icon="heart-pulse">
     Santé SMART, relevée toutes les 5 minutes pour Alloy.
   </Card>
 </CardGroup>
@@ -145,7 +145,7 @@ Agent Alloy (étiquette `ms01-pve`) avec le collecteur SMART. Tableaux de bord d
 ## Voir aussi
 
 <CardGroup cols={3}>
-  <Card title="Mac Mini (pve-macmini)" icon="server" href="/infrastructure/mac-mini">Second nœud du cluster.</Card>
-  <Card title="Socle commun" icon="layer-group" href="/infrastructure/socle-commun">Configuration appliquée à tous les hôtes.</Card>
-  <Card title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Ce qui est sauvegardé, quand, où.</Card>
+  <Card color="#3B82F6" title="Mac Mini (pve-macmini)" icon="server" href="/infrastructure/mac-mini">Second nœud du cluster.</Card>
+  <Card color="#3B82F6" title="Socle commun" icon="layer-group" href="/infrastructure/socle-commun">Configuration appliquée à tous les hôtes.</Card>
+  <Card color="#8B5CF6" title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Ce qui est sauvegardé, quand, où.</Card>
 </CardGroup>

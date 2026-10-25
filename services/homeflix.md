@@ -13,18 +13,18 @@ Pile de neuf conteneurs qui va de la demande d'un film à sa lecture. Jellyseerr
 
 ## Accès
 
-Jellyfin et Jellyseerr sont publics, avec leurs propres comptes. Les quatre outils de gestion ne répondent que depuis le tailnet.
+Jellyfin et Jellyseerr sont publics, avec leurs propres comptes. Les quatre outils de gestion, en orange, ne répondent que depuis le tailnet.
 
 <CardGroup cols={2}>
-  <Card title="Jellyfin" icon="play" href="https://homeflix.ims-world.fr">Regarder un film ou une série. Public.</Card>
-  <Card title="Jellyseerr" icon="clapperboard" href="https://videoclub.ims-world.fr">Demander un film ou une série. Public.</Card>
+  <Card color="#16A34A" title="Jellyfin" icon="play" href="https://homeflix.ims-world.fr">Regarder un film ou une série. Public.</Card>
+  <Card color="#16A34A" title="Jellyseerr" icon="clapperboard" href="https://videoclub.ims-world.fr">Demander un film ou une série. Public.</Card>
 </CardGroup>
 
 <CardGroup cols={4}>
-  <Card title="Radarr" icon="video" href="https://radarr.ims-world.fr">Films</Card>
-  <Card title="Sonarr" icon="tv" href="https://sonarr.ims-world.fr">Séries</Card>
-  <Card title="Prowlarr" icon="magnifying-glass" href="https://prowlarr.ims-world.fr">Indexeurs</Card>
-  <Card title="qBittorrent" icon="download" href="https://qbit.ims-world.fr">Téléchargements</Card>
+  <Card color="#FF6B00" title="Radarr" icon="video" href="https://radarr.ims-world.fr">Films</Card>
+  <Card color="#FF6B00" title="Sonarr" icon="tv" href="https://sonarr.ims-world.fr">Séries</Card>
+  <Card color="#FF6B00" title="Prowlarr" icon="magnifying-glass" href="https://prowlarr.ims-world.fr">Indexeurs</Card>
+  <Card color="#FF6B00" title="qBittorrent" icon="download" href="https://qbit.ims-world.fr">Téléchargements</Card>
 </CardGroup>
 
 Journaux de la pile, depuis la VM 104 :
@@ -71,14 +71,14 @@ flowchart LR
 ```
 
 <CardGroup cols={2}>
-  <Card title="Jellyfin" icon="play">Diffusion, transcodage matériel par l'iGPU (Intel Quick Sync).</Card>
-  <Card title="Jellyseerr" icon="clapperboard">Demandes de films et séries.</Card>
-  <Card title="Radarr, Sonarr" icon="video">Recherche, téléchargement et classement des films et séries.</Card>
-  <Card title="Prowlarr" icon="magnifying-glass">Indexeurs, partagés par Radarr et Sonarr.</Card>
-  <Card title="qBittorrent" icon="download">Client torrent, dans le réseau de Gluetun (`network_mode: service:gluetun`).</Card>
-  <Card title="Gluetun" icon="shield-halved">Tunnel WireGuard ProtonVPN, coupe-circuit, redirection de port.</Card>
-  <Card title="Recyclarr" icon="sliders">Profils de qualité TRaSH-Guides, synchronisés chaque jour à 04:00.</Card>
-  <Card title="Autoheal" icon="heart-pulse">Redémarre qBittorrent si le tunnel tombe.</Card>
+  <Card color="#16A34A" title="Jellyfin" icon="play">Diffusion, transcodage matériel par l'iGPU (Intel Quick Sync).</Card>
+  <Card color="#16A34A" title="Jellyseerr" icon="clapperboard">Demandes de films et séries.</Card>
+  <Card color="#16A34A" title="Radarr, Sonarr" icon="video">Recherche, téléchargement et classement des films et séries.</Card>
+  <Card color="#16A34A" title="Prowlarr" icon="magnifying-glass">Indexeurs, partagés par Radarr et Sonarr.</Card>
+  <Card color="#16A34A" title="qBittorrent" icon="download">Client torrent, dans le réseau de Gluetun (`network_mode: service:gluetun`).</Card>
+  <Card color="#FF6B00" title="Gluetun" icon="shield-halved">Tunnel WireGuard ProtonVPN, coupe-circuit, redirection de port.</Card>
+  <Card color="#16A34A" title="Recyclarr" icon="sliders">Profils de qualité TRaSH-Guides, synchronisés chaque jour à 04:00.</Card>
+  <Card color="#16A34A" title="Autoheal" icon="heart-pulse">Redémarre qBittorrent si le tunnel tombe.</Card>
 </CardGroup>
 
 Les routeurs de Radarr, Sonarr, Prowlarr et qBittorrent sont dans `vpn-only.yaml`. Celui de qBittorrent pointe vers le conteneur Gluetun (port 8080), qui porte son réseau.
@@ -181,6 +181,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">Partages NFS qui portent la médiathèque.</Card>
-  <Card title="Restreindre un service au tailnet" icon="lock" href="/procedures/securiser-service-vpn-only">Procédure appliquée aux outils de gestion.</Card>
+  <Card color="#8B5CF6" title="ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">Partages NFS qui portent la médiathèque.</Card>
+  <Card color="#FF6B00" title="Restreindre un service au tailnet" icon="lock" href="/procedures/securiser-service-vpn-only">Procédure appliquée aux outils de gestion.</Card>
 </CardGroup>

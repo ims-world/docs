@@ -12,7 +12,7 @@ app_version: "v9.0.2"
 Restreint au tailnet, avec compte natif.
 
 <CardGroup cols={2}>
-  <Card title="WUD" icon="docker" href="https://wud.ims-world.fr">
+  <Card color="#16A34A" title="WUD" icon="docker" href="https://wud.ims-world.fr">
     Versions en service et versions disponibles.
   </Card>
 </CardGroup>
@@ -76,5 +76,5 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Ntfy" icon="bell" href="/services/ntfy">Réception des alertes.</Card>
+  <Card color="#16A34A" title="Ntfy" icon="bell" href="/services/ntfy">Réception des alertes.</Card>
 </CardGroup>

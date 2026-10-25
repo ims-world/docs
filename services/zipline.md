@@ -12,7 +12,7 @@ app_version: "latest"
 Public, avec connexion Authentik ; jetons d'API pour les envois automatisés.
 
 <CardGroup cols={2}>
-  <Card title="Zipline" icon="share-nodes" href="https://share.ims-world.fr">
+  <Card color="#16A34A" title="Zipline" icon="share-nodes" href="https://share.ims-world.fr">
     Fichiers, liens courts, jetons d'API.
   </Card>
 </CardGroup>
@@ -63,5 +63,5 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Connecter une application en OIDC" icon="list-check" href="/procedures/integration-service-authentik-oidc">Procédure de connexion OIDC.</Card>
+  <Card color="#FF6B00" title="Connecter une application en OIDC" icon="list-check" href="/procedures/integration-service-authentik-oidc">Procédure de connexion OIDC.</Card>
 </CardGroup>

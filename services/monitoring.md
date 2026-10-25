@@ -12,7 +12,7 @@ app_version: "v13.1.3"
 Grafana n'est joignable que depuis le tailnet, avec connexion Authentik.
 
 <CardGroup cols={2}>
-  <Card title="Grafana" icon="chart-line" href="https://monitoring.ims-world.fr">
+  <Card color="#16A34A" title="Grafana" icon="chart-line" href="https://monitoring.ims-world.fr">
     Tableaux de bord, exploration des journaux, règles d'alerte.
   </Card>
 </CardGroup>
@@ -58,16 +58,16 @@ flowchart LR
 ```
 
 <CardGroup cols={2}>
-  <Card title="Agents Alloy" icon="satellite-dish">
+  <Card color="#16A34A" title="Agents Alloy" icon="satellite-dish">
     Envoi par écriture distante. Un agent par hôte géré, installé par ims-ops. Destination `10.10.10.2` pour le NAS, le PBS et la VM 104, `192.168.1.52` pour les autres ; jamais par le tailnet.
   </Card>
-  <Card title="Uptime Kuma" icon="heart-pulse">
+  <Card color="#16A34A" title="Uptime Kuma" icon="heart-pulse">
     Lu par Prometheus sur `/metrics`, avec authentification ; clé dans `config/uptime-kuma-api-key.txt`, montée en lecture seule.
   </Card>
-  <Card title="Traefik" icon="route">
+  <Card color="#16A34A" title="Traefik" icon="route">
     Lu par Prometheus sur `coolify-proxy:8080`.
   </Card>
-  <Card title="SMART des disques" icon="hard-drive">
+  <Card color="#8B5CF6" title="SMART des disques" icon="hard-drive">
     Fichier texte lu par Alloy, écrit par `smartmon.sh` toutes les 5 minutes sur les deux nœuds.
   </Card>
 </CardGroup>
@@ -148,6 +148,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Dozzle" icon="list" href="/services/dozzle">[ADR-001](/history/adr/adr-001-stack-monitoring-lgtm).</Card>
-  <Card title="Ntfy" icon="bell" href="/services/ntfy">Réception des alertes.</Card>
+  <Card color="#16A34A" title="Dozzle" icon="list" href="/services/dozzle">[ADR-001](/history/adr/adr-001-stack-monitoring-lgtm).</Card>
+  <Card color="#16A34A" title="Ntfy" icon="bell" href="/services/ntfy">Réception des alertes.</Card>
 </CardGroup>

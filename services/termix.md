@@ -12,7 +12,7 @@ app_version: "26.10.2"
 Restreint au tailnet, avec connexion Authentik.
 
 <CardGroup cols={2}>
-  <Card title="Termix" icon="terminal" href="https://termix.ims-world.fr">
+  <Card color="#16A34A" title="Termix" icon="terminal" href="https://termix.ims-world.fr">
     Terminal SSH, fichiers SFTP, vues Proxmox et Docker.
   </Card>
 </CardGroup>
@@ -70,8 +70,8 @@ flowchart LR
 Deux comptes : l'un pour l'usage quotidien, l'autre pour le cas où Authentik est indisponible.
 
 <CardGroup cols={2}>
-  <Card title="Compte SSO" icon="key">Usage quotidien. Authentik, administrateur par le groupe `admins`.</Card>
-  <Card title="Administrateur local" icon="life-ring">Seulement si Authentik est indisponible. Mot de passe et TOTP, dans Vaultwarden (« Termix — admin de secours »).</Card>
+  <Card color="#16A34A" title="Compte SSO" icon="key">Usage quotidien. Authentik, administrateur par le groupe `admins`.</Card>
+  <Card color="#DC2626" title="Administrateur local" icon="life-ring">Seulement si Authentik est indisponible. Mot de passe et TOTP, dans Vaultwarden (« Termix — admin de secours »).</Card>
 </CardGroup>
 
 - L'application Authentik `termix` n'est liée qu'au groupe `admins`. Le champ **Allowed Users** de Termix reste vide.
@@ -201,6 +201,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Socle commun des hôtes" icon="layer-group" href="/infrastructure/socle-commun">Configuration appliquée à tous les hôtes.</Card>
-  <Card title="Feuille de route" icon="list-check" href="/roadmap">Certificats SSH courts (OPKSSH), démarrage de la VM Windows à la demande.</Card>
+  <Card color="#3B82F6" title="Socle commun des hôtes" icon="layer-group" href="/infrastructure/socle-commun">Configuration appliquée à tous les hôtes.</Card>
+  <Card color="#64748B" title="Feuille de route" icon="list-check" href="/roadmap">Certificats SSH courts (OPKSSH), démarrage de la VM Windows à la demande.</Card>
 </CardGroup>

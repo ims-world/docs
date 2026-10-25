@@ -30,13 +30,13 @@ Le NAS est un conteneur sur le MS-01 : il reçoit les deux disques SATA et les p
 Trois partages : deux en NFS pour les machines, un en SMB pour les ordinateurs.
 
 <CardGroup cols={3}>
-  <Card title="/mnt/storage" icon="hard-drive">
+  <Card color="#8B5CF6" title="/mnt/storage" icon="hard-drive">
     HDD 3 To. NFS en lecture-écriture pour la VM 104 et le PBS (`10.10.10.0/24`), en lecture seule pour le LAN.
   </Card>
-  <Card title="/mnt/storage-hot" icon="bolt">
+  <Card color="#8B5CF6" title="/mnt/storage-hot" icon="bolt">
     SSD 4 To. NFS en lecture-écriture pour la VM 104 (`10.10.10.0/24`).
   </Card>
-  <Card title="storage (SMB)" icon="folder-open">
+  <Card color="#8B5CF6" title="storage (SMB)" icon="folder-open">
     Compte `cmolotkoff`, depuis le LAN et le tailnet : <code>smb://{ips.nasLan}/storage</code>.
   </Card>
 </CardGroup>
@@ -111,6 +111,6 @@ Agent Alloy, collecteur `hwmon` désactivé. Santé des disques relevée par le 
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Ajouter un disque" icon="list-check" href="/procedures/ajout-nouveau-disque">Ajouter de la capacité au NAS.</Card>
-  <Card title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Ce qui est sauvegardé, quand, où.</Card>
+  <Card color="#8B5CF6" title="Ajouter un disque" icon="list-check" href="/procedures/ajout-nouveau-disque">Ajouter de la capacité au NAS.</Card>
+  <Card color="#8B5CF6" title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Ce qui est sauvegardé, quand, où.</Card>
 </CardGroup>

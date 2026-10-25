@@ -31,9 +31,9 @@ Home Assistant OS tourne en VM sur le Mac Mini, branché directement sur le LAN 
 L'accès normal passe par Traefik, depuis le tailnet ou le LAN. Les accès directs servent en dépannage, depuis le LAN.
 
 <CardGroup cols={3}>
-  <Card title="Home Assistant" icon="house-signal" href="https://home.ims-world.fr">HTTPS, tailnet ou LAN (`vpn-only`).</Card>
-  <Card title="Accès direct" icon="ethernet">`http://192.168.1.92`, LAN.</Card>
-  <Card title="Observer" icon="stethoscope">`http://192.168.1.92:4357`, LAN.</Card>
+  <Card color="#FF6B00" title="Home Assistant" icon="house-signal" href="https://home.ims-world.fr">HTTPS, tailnet ou LAN (`vpn-only`).</Card>
+  <Card color="#3B82F6" title="Accès direct" icon="ethernet">`http://192.168.1.92`, LAN.</Card>
+  <Card color="#3B82F6" title="Observer" icon="stethoscope">`http://192.168.1.92:4357`, LAN.</Card>
 </CardGroup>
 
 ```bash
@@ -142,6 +142,6 @@ Sonde Uptime Kuma sur `https://home.ims-world.fr`. Pas d'agent Alloy (appliance)
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Mac Mini" icon="server" href="/infrastructure/mac-mini">Second nœud du cluster.</Card>
-  <Card title="Restreindre un service au tailnet" icon="list-check" href="/procedures/securiser-service-vpn-only">Procédure de restriction au tailnet.</Card>
+  <Card color="#3B82F6" title="Mac Mini" icon="server" href="/infrastructure/mac-mini">Second nœud du cluster.</Card>
+  <Card color="#FF6B00" title="Restreindre un service au tailnet" icon="list-check" href="/procedures/securiser-service-vpn-only">Procédure de restriction au tailnet.</Card>
 </CardGroup>

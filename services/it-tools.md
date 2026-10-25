@@ -12,7 +12,7 @@ app_version: "latest"
 Public, derrière une connexion Authentik.
 
 <CardGroup cols={2}>
-  <Card title="IT-Tools" icon="toolbox" href="https://tools.ims-world.fr">
+  <Card color="#16A34A" title="IT-Tools" icon="toolbox" href="https://tools.ims-world.fr">
     Liste des outils, recherche.
   </Card>
 </CardGroup>
@@ -50,5 +50,5 @@ Sans objet.
 ## Voir aussi
 
 <CardGroup cols={2}>
-  <Card title="Authentik" icon="key" href="/services/authentik">Connexion unique des services.</Card>
+  <Card color="#FF6B00" title="Authentik" icon="key" href="/services/authentik">Connexion unique des services.</Card>
 </CardGroup>
