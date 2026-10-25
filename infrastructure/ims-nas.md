@@ -10,6 +10,8 @@ import { ips, hardware } from "/snippets/variables.mdx";
 
 ## Fiche
 
+Le NAS est un conteneur sur le MS-01 : il reçoit les deux disques SATA et les partage en NFS et SMB au reste du homelab.
+
 | Propriété | Valeur |
 | --- | --- |
 | Type | Conteneur LXC privilégié (requis pour le serveur NFS et les disques transmis) |
@@ -25,14 +27,23 @@ import { ips, hardware } from "/snippets/variables.mdx";
 
 ## Ce qui tourne dessus
 
-| Partage | Protocole | Clients |
-| --- | --- | --- |
-| `/mnt/storage` | NFS lecture-écriture sur `10.10.10.0/24` | VM 104, PBS |
-| `/mnt/storage` | NFS lecture seule sur `192.168.1.0/24` | LAN |
-| `/mnt/storage-hot` | NFS lecture-écriture sur `10.10.10.0/24` | VM 104 |
-| `storage` | SMB, compte `cmolotkoff` | LAN et tailnet : <code>smb://{ips.nasLan}/storage</code> |
+Trois partages : deux en NFS pour les machines, un en SMB pour les ordinateurs.
+
+<CardGroup cols={3}>
+  <Card title="/mnt/storage" icon="hard-drive">
+    HDD 3 To. NFS en lecture-écriture pour la VM 104 et le PBS (`10.10.10.0/24`), en lecture seule pour le LAN.
+  </Card>
+  <Card title="/mnt/storage-hot" icon="bolt">
+    SSD 4 To. NFS en lecture-écriture pour la VM 104 (`10.10.10.0/24`).
+  </Card>
+  <Card title="storage (SMB)" icon="folder-open">
+    Compte `cmolotkoff`, depuis le LAN et le tailnet : <code>smb://{ips.nasLan}/storage</code>.
+  </Card>
+</CardGroup>
 
 ## Disques et montages
+
+Chaque disque est un système de fichiers ext4 indépendant, transmis au conteneur puis exposé par un bind-mount.
 
 | Disque | Référence | Monté sur | Exposé comme | Contenu |
 | --- | --- | --- | --- | --- |
@@ -52,6 +63,8 @@ Ne jamais exporter en NFS un système de fichiers FUSE (MergerFS ou équivalent)
 
 ## Exports NFS
 
+Contenu de `/etc/exports` :
+
 ```text
 /mnt/storage      10.10.10.0/24(rw,no_root_squash)
 /mnt/storage      192.168.1.0/24(ro,root_squash)
@@ -70,10 +83,16 @@ Ne pas utiliser `jdupes -L` sur la médiathèque : la commande remplace des fich
 
 ## Particularités
 
-- Le compte `cmolotkoff` (UID 1000) est aussi le propriétaire des fichiers partagés et l'utilisateur Samba. Son mot de passe système est verrouillé. **Ne jamais modifier son UID ni supprimer ce compte** : toutes les permissions des partages en dépendent.
+Ce qui distingue ce conteneur des autres hôtes du parc.
+
+- Le compte `cmolotkoff` (UID 1000) est aussi le propriétaire des fichiers partagés et l'utilisateur Samba. Son mot de passe système est verrouillé.
 - `smartd` et `hd-idle` ne peuvent pas tourner dans ce conteneur ; ils tournent sur le [nœud](/infrastructure/proxmox-host).
 - Les deux disques sont montés avec `backup=0` : une sauvegarde du conteneur n'embarque jamais leur contenu.
 - Écarts au [socle commun](/infrastructure/socle-commun) : envoi Alloy par `10.10.10.2`, paquet `jdupes`.
+
+<Warning>
+Ne jamais modifier l'UID de `cmolotkoff` ni supprimer ce compte : toutes les permissions des partages en dépendent.
+</Warning>
 
 ## Sauvegarde et reprise
 
@@ -91,5 +110,7 @@ Agent Alloy, collecteur `hwmon` désactivé. Santé des disques relevée par le 
 
 ## Voir aussi
 
-- [Ajouter un disque](/procedures/ajout-nouveau-disque)
-- [Politique de sauvegarde](/procedures/politique-sauvegardes)
+<CardGroup cols={2}>
+  <Card title="Ajouter un disque" icon="list-check" href="/procedures/ajout-nouveau-disque">Ajouter de la capacité au NAS.</Card>
+  <Card title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Ce qui est sauvegardé, quand, où.</Card>
+</CardGroup>

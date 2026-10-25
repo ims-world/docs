@@ -12,6 +12,8 @@ import { ips } from "/snippets/variables.mdx";
 
 ## Fiche
 
+Raspberry Pi du module d'écrans en façade du rack, éteint pour le moment.
+
 | Propriété | Valeur |
 | --- | --- |
 | Type | Machine physique, Raspberry Pi 3B+ (BCM2837B0, 4 cœurs, 1 Go) |
@@ -29,11 +31,11 @@ import { ips } from "/snippets/variables.mdx";
 
 Le Raspberry Pi pilote les écrans du module 2U en façade du rack [Labrax](/infrastructure/labrax), par un navigateur en mode kiosque. Ce n'est pas une sonde de supervision.
 
-| Élément | Caractéristiques | Usage |
-| --- | --- | --- |
-| Écran principal | Wisecoco 7,84 pouces LCD, 1280×400 | Rotation : bannière IMS, pages web en mode lecture |
-| Écran secondaire | OLED 0,91 pouce, 128×32 | Statut et temps de fonctionnement |
-| Bouton | Bouton poussoir GPIO avec LED | Appui court : source suivante. Appui long (3 s) : extinction de l'écran |
+<CardGroup cols={3}>
+  <Card title="Écran principal" icon="display">Wisecoco 7,84 pouces LCD, 1280×400. Rotation : bannière IMS, pages web en mode lecture.</Card>
+  <Card title="Écran secondaire" icon="microchip">OLED 0,91 pouce, 128×32. Statut et temps de fonctionnement.</Card>
+  <Card title="Bouton" icon="circle-dot">Poussoir GPIO avec LED. Appui court : source suivante ; appui long (3 s) : extinction de l'écran.</Card>
+</CardGroup>
 
 ## Module 2U
 
@@ -55,6 +57,8 @@ Le Raspberry Pi pilote les écrans du module 2U en façade du rack [Labrax](/inf
 </Tabs>
 
 ## Fonctionnement
+
+Un script lit le bouton et pilote le navigateur et l'écran OLED.
 
 ```mermaid
 flowchart LR
@@ -83,4 +87,6 @@ Aucune tant qu'il est éteint.
 
 ## Voir aussi
 
-- [Labrax](/infrastructure/labrax)
+<CardGroup cols={2}>
+  <Card title="Labrax" icon="server" href="/infrastructure/labrax">Rack qui accueille le module d'écrans.</Card>
+</CardGroup>

@@ -11,6 +11,8 @@ import { ips } from "/snippets/variables.mdx";
 
 ## Fiche
 
+Home Assistant OS tourne en VM sur le Mac Mini, branché directement sur le LAN pour la découverte des appareils.
+
 | Propriété | Valeur |
 | --- | --- |
 | Type | VM, Home Assistant OS (appliance, hors gestion ims-ops) |
@@ -26,11 +28,13 @@ import { ips } from "/snippets/variables.mdx";
 
 ## Accès
 
-| Accès | Adresse | Condition |
-| --- | --- | --- |
-| HTTPS | `https://home.ims-world.fr` | Tailnet ou LAN (`vpn-only`) |
-| Direct | `http://192.168.1.92` | LAN |
-| Observer | `http://192.168.1.92:4357` | LAN |
+L'accès normal passe par Traefik, depuis le tailnet ou le LAN. Les accès directs servent en dépannage, depuis le LAN.
+
+<CardGroup cols={3}>
+  <Card title="Home Assistant" icon="house-signal" href="https://home.ims-world.fr">HTTPS, tailnet ou LAN (`vpn-only`).</Card>
+  <Card title="Accès direct" icon="ethernet">`http://192.168.1.92`, LAN.</Card>
+  <Card title="Observer" icon="stethoscope">`http://192.168.1.92:4357`, LAN.</Card>
+</CardGroup>
 
 ```bash
 # Depuis pve-macmini
@@ -46,6 +50,8 @@ Home Assistant tournait d'abord en conteneur sur la VM 104. Plusieurs intégrati
 Autres avantages : image officielle avec gestion des modules et des mises à jour, passthrough USB direct pour une future clé radio, et domotique indépendante des interventions sur le MS-01.
 
 ## Accès HTTPS par Traefik
+
+Home Assistant n'est pas sur Coolify : son routeur est déclaré à la main dans Traefik.
 
 ```mermaid
 flowchart LR
@@ -103,6 +109,8 @@ HAOS a un système de fichiers en lecture seule : Tailscale s'installe comme mod
 
 ## Intégrations
 
+État des intégrations prévues.
+
 | Intégration | Type | État |
 | --- | --- | --- |
 | Philips Hue | Local (mDNS) | À configurer |
@@ -118,6 +126,8 @@ Les étapes domotiques suivantes sont suivies dans la [feuille de route](/roadma
 
 ## Particularités
 
+Ce qui distingue cette VM des autres hôtes du parc.
+
 - Les ports USB du Mac Mini sont en USB 3.0, qui perturbe la bande 2,4 GHz : une clé Zigbee doit passer par une rallonge USB 2.0 blindée d'au moins un mètre, et être transmise à la VM par son identifiant (`/dev/serial/by-id/…`).
 - Création initiale par le script communautaire `community-scripts/ProxmoxVE` (`vm/haos-vm.sh`).
 
@@ -131,5 +141,7 @@ Sonde Uptime Kuma sur `https://home.ims-world.fr`. Pas d'agent Alloy (appliance)
 
 ## Voir aussi
 
-- [Mac Mini](/infrastructure/mac-mini)
-- [Restreindre un service au tailnet](/procedures/securiser-service-vpn-only)
+<CardGroup cols={2}>
+  <Card title="Mac Mini" icon="server" href="/infrastructure/mac-mini">Second nœud du cluster.</Card>
+  <Card title="Restreindre un service au tailnet" icon="list-check" href="/procedures/securiser-service-vpn-only">Procédure de restriction au tailnet.</Card>
+</CardGroup>

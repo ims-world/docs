@@ -11,6 +11,8 @@ import { ips } from "/snippets/variables.mdx";
 
 ## Fiche
 
+La VM 104 porte presque tous les services du homelab, ainsi que Traefik, seul point d'entrée web.
+
 | Propriété | Valeur |
 | --- | --- |
 | Type | VM QEMU/KVM, chipset `q35`, processeur `host` ([ADR-005](/history/adr/adr-005-cpu-vm-coolify-mode-host)) |
@@ -26,14 +28,28 @@ import { ips } from "/snippets/variables.mdx";
 
 ## Ce qui tourne dessus
 
-- Coolify v4.3.14, maître : il orchestre cette VM et le [worker 105](/infrastructure/lxc-coolify-worker).
-- [Traefik](/reseau/traefik-proxy) (conteneur `coolify-proxy`), seul point d'entrée HTTP et HTTPS du homelab, et [CrowdSec](/reseau/crowdsec).
-- [Headscale et Headplane](/reseau/headscale-headplane).
-- Les services de la navigation, sauf Home Assistant : identité et accès, supervision, médias, outils.
+L'orchestrateur, la couche réseau et les services.
+
+<CardGroup cols={2}>
+  <Card title="Coolify v4.3.14" icon="cubes">
+    Maître : il orchestre cette VM et le [worker 105](/infrastructure/lxc-coolify-worker).
+  </Card>
+  <Card title="Traefik et CrowdSec" icon="route" href="/reseau/traefik-proxy">
+    Conteneur `coolify-proxy`, seul point d'entrée HTTP et HTTPS du homelab, protégé par CrowdSec.
+  </Card>
+  <Card title="Headscale et Headplane" icon="network-wired" href="/reseau/headscale-headplane">
+    Coordination du tailnet.
+  </Card>
+  <Card title="Services" icon="grip">
+    Tous ceux de la navigation, sauf Home Assistant : identité et accès, supervision, médias, outils.
+  </Card>
+</CardGroup>
 
 L'UUID Coolify et le chemin de chaque service figurent dans sa fiche.
 
 ## Stockage
+
+Les partages du NAS passent par le réseau interne `vmbr1`.
 
 ```text
 # /etc/fstab
@@ -63,12 +79,17 @@ sudo tailscale set --snat-subnet-routes=false
 
 ## GPU
 
-L'iGPU du MS-01 est attribuée à la VM ([ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe)). Le pilote `i915` vient du métapaquet `linux-modules-extra-generic`, qui doit rester installé : sans lui, une mise à jour du noyau fait disparaître `/dev/dri` au redémarrage suivant ([incident du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri)).
+L'iGPU du MS-01 est attribuée à la VM ([ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe)), pour le transcodage de Jellyfin et PhotoPrism.
+
+<Warning>
+Le pilote `i915` vient du métapaquet `linux-modules-extra-generic`, qui doit rester installé : sans lui, une mise à jour du noyau fait disparaître `/dev/dri` au redémarrage suivant ([incident du 19/08/2026](/history/incidents/2026-08-19-perte-gpu-passthrough-dev-dri)).
+</Warning>
 
 ## Particularités
 
+Ce qui distingue cette VM des autres hôtes du parc.
+
 - Écarts au [socle commun](/infrastructure/socle-commun) : root par clé (Coolify gère son hôte en SSH), envoi Alloy par `10.10.10.2`, collecteurs Docker et Traefik, `termix-usr` accepté aussi depuis `10.0.1.0/24`.
-- Pas de snapshot Proxmox possible (périphérique PCI transmis) : sauvegarder les fichiers touchés avant une modification manuelle.
 - Les domaines restreints au tailnet ne sont pas déclarés dans l'interface Coolify mais dans `/data/coolify/proxy/dynamic/vpn-only.yaml` (voir [Traefik](/reseau/traefik-proxy)).
 - Accès aux fichiers de Coolify sans `sudo`, par ACL :
 
@@ -83,6 +104,10 @@ L'iGPU du MS-01 est attribuée à la VM ([ADR-008](/history/adr/adr-008-passthro
 
 ## Sauvegarde et reprise
 
+<Note>
+Pas de snapshot Proxmox possible (périphérique PCI transmis) : sauvegarder les fichiers touchés avant une modification manuelle.
+</Note>
+
 Coolify ne fait aucune sauvegarde applicative. La VM entière, volumes Docker compris, est sauvegardée chaque nuit par le PBS. Les données sur le NAS (médiathèque, photos) ne sont pas dans cette sauvegarde. Voir la [politique de sauvegarde](/procedures/politique-sauvegardes).
 
 ## Supervision
@@ -91,5 +116,7 @@ Agent Alloy avec journaux Docker et métriques Traefik. Sondes Uptime Kuma sur l
 
 ## Voir aussi
 
-- [Worker Coolify (LXC 105)](/infrastructure/lxc-coolify-worker)
-- [Déployer un service](/procedures/deploiement-service)
+<CardGroup cols={2}>
+  <Card title="Worker Coolify (LXC 105)" icon="server" href="/infrastructure/lxc-coolify-worker">Nœud d'exécution secondaire.</Card>
+  <Card title="Déployer un service" icon="list-check" href="/procedures/deploiement-service">Étapes d'un nouveau service.</Card>
+</CardGroup>

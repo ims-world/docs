@@ -10,6 +10,8 @@ import { ips } from "/snippets/variables.mdx";
 
 ## Fiche
 
+Second nœud du cluster, plus modeste : il porte le worker Coolify et Home Assistant, et apporte le second vote du quorum.
+
 | Propriété | Valeur |
 | --- | --- |
 | Type | Machine physique, Apple Mac Mini Late 2012 (Macmini6,1) |
@@ -25,18 +27,28 @@ import { ips } from "/snippets/variables.mdx";
 
 ## Ce qui tourne dessus
 
-| VMID | Nom | Type | Rôle |
-| --- | --- | --- | --- |
-| 105 | `ims-coolify-worker` | LXC non privilégié, Debian 13 | [Worker Coolify](/infrastructure/lxc-coolify-worker) |
-| 106 | Home Assistant | VM, Home Assistant OS | [Domotique](/infrastructure/vm-home-assistant) |
+Deux invités, tous deux dans le pool de sauvegarde.
+
+<CardGroup cols={2}>
+  <Card title="105 · ims-coolify-worker" icon="cubes" href="/infrastructure/lxc-coolify-worker">
+    LXC non privilégié, Debian 13. Worker Coolify.
+  </Card>
+  <Card title="106 · Home Assistant" icon="house-signal" href="/infrastructure/vm-home-assistant">
+    VM, Home Assistant OS. Domotique.
+  </Card>
+</CardGroup>
 
 ## Limites du nœud
+
+Ce que le Mac Mini ne peut pas faire, à garder en tête avant d'y placer un invité.
 
 - 16 Go de RAM et pas d'iGPU partageable : le Mac Mini ne peut pas reprendre la VM 104 en cas de panne du MS-01.
 - Ports USB 3.0 uniquement : une clé radio Zigbee doit passer par une rallonge USB 2.0 blindée (voir [Home Assistant](/infrastructure/vm-home-assistant)).
 - Le cluster n'a que deux votes : la perte d'un nœud fait perdre le quorum. Un QDevice sur le Raspberry Pi est suivi dans la [feuille de route](/roadmap).
 
 ## Particularités
+
+Ce qui distingue ce nœud des autres hôtes du parc.
 
 - Écarts au [socle commun](/infrastructure/socle-commun) : root par clé (cluster), mises à jour manuelles.
 - Démarrage EFI natif, sans patch de noyau. Carte réseau Broadcom `tg3` reconnue nativement.
@@ -52,5 +64,7 @@ Agent Alloy avec le collecteur SMART du SSD interne (`/etc/cron.d/smartmon`, tou
 
 ## Voir aussi
 
-- [MS-01 (pve)](/infrastructure/proxmox-host)
-- [Politique de sauvegarde](/procedures/politique-sauvegardes)
+<CardGroup cols={2}>
+  <Card title="MS-01 (pve)" icon="server" href="/infrastructure/proxmox-host">Nœud principal du cluster.</Card>
+  <Card title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Ce qui est sauvegardé, quand, où.</Card>
+</CardGroup>

@@ -11,6 +11,8 @@ import { ips } from "/snippets/variables.mdx";
 
 ## Fiche
 
+Le worker exécute des applications pour le compte du Coolify de la VM 104. Il décharge le MS-01 et n'a pas d'interface propre.
+
 | Propriété | Valeur |
 | --- | --- |
 | Type | Conteneur LXC non privilégié |
@@ -35,6 +37,8 @@ docker rm coolify coolify-db coolify-realtime
 
 ## Fonctionnement
 
+Le worker ne reçoit rien directement d'Internet : tout passe par la VM 104.
+
 ```mermaid
 flowchart LR
   coolify[Coolify maître<br/>VM 104] -->|SSH root, clé coolify-secondary-node| worker[Worker<br/>LXC 105]
@@ -52,6 +56,8 @@ Tout le trafic entrant arrive sur le Traefik de la VM 104, qui le transmet aux a
 
 ## Particularités
 
+Ce qui distingue ce conteneur des autres hôtes du parc.
+
 - Le nom système (`coolify`) diffère du nom d'inventaire : aucun rôle d'ims-ops ne renomme un hôte.
 - SSH démarré par activation de socket (`ssh.socket`).
 - Écarts au [socle commun](/infrastructure/socle-commun) : root par clé (Coolify), collecteur Alloy Docker.
@@ -66,5 +72,7 @@ Agent Alloy : système, journaux, métriques et journaux Docker (étiquette `hos
 
 ## Voir aussi
 
-- [VM 104](/infrastructure/vm-coolify)
-- [Mac Mini](/infrastructure/mac-mini)
+<CardGroup cols={2}>
+  <Card title="VM 104" icon="server" href="/infrastructure/vm-coolify">Coolify maître, Traefik et services.</Card>
+  <Card title="Mac Mini" icon="server" href="/infrastructure/mac-mini">Second nœud du cluster.</Card>
+</CardGroup>
