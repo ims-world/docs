@@ -21,7 +21,7 @@ Le worker exécute des applications pour le compte du Coolify de la VM 104. Il d
 | OS | Debian 13 |
 | CPU et RAM | 2 cœurs · 4 Go, 512 Mo d'échange |
 | Disques | 30 Go (disque racine) |
-| IP LAN | `192.168.1.198` attendue ; le conteneur est en DHCP et a obtenu `192.168.1.177` (à remettre en IP fixe) |
+| IP LAN | `192.168.1.198` (fixe, déclarée dans `net0`) |
 | IP tailnet | <code>{ips.coolifyWorker}</code> |
 | Sauvegarde | Pool `backup`, chaque nuit vers le PBS |
 | Statut | En service |

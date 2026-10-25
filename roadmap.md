@@ -32,7 +32,6 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Identifiants OVH du proxy hors du compose | En clair dans la configuration du proxy | [Traefik](/reseau/traefik-proxy) |
 | Pare-feu Proxmox | Non activé ; règles par nœud d'abord, console ouverte pendant l'activation | Nœuds |
 | Raccorder Windows (VM 102) en RDP dans Termix | Démarrage à la demande à étudier (plugin Proxmox Power) | [Termix](/services/termix) |
-| Remettre le worker 105 en IP fixe (`192.168.1.198`) | Il est en DHCP et a pris `192.168.1.177` ; Traefik et Coolify le joignent par son IP LAN | [Worker 105](/infrastructure/lxc-coolify-worker) |
 | Renouveler la clé Headscale de `infra` | Expire le 18/10/2027 | [Headscale](/reseau/headscale-headplane) |
 | Domotique : Hue, HomeKit, téléviseurs, application mobile, clé Zigbee | Intégrations à configurer | [Home Assistant](/infrastructure/vm-home-assistant) |
 | Montage de l'extension du rack | Impression terminée | [Labrax](/infrastructure/labrax) |
@@ -56,6 +55,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Date | Chantier | Page |
 | --- | --- | --- |
 | 25/10/2026 | Refonte de la documentation | [Contribuer](/reference/contribuer) |
+| 25/10/2026 | Worker 105 repassé en IP fixe (`192.168.1.198`) | [Worker 105](/infrastructure/lxc-coolify-worker) |
 | 24/10/2026 | Sauvegarde par pool et alertes Ntfy, y compris le worker et Home Assistant | [ADR-014](/history/adr/adr-014-sauvegarde-par-pool-unique) |
 | 24/10/2026 | Création et destruction de VM par ims-ops, template 9001 | [Administration avec ims-ops](/procedures/administration-ims-ops) |
 | 24/10/2026 | Termix raccordé au parc | [Termix](/services/termix) |
