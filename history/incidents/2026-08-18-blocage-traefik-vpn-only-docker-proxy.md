@@ -128,4 +128,4 @@ curl -sI https://coolify.ims-world.fr
 
 | Action | Statut | Lien |
 | --- | --- | --- |
-| Désactiver userland-proxy et le SNAT Tailscale | Fait | [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only) |
+| Désactiver userland-proxy et le SNAT Tailscale | <Icon icon="circle-check" color="#16A34A" /> Fait | [ADR-009](/history/adr/adr-009-bug-docker-proxy-middleware-vpn-only) |

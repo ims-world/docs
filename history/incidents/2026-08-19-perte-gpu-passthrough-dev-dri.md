@@ -116,4 +116,4 @@ sudo apt autoremove --purge
 
 | Action | Statut | Lien |
 | --- | --- | --- |
-| Installer le métapaquet linux-modules-extra-generic | Fait | [VM 104](/infrastructure/vm-coolify#gpu) |
+| Installer le métapaquet linux-modules-extra-generic | <Icon icon="circle-check" color="#16A34A" /> Fait | [VM 104](/infrastructure/vm-coolify#gpu) |

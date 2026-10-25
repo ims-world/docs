@@ -85,6 +85,6 @@ Une entrée `NFSD: starting 90-second grace period` observée dans le `dmesg` à
 
 | Action | Statut | Lien |
 | --- | --- | --- |
-| Supprimer la sauvegarde quotidienne du NAS | Fait (contournement) | — |
-| Retirer MergerFS | Fait le 23/10/2026 | [ADR-012](/history/adr/adr-012-retrait-de-mergerfs) |
+| Supprimer la sauvegarde quotidienne du NAS | <Icon icon="circle-check" color="#16A34A" /> Fait (contournement) | — |
+| Retirer MergerFS | <Icon icon="circle-check" color="#16A34A" /> Fait le 23/10/2026 | [ADR-012](/history/adr/adr-012-retrait-de-mergerfs) |
 | Surveiller la période de grâce NFSD | Abandonné : cause supprimée | — |

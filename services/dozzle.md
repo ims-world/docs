@@ -41,10 +41,10 @@ Le routeur est dans `vpn-only.yaml`, avec le middleware `authentik-dozzle@docker
 
 | Besoin | Dozzle | Grafana et Loki |
 | --- | --- | --- |
-| Voir ce qui se passe maintenant, en un clic | Oui | Possible (mode Live), plus lent à atteindre |
-| Historique après la suppression d'un conteneur | Non | 30 jours |
-| Recherche sur plusieurs hôtes | Non (VM 104 seule) | Oui (LogQL) |
-| Alertes sur le contenu des journaux | Non | Oui |
+| Voir ce qui se passe maintenant, en un clic | <Icon icon="circle-check" color="#16A34A" /> Oui | Possible (mode Live), plus lent à atteindre |
+| Historique après la suppression d'un conteneur | <Icon icon="circle-xmark" color="#DC2626" /> Non | 30 jours |
+| Recherche sur plusieurs hôtes | <Icon icon="circle-xmark" color="#DC2626" /> Non (VM 104 seule) | <Icon icon="circle-check" color="#16A34A" /> Oui (LogQL) |
+| Alertes sur le contenu des journaux | <Icon icon="circle-xmark" color="#DC2626" /> Non | <Icon icon="circle-check" color="#16A34A" /> Oui |
 
 Les deux sont gardés ([ADR-001](/history/adr/adr-001-stack-monitoring-lgtm)).
 

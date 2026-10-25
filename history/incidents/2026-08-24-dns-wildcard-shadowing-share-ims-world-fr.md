@@ -99,5 +99,5 @@ dig +short tools.ims-world.fr
 
 | Action | Statut | Lien |
 | --- | --- | --- |
-| Supprimer les TXT _acme-challenge résiduels | Fait | — |
-| Contrôle périodique ou nettoyage automatique des TXT | À faire | [Feuille de route](/roadmap) |
+| Supprimer les TXT _acme-challenge résiduels | <Icon icon="circle-check" color="#16A34A" /> Fait | — |
+| Contrôle périodique ou nettoyage automatique des TXT | <Icon icon="clock" color="#FF6B00" /> À faire | [Feuille de route](/roadmap) |

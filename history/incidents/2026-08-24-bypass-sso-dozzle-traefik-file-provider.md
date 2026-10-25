@@ -97,5 +97,5 @@ grep -rl "logs.ims-world.fr" /data/coolify/proxy/dynamic/
 
 | Action | Statut | Lien |
 | --- | --- | --- |
-| Ajouter authentik-dozzle@docker au routeur | Fait | [Traefik](/reseau/traefik-proxy) |
-| Revoir les middlewares de chaque routeur de vpn-only.yaml | À faire | [Feuille de route](/roadmap) |
+| Ajouter authentik-dozzle@docker au routeur | <Icon icon="circle-check" color="#16A34A" /> Fait | [Traefik](/reseau/traefik-proxy) |
+| Revoir les middlewares de chaque routeur de vpn-only.yaml | <Icon icon="clock" color="#FF6B00" /> À faire | [Feuille de route](/roadmap) |

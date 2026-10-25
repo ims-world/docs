@@ -77,5 +77,5 @@ on_success: continue
 
 | Action | Statut | Lien |
 | --- | --- | --- |
-| Neutraliser les bannissements hors ligne | Fait | [CrowdSec](/reseau/crowdsec) |
-| Clore l'observation | À faire | [Feuille de route](/roadmap) |
+| Neutraliser les bannissements hors ligne | <Icon icon="circle-check" color="#16A34A" /> Fait | [CrowdSec](/reseau/crowdsec) |
+| Clore l'observation | <Icon icon="clock" color="#FF6B00" /> À faire | [Feuille de route](/roadmap) |

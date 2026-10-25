@@ -95,5 +95,5 @@ Plutôt que d'empiler des scripts de surveillance et de reconnexion automatique,
 
 | Action | Statut | Lien |
 | --- | --- | --- |
-| Retirer MergerFS | Fait | [ADR-012](/history/adr/adr-012-retrait-de-mergerfs) |
-| Envoyer les échecs de sauvegarde sur Ntfy | Fait le 24/10/2026 | [ADR-014](/history/adr/adr-014-sauvegarde-par-pool-unique) |
+| Retirer MergerFS | <Icon icon="circle-check" color="#16A34A" /> Fait | [ADR-012](/history/adr/adr-012-retrait-de-mergerfs) |
+| Envoyer les échecs de sauvegarde sur Ntfy | <Icon icon="circle-check" color="#16A34A" /> Fait le 24/10/2026 | [ADR-014](/history/adr/adr-014-sauvegarde-par-pool-unique) |

@@ -85,13 +85,13 @@ Les hôtes se déclarent dans Termix par leur **IP LAN** : la clé n'est accept�
 
 | Hôte | Raccordé |
 | --- | --- |
-| `pve`, `pve-macmini` | Oui |
-| `ims-nas`, `ims-pbs`, `ims-coolify-worker` | Oui |
-| `ims-coolify` | Oui |
-| `lab-elo` | Non (VM d'un tiers) |
-| Home Assistant (VM 106) | Non (appliance) |
-| Windows (VM 102) | En RDP, à raccorder |
-| Raspberry Pi | Non (éteint) |
+| `pve`, `pve-macmini` | <Icon icon="circle-check" color="#16A34A" /> Oui |
+| `ims-nas`, `ims-pbs`, `ims-coolify-worker` | <Icon icon="circle-check" color="#16A34A" /> Oui |
+| `ims-coolify` | <Icon icon="circle-check" color="#16A34A" /> Oui |
+| `lab-elo` | <Icon icon="circle-minus" color="#64748B" /> Non (VM d'un tiers) |
+| Home Assistant (VM 106) | <Icon icon="circle-minus" color="#64748B" /> Non (appliance) |
+| Windows (VM 102) | <Icon icon="clock" color="#FF6B00" /> En RDP, à raccorder |
+| Raspberry Pi | <Icon icon="circle-minus" color="#64748B" /> Non (éteint) |
 
 Renouveler la clé : remplacer `keys/services/termix-usr.pub` dans ims-ops, puis `just setup managed accounts`.
 

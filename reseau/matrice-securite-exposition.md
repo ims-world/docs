@@ -100,10 +100,10 @@ flowchart LR
 
 | Application | Administrateurs | `membres` | `invites` |
 | --- | --- | --- | --- |
-| Authentik (administration), Proxmox, Coolify, Headplane, Grafana, Dozzle, WUD, Uptime Kuma, Ntfy, Termix | Oui | Non | Non |
-| Enrôlement dans le tailnet (Headscale) | Oui | Oui | Non |
-| Vaultwarden, Immich, Zipline, PhotoPrism, Patrimo, Forgejo | Oui | Oui | Non |
-| HomeFlix, Vidéoclub, IT-Tools, Stirling PDF | Oui | Oui | Oui |
+| Authentik (administration), Proxmox, Coolify, Headplane, Grafana, Dozzle, WUD, Uptime Kuma, Ntfy, Termix | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-xmark" color="#DC2626" /> Non | <Icon icon="circle-xmark" color="#DC2626" /> Non |
+| Enrôlement dans le tailnet (Headscale) | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-xmark" color="#DC2626" /> Non |
+| Vaultwarden, Immich, Zipline, PhotoPrism, Patrimo, Forgejo | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-xmark" color="#DC2626" /> Non |
+| HomeFlix, Vidéoclub, IT-Tools, Stirling PDF | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-check" color="#16A34A" /> Oui |
 
 ## Vérifier l'exposition
 

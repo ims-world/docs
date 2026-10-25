@@ -113,14 +113,14 @@ HAOS a un système de fichiers en lecture seule : Tailscale s'installe comme mod
 
 | Intégration | Type | État |
 | --- | --- | --- |
-| Philips Hue | Local (mDNS) | À configurer |
-| HomeKit Bridge | Local (Bonjour) | À configurer |
-| Samsung TV | Local (WebSocket) | À configurer |
-| Fire TV | Local (ADB) | À configurer |
-| Levoit (VeSync) | Cloud | À configurer |
-| Google Home | Cloud, sans Nabu Casa | À configurer |
-| Alexa | Cloud | Désactivée, en attente d'un correctif amont ([#154618](https://github.com/home-assistant/core/issues/154618)) |
-| Xgimi Mogo 2 | Communautaire (HACS) | À évaluer |
+| Philips Hue | Local (mDNS) | <Icon icon="clock" color="#FF6B00" /> À configurer |
+| HomeKit Bridge | Local (Bonjour) | <Icon icon="clock" color="#FF6B00" /> À configurer |
+| Samsung TV | Local (WebSocket) | <Icon icon="clock" color="#FF6B00" /> À configurer |
+| Fire TV | Local (ADB) | <Icon icon="clock" color="#FF6B00" /> À configurer |
+| Levoit (VeSync) | Cloud | <Icon icon="clock" color="#FF6B00" /> À configurer |
+| Google Home | Cloud, sans Nabu Casa | <Icon icon="clock" color="#FF6B00" /> À configurer |
+| Alexa | Cloud | <Icon icon="circle-pause" color="#64748B" /> Désactivée, en attente d'un correctif amont ([#154618](https://github.com/home-assistant/core/issues/154618)) |
+| Xgimi Mogo 2 | Communautaire (HACS) | <Icon icon="circle-question" color="#64748B" /> À évaluer |
 
 Les étapes domotiques suivantes sont suivies dans la [feuille de route](/roadmap).
 

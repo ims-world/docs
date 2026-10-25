@@ -187,6 +187,21 @@ Les icônes de cartes (`color` de `Card`) suivent le domaine de la page visée, 
 | Gris | `#64748B` | Procédures, décisions, référence |
 | Rouge | `#DC2626` | Incidents, accès de secours |
 
+### Statuts dans les tableaux
+
+Les emojis sont exclus, y compris pour les statuts. Une cellule de statut commence par une icône `<Icon>`, suivie du mot, pour rester lisible sans la couleur :
+
+| Statut | Icône | Couleur |
+| --- | --- | --- |
+| Oui, fait | `circle-check` | Vert |
+| Non (refus, absence) | `circle-xmark` | Rouge |
+| Non par choix (exclusion volontaire) | `circle-minus` | Gris |
+| À faire, à configurer, en cours | `clock` | Orange |
+| À évaluer | `circle-question` | Gris |
+| Désactivé | `circle-pause` | Gris |
+
+Exemple : `| lab-elo | <Icon icon="circle-minus" color="#64748B" /> Non (VM d'un tiers) |`.
+
 ## Schémas
 
 - Mermaid uniquement, rendu nativement par Mintlify.
