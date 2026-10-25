@@ -64,7 +64,7 @@ Devant un symptôme inconnu, chercher ici avant de diagnostiquer de zéro. Chaqu
 | Disque absent du tableau « Gestion des disques » | Disque en veille : `smartmon.sh` ne le réveille pas | Normal ; il réapparaît à son réveil |
 
 <Info>
-Les `Stale file handle` répétés d'août à octobre 2026 venaient de MergerFS exporté en NFS. Le passage aux bind-mounts ext4, le 23/10/2026, a supprimé la cause ([incident](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix)). Les contournements de l'époque (NFS v3 forcé, redémarrage du PBS après chaque redémarrage du NAS, sauvegarde du NAS désactivée) ne sont plus nécessaires en principe ; à confirmer lors du prochain redémarrage isolé du NAS.
+Les `Stale file handle` répétés d'août à octobre 2026 venaient de MergerFS exporté en NFS. Le passage aux bind-mounts ext4, le 23/10/2026, a supprimé la cause ([incident](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix)). Depuis, un redémarrage isolé du NAS ne provoque plus d'erreur côté clients : les contournements de l'époque (redémarrage du PBS après chaque redémarrage du NAS, sauvegarde du NAS désactivée) ne sont plus nécessaires.
 </Info>
 
 ### Sauvegarde

@@ -44,7 +44,7 @@ Le datastore PBS et la médiathèque partagent le même disque. La copie hors si
 | Heure | Tâche | Où |
 | --- | --- | --- |
 | 02:00 chaque jour | Sauvegarde du pool `backup`, mode snapshot | Proxmox VE (**Datacenter → Backup**) |
-| 03:00 chaque jour | Sauvegarde locale de LXC 103 | Proxmox VE, stockage `local` |
+| 03:00 chaque jour | Sauvegarde locale de LXC 103 (à confirmer) | Proxmox VE, stockage `local` |
 | Chaque jour | Élagage : 7 quotidiennes, 4 hebdomadaires, 3 mensuelles | PBS |
 | Samedi 03:00 | Nettoyage des blocs inutilisés | PBS |
 | Dimanche 04:00 | Vérification d'intégrité | PBS |

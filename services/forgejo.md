@@ -32,14 +32,10 @@ cd /data/coolify/services/culcigf0vwg0fbdvegbkzoan/ && docker compose logs -f --
 | Hôte | VM 104 |
 | Coolify | UUID `culcigf0vwg0fbdvegbkzoan`, chemin `/data/coolify/services/culcigf0vwg0fbdvegbkzoan/` |
 | Image | `codeberg.org/forgejo/forgejo:11`, `postgres:16-alpine` |
-| Données | `./data` (dépôts, LFS, avatars) et `./postgres` dans le dossier du service |
-| Sauvegarde | Avec la VM 104 |
+| Données | Dépôts, LFS et avatars sur le SSD du NAS (`/mnt/nas-hot/forgejo-data`) ; base PostgreSQL sur la VM 104 |
+| Sauvegarde | Base avec la VM 104 ; **dépôts non sauvegardés** |
 | Supervision | Sonde Uptime Kuma |
 | Mise en service | 14/08/2026 |
-
-<Info>
-Un dossier `forgejo-data` existe aussi sur le SSD du NAS (`/mnt/storage-hot`). L'emplacement réellement utilisé par le conteneur est à confirmer (`docker inspect`) : s'il s'agit du NAS, les dépôts ne sont pas dans la sauvegarde de la VM 104.
-</Info>
 
 ## Fonctionnement
 
@@ -58,7 +54,7 @@ GitHub reste la plateforme principale ; Forgejo garde une copie à jour de plusi
 
 ## Données et sauvegarde
 
-Base et dépôts sauvegardés avec la VM 104 (sous réserve de l'emplacement signalé plus haut). Les dépôts miroirs se reconstruisent depuis GitHub.
+La base est sauvegardée avec la VM 104. Les dépôts sont sur le SSD du NAS, qui n'est pas sauvegardé : les dépôts miroirs se reconstruisent depuis GitHub, les dépôts propres à Forgejo seraient perdus avec le disque. Voir la [politique de sauvegarde](/procedures/politique-sauvegardes#ce-qui-nest-pas-sauvegardé).
 
 ## Exploitation
 

@@ -15,10 +15,10 @@ import { ips } from "/snippets/variables.mdx";
 | --- | --- |
 | Type | VM, Home Assistant OS (appliance, hors gestion ims-ops) |
 | Nœud et VMID | `pve-macmini`, 106 |
-| Noms | tailnet `ha-macmini` |
+| Noms | Proxmox `ims-haos` · tailnet `ims-pve-106-homeassistant` |
 | OS | Home Assistant OS 18.2, Core 2026.9.2 |
-| CPU et RAM | — |
-| Disques | — |
+| CPU et RAM | 2 cœurs · 4 Go ; chipset `q35`, UEFI (OVMF) |
+| Disques | 32 Go sur `local-lvm` (`pve-macmini`), disque EFI de 4 Mo |
 | IP LAN | <code>{ips.haLan}</code> (bail réservé sur la Bbox) |
 | IP tailnet | <code>{ips.ha}</code> (module Tailscale) |
 | Sauvegarde | Pool `backup`, chaque nuit vers le PBS |

@@ -17,7 +17,6 @@ import { ips, domains } from "/snippets/variables.mdx";
 | Tailnet (Headscale) | `100.64.0.0/10`, `fd7a:115c:a1e0::/48` | Administration à distance, services restreints au tailnet |
 
 ```mermaid
-%%{init: {'flowchart': {'defaultRenderer': 'elk'}}}%%
 flowchart LR
   internet[Internet] --> bbox[Bbox<br/>80, 443, 2222]
   bbox -->|LAN| vm104[VM 104<br/>Traefik]
@@ -56,8 +55,8 @@ Le DNS des VM créées par ims-ops est `1.1.1.1`.
 | [`ims-pbs`](/infrastructure/ims-pbs) (LXC 103) | <code>{ips.pbsLan}</code> | `10.10.10.3` | <code>{ips.pbs}</code> | `ims-pve-103-pbs` |
 | [`ims-coolify`](/infrastructure/vm-coolify) (VM 104) | <code>{ips.coolifyLan}</code> | `10.10.10.2` | <code>{ips.coolify}</code> | `ims-pve-104-coolify` |
 | [`ims-coolify-worker`](/infrastructure/lxc-coolify-worker) (LXC 105) | <code>{ips.coolifyWorkerLan}</code> | — | <code>{ips.coolifyWorker}</code> | `ims-pve-105-coolify-worker` |
-| [Home Assistant](/infrastructure/vm-home-assistant) (VM 106) | <code>{ips.haLan}</code> | — | <code>{ips.ha}</code> | `ha-macmini` |
-| `lab-elo` (VM 107) | <code>{ips.labEloLan}</code> | — | <code>{ips.labElo}</code> | — |
+| [Home Assistant](/infrastructure/vm-home-assistant) (VM 106) | <code>{ips.haLan}</code> | — | <code>{ips.ha}</code> | `ims-pve-106-homeassistant` |
+| `lab-elo` (VM 107) | <code>{ips.labEloLan}</code> | — | <code>{ips.labElo}</code> | `lab-elo` |
 | [Raspberry Pi](/infrastructure/rpi-monitor) | — | — | <code>{ips.rpi}</code> | `ims-rpi-monitor` |
 
 Headscale réattribue d'anciennes adresses : une alerte de clé d'hôte SSH peut être légitime après la création d'une machine. Vérifier l'empreinte sur l'hôte avant d'effacer l'ancienne entrée (`ssh-keygen -R`).

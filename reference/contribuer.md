@@ -166,7 +166,7 @@ Un bloc `<Update>` par chantier, de trois à six lignes, avec des liens vers les
 - Mermaid uniquement, rendu nativement par Mintlify.
 - Un schéma par idée, douze nœuds au plus.
 - Libellés en texte, sans emoji, avec les noms réels (`ims-nas`, `VM 104`).
-- Moteur ELK pour les vues d'architecture, qui limite les chevauchements.
+- Pas de directive `%%{init}%%` ni de moteur ELK : le rendu Mintlify échoue avec. Pour limiter les chevauchements, réduire le nombre de nœuds ou découper le schéma.
 - Classes communes, à copier en fin de schéma :
 
 ```text
@@ -179,7 +179,6 @@ classDef externe fill:#f1f2f4,stroke:#6b7480,color:#1b2129,stroke-dasharray:4 3
 Exemple :
 
 ```mermaid
-%%{init: {'flowchart': {'defaultRenderer': 'elk'}}}%%
 flowchart LR
   client[Client du tailnet] --> traefik[Traefik]
   traefik --> app[Application]

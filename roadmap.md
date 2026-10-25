@@ -12,7 +12,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Chantier | Pourquoi | Où |
 | --- | --- | --- |
-| Protéger les données du NAS : photos Immich, dépôts, originaux PhotoPrism | Aucune copie aujourd'hui ; perte définitive si un disque lâche | NAS, [politique de sauvegarde](/procedures/politique-sauvegardes#ce-qui-nest-pas-sauvegardé) |
+| Protéger les données du NAS : photos Immich, dépôts Forgejo, originaux PhotoPrism | Aucune copie aujourd'hui ; perte définitive si un disque lâche | NAS, [politique de sauvegarde](/procedures/politique-sauvegardes#ce-qui-nest-pas-sauvegardé) |
 | Copie hors site des sauvegardes PBS | Datastore et médiathèque sur le même HDD. Piste : Raspberry Pi avec disque, en synchronisation PBS | PBS |
 | Premier test de restauration | Le plan de reprise n'a jamais été validé | [Plan de reprise](/procedures/plan-reprise-activite-pra#tester-les-sauvegardes) |
 | Ajouter la VM 102 au pool `backup` | Windows non sauvegardée (`just backup-add 102`) | Pool `backup` |
@@ -32,8 +32,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Identifiants OVH du proxy hors du compose | En clair dans la configuration du proxy | [Traefik](/reseau/traefik-proxy) |
 | Pare-feu Proxmox | Non activé ; règles par nœud d'abord, console ouverte pendant l'activation | Nœuds |
 | Raccorder Windows (VM 102) en RDP dans Termix | Démarrage à la demande à étudier (plugin Proxmox Power) | [Termix](/services/termix) |
-| Confirmer l'emplacement des dépôts Forgejo | `./data` ou SSD du NAS : conditionne leur sauvegarde | [Forgejo](/services/forgejo) |
-| Vérifier un redémarrage isolé du NAS | Confirmer que les clients NFS reprennent seuls depuis le retrait de MergerFS | NAS |
+| Vérifier la sauvegarde locale du LXC 103 (03:00) | Job présumé existant, non confirmé | [Politique de sauvegarde](/procedures/politique-sauvegardes) |
 | Renouveler la clé Headscale de `infra` | Expire le 18/10/2027 | [Headscale](/reseau/headscale-headplane) |
 | Domotique : Hue, HomeKit, téléviseurs, application mobile, clé Zigbee | Intégrations à configurer | [Home Assistant](/infrastructure/vm-home-assistant) |
 | Montage de l'extension du rack | Impression terminée | [Labrax](/infrastructure/labrax) |

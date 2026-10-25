@@ -18,18 +18,17 @@ last_reviewed: "2026-10-25"
 ## Architecture
 
 ```mermaid
-%%{init: {'flowchart': {'defaultRenderer': 'elk'}}}%%
 flowchart LR
   internet[Internet] --> bbox[Bbox<br/>80, 443, 2222]
   tailnet[Appareils du tailnet] --> traefik
   bbox --> traefik[Traefik et CrowdSec<br/>VM 104]
   traefik --> apps[Services Docker<br/>VM 104 et worker 105]
-  subgraph pve[pve · MS-01]
+  subgraph pve ["pve (MS-01)"]
     nas[(ims-nas<br/>LXC 100)]
     pbs[ims-pbs<br/>LXC 103]
     vm104[ims-coolify<br/>VM 104]
   end
-  subgraph macmini[pve-macmini · Mac Mini]
+  subgraph macmini ["pve-macmini (Mac Mini)"]
     worker[worker Coolify<br/>LXC 105]
     haos[Home Assistant<br/>VM 106]
   end
