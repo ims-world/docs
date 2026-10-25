@@ -32,7 +32,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Identifiants OVH du proxy hors du compose | En clair dans la configuration du proxy | [Traefik](/reseau/traefik-proxy) |
 | Pare-feu Proxmox | Non activé ; règles par nœud d'abord, console ouverte pendant l'activation | Nœuds |
 | Raccorder Windows (VM 102) en RDP dans Termix | Démarrage à la demande à étudier (plugin Proxmox Power) | [Termix](/services/termix) |
-| Vérifier la sauvegarde locale du LXC 103 (03:00) | Job présumé existant, non confirmé | [Politique de sauvegarde](/procedures/politique-sauvegardes) |
+| Supprimer l'ancien job de sauvegarde du NAS (`backup-6b92bcb1-ad11`) | Désactivé depuis le 19/08/2026, il n'a plus d'usage | [Politique de sauvegarde](/procedures/politique-sauvegardes) |
 | Renouveler la clé Headscale de `infra` | Expire le 18/10/2027 | [Headscale](/reseau/headscale-headplane) |
 | Domotique : Hue, HomeKit, téléviseurs, application mobile, clé Zigbee | Intégrations à configurer | [Home Assistant](/infrastructure/vm-home-assistant) |
 | Montage de l'extension du rack | Impression terminée | [Labrax](/infrastructure/labrax) |

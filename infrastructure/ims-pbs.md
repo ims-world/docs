@@ -20,7 +20,7 @@ import { ips } from "/snippets/variables.mdx";
 | Disques | Système local ; datastore sur NFS |
 | IP LAN | <code>{ips.pbsLan}</code> ; réseau interne `vmbr1` : `10.10.10.3` |
 | IP tailnet | <code>{ips.pbs}</code> |
-| Sauvegarde | Hors pool `backup` : se réinstalle et se rattache au datastore |
+| Sauvegarde | Hors pool `backup` ; archive locale chaque nuit à 03:00 sur le stockage `local` de `pve` (4 conservées) |
 | Statut | En service |
 
 Interface web : <code>https://{ips.pbsLan}:8007</code>.

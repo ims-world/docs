@@ -22,8 +22,8 @@ last_reviewed: "2026-10-25"
 | VM 106 Home Assistant | Pool `backup`, chaque nuit | Depuis le PBS |
 | VM 102 Windows | À ajouter au pool (`just backup-add 102`) | — |
 | VM 107 `lab-elo` | À décider avec son utilisatrice | — |
-| LXC 103 `ims-pbs` | Locale, sur le stockage `local` du nœud | Ou réinstallation et rattachement du datastore |
-| LXC 100 `ims-nas` | Manuelle, avant intervention | Ou recréation à l'identique |
+| LXC 103 `ims-pbs` | Locale, chaque nuit sur le stockage `local` du nœud | Archive locale, ou réinstallation et rattachement du datastore |
+| LXC 100 `ims-nas` | Manuelle, avant intervention (l'ancien job de 05:00 est désactivé) | Ou recréation à l'identique |
 | Nœuds `pve` et `pve-macmini` | Aucune | Réinstallation |
 
 `just backup-list` affiche l'état réel du pool.
@@ -44,7 +44,7 @@ Le datastore PBS et la médiathèque partagent le même disque. La copie hors si
 | Heure | Tâche | Où |
 | --- | --- | --- |
 | 02:00 chaque jour | Sauvegarde du pool `backup`, mode snapshot | Proxmox VE (**Datacenter → Backup**) |
-| 03:00 chaque jour | Sauvegarde locale de LXC 103 (à confirmer) | Proxmox VE, stockage `local` |
+| 03:00 chaque jour | Sauvegarde locale de LXC 103, mode snapshot, 4 sauvegardes conservées | Proxmox VE, stockage `local` |
 | Chaque jour | Élagage : 7 quotidiennes, 4 hebdomadaires, 3 mensuelles | PBS |
 | Samedi 03:00 | Nettoyage des blocs inutilisés | PBS |
 | Dimanche 04:00 | Vérification d'intégrité | PBS |

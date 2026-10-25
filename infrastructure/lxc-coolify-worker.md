@@ -17,8 +17,8 @@ import { ips } from "/snippets/variables.mdx";
 | Nœud et VMID | `pve-macmini`, 105 |
 | Noms | Proxmox `pve-macmini-worker_LXC-105` · système `coolify` · inventaire `ims-coolify-worker` · tailnet `ims-pve-105-coolify-worker` |
 | OS | Debian 13 |
-| CPU et RAM | — |
-| Disques | — |
+| CPU et RAM | 2 cœurs · 4 Go, 512 Mo d'échange |
+| Disques | 30 Go (disque racine) |
 | IP LAN | `192.168.1.198` |
 | IP tailnet | <code>{ips.coolifyWorker}</code> |
 | Sauvegarde | Pool `backup`, chaque nuit vers le PBS |
