@@ -9,6 +9,8 @@ app_version: "latest"
 
 ## Accès
 
+Public, derrière une connexion Authentik.
+
 <CardGroup cols={2}>
   <Card title="IT-Tools" icon="toolbox" href="https://tools.ims-world.fr">
     Liste des outils, recherche.
@@ -47,4 +49,6 @@ Sans objet.
 
 ## Voir aussi
 
-- [Authentik](/services/authentik)
+<CardGroup cols={2}>
+  <Card title="Authentik" icon="key" href="/services/authentik">Connexion unique des services.</Card>
+</CardGroup>

@@ -9,6 +9,8 @@ app_version: "11"
 
 ## Accès
 
+Interface publique avec connexion Authentik ; Git en SSH par le port 2222.
+
 <CardGroup cols={2}>
   <Card title="Forgejo" icon="code-branch" href="https://forge.ims-world.fr">
     Interface web.
@@ -39,10 +41,12 @@ cd /data/coolify/services/culcigf0vwg0fbdvegbkzoan/ && docker compose logs -f --
 
 ## Fonctionnement
 
-| Conteneur | Rôle |
-| --- | --- |
-| `forgejo` | Application, HTTP 3000 derrière Traefik, SSH 2222 publié directement |
-| `forgejo-db` | PostgreSQL 16 |
+Deux conteneurs : l'application et sa base.
+
+<CardGroup cols={2}>
+  <Card title="forgejo" icon="code-branch">Application, HTTP 3000 derrière Traefik, SSH 2222 publié directement.</Card>
+  <Card title="forgejo-db" icon="database">PostgreSQL 16.</Card>
+</CardGroup>
 
 - Le port 2222 est redirigé par la Bbox et publié par Docker (`ports: '2222:2222'`), sans passer par Traefik ni Authentik. La sécurité repose sur les clés SSH des comptes Forgejo ([ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox)).
 - `extra_hosts: auth.ims-world.fr:host-gateway` : le conteneur joint Authentik par l'hôte pour valider les jetons.
@@ -62,12 +66,24 @@ Mise à jour : changer le tag dans Coolify, redéployer. Une version majeure peu
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| Miroirs arrêtés | Jeton GitHub expiré | Renouveler le jeton dans chaque dépôt miroir |
-| Connexion OIDC en échec | Le conteneur ne joint pas `auth.ims-world.fr` | Vérifier `extra_hosts` |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="Miroirs arrêtés">
+    **Cause** : jeton GitHub expiré.
+
+    **Solution** : renouveler le jeton dans chaque dépôt miroir.
+  </Accordion>
+  <Accordion title="Connexion OIDC en échec">
+    **Cause** : le conteneur ne joint pas `auth.ims-world.fr`.
+
+    **Solution** : vérifier `extra_hosts`.
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [ADR-006](/history/adr/adr-006-exposition-port-ssh-forgejo-bbox)
-- [Matrice d'exposition](/reseau/matrice-securite-exposition)
+<CardGroup cols={2}>
+  <Card title="ADR-006" icon="scale-balanced" href="/history/adr/adr-006-exposition-port-ssh-forgejo-bbox">Pourquoi le port SSH est exposé.</Card>
+  <Card title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
+</CardGroup>

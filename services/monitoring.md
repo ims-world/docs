@@ -9,6 +9,8 @@ app_version: "v13.1.3"
 
 ## Accès
 
+Grafana n'est joignable que depuis le tailnet, avec connexion Authentik.
+
 <CardGroup cols={2}>
   <Card title="Grafana" icon="chart-line" href="https://monitoring.ims-world.fr">
     Tableaux de bord, exploration des journaux, règles d'alerte.
@@ -38,6 +40,8 @@ sudo systemctl status alloy
 
 ## Fonctionnement
 
+Les agents poussent métriques et journaux ; Prometheus lit lui-même quelques sources ; Grafana affiche et alerte.
+
 ```mermaid
 flowchart LR
   agents[Agents Alloy<br/>hôtes gérés] -->|écriture distante| prom[Prometheus<br/>9090]
@@ -53,12 +57,20 @@ flowchart LR
   classDef service fill:#e8f3eb,stroke:#2e6b3f,color:#1b2129
 ```
 
-| Source | Mode | Détail |
-| --- | --- | --- |
-| Agents Alloy | Envoi (écriture distante) | Un agent par hôte géré, installé par ims-ops. Destination `10.10.10.2` pour le NAS, le PBS et la VM 104, `192.168.1.52` pour les autres. Jamais par le tailnet. Voir [Socle commun](/infrastructure/socle-commun#supervision) |
-| Uptime Kuma | Lecture par Prometheus | `/metrics` avec authentification ; clé dans `config/uptime-kuma-api-key.txt`, montée en lecture seule |
-| Traefik | Lecture par Prometheus | `coolify-proxy:8080` |
-| SMART des disques | Fichier texte lu par Alloy | `smartmon.sh` toutes les 5 minutes sur les deux nœuds |
+<CardGroup cols={2}>
+  <Card title="Agents Alloy" icon="satellite-dish">
+    Envoi par écriture distante. Un agent par hôte géré, installé par ims-ops. Destination `10.10.10.2` pour le NAS, le PBS et la VM 104, `192.168.1.52` pour les autres ; jamais par le tailnet.
+  </Card>
+  <Card title="Uptime Kuma" icon="heart-pulse">
+    Lu par Prometheus sur `/metrics`, avec authentification ; clé dans `config/uptime-kuma-api-key.txt`, montée en lecture seule.
+  </Card>
+  <Card title="Traefik" icon="route">
+    Lu par Prometheus sur `coolify-proxy:8080`.
+  </Card>
+  <Card title="SMART des disques" icon="hard-drive">
+    Fichier texte lu par Alloy, écrit par `smartmon.sh` toutes les 5 minutes sur les deux nœuds.
+  </Card>
+</CardGroup>
 
 Les collecteurs propres à certains hôtes (Docker, Traefik, SMART, `hwmon` désactivé dans les conteneurs) sont décrits dans le [socle commun](/infrastructure/socle-commun#supervision).
 
@@ -113,13 +125,29 @@ Prometheus et Loki sont sur le disque local de la VM 104 et sauvegardés avec el
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| L'export `/metrics` d'Uptime Kuma s'arrête après la création d'une étiquette | Défaut d'Uptime Kuma | Redémarrer le conteneur (voir [Uptime Kuma](/services/uptime-kuma)) |
-| Noms de services Traefik illisibles | Coolify ajoute des empreintes et suffixes (`https-N-<hash>`, `@docker`) | Les tableaux nettoient les libellés avec `label_replace` |
-| Erreurs `hwmon` dans les journaux d'un conteneur LXC | Capteurs inaccessibles en LXC | Collecteur désactivé par ims-ops pour le groupe `lxc` |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="L'export /metrics d'Uptime Kuma s'arrête après la création d'une étiquette">
+    **Cause** : défaut d'Uptime Kuma.
+
+    **Solution** : redémarrer le conteneur (voir [Uptime Kuma](/services/uptime-kuma)).
+  </Accordion>
+  <Accordion title="Noms de services Traefik illisibles">
+    **Cause** : Coolify ajoute des empreintes et suffixes (`https-N-<hash>`, `@docker`).
+
+    **Solution** : les tableaux nettoient les libellés avec `label_replace`.
+  </Accordion>
+  <Accordion title="Erreurs hwmon dans les journaux d'un conteneur LXC">
+    **Cause** : capteurs inaccessibles en LXC.
+
+    **Solution** : collecteur désactivé par ims-ops pour le groupe `lxc`.
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Dozzle](/services/dozzle) ([ADR-001](/history/adr/adr-001-stack-monitoring-lgtm))
-- [Ntfy](/services/ntfy)
+<CardGroup cols={2}>
+  <Card title="Dozzle" icon="list" href="/services/dozzle">[ADR-001](/history/adr/adr-001-stack-monitoring-lgtm).</Card>
+  <Card title="Ntfy" icon="bell" href="/services/ntfy">Réception des alertes.</Card>
+</CardGroup>

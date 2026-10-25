@@ -15,6 +15,8 @@ import { ips, domains } from "/snippets/variables.mdx";
 
 ## Accès
 
+<Une phrase : qui accède, depuis où.>
+
 <CardGroup cols={2}>
   <Card title="<Interface>" icon="globe" href="https://<domaine>">
     <Ce que l'on y fait.>
@@ -42,7 +44,13 @@ docker logs --tail 100 -f <conteneur>
 
 ## Fonctionnement
 
-<Composants et flux. Schéma Mermaid si plus de deux composants.>
+<Une phrase sur le flux.>
+
+<Schéma Mermaid si plus de deux composants.>
+
+<CardGroup cols={2}>
+  <Card title="<Composant>" icon="<icône>"><Rôle du composant.></Card>
+</CardGroup>
 
 ## Données et sauvegarde
 
@@ -50,14 +58,26 @@ docker logs --tail 100 -f <conteneur>
 
 ## Exploitation
 
-<Opérations courantes.>
+<Une phrase d'introduction.>
+
+<AccordionGroup>
+  <Accordion title="<Opération>" icon="<icône>">
+    <Commandes et explications.>
+  </Accordion>
+</AccordionGroup>
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| <…> | <…> | <…> |
+<AccordionGroup>
+  <Accordion title="<Symptôme>">
+    **Cause** : <…>
+
+    **Solution** : <…>
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [<Page liée>](/<chemin>)
+<CardGroup cols={2}>
+  <Card title="<Page liée>" icon="<icône>" href="/<chemin>"><Pourquoi la lire.></Card>
+</CardGroup>

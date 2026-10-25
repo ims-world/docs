@@ -9,6 +9,8 @@ app_version: "260728 / MariaDB 11.8.8"
 
 ## Accès
 
+Public, avec connexion Authentik. Le dépôt de photos passe par le WebDAV de PhotoPrism.
+
 <CardGroup cols={2}>
   <Card title="PhotoPrism" icon="camera" href="https://studio.ims-world.fr">
     Bibliothèque, recherche, albums.
@@ -40,20 +42,20 @@ docker exec -it $(docker ps -qf "name=photoprism_photoprism") photoprism index  
 
 ## Fonctionnement
 
-| Emplacement | Contenu |
-| --- | --- |
-| `originals/` | Photos et fichiers RAW |
-| `storage/sidecar/` | Modifications manuelles (mots-clés, visages, lieux) au format YAML : à conserver avec les originaux |
-| Volume `photoprism-mariadb-data` | Base MariaDB, sur le disque local de la VM : une base relationnelle sur NFS pose des problèmes de verrous et de performances |
+Les fichiers sont sur le NAS, la base sur le disque local de la VM 104.
+
+<CardGroup cols={3}>
+  <Card title="originals/" icon="images">Photos et fichiers RAW.</Card>
+  <Card title="storage/sidecar/" icon="file-code">Modifications manuelles (mots-clés, visages, lieux) en YAML, à conserver avec les originaux.</Card>
+  <Card title="photoprism-mariadb-data" icon="database">Base MariaDB en local : une base relationnelle sur NFS pose des problèmes de verrous et de performances.</Card>
+</CardGroup>
 
 ## Dépôt de photos par WebDAV
 
 PhotoPrism a son propre serveur WebDAV : un dépôt depuis n'importe quel ordinateur, sans partage réseau à configurer.
 
-| Dossier | Usage |
-| --- | --- |
-| `/import/` | Dépôt : les fichiers sont convertis si besoin (HEIC vers JPEG), classés par date, puis déplacés dans la bibliothèque |
-| `/originals/` | Bibliothèque déjà indexée, en lecture et écriture. Ne pas y déposer de nouvelles photos |
+- `/import/` : dépôt. Les fichiers sont convertis si besoin (HEIC vers JPEG), classés par date, puis déplacés dans la bibliothèque.
+- `/originals/` : bibliothèque déjà indexée, en lecture et écriture. Ne pas y déposer de nouvelles photos.
 
 <Steps>
   <Step title="Obtenir un mot de passe WebDAV">
@@ -97,13 +99,29 @@ Mise à jour : changer le tag dans Coolify, redéployer, puis lancer `photoprism
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| Pas de mot de passe pour WebDAV | Compte OIDC | Mot de passe d'application |
-| Import qui tarde après un dépôt depuis un Mac | Fichiers `._` du Finder | Lancer `photoprism import` |
-| Transcodage logiciel malgré l'iGPU | `PHOTOPRISM_INIT` sans `intel` | Ajouter `intel` et redéployer |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="Pas de mot de passe pour WebDAV">
+    **Cause** : compte OIDC.
+
+    **Solution** : mot de passe d'application.
+  </Accordion>
+  <Accordion title="Import qui tarde après un dépôt depuis un Mac">
+    **Cause** : fichiers `._` du Finder.
+
+    **Solution** : lancer `photoprism import`.
+  </Accordion>
+  <Accordion title="Transcodage logiciel malgré l'iGPU">
+    **Cause** : `PHOTOPRISM_INIT` sans `intel`.
+
+    **Solution** : ajouter `intel` et redéployer.
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Immich](/services/immich)
-- [ims-nas](/infrastructure/ims-nas)
+<CardGroup cols={2}>
+  <Card title="Immich" icon="images" href="/services/immich">Photos et vidéos du téléphone.</Card>
+  <Card title="ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">Partages NFS et SMB.</Card>
+</CardGroup>

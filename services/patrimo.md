@@ -9,6 +9,8 @@ app_version: "git-main"
 
 ## Accès
 
+Public, avec compte applicatif.
+
 <CardGroup cols={2}>
   <Card title="Patrimo" icon="chart-pie" href="https://patrimo.ims-world.fr">
     Application web.
@@ -53,4 +55,6 @@ Sans objet.
 
 ## Voir aussi
 
-- [Déployer un service](/procedures/deploiement-service)
+<CardGroup cols={2}>
+  <Card title="Déployer un service" icon="list-check" href="/procedures/deploiement-service">Étapes d'un nouveau service.</Card>
+</CardGroup>

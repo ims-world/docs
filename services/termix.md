@@ -9,6 +9,8 @@ app_version: "26.10.2"
 
 ## Accès
 
+Restreint au tailnet, avec connexion Authentik.
+
 <CardGroup cols={2}>
   <Card title="Termix" icon="terminal" href="https://termix.ims-world.fr">
     Terminal SSH, fichiers SFTP, vues Proxmox et Docker.
@@ -40,6 +42,8 @@ Termix n'est pas un accès de secours : lui et Authentik tournent sur la VM 104.
 
 ## Fonctionnement
 
+Termix se connecte aux hôtes depuis la VM 104, avec un compte de service dédié.
+
 ```mermaid
 flowchart LR
   client[Appareil du tailnet] -->|HTTPS, vpn-only| traefik[Traefik]
@@ -63,10 +67,12 @@ flowchart LR
 
 ## Comptes
 
-| Compte | Usage | Authentification |
-| --- | --- | --- |
-| Compte SSO | Usage quotidien | Authentik, administrateur par le groupe `admins` |
-| Administrateur local | Seulement si Authentik est indisponible | Mot de passe et TOTP, dans Vaultwarden (« Termix — admin de secours ») |
+Deux comptes : l'un pour l'usage quotidien, l'autre pour le cas où Authentik est indisponible.
+
+<CardGroup cols={2}>
+  <Card title="Compte SSO" icon="key">Usage quotidien. Authentik, administrateur par le groupe `admins`.</Card>
+  <Card title="Administrateur local" icon="life-ring">Seulement si Authentik est indisponible. Mot de passe et TOTP, dans Vaultwarden (« Termix — admin de secours »).</Card>
+</CardGroup>
 
 - L'application Authentik `termix` n'est liée qu'au groupe `admins`. Le champ **Allowed Users** de Termix reste vide.
 - **Sign in with SSO automatically** reste décoché, et `OIDC_SILENT_LOGIN_DEFAULT=false` le garantit.
@@ -157,16 +163,44 @@ Authentik : fournisseur OAuth2 `termix` confidentiel, redirection stricte `https
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| Aucun hôte affiché après connexion | Les hôtes et leurs identifiants appartiennent à un compte Termix : connexion avec le compte local au lieu du compte SSO | Se reconnecter avec le compte SSO |
-| Boucle de redirection vers Authentik | **Sign in with SSO automatically** coché sans compte SSO existant | `OIDC_SILENT_LOGIN_DEFAULT=false`, redéployer, se connecter en local, décocher l'option |
-| `must contain exactly 64 hexadecimal characters` | Secret mal généré | `openssl rand -hex 32` |
-| `must be supplied … when TERMIX_REQUIRE_EXTERNAL_SECRETS=true` | Variable absente | La déclarer dans Coolify |
-| Connexion refusée par un hôte | Hôte déclaré par son IP tailnet, ou IP source non prévue | Déclarer l'hôte par son IP LAN |
-| Refus depuis le tailnet | Enregistrement manquant dans les `extra_records` | Voir [Restreindre un service au tailnet](/procedures/securiser-service-vpn-only) |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="Aucun hôte affiché après connexion">
+    **Cause** : les hôtes et leurs identifiants appartiennent à un compte Termix : connexion avec le compte local au lieu du compte SSO.
+
+    **Solution** : se reconnecter avec le compte SSO.
+  </Accordion>
+  <Accordion title="Boucle de redirection vers Authentik">
+    **Cause** : **Sign in with SSO automatically** coché sans compte SSO existant.
+
+    **Solution** : `OIDC_SILENT_LOGIN_DEFAULT=false`, redéployer, se connecter en local, décocher l'option.
+  </Accordion>
+  <Accordion title="must contain exactly 64 hexadecimal characters">
+    **Cause** : secret mal généré.
+
+    **Solution** : `openssl rand -hex 32`.
+  </Accordion>
+  <Accordion title="must be supplied … when TERMIX_REQUIRE_EXTERNAL_SECRETS=true">
+    **Cause** : variable absente.
+
+    **Solution** : la déclarer dans Coolify.
+  </Accordion>
+  <Accordion title="Connexion refusée par un hôte">
+    **Cause** : hôte déclaré par son IP tailnet, ou IP source non prévue.
+
+    **Solution** : déclarer l'hôte par son IP LAN.
+  </Accordion>
+  <Accordion title="Refus depuis le tailnet">
+    **Cause** : enregistrement manquant dans les `extra_records`.
+
+    **Solution** : voir [Restreindre un service au tailnet](/procedures/securiser-service-vpn-only).
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Socle commun des hôtes](/infrastructure/socle-commun)
-- [Feuille de route](/roadmap) : certificats SSH courts (OPKSSH), démarrage de la VM Windows à la demande
+<CardGroup cols={2}>
+  <Card title="Socle commun des hôtes" icon="layer-group" href="/infrastructure/socle-commun">Configuration appliquée à tous les hôtes.</Card>
+  <Card title="Feuille de route" icon="list-check" href="/roadmap">Certificats SSH courts (OPKSSH), démarrage de la VM Windows à la demande.</Card>
+</CardGroup>

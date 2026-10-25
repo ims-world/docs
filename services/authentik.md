@@ -11,6 +11,8 @@ import { domains } from "/snippets/variables.mdx";
 
 ## Accès
 
+Portail public, protégé par double facteur. Les applications y redirigent pour la connexion.
+
 <CardGroup cols={2}>
   <Card title="Authentik" icon="shield-halved" href="https://auth.ims-world.fr">
     Portail de connexion et console d'administration.
@@ -38,12 +40,16 @@ docker exec -it authentik-worker-k5mxvc2r6c4zlb6j3d443h7b ak create_recovery_key
 
 ## Fonctionnement
 
-Deux modes d'intégration, selon l'application :
+Deux modes d'intégration, selon que l'application sait déléguer sa connexion ou non.
 
-| Mode | Applications | Procédure |
-| --- | --- | --- |
-| OIDC : l'application dialogue avec Authentik | Grafana, Headplane, Headscale, Immich, Zipline, Forgejo, PhotoPrism, Termix, interface CrowdSec | [Connecter une application en OIDC](/procedures/integration-service-authentik-oidc) |
-| Forward-auth : Traefik demande à l'outpost avant de transmettre | Dozzle, Uptime Kuma, IT-Tools, Stirling PDF | [Forward-auth](/procedures/securiser-application-authentik-forward-auth) ([ADR-002](/history/adr/adr-002-pattern-forward-auth-authentik)) |
+<CardGroup cols={2}>
+  <Card title="OIDC" icon="id-card" href="/procedures/integration-service-authentik-oidc">
+    L'application dialogue avec Authentik. Grafana, Headplane, Headscale, Immich, Zipline, Forgejo, PhotoPrism, Termix, interface CrowdSec.
+  </Card>
+  <Card title="Forward-auth" icon="door-closed" href="/procedures/securiser-application-authentik-forward-auth">
+    Traefik demande à l'outpost avant de transmettre ([ADR-002](/history/adr/adr-002-pattern-forward-auth-authentik)). Dozzle, Uptime Kuma, IT-Tools, Stirling PDF.
+  </Card>
+</CardGroup>
 
 L'outpost `ak-outpost-ims-outpost` (port 9000) est créé et géré par Authentik lui-même, par le socket Docker : il n'apparaît pas dans le compose de Coolify. S'il s'arrête, tous les services en forward-auth deviennent inaccessibles.
 
@@ -88,13 +94,29 @@ La base PostgreSQL et la configuration sont sauvegardées avec la VM 104. La cl�
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| Outpost resté à l'ancienne version après une mise à jour | Il n'est pas géré par le compose de Coolify | Supprimer le conteneur et redémarrer serveur et worker |
-| Labels forward-auth sans effet sur un service restreint au tailnet | Le routeur de `vpn-only.yaml` prend la priorité | Déclarer le middleware avec `@docker` dans `vpn-only.yaml` |
-| Parseur CrowdSec Authentik en échec | Il attend du syslog | Voir [CrowdSec](/reseau/crowdsec) |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="Outpost resté à l'ancienne version après une mise à jour">
+    **Cause** : il n'est pas géré par le compose de Coolify.
+
+    **Solution** : supprimer le conteneur et redémarrer serveur et worker.
+  </Accordion>
+  <Accordion title="Labels forward-auth sans effet sur un service restreint au tailnet">
+    **Cause** : le routeur de `vpn-only.yaml` prend la priorité.
+
+    **Solution** : déclarer le middleware avec `@docker` dans `vpn-only.yaml`.
+  </Accordion>
+  <Accordion title="Parseur CrowdSec Authentik en échec">
+    **Cause** : il attend du syslog.
+
+    **Solution** : voir [CrowdSec](/reseau/crowdsec).
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Matrice d'exposition](/reseau/matrice-securite-exposition)
-- [Headscale](/reseau/headscale-headplane) (enrôlement par OIDC)
+<CardGroup cols={2}>
+  <Card title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
+  <Card title="Headscale" icon="network-wired" href="/reseau/headscale-headplane">Enrôlement par OIDC.</Card>
+</CardGroup>

@@ -9,6 +9,8 @@ app_version: "v2.5.4"
 
 ## Accès
 
+Public, derrière une connexion Authentik réservée aux administrateurs.
+
 <CardGroup cols={2}>
   <Card title="Uptime Kuma" icon="heart-pulse" href="https://status.ims-world.fr">
     Sondes, historique, notifications.
@@ -38,11 +40,11 @@ cd /data/coolify/services/il53bmpdybmss5q14sfy0umm/ && docker compose logs -f --
 
 Uptime Kuma tourne dans le réseau Docker de la VM 104, pas dans le tailnet. Trois familles de sondes :
 
-| Famille | Cible | Pourquoi |
-| --- | --- | --- |
-| Services publics | Domaine public en HTTPS (Authentik, Vaultwarden, Headscale, Jellyfin, Jellyseerr, Immich, Ntfy…) | Teste le chemin complet, certificat compris |
-| Services restreints au tailnet | Nom du conteneur sur le réseau Docker | Par le domaine, la sonde serait refusée par `vpn-only` (fausse panne) |
-| Hôtes et services hors Docker | Port TCP, ou HTTPS pour Home Assistant | Un ping prouve que la machine répond, pas le service |
+<CardGroup cols={3}>
+  <Card title="Services publics" icon="globe">Domaine public en HTTPS (Authentik, Vaultwarden, Headscale, Jellyfin, Jellyseerr, Immich, Ntfy…) : teste le chemin complet, certificat compris.</Card>
+  <Card title="Services restreints" icon="lock">Nom du conteneur sur le réseau Docker : par le domaine, la sonde serait refusée par `vpn-only` (fausse panne).</Card>
+  <Card title="Hôtes et hors Docker" icon="server">Port TCP, ou HTTPS pour Home Assistant : un ping prouve que la machine répond, pas le service.</Card>
+</CardGroup>
 
 Sondes internes :
 
@@ -97,12 +99,24 @@ Ajouter une sonde pour chaque nouveau service (étape de [Déployer un service](
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| `/metrics` en erreur (`Added label X is not included in initial labelset`) | Étiquette créée pendant que le conteneur tourne | `docker restart uptime-kuma-il53bmpdybmss5q14sfy0umm` |
-| Fausse panne sur un service restreint | Sonde par le domaine, refusée par `vpn-only` | Sonder le conteneur directement |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="/metrics en erreur (Added label X is not included in initial labelset)">
+    **Cause** : étiquette créée pendant que le conteneur tourne.
+
+    **Solution** : `docker restart uptime-kuma-il53bmpdybmss5q14sfy0umm`.
+  </Accordion>
+  <Accordion title="Fausse panne sur un service restreint">
+    **Cause** : sonde par le domaine, refusée par `vpn-only`.
+
+    **Solution** : sonder le conteneur directement.
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Supervision](/services/monitoring)
-- [Ntfy](/services/ntfy)
+<CardGroup cols={2}>
+  <Card title="Supervision" icon="chart-line" href="/services/monitoring">Métriques, journaux et alertes.</Card>
+  <Card title="Ntfy" icon="bell" href="/services/ntfy">Réception des alertes.</Card>
+</CardGroup>

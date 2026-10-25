@@ -9,6 +9,8 @@ app_version: "v1.8.1 / 2026.8.3"
 
 ## Accès
 
+Interface restreinte au tailnet. Les opérations courantes passent par `cscli`, depuis la VM 104.
+
 <CardGroup cols={2}>
   <Card title="Interface CrowdSec" icon="shield-check" href="https://shield.ims-world.fr">
     Alertes, bouncers, bannissements et débannissements.
@@ -40,6 +42,8 @@ cscli bouncers list
 | Mise en service | 22/08/2026 |
 
 ## Fonctionnement
+
+L'agent lit les journaux et décide ; Traefik applique les décisions et soumet les requêtes à AppSec.
 
 ```mermaid
 flowchart LR
@@ -97,14 +101,34 @@ docker compose -f /data/coolify/proxy/docker-compose.yml up -d --force-recreate
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| Latence, coupures WebSocket | Bouncer en mode `live` | Mode `stream` |
-| Site entièrement bloqué quand l'agent s'arrête | `updateMaxFailure` à `0` (valeur par défaut) | `-1` |
-| Une acquisition ne lit rien | Ancre `^` dans `container_name_regexp` : les noms Docker commencent par `/` | `".*traefik.*"` |
-| Le parseur Authentik échoue | Il attend du syslog, pas des journaux Docker | Ne pas utiliser `firix/authentik` en acquisition Docker |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="Latence, coupures WebSocket">
+    **Cause** : bouncer en mode `live`.
+
+    **Solution** : mode `stream`.
+  </Accordion>
+  <Accordion title="Site entièrement bloqué quand l'agent s'arrête">
+    **Cause** : `updateMaxFailure` à `0` (valeur par défaut).
+
+    **Solution** : `-1`.
+  </Accordion>
+  <Accordion title="Une acquisition ne lit rien">
+    **Cause** : ancre `^` dans `container_name_regexp` : les noms Docker commencent par `/`.
+
+    **Solution** : `".*traefik.*"`.
+  </Accordion>
+  <Accordion title="Le parseur Authentik échoue">
+    **Cause** : il attend du syslog, pas des journaux Docker.
+
+    **Solution** : ne pas utiliser `firix/authentik` en acquisition Docker.
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Traefik](/reseau/traefik-proxy)
-- [Socle commun des hôtes](/infrastructure/socle-commun) (fail2ban sur les hôtes)
+<CardGroup cols={2}>
+  <Card title="Traefik" icon="route" href="/reseau/traefik-proxy">Reverse proxy et routeurs.</Card>
+  <Card title="Socle commun des hôtes" icon="layer-group" href="/infrastructure/socle-commun">Fail2ban sur les hôtes.</Card>
+</CardGroup>

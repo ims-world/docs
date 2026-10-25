@@ -9,6 +9,8 @@ app_version: "v9.0.2"
 
 ## Accès
 
+Restreint au tailnet, avec compte natif.
+
 <CardGroup cols={2}>
   <Card title="WUD" icon="docker" href="https://wud.ims-world.fr">
     Versions en service et versions disponibles.
@@ -61,10 +63,18 @@ Après une alerte : lire les notes de version, changer le tag dans Coolify, red�
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| Fausse nouvelle version de qBittorrent (`20.04.1`) | Tag de l'image de base pris pour une version | Restreindre les tags suivis par label (`wud.tag.include`) |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="Fausse nouvelle version de qBittorrent (20.04.1)">
+    **Cause** : tag de l'image de base pris pour une version.
+
+    **Solution** : restreindre les tags suivis par label (`wud.tag.include`).
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Ntfy](/services/ntfy)
+<CardGroup cols={2}>
+  <Card title="Ntfy" icon="bell" href="/services/ntfy">Réception des alertes.</Card>
+</CardGroup>

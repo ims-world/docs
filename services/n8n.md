@@ -9,6 +9,8 @@ app_version: "2.10.4"
 
 ## Accès
 
+Public : l'éditeur exige un compte natif avec double facteur, les webhooks restent ouverts.
+
 <CardGroup cols={2}>
   <Card title="n8n" icon="diagram-project" href="https://automation.ims-world.fr">
     Éditeur de flux, identifiants, exécutions.
@@ -38,6 +40,8 @@ docker compose logs -f --tail=50 n8n n8n-worker task-runners
 
 ## Fonctionnement
 
+Mode file d'attente : l'interface reçoit, Redis transmet, le worker exécute.
+
 ```mermaid
 flowchart LR
   client[Éditeur et webhooks] --> traefik[Traefik et CrowdSec]
@@ -55,13 +59,13 @@ flowchart LR
   classDef externe fill:#f1f2f4,stroke:#6b7480,color:#1b2129,stroke-dasharray:4 3
 ```
 
-| Conteneur | Rôle |
-| --- | --- |
-| `n8n` | Interface, API et réception des webhooks ; place les exécutions dans la file |
-| `n8n-worker` | Exécute les flux de la file (`EXECUTIONS_MODE=queue`, `OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true`) |
-| `task-runners` | Exécution isolée du code Python et JavaScript des nœuds (broker sur le port 5679) |
-| `redis` | File d'attente |
-| `postgresql` | Base |
+<CardGroup cols={2}>
+  <Card title="n8n" icon="diagram-project">Interface, API et réception des webhooks ; place les exécutions dans la file.</Card>
+  <Card title="n8n-worker" icon="gears">Exécute les flux de la file (`EXECUTIONS_MODE=queue`, `OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true`).</Card>
+  <Card title="task-runners" icon="code">Exécution isolée du code Python et JavaScript des nœuds (broker sur le port 5679).</Card>
+  <Card title="redis" icon="layer-group">File d'attente.</Card>
+  <Card title="postgresql" icon="database">Base.</Card>
+</CardGroup>
 
 **Choix : authentification native.** La connexion OIDC est réservée à l'offre Enterprise de n8n, et un forward-auth bloquerait les webhooks entrants en les redirigeant vers la page de connexion. Le compte propriétaire a un mot de passe fort et le double facteur ; CrowdSec filtre en amont.
 
@@ -96,11 +100,23 @@ EXECUTIONS_DATA_PRUNE_MAX_COUNT=50000
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| Déclencheur planifié décalé d'une ou deux heures | Fuseau `UTC` par défaut | `GENERIC_TIMEZONE=Europe/Paris` et `TZ=Europe/Paris` |
-| Identifiants illisibles après une restauration | Clé de chiffrement différente | Restaurer `SERVICE_PASSWORD_ENCRYPTION` depuis Vaultwarden |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="Déclencheur planifié décalé d'une ou deux heures">
+    **Cause** : fuseau `UTC` par défaut.
+
+    **Solution** : `GENERIC_TIMEZONE=Europe/Paris` et `TZ=Europe/Paris`.
+  </Accordion>
+  <Accordion title="Identifiants illisibles après une restauration">
+    **Cause** : clé de chiffrement différente.
+
+    **Solution** : restaurer `SERVICE_PASSWORD_ENCRYPTION` depuis Vaultwarden.
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Matrice d'exposition](/reseau/matrice-securite-exposition)
+<CardGroup cols={2}>
+  <Card title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
+</CardGroup>

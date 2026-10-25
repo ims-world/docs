@@ -9,6 +9,8 @@ app_version: "latest"
 
 ## Accès
 
+Public, avec connexion Authentik ; jetons d'API pour les envois automatisés.
+
 <CardGroup cols={2}>
   <Card title="Zipline" icon="share-nodes" href="https://share.ims-world.fr">
     Fichiers, liens courts, jetons d'API.
@@ -48,10 +50,18 @@ L'image est en `latest`. Zipline publie pourtant des tags versionnés : l'éping
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| `share.ims-world.fr` en 503 alors que le conteneur répond | Enregistrements `_acme-challenge.share` oubliés : le générique DNS ne s'applique plus | Les supprimer dans la zone OVH ([incident du 24/08/2026](/history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr)) |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="share.ims-world.fr en 503 alors que le conteneur répond">
+    **Cause** : enregistrements `_acme-challenge.share` oubliés : le générique DNS ne s'applique plus.
+
+    **Solution** : les supprimer dans la zone OVH ([incident du 24/08/2026](/history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr)).
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Connecter une application en OIDC](/procedures/integration-service-authentik-oidc)
+<CardGroup cols={2}>
+  <Card title="Connecter une application en OIDC" icon="list-check" href="/procedures/integration-service-authentik-oidc">Procédure de connexion OIDC.</Card>
+</CardGroup>

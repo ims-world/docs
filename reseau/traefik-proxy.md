@@ -25,6 +25,8 @@ import { ips } from "/snippets/variables.mdx";
 
 ## Fonctionnement
 
+Le schéma suit une requête, du point d'entrée au service.
+
 ```mermaid
 flowchart LR
   client[Client] --> ep[Points d'entrée<br/>http, https]
@@ -160,14 +162,40 @@ docker compose -f /data/coolify/proxy/docker-compose.yml up -d --force-recreate
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| Une modification de `/data/coolify/proxy/docker-compose.yml` disparaît | Coolify régénère ce fichier depuis sa base | Modifier la commande dans l'interface Coolify (**Servers → Proxy**) |
-| Un service restreint redevient public | Domaine saisi dans le champ **Domains** de Coolify : un second routeur, sans `vpn-only`, est créé | Vider le champ, garder le routeur dans `vpn-only.yaml` |
-| Les labels d'un conteneur (forward-auth) n'ont aucun effet | Un routeur du fichier `vpn-only.yaml` porte le même nom d'hôte et prend la priorité | Déclarer le middleware dans `vpn-only.yaml` avec le suffixe `@docker` ([incident du 24/08/2026](/history/incidents/2026-08-24-bypass-sso-dozzle-traefik-file-provider)) |
-| Tout le monde est refusé par `vpn-only` | Traefik voit l'IP du pont Docker (`10.0.1.1`) | Vérifier `userland-proxy` et le SNAT Tailscale ([incident du 18/08/2026](/history/incidents/2026-08-18-blocage-traefik-vpn-only-docker-proxy)) |
-| Interface Coolify en 502 après une mise à jour | Le proxy a perdu la liaison avec Coolify | `docker restart coolify-proxy` |
-| Tester la page 5xx sans couper un service | `docker stop` retire le routeur (on tombe sur le 404) | `docker pause <conteneur>`, puis `docker unpause` |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="Une modification de /data/coolify/proxy/docker-compose.yml disparaît">
+    **Cause** : Coolify régénère ce fichier depuis sa base.
+
+    **Solution** : modifier la commande dans l'interface Coolify (**Servers → Proxy**).
+  </Accordion>
+  <Accordion title="Un service restreint redevient public">
+    **Cause** : domaine saisi dans le champ **Domains** de Coolify : un second routeur, sans `vpn-only`, est créé.
+
+    **Solution** : vider le champ, garder le routeur dans `vpn-only.yaml`.
+  </Accordion>
+  <Accordion title="Les labels d'un conteneur (forward-auth) n'ont aucun effet">
+    **Cause** : un routeur du fichier `vpn-only.yaml` porte le même nom d'hôte et prend la priorité.
+
+    **Solution** : déclarer le middleware dans `vpn-only.yaml` avec le suffixe `@docker` ([incident du 24/08/2026](/history/incidents/2026-08-24-bypass-sso-dozzle-traefik-file-provider)).
+  </Accordion>
+  <Accordion title="Tout le monde est refusé par vpn-only">
+    **Cause** : Traefik voit l'IP du pont Docker (`10.0.1.1`).
+
+    **Solution** : vérifier `userland-proxy` et le SNAT Tailscale ([incident du 18/08/2026](/history/incidents/2026-08-18-blocage-traefik-vpn-only-docker-proxy)).
+  </Accordion>
+  <Accordion title="Interface Coolify en 502 après une mise à jour">
+    **Cause** : le proxy a perdu la liaison avec Coolify.
+
+    **Solution** : `docker restart coolify-proxy`.
+  </Accordion>
+  <Accordion title="Tester la page 5xx sans couper un service">
+    **Cause** : `docker stop` retire le routeur (on tombe sur le 404).
+
+    **Solution** : `docker pause <conteneur>`, puis `docker unpause`.
+  </Accordion>
+</AccordionGroup>
 
 <Warning>
 Les identifiants de l'API OVH sont en clair dans la configuration du proxy, Coolify ne proposant pas de secret à cet endroit. Leur déplacement dans un fichier séparé est suivi dans la [feuille de route](/roadmap).
@@ -175,6 +203,8 @@ Les identifiants de l'API OVH sont en clair dans la configuration du proxy, Cool
 
 ## Voir aussi
 
-- [Matrice d'exposition](/reseau/matrice-securite-exposition)
-- [Restreindre un service au tailnet](/procedures/securiser-service-vpn-only)
-- [Forward-auth Authentik](/procedures/securiser-application-authentik-forward-auth)
+<CardGroup cols={2}>
+  <Card title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
+  <Card title="Restreindre un service au tailnet" icon="list-check" href="/procedures/securiser-service-vpn-only">Procédure de restriction au tailnet.</Card>
+  <Card title="Forward-auth Authentik" icon="list-check" href="/procedures/securiser-application-authentik-forward-auth">Procédure de protection par Authentik.</Card>
+</CardGroup>

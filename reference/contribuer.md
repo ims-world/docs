@@ -154,12 +154,25 @@ Un bloc `<Update>` par chantier, de trois à six lignes, avec des liens vers les
 | --- | --- | --- |
 | `Badge` | Statut hors norme : en test, arrêté, remplacé | « Production » sur chaque page, versions, compteurs |
 | `Warning` | Risque de perte de données, de coupure ou de blocage d'accès | Conseils, rappels |
-| `Info` | Contexte utile qui interrompt la lecture | Contenu principal d'une section |
+| `Info`, `Note` | Contexte utile, conséquence à connaître | Contenu principal d'une section |
+| `Tip` | Mesure, astuce ou raccourci qui mérite d'être vu | Plus de deux par page |
 | `Check` | Résultat attendu dans une procédure | Statut d'un service |
 | `Steps` | Séquence d'actions ordonnées | Liste sans ordre |
 | `Tabs` | Variantes exclusives : option A ou B, LAN ou tailnet | Deux contenus sans rapport |
-| `Card` | Navigation depuis l'accueil | Données |
-| `Accordion` | Contenu long et facultatif | Information que tout lecteur doit voir |
+| `Card` | Accès, points d'entrée, composants d'un service, invités d'un hôte, « Voir aussi » ; toujours avec une icône | Données chiffrées à comparer |
+| `Accordion` | Opérations d'exploitation, pièges connus (symptôme en titre, cause et solution dedans), contenu long et facultatif | Information que tout lecteur doit voir |
+
+## Mise en page
+
+Une page doit se parcourir d'un coup d'œil avant d'être lue.
+
+- Une phrase d'introduction sous chaque titre de section, qui dit ce que contient la section.
+- Tableau seulement pour des données courtes à comparer (Fiche, plan d'adressage, ports). Dès qu'une cellule contient une phrase, passer à des cartes, une liste ou des accordéons.
+- Les accès, les composants et les liens « Voir aussi » sont des cartes avec icône (icônes Font Awesome, sans emoji).
+- Les pièges connus sont des accordéons : symptôme en titre, puis **Cause** et **Solution**.
+- Un réglage en plusieurs écrans est une suite `Steps`.
+- Deux encadrés au plus par page, hors `Warning`.
+- Un service de plus de deux composants a un schéma de son flux dans Fonctionnement.
 
 ## Schémas
 

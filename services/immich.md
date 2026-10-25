@@ -9,6 +9,8 @@ app_version: "v3.2.0"
 
 ## Accès
 
+Public, avec connexion Authentik ou compte natif. Les applications mobiles se configurent sur ce serveur.
+
 <CardGroup cols={2}>
   <Card title="Immich" icon="images" href="https://photos.ims-world.fr">
     Interface web ; applications iOS et Android sur ce serveur.
@@ -36,12 +38,14 @@ cd /data/coolify/services/p3ujda5c7sc8nf4j9zzd8lck/ && docker compose logs -f --
 
 ## Fonctionnement
 
-| Conteneur | Rôle |
-| --- | --- |
-| `immich-server` | API et interface web, port 2283 |
-| `immich-machine-learning` | Reconnaissance des visages et recherche par description (CLIP), sur le processeur |
-| `database` | PostgreSQL avec l'extension vectorielle VectorChord |
-| `redis` | File des tâches |
+Quatre conteneurs : le serveur, l'apprentissage automatique, la base et la file des tâches.
+
+<CardGroup cols={2}>
+  <Card title="immich-server" icon="images">API et interface web, port 2283.</Card>
+  <Card title="immich-machine-learning" icon="brain">Reconnaissance des visages et recherche par description (CLIP), sur le processeur.</Card>
+  <Card title="database" icon="database">PostgreSQL avec l'extension vectorielle VectorChord.</Card>
+  <Card title="redis" icon="layer-group">File des tâches.</Card>
+</CardGroup>
 
 Dossiers dans `/mnt/nas-hot/immich-data` : `upload/` (originaux), `library/`, `thumbs/`, `encoded-video/`, `profile/`, `backups/`.
 
@@ -62,21 +66,41 @@ Les photos sont sur le SSD du NAS, qui n'est sauvegardé nulle part. Seule la ba
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| Redémarrages en boucle, erreur `ENOENT` | Fichier marqueur `.immich` absent dans l'un des six dossiers | Recréer les marqueurs (commande ci-dessous) |
-| Pas de miniatures ni de visages | Le dossier n'est monté que sur `immich-server` (modèle Coolify par défaut) | Monter `/mnt/nas-hot/immich-data:/usr/src/app/upload` sur les deux conteneurs Immich |
-| Application mobile qui ne synchronise plus | Version majeure différente du serveur | Mettre l'application à jour |
-| Échec du premier déploiement d'une base lancée à la main | Réseau Docker du service absent | `docker network create p3ujda5c7sc8nf4j9zzd8lck` |
+Chaque piège donne le symptôme observé, sa cause et la correction.
 
-```bash
-cd /mnt/nas-hot/immich-data
-for dir in upload library thumbs encoded-video profile backups; do
-  mkdir -p "$dir" && touch "$dir/.immich"
-done
-```
+<AccordionGroup>
+  <Accordion title="Redémarrages en boucle, erreur ENOENT">
+    **Cause** : fichier marqueur `.immich` absent dans l'un des six dossiers.
+
+    **Solution** : recréer les marqueurs.
+
+    ```bash
+    cd /mnt/nas-hot/immich-data
+    for dir in upload library thumbs encoded-video profile backups; do
+      mkdir -p "$dir" && touch "$dir/.immich"
+    done
+    ```
+  </Accordion>
+  <Accordion title="Pas de miniatures ni de visages">
+    **Cause** : le dossier n'est monté que sur `immich-server` (modèle Coolify par défaut).
+
+    **Solution** : monter `/mnt/nas-hot/immich-data:/usr/src/app/upload` sur les deux conteneurs Immich.
+  </Accordion>
+  <Accordion title="Application mobile qui ne synchronise plus">
+    **Cause** : version majeure différente du serveur.
+
+    **Solution** : mettre l'application à jour.
+  </Accordion>
+  <Accordion title="Échec du premier déploiement d'une base lancée à la main">
+    **Cause** : réseau Docker du service absent.
+
+    **Solution** : `docker network create p3ujda5c7sc8nf4j9zzd8lck`.
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [ims-nas](/infrastructure/ims-nas)
-- [PhotoPrism](/services/photoprism)
+<CardGroup cols={2}>
+  <Card title="ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">Partages NFS et SMB.</Card>
+  <Card title="PhotoPrism" icon="camera" href="/services/photoprism">Bibliothèque des photos RAW.</Card>
+</CardGroup>

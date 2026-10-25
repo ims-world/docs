@@ -15,10 +15,12 @@ Headscale est une implémentation libre du serveur de coordination Tailscale. Il
 
 ## Accès
 
-| Accès | Adresse | Zone |
-| --- | --- | --- |
-| Coordination (clients Tailscale) | `https://vpn.ims-world.fr` | Publique : les clients doivent le joindre avant d'être dans le tailnet |
-| Headplane | `https://admin.vpn.ims-world.fr/admin` | Tailnet |
+Le serveur de coordination est public, car un client doit le joindre avant d'être dans le tailnet. Headplane ne répond que depuis le tailnet.
+
+<CardGroup cols={2}>
+  <Card title="Coordination" icon="network-wired" href="https://vpn.ims-world.fr">Adresse à donner aux clients Tailscale. Public.</Card>
+  <Card title="Headplane" icon="sliders" href="https://admin.vpn.ims-world.fr/admin">Machines, utilisateurs, clés, DNS. Tailnet.</Card>
+</CardGroup>
 
 ```bash
 # Depuis la VM 104
@@ -43,10 +45,12 @@ docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale preauthkeys list --user
 
 ## Fonctionnement
 
-| Utilisateur Headscale | Machines | Enrôlement |
-| --- | --- | --- |
-| `infra` | Toutes les VM et tous les conteneurs, nœuds compris, y compris les VM de tiers | Clé de pré-authentification réutilisable, utilisée par le rôle Ansible `tailscale` |
-| Comptes personnels | Téléphones, ordinateurs | OIDC Authentik (groupes administrateurs et `membres`) |
+Deux sortes d'utilisateurs Headscale, selon le type de machine.
+
+<CardGroup cols={2}>
+  <Card title="infra" icon="server">Toutes les VM et tous les conteneurs, nœuds et VM de tiers compris. Clé de pré-authentification réutilisable, utilisée par le rôle Ansible `tailscale`.</Card>
+  <Card title="Comptes personnels" icon="laptop">Téléphones, ordinateurs. Enrôlement par OIDC Authentik (groupes administrateurs et `membres`).</Card>
+</CardGroup>
 
 La clé de pré-authentification active de `infra` expire le 18/10/2027. Elle est conservée dans le coffre d'ims-ops ; les anciennes clés sont expirées. La renouveler avant cette date et mettre à jour le coffre.
 
@@ -90,14 +94,34 @@ Le client affiche une adresse vers Authentik. Après connexion et second facteur
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| `admin.vpn.ims-world.fr` renvoie 404 | Headplane n'a pas de route sur `/` | Utiliser `/admin` |
-| `preauthkeys create --user infra` refusé | Depuis la version 0.26, `--user` attend l'ID | `headscale users list`, puis `--user <ID>` |
-| Alerte de clé d'hôte SSH sur une nouvelle machine | Headscale réattribue d'anciennes adresses | Vérifier l'empreinte, puis `ssh-keygen -R` |
-| Erreur de configuration après mise à jour vers 0.29 | Directive `randomize_client_port` retirée | La supprimer de `config.yaml` |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="admin.vpn.ims-world.fr renvoie 404">
+    **Cause** : Headplane n'a pas de route sur `/`.
+
+    **Solution** : utiliser `/admin`.
+  </Accordion>
+  <Accordion title="preauthkeys create --user infra refusé">
+    **Cause** : depuis la version 0.26, `--user` attend l'ID.
+
+    **Solution** : `headscale users list`, puis `--user <ID>`.
+  </Accordion>
+  <Accordion title="Alerte de clé d'hôte SSH sur une nouvelle machine">
+    **Cause** : Headscale réattribue d'anciennes adresses.
+
+    **Solution** : vérifier l'empreinte, puis `ssh-keygen -R`.
+  </Accordion>
+  <Accordion title="Erreur de configuration après mise à jour vers 0.29">
+    **Cause** : directive `randomize_client_port` retirée.
+
+    **Solution** : la supprimer de `config.yaml`.
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Ajouter une machine au tailnet](/procedures/ajout-machine-headscale)
-- [Authentik](/services/authentik)
+<CardGroup cols={2}>
+  <Card title="Ajouter une machine au tailnet" icon="list-check" href="/procedures/ajout-machine-headscale">Enrôler un appareil ou une VM.</Card>
+  <Card title="Authentik" icon="key" href="/services/authentik">Connexion unique des services.</Card>
+</CardGroup>

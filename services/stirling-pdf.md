@@ -9,6 +9,8 @@ app_version: "latest"
 
 ## Accès
 
+Public, derrière une connexion Authentik.
+
 <CardGroup cols={2}>
   <Card title="Stirling PDF" icon="file-pdf" href="https://pdf.ims-world.fr">
     Outils PDF.
@@ -59,4 +61,6 @@ Sans objet.
 
 ## Voir aussi
 
-- [Protéger une application par forward-auth](/procedures/securiser-application-authentik-forward-auth)
+<CardGroup cols={2}>
+  <Card title="Protéger une application par forward-auth" icon="list-check" href="/procedures/securiser-application-authentik-forward-auth">Procédure de protection par Authentik.</Card>
+</CardGroup>

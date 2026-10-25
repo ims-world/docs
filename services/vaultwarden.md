@@ -11,6 +11,8 @@ import { domains } from "/snippets/variables.mdx";
 
 ## Accès
 
+Coffre public avec connexion Authentik ; le panneau d'administration ne répond que depuis le tailnet.
+
 <CardGroup cols={2}>
   <Card title="Coffre web" icon="shield-halved" href="https://vault.ims-world.fr">
     Interface web ; extensions et applications Bitwarden configurées sur ce serveur.
@@ -54,11 +56,19 @@ Mise à jour : changer le tag dans Coolify et redéployer. Lire les notes de ver
 
 ## Pièges connus
 
-| Symptôme | Cause | Solution |
-| --- | --- | --- |
-| La connexion par Authentik échoue sans message | Authentik n'envoie pas `email_verified: true` | Ajouter un mappage de propriété qui renvoie `email_verified: true` |
+Chaque piège donne le symptôme observé, sa cause et la correction.
+
+<AccordionGroup>
+  <Accordion title="La connexion par Authentik échoue sans message">
+    **Cause** : Authentik n'envoie pas `email_verified: true`.
+
+    **Solution** : ajouter un mappage de propriété qui renvoie `email_verified: true`.
+  </Accordion>
+</AccordionGroup>
 
 ## Voir aussi
 
-- [Authentik](/services/authentik)
-- [Plan de reprise](/procedures/plan-reprise-activite-pra)
+<CardGroup cols={2}>
+  <Card title="Authentik" icon="key" href="/services/authentik">Connexion unique des services.</Card>
+  <Card title="Plan de reprise" icon="life-ring" href="/procedures/plan-reprise-activite-pra">Restauration après une panne.</Card>
+</CardGroup>
