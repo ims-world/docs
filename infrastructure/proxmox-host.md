@@ -10,6 +10,8 @@ import { ips, hardware } from "/snippets/variables.mdx";
 
 ## Fiche
 
+Le MS-01 porte l'essentiel du homelab : stockage, sauvegarde et services. Le Mac Mini, second nœud du cluster, ne porte que le worker et Home Assistant.
+
 | Propriété | Valeur |
 | --- | --- |
 | Type | Machine physique, Minisforum MS-01 |
@@ -23,28 +25,57 @@ import { ips, hardware } from "/snippets/variables.mdx";
 | Sauvegarde | Non sauvegardé : se réinstalle (voir [plan de reprise](/procedures/plan-reprise-activite-pra)) |
 | Statut | En service |
 
-Interface web : <code>https://{ips.pveLan}:8006</code> (LAN) ou <code>https://{ips.ms01}:8006</code> (tailnet).
+<CardGroup cols={2}>
+  <Card title="Interface web (tailnet)" icon="globe" href={`https://${ips.ms01}:8006`}>
+    <code>https://{ips.ms01}:8006</code>
+  </Card>
+  <Card title="Interface web (LAN)" icon="house" href={`https://${ips.pveLan}:8006`}>
+    <code>https://{ips.pveLan}:8006</code>
+  </Card>
+</CardGroup>
 
 ## Ce qui tourne dessus
 
-| VMID | Nom | Type | Ressources | Rôle |
-| --- | --- | --- | --- | --- |
-| 100 | `ims-nas` | LXC privilégié | 2 cœurs, 1 Go | [Stockage NFS et SMB](/infrastructure/ims-nas) |
-| 102 | Windows | VM | — | Poste Windows, démarré à la demande |
-| 103 | `ims-pbs` | LXC privilégié | 2 cœurs, 1 Go | [Proxmox Backup Server](/infrastructure/ims-pbs) |
-| 104 | `ims-coolify` | VM | 6 cœurs, 18 Go, 128 Go | [Coolify et services](/infrastructure/vm-coolify) |
-| 107 | `lab-elo` | VM | — | VM d'un tiers, souvent éteinte |
-| 9001 | `ubuntu-2404-ims-ops` | Template | — | Base des VM créées par `just vm` |
+Trois invités forment le cœur du homelab (NAS, PBS, VM 104) ; les autres sont occasionnels.
+
+<CardGroup cols={2}>
+  <Card title="100 · ims-nas" icon="hard-drive" href="/infrastructure/ims-nas">
+    LXC privilégié, 2 cœurs, 1 Go. Stockage NFS et SMB.
+  </Card>
+  <Card title="103 · ims-pbs" icon="box-archive" href="/infrastructure/ims-pbs">
+    LXC privilégié, 2 cœurs, 1 Go. Proxmox Backup Server.
+  </Card>
+  <Card title="104 · ims-coolify" icon="cubes" href="/infrastructure/vm-coolify">
+    VM, 6 cœurs, 18 Go, 128 Go. Coolify et services.
+  </Card>
+  <Card title="102 · Windows" icon="desktop">
+    VM. Poste Windows, démarré à la demande.
+  </Card>
+  <Card title="107 · lab-elo" icon="flask">
+    VM d'un tiers, souvent éteinte.
+  </Card>
+  <Card title="9001 · ubuntu-2404-ims-ops" icon="clone">
+    Template, base des VM créées par `just vm`.
+  </Card>
+</CardGroup>
 
 ## Ordre de démarrage
 
 Le NAS démarre en premier, car le PBS et la VM 104 montent ses partages NFS.
 
-| Ordre | Invité | Délai avant le suivant |
-| --- | --- | --- |
-| 1 | LXC 100 `ims-nas` | 15 s |
-| 2 | LXC 103 `ims-pbs` | 10 s |
-| 3 | VM 104 `ims-coolify` | 20 s |
+<Steps>
+  <Step title="LXC 100 ims-nas">
+    Démarre en premier ; 15 s avant le suivant.
+  </Step>
+  <Step title="LXC 103 ims-pbs">
+    Monte le datastore sur le NAS ; 10 s avant le suivant.
+  </Step>
+  <Step title="VM 104 ims-coolify">
+    Monte les partages du NAS ; 20 s de délai.
+  </Step>
+</Steps>
+
+Réglage correspondant :
 
 ```bash
 pct set 100 -onboot 1 -startup order=1,up=15
@@ -56,16 +87,12 @@ qm set 104 --onboot 1 --startup order=3,up=20
 
 Les VM Linux sont créées depuis le template `ubuntu-2404-ims-ops` (VMID `9001`), construit et utilisé par ims-ops.
 
-| Élément | Valeur |
-| --- | --- |
-| Construction | `just template`, depuis l'image cloud officielle Ubuntu 24.04, somme SHA256 vérifiée |
-| Processeur | `x86-64-v2-AES`, pour rester migrable vers le second nœud |
-| Disque | `virtio-scsi-single` avec `iothread`, sur `local-lvm` |
-| Cloud-Init | Minimal : nom, compte `cmolotkoff`, clé SSH. Le reste est appliqué par Ansible |
-| Création | `just vm <nom> [os] [taille] [mode]` : VMID et IP choisis par la commande, dans la plage `192.168.1.200-249` |
-| Destruction | `just vm-destroy <nom>`, limitée aux VM créées par `just vm` |
-
-L'enrôlement dans le tailnet passe par le rôle Ansible `tailscale`, jamais par Cloud-Init.
+- **Construction** : `just template`, depuis l'image cloud officielle Ubuntu 24.04, somme SHA256 vérifiée.
+- **Processeur** : `x86-64-v2-AES`, pour rester migrable vers le second nœud.
+- **Disque** : `virtio-scsi-single` avec `iothread`, sur `local-lvm`.
+- **Cloud-Init** : minimal (nom, compte `cmolotkoff`, clé SSH). Le reste est appliqué par Ansible, y compris l'enrôlement dans le tailnet (rôle `tailscale`).
+- **Création** : `just vm <nom> [os] [taille] [mode]`. VMID et IP sont choisis par la commande, dans la plage `192.168.1.200-249`.
+- **Destruction** : `just vm-destroy <nom>`, limitée aux VM créées par `just vm`.
 
 <Warning>
 L'ancien template (VMID 9000) et son snippet `vendor-data.yaml` ont été supprimés le 24/10/2026 : le snippet contenait une clé Headscale en clair. Ne pas recréer ce mécanisme.
@@ -75,16 +102,22 @@ L'ancien template (VMID 9000) et son snippet `vendor-data.yaml` ont été suppri
 
 L'iGPU Iris Xe est attribuée à la VM 104 (`hostpci0`, chipset `q35`) pour le transcodage matériel de Jellyfin. Le détail est dans l'[ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe).
 
-Conséquence : le nœud n'a plus de sortie vidéo. En cas de besoin d'une console physique, retirer temporairement le périphérique (`qm set 104 --delete hostpci0`) et redémarrer le nœud.
+<Note>
+Le nœud n'a plus de sortie vidéo. Pour retrouver une console physique, retirer temporairement le périphérique (`qm set 104 --delete hostpci0`) et redémarrer le nœud.
+</Note>
 
 ## Disques du NAS : veille et SMART
 
-Les outils qui parlent directement au disque (`hd-idle`, `smartd`) tournent sur le nœud, jamais dans le LXC du NAS : le montage transmis au conteneur ne donne pas accès au périphérique bloc.
+Les outils qui parlent directement au disque tournent sur le nœud, jamais dans le LXC du NAS : le montage transmis au conteneur ne donne pas accès au périphérique bloc.
 
-| Outil | Réglage |
-| --- | --- |
-| `hd-idle` | Mise en veille du HDD après 30 minutes d'inactivité (`/etc/default/hd-idle`, option `-i 1800`) |
-| `smartd` et `smartmon.sh` | Santé SMART, relevée toutes les 5 minutes pour Alloy |
+<CardGroup cols={2}>
+  <Card title="hd-idle" icon="moon">
+    Mise en veille du HDD après 30 minutes d'inactivité (`/etc/default/hd-idle`, option `-i 1800`).
+  </Card>
+  <Card title="smartd et smartmon.sh" icon="heart-pulse">
+    Santé SMART, relevée toutes les 5 minutes pour Alloy.
+  </Card>
+</CardGroup>
 
 ```bash
 systemctl status hd-idle smartd --no-pager
@@ -93,6 +126,8 @@ smartctl -H /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ
 ```
 
 ## Particularités
+
+Ce qui distingue ce nœud des autres hôtes du parc.
 
 - Écarts au [socle commun](/infrastructure/socle-commun) : root par clé (cluster), mises à jour manuelles, étiquette Alloy `ms01-pve`.
 - Dépôts APT au format `deb822` : `pve-enterprise.sources` désactivé, `proxmox.sources` sur `pve-no-subscription`.
@@ -109,6 +144,8 @@ Agent Alloy (étiquette `ms01-pve`) avec le collecteur SMART. Tableaux de bord d
 
 ## Voir aussi
 
-- [Mac Mini (pve-macmini)](/infrastructure/mac-mini)
-- [Socle commun des hôtes](/infrastructure/socle-commun)
-- [Politique de sauvegarde](/procedures/politique-sauvegardes)
+<CardGroup cols={3}>
+  <Card title="Mac Mini (pve-macmini)" icon="server" href="/infrastructure/mac-mini">Second nœud du cluster.</Card>
+  <Card title="Socle commun" icon="layer-group" href="/infrastructure/socle-commun">Configuration appliquée à tous les hôtes.</Card>
+  <Card title="Politique de sauvegarde" icon="shield" href="/procedures/politique-sauvegardes">Ce qui est sauvegardé, quand, où.</Card>
+</CardGroup>
