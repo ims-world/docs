@@ -88,7 +88,7 @@ Ce qui distingue ce conteneur des autres hôtes du parc.
 - Le compte `cmolotkoff` (UID 1000) est aussi le propriétaire des fichiers partagés et l'utilisateur Samba. Son mot de passe système est verrouillé.
 - `smartd` et `hd-idle` ne peuvent pas tourner dans ce conteneur ; ils tournent sur le [nœud](/infrastructure/proxmox-host).
 - Les deux disques sont montés avec `backup=0` : une sauvegarde du conteneur n'embarque jamais leur contenu.
-- Écarts au [socle commun](/infrastructure/socle-commun) : envoi Alloy par `10.10.10.2`, paquet `jdupes`.
+- Écarts au [socle commun](/infrastructure/socle-commun) : envoi Alloy par `10.10.10.2`, paquet `jdupes`, service `smartmontools` masqué.
 
 <Warning>
 Ne jamais modifier l'UID de `cmolotkoff` ni supprimer ce compte : toutes les permissions des partages en dépendent.

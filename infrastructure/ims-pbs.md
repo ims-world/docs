@@ -82,7 +82,7 @@ Ce qui distingue ce conteneur des autres hôtes du parc.
 - Le PBS ne sauvegarde ni le NAS ni lui-même : il en dépend pour fonctionner.
 - Le stockage `pbs-coolify` se connecte encore avec `root@pam`. Le remplacement par un utilisateur PBS limité à la sauvegarde est suivi dans la [feuille de route](/roadmap).
 - En cas d'erreur `namespace not found` ou `ESTALE` à la sauvegarde, le datastore ne répond plus : remonter le partage et redémarrer les services PBS (voir [Dépannage](/procedures/depannage-courant)).
-- Écarts au [socle commun](/infrastructure/socle-commun) : envoi Alloy par `10.10.10.2`.
+- Écarts au [socle commun](/infrastructure/socle-commun) : envoi Alloy par `10.10.10.2` ; `zfs-mount` et `zfs-share` masqués (le paquet PBS installe ZFS, inutilisable dans un conteneur).
 
 ## Sauvegarde et reprise
 
