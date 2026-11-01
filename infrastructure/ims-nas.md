@@ -73,7 +73,7 @@ Contenu de `/etc/exports` :
 
 ## Détection des doublons
 
-`jdupes` est installé pour le rapport de doublons de la médiathèque, lancé depuis ims-ops avec `just duplicates`. Le rapport est produit en lecture seule, directement sur le NAS. Il liste les fichiers identiques (liens physiques exclus), les titres présents en plusieurs fichiers, et les téléchargements reliés à aucun fichier de la bibliothèque.
+`jdupes` est installé pour le rapport de doublons de la médiathèque, lancé depuis ims-ops avec `just homeflix-doublons`. Le rapport est produit en lecture seule, directement sur le NAS. Il liste les fichiers identiques (liens physiques exclus), les titres présents en plusieurs fichiers, et les téléchargements reliés à aucun fichier de la bibliothèque.
 
 La suppression se fait depuis qBittorrent (torrent et fichiers), jamais à la main sur le disque.
 
@@ -96,7 +96,7 @@ Ne jamais modifier l'UID de `cmolotkoff` ni supprimer ce compte : toutes les per
 
 ## Sauvegarde et reprise
 
-Le NAS est exclu du pool `backup` : il héberge le datastore du PBS, qui ne peut pas se sauvegarder lui-même. Son système (environ 8 Go, quasi statique) se sauvegarde à la main avant une intervention :
+Le NAS est exclu du pool `backup` : il héberge le datastore du PBS, qui ne peut pas se sauvegarder lui-même. Son système (environ 8 Go, quasi statique) se sauvegarde à la main avant une intervention, avec `just backup-now ims-nas` ou depuis `pve` :
 
 ```bash
 vzdump 100 --mode stop --compress zstd --storage local

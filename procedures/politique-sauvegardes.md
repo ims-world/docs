@@ -69,13 +69,14 @@ Notifications, dans l'interface de Proxmox VE puis du PBS : cible webhook `ntfy`
 
 <Steps>
   <Step title="Sauvegarder la machine dans le PBS">
-    Dans Proxmox VE : sélectionner la machine, **Backup → Backup now**, stockage `pbs-coolify`. En ligne de commande, depuis le nœud :
+    Depuis le poste, avec ims-ops : `just backup-now <nom|vmid>`. Ou dans Proxmox VE : sélectionner la machine, **Backup → Backup now**, stockage `pbs-coolify`. En ligne de commande, depuis le nœud :
 
     ```bash
     vzdump <vmid> --storage pbs-coolify --mode snapshot
     ```
   </Step>
   <Step title="Pour le NAS : sauvegarde locale">
+    `just backup-now ims-nas`, ou depuis `pve` :
     ```bash
     vzdump 100 --mode stop --compress zstd --storage local
     ```

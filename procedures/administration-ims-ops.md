@@ -37,7 +37,7 @@ Le contenu exact du socle est décrit dans [Socle commun des hôtes](/infrastruc
 | Simuler avant d'appliquer | `just check` affiche les écarts sans rien modifier ; `just setup` n'est lancé qu'après lecture du diff |
 | Jamais root | Connexion avec le compte personnel et sudo |
 | Aucun secret en clair | Secrets dans un coffre Ansible Vault, mot de passe dans le trousseau macOS |
-| Détecter, pas corriger | `just audit` et `just duplicates` produisent des rapports et ne modifient rien |
+| Détecter, pas corriger | `just audit`, `just health` et `just homeflix-doublons` produisent des rapports et ne modifient rien |
 | Inventaire en deux fichiers | `hosts.yml` est tenu à la main ; `vms-created.yml` est écrit par `just vm`. Seules les VM de ce second fichier peuvent être détruites par la commande |
 | Rebond SSH | Une VM sans IP tailnet est jointe en rebondissant par le nœud des VM (`pve`) |
 | Arrêt au premier échec | Une opération sur plusieurs hôtes s'arrête dès qu'un hôte échoue ou ne répond pas |
@@ -97,7 +97,10 @@ just vm-destroy essai           # demande de retaper le nom
 just backup-list            # machines sauvegardées ou non
 just backup-add <nom|vmid>  # ajoute au pool backup
 just backup-remove <nom|vmid>
+just backup-now <nom|vmid>  # sauvegarde immédiate, avant une intervention
 ```
+
+`just backup-now` sauvegarde vers le PBS, sans arrêt de l'invité. Le NAS et le PBS, hors pool, sont sauvegardés en archive locale ; le NAS est arrêté le temps de la sienne, ce qui coupe le NFS.
 
 Le fonctionnement de la sauvegarde est décrit dans la [politique de sauvegarde](/procedures/politique-sauvegardes).
 
@@ -128,10 +131,59 @@ just tailnet-remove <nom>
 
 La commande refuse les hôtes déclarés dans `hosts.yml`.
 
+### Contrôler l'état du parc
+
+```bash
+just health   # alertes à l'écran, rapport complet dans reports/health/latest.md
+```
+
+La commande ne modifie rien. Elle complète `just audit` : l'audit vérifie la conformité de la configuration, `health` vérifie que le parc fonctionne.
+
+<CardGroup cols={2}>
+  <Card title="Hôtes" icon="server" color="#3B82F6">Joignables, redémarrage en attente, occupation des disques et des partages, unités systemd en échec, mises à jour en attente.</Card>
+  <Card title="Cluster" icon="network-wired" color="#FF6B00">Quorum, état de chaque invité.</Card>
+  <Card title="Sauvegardes" icon="box-archive" color="#8B5CF6">Âge de la dernière sauvegarde de chaque invité du pool, archives locales, occupation du datastore.</Card>
+  <Card title="Disques" icon="hard-drive" color="#8B5CF6">Santé SMART relevée sur les nœuds, sans réveiller un disque en veille.</Card>
+</CardGroup>
+
+Les seuils sont dans `group_vars/all/main.yml` (`health_disk_warn_percent`, `health_backup_max_age_hours`) ; les partages contrôlés, dans `health_paths` de chaque hôte.
+
+### Mettre à jour les paquets
+
+```bash
+just update ims-pbs         # un hôte
+just update proxmox_nodes   # les nœuds, un à la fois
+```
+
+<Steps>
+  <Step title="Lister">
+    La commande rafraîchit le cache APT et affiche les paquets en attente de chaque hôte.
+  </Step>
+  <Step title="Confirmer">
+    Rien n'est appliqué sans réponse `y`.
+  </Step>
+  <Step title="Appliquer">
+    `apt dist-upgrade`, un hôte à la fois, arrêt au premier échec. Sur un nœud Proxmox, la commande refuse de continuer si le cluster n'est pas complet.
+  </Step>
+  <Step title="Redémarrer à la main">
+    La commande ne redémarre jamais : elle signale les hôtes à redémarrer.
+  </Step>
+</Steps>
+
+Les machines de tiers ne sont mises à jour que si elles sont nommées explicitement. Sur un hôte sans snapshot possible (VM 104, NAS), lancer d'abord `just backup-now <nom>`.
+
+### Tester une restauration
+
+```bash
+just restore-test <nom|vmid>   # rapport dans reports/restore-test/latest.md
+```
+
+La commande restaure la dernière sauvegarde PBS dans une VM jetable (VMID 900), l'isole, la démarre, attend une réponse, puis la détruit. Le détail est dans le [plan de reprise](/procedures/plan-reprise-activite-pra#tester-les-sauvegardes).
+
 ### Chercher les doublons de la médiathèque
 
 ```bash
-just duplicates   # rapport dans reports/duplicates/latest.md
+just homeflix-doublons   # rapport dans reports/duplicates/latest.md
 ```
 
 Voir [ims-nas](/infrastructure/ims-nas).
@@ -140,6 +192,7 @@ Voir [ims-nas](/infrastructure/ims-nas).
 
 - `just ping` : connexion SSH et sudo sur tout le parc.
 - `just audit` : aucun écart entre l'état réel et l'inventaire.
+- `just health` : aucune alerte.
 
 ## Retour arrière
 

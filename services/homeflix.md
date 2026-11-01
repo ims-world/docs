@@ -134,7 +134,7 @@ Opérations courantes, de la plus fréquente à la plus rare.
     Ne jamais supprimer à la main un fichier encore suivi par qBittorrent : le torrent passe en erreur.
   </Accordion>
   <Accordion title="Repérer les doublons et les téléchargements orphelins" icon="clone">
-    Depuis ims-ops : `just duplicates`. Le rapport est calculé sur le NAS, sur le disque lui-même, et ne supprime rien. Voir [ims-nas](/infrastructure/ims-nas).
+    Depuis ims-ops : `just homeflix-doublons`. Le rapport est calculé sur le NAS, sur le disque lui-même, et ne supprime rien. Voir [ims-nas](/infrastructure/ims-nas).
   </Accordion>
   <Accordion title="Débloquer un import manuel (« Unable to parse file »)" icon="file-import">
     Le nom du fichier ne permet pas de déduire la qualité. Dans Radarr ou Sonarr : **Activity → Queue → Manual Import**, choisir la qualité réelle, vérifier que le mode d'import est **Hardlink** (jamais **Copy**), valider.

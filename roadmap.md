@@ -14,7 +14,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | --- | --- | --- |
 | Protéger les données du NAS : photos Immich, dépôts Forgejo, originaux PhotoPrism | Aucune copie aujourd'hui ; perte définitive si un disque lâche | NAS, [politique de sauvegarde](/procedures/politique-sauvegardes#ce-qui-nest-pas-sauvegardé) |
 | Copie hors site des sauvegardes PBS | Datastore et médiathèque sur le même HDD. Piste : Raspberry Pi avec disque, en synchronisation PBS | PBS |
-| Premier test de restauration | Le plan de reprise n'a jamais été validé | [Plan de reprise](/procedures/plan-reprise-activite-pra#tester-les-sauvegardes) |
+| Premier test de restauration | Le plan de reprise n'a jamais été validé ; commande prête : `just restore-test 104` | [Plan de reprise](/procedures/plan-reprise-activite-pra#tester-les-sauvegardes) |
 | Ajouter la VM 102 au pool `backup` | Windows non sauvegardée (`just backup-add 102`) | Pool `backup` |
 | Décider de la sauvegarde de `lab-elo` | VM d'un tiers, hors pool | Pool `backup` |
 | QDevice Corosync | Deux votes seulement : la perte d'un nœud fait perdre le quorum | Raspberry Pi |

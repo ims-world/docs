@@ -152,7 +152,23 @@ Une restauration avec `--force` écrase la machine existante. En cas de doute, r
 
 ## Tester les sauvegardes
 
-À faire au moins une fois par an, et après tout changement de la chaîne de sauvegarde.
+À faire au moins une fois par an, et après tout changement de la chaîne de sauvegarde. Depuis le poste, avec ims-ops :
+
+```bash
+just restore-test 104
+```
+
+La commande restaure la dernière sauvegarde PBS dans la VM 900, sur `pve`, puis l'isole avant de la démarrer : cartes réseau coupées, iGPU et USB retirés, mémoire plafonnée à 4 Go. Elle attend une réponse de l'agent QEMU (ou de systemd pour un conteneur), détruit la copie et écrit le rapport.
+
+| Résultat | Signification |
+| --- | --- |
+| <Icon icon="circle-check" color="#16A34A" /> OK | La copie démarre et répond |
+| <Icon icon="clock" color="#FF6B00" /> PARTIEL | Elle démarre sans répondre, par exemple une VM sans agent QEMU |
+| <Icon icon="circle-xmark" color="#DC2626" /> ÉCHEC | Restauration ou démarrage impossible |
+
+Le test automatique prouve que la sauvegarde se restaure et que le système démarre. Pour contrôler aussi le contenu (conteneurs Docker, clés), suivre la procédure manuelle ci-dessous.
+
+<Accordion title="Procédure manuelle, avec contrôle du contenu" icon="list-check">
 
 <Steps>
   <Step title="Restaurer la VM 104 sur un VMID libre">
@@ -179,3 +195,5 @@ Une restauration avec `--force` écrase la machine existante. En cas de doute, r
     Inscrire la date et le résultat en tête de cette page.
   </Step>
 </Steps>
+
+</Accordion>
