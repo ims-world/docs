@@ -4,7 +4,7 @@ description: "Photothèque et vidéothèque avec sauvegarde depuis les télépho
 icon: "images"
 iconType: "duotone"
 last_reviewed: "2026-10-25"
-app_version: "v3.2.0"
+app_version: "v3.3.5"
 ---
 
 ## Accès
@@ -30,7 +30,7 @@ cd /data/coolify/services/p3ujda5c7sc8nf4j9zzd8lck/ && docker compose logs -f --
 | Accès | Public ; OIDC Authentik ou comptes natifs |
 | Hôte | VM 104 |
 | Coolify | UUID `p3ujda5c7sc8nf4j9zzd8lck`, chemin `/data/coolify/services/p3ujda5c7sc8nf4j9zzd8lck/` |
-| Image | `ghcr.io/immich-app/immich-server:v3.2.0`, `immich-machine-learning:v3.2.0`, `postgres:14-vectorchord0.3.0-pgvectors0.2.0`, `redis:7.4-alpine` |
+| Image | `ghcr.io/immich-app/immich-server:v3.3.5`, `immich-machine-learning:v3.3.5`, `postgres:14-vectorchord0.3.0-pgvectors0.2.0`, `redis:7.4-alpine` |
 | Données | Photos et vidéos sur le SSD du NAS (`/mnt/nas-hot/immich-data`) ; base PostgreSQL sur la VM 104 |
 | Sauvegarde | Base avec la VM 104 ; **photos non sauvegardées** (voir plus bas) |
 | Supervision | Sonde Uptime Kuma |

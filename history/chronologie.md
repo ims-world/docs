@@ -4,6 +4,11 @@ description: "Journal des chantiers du homelab, du plus récent au plus ancien."
 last_reviewed: "2026-10-25"
 ---
 
+<Update label="01/11/2026" description="Immich 3.3.5, commandes d'exploitation ims-ops">
+  - [Immich](/services/immich) passé de v3.2.0 à v3.3.5 : correctifs de sécurité de Node.js (octobre 2026) et des dépendances, mise à jour recommandée par les mainteneurs.
+  - ims-ops : `just health`, `just update`, `just backup-now`, `just restore-test` ; `just duplicates` devient `just homeflix-doublons` ([Administration avec ims-ops](/procedures/administration-ims-ops)).
+</Update>
+
 <Update label="25/10/2026" description="Refonte de la documentation">
   - Guide de style, plans par type de page et modèles ([Contribuer](/reference/contribuer)) ; navigation en cinq onglets avec redirections.
   - Fiches d'hôtes et de services réécrites au même gabarit ; nouvelle page [Socle commun des hôtes](/infrastructure/socle-commun) ; page [Administration avec ims-ops](/procedures/administration-ims-ops).
