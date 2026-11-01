@@ -17,7 +17,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Ajouter la VM 102 au pool `backup` | Windows non sauvegardée (`just backup-add 102`) | Pool `backup` |
 | Décider de la sauvegarde de `lab-elo` | VM d'un tiers, hors pool | Pool `backup` |
 | QDevice Corosync | Deux votes seulement : la perte d'un nœud fait perdre le quorum | Raspberry Pi |
-| Alerte hors du homelab | Toute la supervision est à la maison : une coupure de courant ou d'accès Internet ne produit aucune alerte. Piste : battement de cœur des nœuds vers un service externe | Service externe |
+| Alerte hors du homelab | Toute la supervision est à la maison : une coupure de courant ou d'accès Internet ne produit aucune alerte. Décidé : battement de cœur des nœuds vers Healthchecks.io. Créer deux contrôles (`pve`, `pve-macmini`), ranger leurs URL dans le coffre d'ims-ops, puis cron sur les nœuds par ims-ops | Healthchecks.io, ims-ops |
 
 ## Priorité moyenne
 
