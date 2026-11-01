@@ -1,12 +1,13 @@
 ---
-title: "ADR-002 — Sécurisation par Forward-Auth Authentik Outpost"
+title: "ADR-002 — Forward-auth Authentik pour les applications sans authentification"
 description: "Décision d'architecture pour l'authentification unifiée des applications web sans SSO natif"
 icon: "key"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
 ## Statut
-<Badge color="green">🟢 Accepté & Déployé</Badge> *(2026-08-12)*
+Accepté — 12/08/2026
 
 ---
 
@@ -20,7 +21,7 @@ Exposer ces applications directement sur le Public WAN sans protection représen
 
 ## Décision
 
-Nous avons décidé de généraliser l'utilisation du **Proxy Outpost Authentik (Forward-Auth Traefik)** (`ak-outpost-ims-outpost:9000`) pour toutes les applications hébergées n'ayant pas d'authentification native.
+Décision : généraliser l'utilisation du **Proxy Outpost Authentik (Forward-Auth Traefik)** (`ak-outpost-ims-outpost:9000`) pour toutes les applications hébergées n'ayant pas d'authentification native.
 
 - **Principe** : Traefik intercepte chaque requête HTTPS entrante sur le sous-domaine visé (`logs.ims-world.fr`, `status.ims-world.fr`, `tools.ims-world.fr`).
 - **Interrogation en amont** : Traefik transmet les en-têtes à l'outpost Authentik local via le middleware `forwardAuth`.
@@ -35,6 +36,6 @@ Nous avons décidé de généraliser l'utilisation du **Proxy Outpost Authentik 
 - **Expérience SSO unifiée** : Une seule connexion sur `auth.ims-world.fr` déverrouille l'ensemble des outils d'administration.
 - **Zéro modification de code** : S'applique en simple configuration de labels Traefik dans le `docker-compose.yml` du service.
 
-### Négatives / Contraintes
+### Contraintes
 - Dépendance critique envers le conteneur `ak-outpost-ims-outpost` (s'il s'arrête, l'accès aux services Forward-Auth est bloqué).
 - Impossibilité pour les applications mobiles tierces non navigables d'utiliser des APIs si elles ne gèrent pas le cookie de session Forward-Auth.

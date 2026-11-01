@@ -1,14 +1,19 @@
 ---
-title: "ADR-005 — Configuration CPU de la VM Coolify en mode host (x86-64-v2)"
+title: "ADR-005 — Processeur de la VM 104 en mode host"
 description: "Décision d'exposer le CPU physique Intel i5-12600H à la VM Coolify plutôt que le profil générique Proxmox kvm64"
 icon: "microchip"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
 ## Statut
-<Badge color="green">🟢 Accepté & Déployé</Badge> *(2026-08-14)*
+Accepté — 14/08/2026
 
 ---
+
+<Update label="25/10/2026" description="Réévaluation">
+  Le cluster compte deux nœuds depuis le 23/08/2026. La VM 104 reste en `host` : elle n'est de toute façon pas migrable, à cause de l'iGPU transmise ([ADR-008](/history/adr/adr-008-passthrough-gpu-igpu-iris-xe)). Les VM créées par ims-ops utilisent le type `x86-64-v2-AES`, compatible avec les deux nœuds.
+</Update>
 
 ## Contexte
 
@@ -20,7 +25,7 @@ Certains binaires Node.js modernes (modules natifs C/C++ compilés comme `sharp`
 
 ## Décision
 
-Nous avons décidé de basculer le type de CPU de la **VM IMS-Coolify (VMID 104)** du profil générique vers le mode **`host`** :
+Décision : basculer le type de CPU de la **VM IMS-Coolify (VMID 104)** du profil générique vers le mode **`host`** :
 
 ```bash
 # Configuration du CPU host sur l'hyperviseur Proxmox (Host MS-01)
@@ -39,6 +44,6 @@ Le processeur physique réel de l'hôte (Intel Core i5-12600H) est désormais ex
 - **Performances maximales** : Accès direct à l'ensemble des instructions vectorielles et matérielles du processeur Intel Alder Lake.
 - **Conformité aux recommandations Proxmox** : Dans un environnement mono-hôte, le type `host` est la recommandation officielle par défaut.
 
-### Négatives / Contraintes
+### Contraintes
 - **Perte de portabilité de migration à chaud** : La VM ne peut plus être migrée à chaud vers un hôte Proxmox équipé d'une architecture CPU différente.
 - **Sans impact en l'état** : L'infrastructure reposant sur un seul hyperviseur principal (Minisforum MS-01), cette contrainte est sans effet. Décision à réévaluer si un second nœud Proxmox intègre le cluster à l'avenir.

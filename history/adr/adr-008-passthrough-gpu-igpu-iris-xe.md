@@ -1,12 +1,13 @@
 ---
-title: "ADR-008 — Passthrough GPU (iGPU Iris Xe) vers la VM Coolify"
+title: "ADR-008 — Passthrough de l'iGPU vers la VM 104"
 description: "Passthrough PCI complet du GPU intégré pour le transcodage matériel Jellyfin et PhotoPrism"
 icon: "microchip"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
 ## Statut
-<Badge color="green">🟢 Adopté & Validé</Badge> *(2026-08-17)*
+Accepté — 17/08/2026
 
 ---
 
@@ -18,8 +19,7 @@ Le processeur (Intel Core i5-12600H) ne dispose que d'un seul processeur graphiq
 
 ---
 
-## Décisions
-
+## Décision
 ### 1. Activation IOMMU (Kernel & GRUB)
 Le serveur utilise GRUB classique (le fichier `/etc/kernel/proxmox-boot-uuids` est absent, `proxmox-boot-tool` non utilisé). L'activation s'effectue par édition directe de `/etc/default/grub` :
 
@@ -93,8 +93,7 @@ sudo modprobe i915
 
 ---
 
-## Conséquences & Validation
-
+## Conséquences
 <Check>
 **Validé en production sur HomeFlix (Jellyfin)** — Transcodage matériel HEVC/H.264 via `hevc_qsv` et `h264_qsv` confirmé dans les arguments `ffmpeg` (`-hwaccel qsv -c:v h264_qsv ... -codec:v:0 hevc_qsv`). Vitesse de transcodage observée à **29.7x le temps réel** avec une charge CPU négligeable.
 </Check>

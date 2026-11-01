@@ -1,115 +1,97 @@
 ---
-title: "Sécuriser une App avec Authentik Outpost (Forward-Auth)"
-description: "Procédure pas-à-pas pour protéger une application web sans support OIDC natif via Traefik et Authentik Outpost Proxy"
+title: "Protéger une application par forward-auth"
+description: "Placer une application sans authentification derrière le SSO Authentik, par le middleware forward-auth de Traefik et l'outpost Authentik."
 icon: "shield-keyhole"
 iconType: "duotone"
+last_reviewed: "2026-10-25"
 ---
 
-<Badge color="green">🟢 Procédure Standard Validée</Badge>
+Durée : 20 minutes · Risque : faible · Interruption de service : quelques secondes au redéploiement
 
-## Objectif
+## Quand l'utiliser
 
-Cette procédure décrit la séquence exacte pour sécuriser n'importe quelle application web hébergée sur le homelab ne disposant pas d'un système d'authentification natif ni de support OIDC / OAuth2 (ex. **Dozzle**, **Uptime Kuma**, **IT-Tools**, **Stirling PDF**).
-
-Elle s'appuie sur le pattern **Forward-Auth Traefik** d'Authentik ([ADR-002](/history/adr/adr-002-pattern-forward-auth-authentik)) pour bloquer tout accès non authentifié au niveau du reverse proxy.
-
----
-
-## Vue d'Ensemble du Flux
+Pour une application web exposée qui n'a ni authentification propre ni support OIDC (IT-Tools, Stirling PDF, Uptime Kuma, Dozzle). Le principe est décrit dans l'[ADR-002](/history/adr/adr-002-pattern-forward-auth-authentik). Si l'application gère OIDC, préférer l'[intégration OIDC](/procedures/integration-service-authentik-oidc).
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor User as 👤 Utilisateur
-    participant Traefik as 🚦 Traefik Proxy Engine
-    participant Outpost as 🛡️ Authentik Outpost (ak-outpost-ims-outpost:9000)
-    participant App as 🐳 Application Web (ex: Dozzle / IT-Tools)
-
-    User->>Traefik: GET https://app.ims-world.fr
-    Traefik->>Outpost: Verification Session (Forward-Auth)
-    alt Session Invalide / Non Authentifiée
-        Outpost-->>Traefik: 401 Unauthorized + Redirect
-        Traefik-->>User: Redirection vers https://auth.ims-world.fr
-    else Session Valide (Auth OK)
-        Outpost-->>Traefik: 200 OK + Headers X-authentik-*
-        Traefik->>App: Transmet la requête + Headers identité
-        App-->>User: Accès accordé & Affichage
-    end
+  participant U as Utilisateur
+  participant T as Traefik
+  participant O as Outpost Authentik
+  participant A as Application
+  U->>T: GET https://app.ims-world.fr
+  T->>O: Vérification de session
+  alt Pas de session
+    O-->>T: 401 et redirection
+    T-->>U: Redirection vers auth.ims-world.fr
+  else Session valide
+    O-->>T: 200 et en-têtes X-authentik-*
+    T->>A: Requête transmise
+    A-->>U: Réponse
+  end
 ```
 
----
+## Prérequis
 
-## Procédure Pas-à-Pas (4 Étapes)
+- Compte administrateur Authentik.
+- Application déployée dans Coolify, attachée au réseau Docker `coolify`.
+
+## Étapes
 
 <Steps>
-  <Step title="Créer le Proxy Provider & l'Application dans Authentik Admin">
-    1. Se connecter à la console **Authentik Admin** (`https://auth.ims-world.fr`).
-    2. Aller dans **Applications → Providers → Create Provider**.
-    3. Choisir le type **Proxy Provider** et cliquer sur **Next**.
-    4. Renseigner les paramètres :
-       - **Name** : `Provider - <NomApp>` (ex. `Provider - Dozzle`)
-       - **Authorization flow** : `default-authorization-flow` (ou flow personnalisé).
-       - **Mode** : Cocher **Forward auth (single application)**.
-       - **External host** : `https://<sous-domaine>.ims-world.fr` (ex. `https://logs.ims-world.fr`).
-    5. Cliquer sur **Finish**.
-    6. Aller dans **Applications → Applications → Create Application**.
-       - **Name** : `<NomApp>` (ex. `Dozzle Logs`)
-       - **Slug** : `<nomapp>` (ex. `dozzle`)
-       - **Provider** : Sélectionner le `Provider - <NomApp>` créé à l'étape précédente.
+  <Step title="Créer le fournisseur proxy">
+    Dans Authentik : **Applications → Providers → Create**, type **Proxy Provider** :
+    - **Name** : `Provider - <application>` ;
+    - **Authorization flow** : `default-authorization-flow` ;
+    - mode **Forward auth (single application)** ;
+    - **External host** : `https://<sous-domaine>.ims-world.fr`.
   </Step>
-
-  <Step title="Restreindre les Droits d'Accès (Politique RBAC)">
-    1. Éditer l'application créée dans **Applications → Applications → `<NomApp>`**.
-    2. Aller dans l'onglet **Policy / Group Bindings → Bind existing policy / group**.
-    3. Sélectionner le ou les groupes autorisés :
-       - `authentik Admins` / `admins` pour les outils d'administration pure (Dozzle, Uptime Kuma).
-       - `membres` ou `invites` pour les outils partagés (IT-Tools, Stirling PDF).
-    4. Enregistrer la politique.
+  <Step title="Créer l'application">
+    **Applications → Applications → Create** : nom, slug, et le fournisseur créé.
   </Step>
-
-  <Step title="Rattacher l'Application à l'Outpost Authentik">
-    1. Aller dans **Applications → Outposts**.
-    2. Cliquer sur le bouton d'édition de l'Outpost par défaut (`ak-outpost-ims-outpost`).
-    3. Dans la section **Applications**, ajouter la nouvelle application `<NomApp>` à la liste des applications gérées.
-    4. Cliquer sur **Update**.
+  <Step title="Restreindre l'accès">
+    Dans l'application, onglet **Policy / Group / User Bindings**, lier les groupes autorisés : administrateurs pour un outil d'administration, `membres` ou `invites` pour un outil partagé (voir la [matrice](/reseau/matrice-securite-exposition#droits-par-groupe-authentik)).
   </Step>
-
-  <Step title="Injecter les Labels Traefik dans le docker-compose.yml (Coolify)">
-    Dans l'interface **Coolify**, éditer la configuration Compose du service et ajouter les labels Traefik Forward-Auth :
+  <Step title="Rattacher l'application à l'outpost">
+    **Applications → Outposts**, éditer `ak-outpost-ims-outpost`, ajouter l'application, **Update**.
+  </Step>
+  <Step title="Ajouter les labels Traefik au compose">
+    Dans Coolify, compléter le compose du service :
 
     ```yaml
-    services:
-      votre-app:
-        image: nom-image:tag
-        container_name: votre-app-service
-        networks:
-          - coolify
-        labels:
-          - traefik.enable=true
-          - traefik.http.routers.votre-app.rule=Host(`app.ims-world.fr`)
-          - traefik.http.routers.votre-app.entrypoints=https
-          - traefik.http.routers.votre-app.tls=true
-          - traefik.http.routers.votre-app.tls.certresolver=letsencrypt
-          - traefik.http.routers.votre-app.middlewares=authentik-forwardauth@docker
-          
-          # Middleware Forward-Auth Traefik interrogeant l'Outpost Authentik local
-          - traefik.http.middlewares.authentik-forwardauth.forwardauth.address=http://ak-outpost-ims-outpost:9000/outpost.goauthentik.io/auth/traefik
-          - traefik.http.middlewares.authentik-forwardauth.forwardauth.trustForwardHeader=true
-          - traefik.http.middlewares.authentik-forwardauth.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.<app>.rule=Host(`<sous-domaine>.ims-world.fr`)
+      - traefik.http.routers.<app>.entrypoints=https
+      - traefik.http.routers.<app>.tls=true
+      - traefik.http.routers.<app>.tls.certresolver=letsencrypt
+      - traefik.http.routers.<app>.middlewares=authentik-<app>@docker
+      - traefik.http.middlewares.authentik-<app>.forwardauth.address=http://ak-outpost-ims-outpost:9000/outpost.goauthentik.io/auth/traefik
+      - traefik.http.middlewares.authentik-<app>.forwardauth.trustForwardHeader=true
+      - traefik.http.middlewares.authentik-<app>.forwardauth.authResponseHeaders=X-authentik-username,X-authentik-groups,X-authentik-email,X-authentik-name,X-authentik-uid
     ```
 
-    <Warning>
-    **Champ Domains dans Coolify** : Laisser le champ *Domains* **vide** dans l'UI Coolify pour éviter que Coolify n'ajoute un routeur automatique parallèle sans le middleware Forward-Auth. Voir la [Règle d'Or de Routage Traefik](/reseau/traefik-proxy).
-    </Warning>
+    Laisser le champ **Domains** de Coolify vide : sinon Coolify crée un second routeur, sans forward-auth. Redéployer.
+
+    Si le service est aussi restreint au tailnet, son routeur vit dans `vpn-only.yaml` et les labels sont ignorés : y ajouter le middleware avec le suffixe `@docker` (voir [Restreindre un service au tailnet](/procedures/securiser-service-vpn-only)).
+  </Step>
+  <Step title="Mettre à jour la matrice">
+    Ajouter le service dans la [matrice d'exposition](/reseau/matrice-securite-exposition).
   </Step>
 </Steps>
 
----
+## Vérification
 
-## Validation & Test
+1. En navigation privée, ouvrir `https://<sous-domaine>.ims-world.fr` : redirection vers `auth.ims-world.fr`.
+2. Se connecter avec un compte autorisé : retour sur l'application.
+3. Se connecter avec un compte non autorisé : page d'accès refusé d'Authentik.
 
-1. Ouvrir une fenêtre de **navigation privée** et accéder à `https://app.ims-world.fr`.
-2. Vérifier que Traefik redirige immédiatement vers la mire SSO Authentik (`https://auth.ims-world.fr/if/gateway/...`).
-3. Se connecter avec un compte appartenant au groupe autorisé.
-4. Confirmer la redirection automatique retour et le déblocage de l'accès au service.
-5. Tester avec un compte utilisateur n'ayant pas les droits (ex: groupe `invites` sur un outil admin) : l'accès doit être bloqué avec une page d'accès refusé Authentik.
+## Retour arrière
+
+Retirer les labels du compose et redéployer ; supprimer l'application et le fournisseur dans Authentik.
+
+## Dépannage
+
+| Symptôme | Cause | Solution |
+| --- | --- | --- |
+| Accès direct sans passer par Authentik | Un routeur de `vpn-only.yaml` ou un domaine Coolify prend la priorité | Voir l'[incident du 24/08/2026](/history/incidents/2026-08-24-bypass-sso-dozzle-traefik-file-provider) |
+| Tous les services en forward-auth inaccessibles | Conteneur `ak-outpost-ims-outpost` arrêté | Le redémarrer depuis Coolify (voir [Authentik](/services/authentik)) |

@@ -1,171 +1,122 @@
 ---
 title: "Authentik"
-description: "SSO / OIDC — provider d'identité central"
+description: "Fournisseur d'identité du homelab : connexion unique (OIDC) pour les applications compatibles, forward-auth pour les autres, invitations et groupes."
 icon: "key"
 iconType: "duotone"
-last_reviewed: "2026-09-13"
+last_reviewed: "2026-10-25"
 app_version: "2026.8.0"
 ---
 
-import { ips, domains } from "/snippets/variables.mdx";
+import { domains } from "/snippets/variables.mdx";
 
-<Badge color="green">🟢 Production Active</Badge>
+## Accès
 
-## Accès Rapides & Administration
+Portail public, protégé par double facteur. Les applications y redirigent pour la connexion.
 
-<Tabs>
-  <Tab title="🌐 Interface Web">
-    <Card title="Console Authentik Admin" icon="shield-halved" href="https://auth.ims-world.fr">
-      Provider d'identité centralisé (OAuth2 / OIDC + WebAuthn 2FA). Accessible sur `auth.ims-world.fr`.
-    </Card>
-  </Tab>
-  <Tab title="⚡ Commandes CLI & Maintenance">
-    ```bash
-    # Générer une clé de récupération d'urgence (valable 1h)
-    docker exec -it authentik-worker-k5mxvc2r6c4zlb6j3d443h7b ak create_recovery_key 1 akadmin
+<CardGroup cols={2}>
+  <Card color="#16A34A" title="Authentik" icon="shield-halved" href="https://auth.ims-world.fr">
+    Portail de connexion et console d'administration.
+  </Card>
+</CardGroup>
 
-    # Dump complet de la base de données PostgreSQL
-    docker exec postgresql-k5mxvc2r6c4zlb6j3d443h7b pg_dump -U <user> -d authentik -F c -f /tmp/dump.sql
-    ```
-  </Tab>
-</Tabs>
+```bash
+# Depuis la VM 104 : lien de récupération pour akadmin, valable 1 heure
+docker exec -it authentik-worker-k5mxvc2r6c4zlb6j3d443h7b ak create_recovery_key 1 akadmin
+```
 
----
-
-## Fiche Service
+## Fiche
 
 | Propriété | Valeur |
-|---|---|
-| **Domaine** | {domains.sso} |
-| **Rôle** | Provider d'Identité Centralisé (SSO / OIDC + WebAuthn 2FA) |
-| **Base de Données** | PostgreSQL |
-| **Hôte d'Orchestration** | VM IMS-Coolify (VM 104) |
-| **UUID Coolify** | `k5mxvc2r6c4zlb6j3d443h7b` |
-| **Chemin sur la VM** | `/data/coolify/services/k5mxvc2r6c4zlb6j3d443h7b/` |
-| **Statut** | <Badge color="green">🟢 Production Active</Badge> |
+| --- | --- |
+| Domaine | {domains.sso} |
+| Accès | Public ; double facteur (TOTP, WebAuthn) |
+| Hôte | VM 104 |
+| Coolify | UUID `k5mxvc2r6c4zlb6j3d443h7b`, chemin `/data/coolify/services/k5mxvc2r6c4zlb6j3d443h7b/` |
+| Image | `ghcr.io/goauthentik/server:2026.8.0` ; outpost `ghcr.io/goauthentik/proxy:2026.8.0` |
+| Données | PostgreSQL (volume Docker sur la VM 104) ; clé `SECRET_KEY` |
+| Sauvegarde | Avec la VM 104 |
+| Supervision | Sonde Uptime Kuma |
+| Mise en service | Août 2026 |
 
----
+## Fonctionnement
 
-## Architecture & Topologie
+Deux modes d'intégration, selon que l'application sait déléguer sa connexion ou non.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as 👤 Utilisateur
-    participant Client as 🚀 Service Applicatif (Headscale/Headplane/Jellyfin)
-    participant Auth as 🔐 Authentik (auth.ims-world.fr)
-    participant DB as 🐘 Postgres DB (authentik)
+<CardGroup cols={2}>
+  <Card color="#FF6B00" title="OIDC" icon="id-card" href="/procedures/integration-service-authentik-oidc">
+    L'application dialogue avec Authentik. Grafana, Headplane, Headscale, Immich, Zipline, Forgejo, PhotoPrism, Termix, interface CrowdSec.
+  </Card>
+  <Card color="#FF6B00" title="Forward-auth" icon="door-closed" href="/procedures/securiser-application-authentik-forward-auth">
+    Traefik demande à l'outpost avant de transmettre ([ADR-002](/history/adr/adr-002-pattern-forward-auth-authentik)). Dozzle, Uptime Kuma, IT-Tools, Stirling PDF.
+  </Card>
+</CardGroup>
 
-    User->>Client: Accès au service
-    Client-->>User: Redirection OAuth2 / OIDC Authorization Code
-    User->>Auth: Prompt Connexion SSO + WebAuthn 2FA
-    Auth->>DB: Vérification identifiants & session
-    DB-->>Auth: Valide (User Authenticated)
-    Auth-->>User: Redirection vers le Service avec Authorization Code
-    User->>Client: Transmet le Code
-    Client->>Auth: Exchange Code against ID Token + Access Token
-    Auth-->>Client: Token OIDC JWT signé
-    Client-->>User: Accès accordé & Session établie
-```
+L'outpost `ak-outpost-ims-outpost` (port 9000) est créé et géré par Authentik lui-même, par le socket Docker : il n'apparaît pas dans le compose de Coolify. S'il s'arrête, tous les services en forward-auth deviennent inaccessibles.
 
----
+Les droits par groupe (`authentik Admins`, `admins`, `membres`, `invites`, `authentik Read-only`) sont dans la [matrice d'exposition](/reseau/matrice-securite-exposition#droits-par-groupe-authentik).
 
-## Composants & Fonctionnement (Groupes & Rôles RBAC)
+## Données et sauvegarde
 
-<Info>
- Authentik assure la gouvernance IAM et le contrôle d'accès basé sur les rôles (**RBAC**). La répartition exacte des 5 groupes (`authentik Admins`, `admins`, `membres`, `invites`, `authentik Read-only`) et la matrice croisée d'accès applicatif sont détaillées dans la [Matrice des Rôles & Droits d'Accès (RBAC)](/reseau/matrice-securite-exposition#matrice-des-rles--droits-daccs-rbac-authentik).
-</Info>
+La base PostgreSQL et la configuration sont sauvegardées avec la VM 104. La clé `SECRET_KEY` doit être restaurée avec la base : sans elle, sessions et jetons sont invalidés. Export ponctuel : voir la [politique de sauvegarde](/procedures/politique-sauvegardes).
 
-| Groupe Authentik | Super-Utilisateur ? | Périmètre d'Accès Résumé |
-|---|:---:|---|
-| **`authentik Admins`** | `Oui` (🟢) | Administration globale du Homelab, Coolify, Proxmox, Traefik, Monitoring |
-| **`admins`** | `Oui` (🟢) | Administration de la plateforme IAM Authentik et des politiques de sécurité |
-| **`membres`** | `Non` (🔴) | Accès complet aux apps (Tailscale / Headscale, Vaultwarden, Immich, Zipline, HomeFlix, IT-Tools, etc.) |
-| **`invites`** | `Non` (🔴) | Accès restreint (HomeFlix Jellyfin, Vidéoclub JellySeerr, IT-Tools, Stirling PDF) |
-| **`authentik Read-only`** | `Non` (🔴) | Audit et consultation des métriques en lecture seule |
+## Exploitation
 
----
-
-## Outpost Proxy & Forward-Auth Traefik
-
-Authentik supporte **deux modes d'intégration** selon les capacités des applications hébergées :
-
-1. **OIDC Natif (OpenID Connect / OAuth2)** : L'application gère son propre flux d'authentification et dialogue directement avec Authentik (ex. [Grafana](/services/monitoring), [Vaultwarden](/services/vaultwarden), [Headplane](/services/headscale-headplane), [Zipline](/services/zipline), [Forgejo](/services/forgejo), [PhotoPrism](/services/photoprism)).
-2. **Proxy Outpost (Forward-Auth)** : Pour les applications web dépourvues de système d'authentification natif (ex. [Dozzle](/services/dozzle) sur `logs.ims-world.fr`, [Uptime Kuma](/services/uptime-kuma) sur `status.ims-world.fr`, [IT-Tools](/services/it-tools) sur `tools.ims-world.fr` et [Stirling PDF](/services/stirling-pdf) sur `pdf.ims-world.fr`), l'Outpost embarqué Authentik (`ak-outpost-ims-outpost:9000`) s'intercale en amont via le middleware Traefik `forwardAuth`.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as 👤 Utilisateur
-    participant Traefik as 🚦 Traefik Proxy Engine
-    participant Outpost as 🛡️ Authentik Outpost (Port 9000)
-    participant App as 🐳 Application Web (ex: Dozzle)
-
-    User->>Traefik: GET https://logs.ims-world.fr
-    Traefik->>Outpost: Auth Check (Forward-Auth)
-    alt Session Invalide / Absente
-        Outpost-->>Traefik: 401 Unauthorized + Redirect
-        Traefik-->>User: Redirection vers auth.ims-world.fr
-    else Session Valide (Auth OK)
-        Outpost-->>Traefik: 200 OK + Headers X-authentik-*
-        Traefik->>App: Transmet la requête + Headers identité
-        App-->>User: Affichage du service
-    end
-```
-
-<Info>
-Le filtrage des accès des applications en Forward-Auth ne se fait pas dans le fichier Compose de l'application, mais directement dans la console **Authentik (Applications → Outposts / Policies)**.
-</Info>
-
----
-
-## Exploitation & Procédures (Inviter un Utilisateur)
+### Inviter un utilisateur
 
 <Steps>
-  <Step title="Génération de l'invitation dans Authentik">
-    Aller dans **Répertoire → Invitations → New Invitation** (choisir *with Existing Enrollment Flow*).
-    Saisir le nom (slug en minuscules, ex: `jean-dupont`) et cocher **Usage unique**.
+  <Step title="Créer l'invitation">
+    **Répertoire → Invitations → New Invitation**, avec le flux d'inscription existant. Nom en minuscules (`jean-dupont`), **Usage unique** coché.
   </Step>
-  <Step title="Transmission du lien">
-    Cliquer **Suivant** pour générer le lien unique. Transmettre le lien par email directement via l'interface ou manuellement.
+  <Step title="Transmettre le lien">
+    Copier le lien généré, ou l'envoyer depuis l'interface.
   </Step>
-  <Step title="Parcours de l'invité">
-    L'invité clique sur le lien, remplit son nom d'utilisateur, email et mot de passe, puis valide la confirmation d'email reçue via Resend (`no-reply@ims-world.fr`).
-  </Step>
-  <Step title="Affectation automatique des droits">
-    À la validation, le compte est créé et rattaché automatiquement au groupe par défaut (`membres`).
+  <Step title="Inscription">
+    L'invité choisit son identifiant et son mot de passe, puis confirme son adresse (courriel envoyé par Resend, `no-reply@ims-world.fr`). Le compte rejoint le groupe `membres`.
   </Step>
 </Steps>
 
----
+### Mettre à jour
 
-## 🔄 Montées de Version & Réconciliation des Outposts (Upgrade 2026.8.0)
+<Steps>
+  <Step title="Changer le tag">
+    Modifier le tag de `authentik-server` et `authentik-worker` dans Coolify, puis redéployer.
+  </Step>
+  <Step title="Aligner l'outpost">
+    Le conteneur outpost n'est pas redéployé avec le reste. Si **Applications → Outposts** signale une version différente :
 
-<Badge color="green">🟢 Upgrade 2026.5.0 → 2026.8.0 Validé (24/08/2026)</Badge>
+    ```bash
+    docker stop ak-outpost-ims-outpost && docker rm ak-outpost-ims-outpost
+    docker restart authentik-server-k5mxvc2r6c4zlb6j3d443h7b authentik-worker-k5mxvc2r6c4zlb6j3d443h7b
+    ```
+    Authentik recrée l'outpost à la bonne version. Le conteneur ne contient aucune donnée.
+  </Step>
+</Steps>
 
-### ⚠️ Piège d'Architecture : Outposts Docker Managés
+## Pièges connus
 
-Les outposts configurés en **Local Docker Connection** (`ims-outpost`) ne sont pas définis dans le `docker-compose.yml` principal de Coolify. Ils sont créés et gérés dynamiquement par Authentik via le socket Docker de l'hôte (`/var/run/docker.sock`).
+Chaque piège donne le symptôme observé, sa cause et la correction.
 
-<Warning>
-**Désalignement de version des Outposts** : Un simple bump du tag dans le `docker-compose.yml` (`authentik-server` et `authentik-worker`) ne redéploie pas automatiquement les conteneurs outpost (`ak-outpost-*`). Un redémarrage du worker seul ne suffit pas toujours à forcer la réconciliation.
-</Warning>
+<AccordionGroup>
+  <Accordion title="Outpost resté à l'ancienne version après une mise à jour">
+    **Cause** : il n'est pas géré par le compose de Coolify.
 
-### 🛠️ Procédure de Réconciliation Obligatoire Post-Upgrade
+    **Solution** : supprimer le conteneur et redémarrer serveur et worker.
+  </Accordion>
+  <Accordion title="Labels forward-auth sans effet sur un service restreint au tailnet">
+    **Cause** : le routeur de `vpn-only.yaml` prend la priorité.
 
-En cas d'alerte de version désalignée sous **Applications ➔ Outposts** (ex: `ims-outpost` restant en 2026.5.0 alors que le serveur est en 2026.8.0) :
+    **Solution** : déclarer le middleware avec `@docker` dans `vpn-only.yaml`.
+  </Accordion>
+  <Accordion title="Parseur CrowdSec Authentik en échec">
+    **Cause** : il attend du syslog.
 
-```bash
-# 1. Vérifier la version de l'image de l'outpost
-docker ps -a --format '{{.Names}}\t{{.Image}}\t{{.Status}}' | grep -i outpost
+    **Solution** : voir [CrowdSec](/reseau/crowdsec).
+  </Accordion>
+</AccordionGroup>
 
-# 2. Stopper et supprimer le conteneur outpost stateless (sans risque de perte de données)
-docker stop ak-outpost-ims-outpost
-docker rm ak-outpost-ims-outpost
+## Voir aussi
 
-# 3. Redémarrer server + worker pour forcer Authentik à ré-instancier l'outpost à jour
-docker restart authentik-server-k5mxvc2r6c4zlb6j3d443h7b authentik-worker-k5mxvc2r6c4zlb6j3d443h7b
-```
-
-Au redémarrage, Authentik détecte l'absence du conteneur outpost et ré-instancie immédiatement `ak-outpost-ims-outpost` sur l'image alignée `ghcr.io/goauthentik/proxy:2026.8.0`.
-
+<CardGroup cols={2}>
+  <Card color="#FF6B00" title="Matrice d'exposition" icon="table-cells" href="/reseau/matrice-securite-exposition">Zone et authentification de chaque service.</Card>
+  <Card color="#FF6B00" title="Headscale" icon="network-wired" href="/reseau/headscale-headplane">Enrôlement par OIDC.</Card>
+</CardGroup>

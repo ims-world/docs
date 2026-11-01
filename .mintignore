@@ -5,3 +5,6 @@
 # Draft content
 drafts/
 *.draft.mdx
+
+# Modèles de page (copiés à la main, jamais publiés)
+_modeles/
