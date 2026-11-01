@@ -59,7 +59,7 @@ flowchart LR
 | [Headplane](/reseau/headscale-headplane) | `admin.vpn.ims-world.fr/admin` | Tailnet | OIDC Authentik |
 | [Grafana](/services/monitoring) | `monitoring.ims-world.fr` | Tailnet | OIDC Authentik |
 | [Dozzle](/services/dozzle) | `logs.ims-world.fr` | Tailnet | Forward-auth Authentik |
-| [WUD](/services/whatsupdocker) | `wud.ims-world.fr` | Tailnet | Native |
+| [WUD](/services/whatsupdocker) | `wud.ims-world.fr` | Tailnet | OIDC Authentik ; compte natif de secours |
 | [Interface CrowdSec](/reseau/crowdsec) | `shield.ims-world.fr` | Tailnet | OIDC Authentik (rôle administrateur) |
 | [Termix](/services/termix) | `termix.ims-world.fr` | Tailnet | OIDC Authentik (groupe `admins`) ; compte local de secours avec TOTP |
 | [Home Assistant](/infrastructure/vm-home-assistant) | `home.ims-world.fr` | Tailnet | Native |
