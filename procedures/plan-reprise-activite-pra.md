@@ -10,9 +10,14 @@ import { ips } from "/snippets/variables.mdx";
 
 Durée : de 15 minutes (une machine) à une demi-journée (un nœud) · Risque : élevé · Interruption de service : selon le scénario
 
-<Warning>
-Ce plan n'a pas encore été validé par une restauration réelle. Le premier test est décrit en fin de page ; sa date sera inscrite ici une fois réalisé.
-</Warning>
+<Note>
+Tests de restauration ([procédure](#tester-les-sauvegardes)) :
+
+| Date | Invité | Résultat |
+| --- | --- | --- |
+| 01/11/2026 | Worker 105 (LXC) | <Icon icon="circle-check" color="#16A34A" /> OK, systemd répond |
+| — | VM 104 | <Icon icon="clock" color="#FF6B00" /> À faire |
+</Note>
 
 ## Quand l'utiliser
 
