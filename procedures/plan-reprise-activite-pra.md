@@ -16,7 +16,7 @@ Tests de restauration ([procédure](#tester-les-sauvegardes)) :
 | Date | Invité | Résultat |
 | --- | --- | --- |
 | 01/11/2026 | Worker 105 (LXC) | <Icon icon="circle-check" color="#16A34A" /> OK, systemd répond |
-| — | VM 104 | <Icon icon="clock" color="#FF6B00" /> À faire |
+| 01/11/2026 | VM 104 | <Icon icon="circle-check" color="#16A34A" /> OK, agent QEMU joignable |
 </Note>
 
 ## Quand l'utiliser

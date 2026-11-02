@@ -14,11 +14,10 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | --- | --- | --- |
 | Protéger les données du NAS : photos Immich, dépôts Forgejo, originaux PhotoPrism | Aucune copie aujourd'hui ; perte définitive si un disque lâche | NAS, [politique de sauvegarde](/procedures/politique-sauvegardes#ce-qui-nest-pas-sauvegardé) |
 | Copie hors site des sauvegardes PBS | Datastore et médiathèque sur le même HDD. Piste : Raspberry Pi avec disque, en synchronisation PBS | PBS |
-| Test de restauration de la VM 104 | Worker 105 restauré avec succès le 01/11/2026 ; reste la VM principale : `just restore-test 104` | [Plan de reprise](/procedures/plan-reprise-activite-pra#tester-les-sauvegardes) |
 | Ajouter la VM 102 au pool `backup` | Windows non sauvegardée (`just backup-add 102`) | Pool `backup` |
 | Décider de la sauvegarde de `lab-elo` | VM d'un tiers, hors pool | Pool `backup` |
 | QDevice Corosync | Deux votes seulement : la perte d'un nœud fait perdre le quorum | Raspberry Pi |
-| Alerte hors du MS-01 | Toute la supervision tourne sur la VM 104 : une panne du MS-01 ne produit aucune alerte | Mac Mini, Raspberry Pi ou VPS |
+| Alerte hors du homelab | Toute la supervision est à la maison : une coupure de courant ou d'accès Internet ne produit aucune alerte. Décidé : battement de cœur des nœuds vers Healthchecks.io. Créer deux contrôles (`pve`, `pve-macmini`), ranger leurs URL dans le coffre d'ims-ops, puis cron sur les nœuds par ims-ops | Healthchecks.io, ims-ops |
 
 ## Priorité moyenne
 
@@ -54,6 +53,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Date | Chantier | Page |
 | --- | --- | --- |
+| 01/11/2026 | Premiers tests de restauration (worker 105, VM 104) et commandes d'exploitation ims-ops | [Plan de reprise](/procedures/plan-reprise-activite-pra) |
 | 25/10/2026 | Refonte de la documentation | [Contribuer](/reference/contribuer) |
 | 25/10/2026 | Worker 105 repassé en IP fixe (`192.168.1.198`) | [Worker 105](/infrastructure/lxc-coolify-worker) |
 | 24/10/2026 | Sauvegarde par pool et alertes Ntfy, y compris le worker et Home Assistant | [ADR-014](/history/adr/adr-014-sauvegarde-par-pool-unique) |
