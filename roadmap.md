@@ -17,7 +17,6 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Ajouter la VM 102 au pool `backup` | Windows non sauvegardée (`just backup-add 102`) | Pool `backup` |
 | Décider de la sauvegarde de `lab-elo` | VM d'un tiers, hors pool | Pool `backup` |
 | QDevice Corosync | Deux votes seulement : la perte d'un nœud fait perdre le quorum | Raspberry Pi |
-| Alerte hors du homelab | Toute la supervision est à la maison : une coupure de courant ou d'accès Internet ne produit aucune alerte. Décidé ([ADR-015](/history/adr/adr-015-alerte-externe-battement-de-coeur)), rôle `heartbeat` écrit. Reste : créer les trois contrôles, ranger leurs URL dans le coffre, `just setup` | Healthchecks.io, ims-ops |
 
 ## Priorité moyenne
 
@@ -53,6 +52,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Date | Chantier | Page |
 | --- | --- | --- |
+| 03/11/2026 | Alerte hors du homelab : battement de cœur des nœuds et de la VM 104 vers Healthchecks.io | [ADR-015](/history/adr/adr-015-alerte-externe-battement-de-coeur) |
 | 01/11/2026 | Premiers tests de restauration (worker 105, VM 104) et commandes d'exploitation ims-ops | [Plan de reprise](/procedures/plan-reprise-activite-pra) |
 | 25/10/2026 | Refonte de la documentation | [Contribuer](/reference/contribuer) |
 | 25/10/2026 | Worker 105 repassé en IP fixe (`192.168.1.198`) | [Worker 105](/infrastructure/lxc-coolify-worker) |
