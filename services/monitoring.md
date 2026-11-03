@@ -114,6 +114,10 @@ Grafana évalue les règles et envoie les alertes au topic Ntfy `ims-alerts` (po
 
 Les autres alertes du homelab ne passent pas par Grafana : échecs de sauvegarde (Proxmox VE et PBS), bannissements fail2ban, mises à jour d'images (WUD), indisponibilités (Uptime Kuma). Toutes arrivent sur le même topic Ntfy.
 
+<Note>
+Ces alertes dépendent toutes de la VM 104. Une coupure de courant ou d'accès Internet est signalée par un service externe : les nœuds et la VM 104 envoient un battement de cœur à Healthchecks.io, qui alerte par courriel si le signal cesse ([ADR-015](/history/adr/adr-015-alerte-externe-battement-de-coeur)).
+</Note>
+
 ## Données et sauvegarde
 
 Prometheus et Loki sont sur le disque local de la VM 104 et sauvegardés avec elle. Une perte n'efface que l'historique.

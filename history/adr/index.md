@@ -24,3 +24,4 @@ Un ADR (Architecture Decision Record) consigne une décision, son contexte et le
 | [012](/history/adr/adr-012-retrait-de-mergerfs) | Retrait de MergerFS : bind-mounts ext4, aucun FUSE sous NFS | Accepté | 23/10/2026 |
 | [013](/history/adr/adr-013-administration-par-ims-ops) | Administration du parc par ims-ops (Ansible, just) | Accepté | 23/10/2026 |
 | [014](/history/adr/adr-014-sauvegarde-par-pool-unique) | Sauvegarde par un pool unique, alertes sur Ntfy | Accepté | 24/10/2026 |
+| [015](/history/adr/adr-015-alerte-externe-battement-de-coeur) | Alerte hors du homelab par battement de cœur vers Healthchecks.io | Accepté | 03/11/2026 |

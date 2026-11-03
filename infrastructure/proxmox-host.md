@@ -140,7 +140,7 @@ Le nœud lui-même n'est pas sauvegardé : il se réinstalle, puis les invités 
 
 ## Supervision
 
-Agent Alloy (étiquette `ms01-pve`) avec le collecteur SMART. Tableaux de bord dans [Supervision](/services/monitoring).
+Agent Alloy (étiquette `ms01-pve`) avec le collecteur SMART. Tableaux de bord dans [Supervision](/services/monitoring). Battement de cœur vers Healthchecks.io toutes les 5 minutes ([ADR-015](/history/adr/adr-015-alerte-externe-battement-de-coeur)).
 
 ## Voir aussi
 

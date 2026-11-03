@@ -194,7 +194,8 @@
               "history/adr/adr-011-organisation-ims-infra-par-lots",
               "history/adr/adr-012-retrait-de-mergerfs",
               "history/adr/adr-013-administration-par-ims-ops",
-              "history/adr/adr-014-sauvegarde-par-pool-unique"
+              "history/adr/adr-014-sauvegarde-par-pool-unique",
+              "history/adr/adr-015-alerte-externe-battement-de-coeur"
             ]
           },
           {

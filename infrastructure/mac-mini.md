@@ -60,7 +60,7 @@ Les invités 105 et 106 sont sauvegardés chaque nuit dans le PBS (pool `backup`
 
 ## Supervision
 
-Agent Alloy avec le collecteur SMART du SSD interne (`/etc/cron.d/smartmon`, toutes les 5 minutes). Envoi vers `192.168.1.52`.
+Agent Alloy avec le collecteur SMART du SSD interne (`/etc/cron.d/smartmon`, toutes les 5 minutes). Envoi vers `192.168.1.52`. Battement de cœur vers Healthchecks.io toutes les 5 minutes ([ADR-015](/history/adr/adr-015-alerte-externe-battement-de-coeur)).
 
 ## Voir aussi
 
