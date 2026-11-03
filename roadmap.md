@@ -14,8 +14,6 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | --- | --- | --- |
 | Protéger les données du NAS : photos Immich, dépôts Forgejo, originaux PhotoPrism | Aucune copie aujourd'hui ; perte définitive si un disque lâche | NAS, [politique de sauvegarde](/procedures/politique-sauvegardes#ce-qui-nest-pas-sauvegardé) |
 | Copie hors site des sauvegardes PBS | Datastore et médiathèque sur le même HDD. Piste : Raspberry Pi avec disque, en synchronisation PBS | PBS |
-| Ajouter la VM 102 au pool `backup` | Windows non sauvegardée (`just backup-add 102`) | Pool `backup` |
-| Décider de la sauvegarde de `lab-elo` | VM d'un tiers, hors pool | Pool `backup` |
 | QDevice Corosync | Deux votes seulement : la perte d'un nœud fait perdre le quorum | Raspberry Pi |
 
 ## Priorité moyenne
@@ -52,6 +50,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Date | Chantier | Page |
 | --- | --- | --- |
+| 03/11/2026 | VM 102 et `lab-elo` ajoutées au pool de sauvegarde | [Politique de sauvegarde](/procedures/politique-sauvegardes) |
 | 03/11/2026 | Alerte hors du homelab : battement de cœur des nœuds et de la VM 104 vers Healthchecks.io | [ADR-015](/history/adr/adr-015-alerte-externe-battement-de-coeur) |
 | 01/11/2026 | Premiers tests de restauration (worker 105, VM 104) et commandes d'exploitation ims-ops | [Plan de reprise](/procedures/plan-reprise-activite-pra) |
 | 25/10/2026 | Refonte de la documentation | [Contribuer](/reference/contribuer) |
