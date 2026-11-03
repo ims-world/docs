@@ -81,6 +81,7 @@ Expressions selon le format des tags publiés :
 | Version sémantique | `1.32.0` | `^\d+\.\d+\.\d+$$` |
 | Préfixe `v` | `v1.8.2` | `^v\d+\.\d+\.\d+$$` |
 | Version calendaire | `2026.8.5` | `^\d{4}\.\d+\.\d+$$` |
+| Version datée avec commit (IT-Tools) | `2024.10.22-7ca5933` | `^\d{4}\.\d+\.\d+-[0-9a-f]+$$` |
 
 Le `$` final s'écrit `$$` dans un compose, sinon Docker Compose l'interprète comme une variable.
 
