@@ -4,7 +4,7 @@ description: "Outils PDF sans conservation des documents : fusion, découpe, con
 icon: "file-pdf"
 iconType: "duotone"
 last_reviewed: "2026-10-25"
-app_version: "latest"
+app_version: "2.14.3"
 ---
 
 ## Accès
@@ -30,7 +30,7 @@ cd /data/coolify/services/p6lm9p4zf1caqruekeuocnje/ && docker compose logs -f --
 | Accès | Public ; forward-auth Authentik (fournisseur `IMS-StrilingPDF-Provider`) |
 | Hôte | VM 104 |
 | Coolify | UUID `p6lm9p4zf1caqruekeuocnje`, chemin `/data/coolify/services/p6lm9p4zf1caqruekeuocnje/` |
-| Image | `stirlingtools/stirling-pdf:latest` |
+| Image | `stirlingtools/stirling-pdf:2.14.3` |
 | Données | Aucun document conservé ; volumes de configuration et de modèles OCR |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |
@@ -53,7 +53,7 @@ Sans objet : aucun document conservé.
 
 ## Exploitation
 
-Ajouter une langue d'OCR : déposer le fichier `.traineddata` dans le volume `stirling-training-data`. L'image est en `latest` ; son épinglage est suivi dans la [feuille de route](/roadmap).
+Ajouter une langue d'OCR : déposer le fichier `.traineddata` dans le volume `stirling-training-data`. Mise à jour : changer le tag dans Coolify, redéployer.
 
 ## Pièges connus
 

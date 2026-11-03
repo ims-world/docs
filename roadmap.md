@@ -24,7 +24,6 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Revoir les middlewares de chaque routeur de `vpn-only.yaml` | Suite de l'[incident Dozzle](/history/incidents/2026-08-24-bypass-sso-dozzle-traefik-file-provider) | [Traefik](/reseau/traefik-proxy) |
 | Contrôle périodique des TXT `_acme-challenge` | Suite de l'[incident DNS](/history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr) | Zone OVH |
 | Clore l'observation CrowdSec | Ouverte depuis le 26/08/2026 | [CrowdSec](/reseau/crowdsec) |
-| Épingler IT-Tools, Stirling PDF, Zipline | Images en `latest` | VM 104 |
 | Identifiants OVH du proxy hors du compose | En clair dans la configuration du proxy | [Traefik](/reseau/traefik-proxy) |
 | Pare-feu Proxmox | Non activé ; règles par nœud d'abord, console ouverte pendant l'activation | Nœuds |
 | Raccorder Windows (VM 102) en RDP dans Termix | Démarrage à la demande à étudier (plugin Proxmox Power) | [Termix](/services/termix) |
@@ -50,6 +49,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Date | Chantier | Page |
 | --- | --- | --- |
+| 03/11/2026 | Images épinglées : Vaultwarden, Zipline, IT-Tools, Stirling PDF ; plus aucun service en `latest` | [WUD](/services/whatsupdocker) |
 | 03/11/2026 | VM 102 et `lab-elo` ajoutées au pool de sauvegarde | [Politique de sauvegarde](/procedures/politique-sauvegardes) |
 | 03/11/2026 | Alerte hors du homelab : battement de cœur des nœuds et de la VM 104 vers Healthchecks.io | [ADR-015](/history/adr/adr-015-alerte-externe-battement-de-coeur) |
 | 01/11/2026 | Premiers tests de restauration (worker 105, VM 104) et commandes d'exploitation ims-ops | [Plan de reprise](/procedures/plan-reprise-activite-pra) |
