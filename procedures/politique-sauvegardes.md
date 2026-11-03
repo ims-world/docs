@@ -20,8 +20,8 @@ last_reviewed: "2026-10-25"
 | VM 104 `ims-coolify` | Pool `backup`, chaque nuit | Depuis le PBS |
 | LXC 105 worker Coolify | Pool `backup`, chaque nuit | Depuis le PBS |
 | VM 106 Home Assistant | Pool `backup`, chaque nuit | Depuis le PBS |
-| VM 102 Windows | À ajouter au pool (`just backup-add 102`) | — |
-| VM 107 `lab-elo` | À décider avec son utilisatrice | — |
+| VM 102 Windows | Pool `backup`, chaque nuit (depuis le 01/11/2026) | Depuis le PBS |
+| VM 107 `lab-elo` | Pool `backup`, chaque nuit (depuis le 03/11/2026), y compris éteinte | Depuis le PBS |
 | LXC 103 `ims-pbs` | Locale, chaque nuit sur le stockage `local` du nœud | Archive locale, ou réinstallation et rattachement du datastore |
 | LXC 100 `ims-nas` | Manuelle, avant intervention | Ou recréation à l'identique |
 | Nœuds `pve` et `pve-macmini` | Aucune | Réinstallation |
