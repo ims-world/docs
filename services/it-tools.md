@@ -4,7 +4,7 @@ description: "Boîte à outils en ligne : générateurs, convertisseurs, encodeu
 icon: "toolbox"
 iconType: "duotone"
 last_reviewed: "2026-10-25"
-app_version: "latest"
+app_version: "2024.10.22-7ca5933"
 ---
 
 ## Accès
@@ -25,7 +25,7 @@ Public, derrière une connexion Authentik.
 | Accès | Public ; forward-auth Authentik (administrateurs, `membres`, `invites`) |
 | Hôte | VM 104 |
 | Coolify | UUID `yefujwl3pxvum45edpsbsru7`, chemin `/data/coolify/services/yefujwl3pxvum45edpsbsru7/` |
-| Image | `corentinth/it-tools:latest` |
+| Image | `corentinth/it-tools:2024.10.22-7ca5933` |
 | Données | Volume `it-tools-data` (préférences) |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |
@@ -41,7 +41,7 @@ Sans objet : aucune donnée utilisateur.
 
 ## Exploitation
 
-L'image est en `latest`, contrairement à la règle des tags figés. L'épinglage sur un tag daté est suivi dans la [feuille de route](/roadmap).
+Version épinglée sur le dernier tag publié, daté d'octobre 2024 : le projet n'a plus publié de version depuis. Le risque reste faible, l'application étant statique et tous les calculs faits dans le navigateur.
 
 ## Pièges connus
 

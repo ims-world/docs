@@ -42,7 +42,7 @@ WUD liste les tags publiés sur les registres (Docker Hub, GHCR, Quay, Codeberg)
 
 - Analyse une fois par jour à 08:00 (`0 8 * * *`), pour rester sous le quota anonyme de Docker Hub.
 - Notifications groupées en un seul message par analyse (`WUD_TRIGGER_NTFY_IMS_MODE=batch`) sur le topic Ntfy `ims-alerts`, avec un jeton dédié (`WUD_TRIGGER_NTFY_IMS_AUTH_TOKEN`).
-- Une image en `latest` n'a pas de version à comparer. Les services concernés sont listés dans la [feuille de route](/roadmap).
+- Une image en `latest` n'a pas de version à comparer : tous les services sont épinglés sur une version précise (contrôle : `docker ps --format '{{.Image}}' | grep ':latest'` sur la VM 104 ne doit rien renvoyer).
 
 ### Surveillance sur liste (opt-in)
 
