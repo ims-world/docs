@@ -98,4 +98,4 @@ grep -rl "logs.ims-world.fr" /data/coolify/proxy/dynamic/
 | Action | Statut | Lien |
 | --- | --- | --- |
 | Ajouter authentik-dozzle@docker au routeur | <Icon icon="circle-check" color="#16A34A" /> Fait | [Traefik](/reseau/traefik-proxy) |
-| Revoir les middlewares de chaque routeur de vpn-only.yaml | <Icon icon="clock" color="#FF6B00" /> À faire | [Feuille de route](/roadmap) |
+| Revoir les middlewares de chaque routeur de vpn-only.yaml | <Icon icon="circle-check" color="#16A34A" /> Fait le 03/11/2026 : chaque routeur porte `vpn-only`, l'authentification applicative est conforme à la [matrice](/reseau/matrice-securite-exposition) |

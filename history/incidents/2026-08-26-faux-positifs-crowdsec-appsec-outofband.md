@@ -14,7 +14,7 @@ last_reviewed: "2026-10-25"
 | Durée | Deux jours |
 | Impact | Quatre bannissements d'adresses légitimes (Grafana, Jellyfin, Patrimo) |
 | Détection | Blocages constatés |
-| Statut | En observation depuis le 26/08/2026 |
+| Statut | Clos le 03/11/2026 |
 
 ---
 
@@ -71,11 +71,11 @@ on_success: continue
 ## Suivi
 
 - **Statut** : Profil appliqué et rechargé (`systemctl reload crowdsec`) le 26/08/2026.
-- **Phase d'observation** : En attente de confirmation après plusieurs jours d'utilisation normale prolongée sur Jellyfin, Grafana et les applications interactives du homelab.
+- **Phase d'observation** : close le 03/11/2026. Sur les 30 derniers jours, les seuls bannissements visent des adresses d'hébergeurs (Google Cloud, DigitalOcean) sur des règles de correctif virtuel (`appsec-vpatch`) ; aucune adresse du LAN, du tailnet ni des utilisateurs.
 
 ## Actions
 
 | Action | Statut | Lien |
 | --- | --- | --- |
 | Neutraliser les bannissements hors ligne | <Icon icon="circle-check" color="#16A34A" /> Fait | [CrowdSec](/reseau/crowdsec) |
-| Clore l'observation | <Icon icon="clock" color="#FF6B00" /> À faire | [Feuille de route](/roadmap) |
+| Clore l'observation | <Icon icon="circle-check" color="#16A34A" /> Fait le 03/11/2026 | — |
