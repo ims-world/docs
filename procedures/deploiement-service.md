@@ -38,6 +38,8 @@ Pour tout nouveau service Docker sur la VM 104 ou le worker 105. Pour un hôte o
   </Step>
   <Step title="Superviser">
     Ajouter une sonde [Uptime Kuma](/services/uptime-kuma) : domaine public, ou nom du conteneur pour un service restreint.
+
+    Ajouter les labels [WUD](/services/whatsupdocker#labels) au conteneur principal : `wud.watch=true`, `wud.tag.include`, `wud.display.name`.
   </Step>
   <Step title="Vérifier la sauvegarde">
     Rien à faire pour les données de la VM 104 ou du worker (pool `backup`). Si des données importantes sont sur le NAS, les signaler : elles ne sont pas sauvegardées ([politique](/procedures/politique-sauvegardes#ce-qui-nest-pas-sauvegardé)).

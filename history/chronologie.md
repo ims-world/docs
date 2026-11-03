@@ -4,6 +4,11 @@ description: "Journal des chantiers du homelab, du plus récent au plus ancien."
 last_reviewed: "2026-10-25"
 ---
 
+<Update label="01/11/2026" description="WUD : surveillance sur liste, connexion Authentik">
+  - [WUD](/services/whatsupdocker) ne surveille plus que les conteneurs portant `wud.watch=true`, avec les tags suivis restreints par `wud.tag.include` : fin des alertes sur les conteneurs Coolify, les outposts et les tags sans rapport. Notifications groupées en un message par analyse.
+  - Connexion OIDC par Authentik, compte natif conservé en secours.
+</Update>
+
 <Update label="01/11/2026" description="Immich 3.3.5, commandes d'exploitation ims-ops">
   - [Immich](/services/immich) passé de v3.2.0 à v3.3.5 : correctifs de sécurité de Node.js (octobre 2026) et des dépendances, mise à jour recommandée par les mainteneurs.
   - ims-ops : `just health`, `just update`, `just backup-now`, `just restore-test` ; `just duplicates` devient `just homeflix-doublons` ([Administration avec ims-ops](/procedures/administration-ims-ops)).
