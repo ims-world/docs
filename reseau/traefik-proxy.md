@@ -64,11 +64,26 @@ command:
   - '--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=8.8.8.8:53'
   - '--certificatesresolvers.letsencrypt.acme.storage=/traefik/acme.json'
 environment:
-  - OVH_ENDPOINT=ovh-eu
-  - OVH_APPLICATION_KEY=<clé>
-  - OVH_APPLICATION_SECRET=<secret>
-  - OVH_CONSUMER_KEY=<clé-consommateur>
+  - OVH_ENDPOINT_FILE=/run/secrets/ovh_endpoint
+  - OVH_APPLICATION_KEY_FILE=/run/secrets/ovh_application_key
+  - OVH_APPLICATION_SECRET_FILE=/run/secrets/ovh_application_secret
+  - OVH_CONSUMER_KEY_FILE=/run/secrets/ovh_consumer_key
+volumes:
+  - /data/coolify/proxy/secrets:/run/secrets:ro
 ```
+
+Les identifiants de l'API OVH ne figurent pas dans la configuration du proxy : chaque variable `_FILE` pointe vers un fichier de `/data/coolify/proxy/secrets/` sur la VM 104 (dossier `700`, fichiers `600`, propriétaire root, sans ACL). Ils n'apparaissent ni dans Coolify ni dans `docker inspect`. La clé OVH est limitée aux enregistrements de la zone : `GET`, `POST` et `DELETE` sur `/domain/zone/ims-world.fr/*`.
+
+<AccordionGroup>
+  <Accordion title="Renouveler la clé OVH" icon="key">
+    1. Créer une clé sur `https://eu.api.ovh.com/createToken/` avec les trois droits ci-dessus.
+    2. Remplacer la valeur dans chaque fichier, un par un : `sudo nano /data/coolify/proxy/secrets/ovh_<nom>`.
+    3. Dans Coolify, **Servers → localhost → Proxy → Restart Proxy**, puis vérifier l'absence d'erreur : `docker logs coolify-proxy 2>&1 | grep -i ovh`.
+    4. Supprimer l'ancienne clé dans la console de l'API OVH (`DELETE /me/api/application/{id}`).
+
+    Le dossier n'est lisible que par root : un `*` tapé sans `sudo sh -c '…'` n'est pas développé.
+  </Accordion>
+</AccordionGroup>
 
 Le résolveur conseillé par OVH (`213.251.128.1`) était injoignable lors de la mise en place : seul `8.8.8.8` est utilisé.
 
@@ -196,10 +211,6 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
     **Solution** : `docker pause <conteneur>`, puis `docker unpause`.
   </Accordion>
 </AccordionGroup>
-
-<Warning>
-Les identifiants de l'API OVH sont en clair dans la configuration du proxy, Coolify ne proposant pas de secret à cet endroit. Leur déplacement dans un fichier séparé est suivi dans la [feuille de route](/roadmap).
-</Warning>
 
 ## Voir aussi
 
