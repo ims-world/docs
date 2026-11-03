@@ -4,7 +4,7 @@ description: "Partage de fichiers et de captures d'écran (compatible ShareX) et
 icon: "share-nodes"
 iconType: "duotone"
 last_reviewed: "2026-10-25"
-app_version: "v4.7.0"
+app_version: "4.7.0"
 ---
 
 ## Accès
@@ -30,7 +30,7 @@ cd /data/coolify/services/kbcknnnkswmcnlgmupxoyheh/ && docker compose logs -f --
 | Accès | Public ; OIDC Authentik ; jetons d'API pour les envois automatisés |
 | Hôte | VM 104 |
 | Coolify | UUID `kbcknnnkswmcnlgmupxoyheh`, chemin `/data/coolify/services/kbcknnnkswmcnlgmupxoyheh/` |
-| Image | `ghcr.io/diced/zipline:v4.7.0`, `postgres:16-alpine` |
+| Image | `ghcr.io/diced/zipline:4.7.0`, `postgres:16-alpine` |
 | Données | `./uploads` (fichiers), `./postgres` (base) dans le dossier du service |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |
@@ -46,7 +46,7 @@ Fichiers et base dans le dossier du service, sauvegardés avec la VM 104.
 
 ## Exploitation
 
-Mise à jour : lire les notes de version, changer le tag dans Coolify (format `vX.Y.Z`), redéployer.
+Mise à jour : lire les notes de version, changer le tag dans Coolify (format `X.Y.Z`, sans `v` ; le tag `v4` suit toute la branche 4.x et n'épingle rien), redéployer.
 
 ## Pièges connus
 
