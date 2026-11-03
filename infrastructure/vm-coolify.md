@@ -112,7 +112,7 @@ Coolify ne fait aucune sauvegarde applicative. La VM entière, volumes Docker co
 
 ## Supervision
 
-Agent Alloy avec journaux Docker et métriques Traefik. Sondes Uptime Kuma sur les services exposés.
+Agent Alloy avec journaux Docker et métriques Traefik. Sondes Uptime Kuma sur les services exposés. Battement de cœur vers Healthchecks.io toutes les 5 minutes ([ADR-015](/history/adr/adr-015-alerte-externe-battement-de-coeur)).
 
 ## Voir aussi
 
