@@ -100,4 +100,4 @@ dig +short tools.ims-world.fr
 | Action | Statut | Lien |
 | --- | --- | --- |
 | Supprimer les TXT _acme-challenge résiduels | <Icon icon="circle-check" color="#16A34A" /> Fait | — |
-| Contrôle périodique ou nettoyage automatique des TXT | <Icon icon="clock" color="#FF6B00" /> À faire | [Feuille de route](/roadmap) |
+| Contrôle des TXT `_acme-challenge` résiduels | <Icon icon="circle-check" color="#16A34A" /> Fait le 03/11/2026 ; contrôle manuel à chaque nouveau sous-domaine, pas d'automatisation (elle demanderait des droits OVH à un outil de plus) | — |

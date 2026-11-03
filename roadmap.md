@@ -21,9 +21,6 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Chantier | Pourquoi | Où |
 | --- | --- | --- |
 | Utilisateur PBS dédié pour `pbs-coolify` | Le stockage se connecte avec `root@pam` | PBS |
-| Revoir les middlewares de chaque routeur de `vpn-only.yaml` | Suite de l'[incident Dozzle](/history/incidents/2026-08-24-bypass-sso-dozzle-traefik-file-provider) | [Traefik](/reseau/traefik-proxy) |
-| Contrôle périodique des TXT `_acme-challenge` | Suite de l'[incident DNS](/history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr) | Zone OVH |
-| Clore l'observation CrowdSec | Ouverte depuis le 26/08/2026 | [CrowdSec](/reseau/crowdsec) |
 | Pare-feu Proxmox | Non activé ; règles par nœud d'abord, console ouverte pendant l'activation | Nœuds |
 | Raccorder Windows (VM 102) en RDP dans Termix | Démarrage à la demande à étudier (plugin Proxmox Power) | [Termix](/services/termix) |
 | Renouveler la clé Headscale de `infra` | Expire le 18/10/2027 | [Headscale](/reseau/headscale-headplane) |
@@ -37,6 +34,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Accès Intel vPro / AMT sur le MS-01 | Console matérielle sans sortie vidéo |
 | DNS secondaire (AdGuard Home, Pi-hole) | Sur le Mac Mini ou le Raspberry Pi |
 | Exporteur Prometheus pour Jellyfin | Sessions, transcodages |
+| Forward-auth Authentik devant Radarr, Sonarr, Prowlarr, qBittorrent | Leur connexion native est la seule protection face aux appareils du LAN |
 | Caddy à la place de Traefik | Essai : `xcaddy` avec OVH et CrowdSec |
 | Portail self-service de VM temporaires (IMS-CLOUD) | Au-dessus de `just vm` et de l'API Proxmox |
 | Certificats SSH courts (OPKSSH) | À la place de la clé statique de Termix |
@@ -48,6 +46,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Date | Chantier | Page |
 | --- | --- | --- |
+| 03/11/2026 | Contrôles de sécurité : routeurs de `vpn-only.yaml`, TXT `_acme-challenge`, observation CrowdSec close | [Traefik](/reseau/traefik-proxy) |
 | 03/11/2026 | Identifiants OVH du proxy sortis de Coolify (fichiers `_FILE`), nouvelle clé limitée à la zone DNS | [Traefik](/reseau/traefik-proxy#certificats) |
 | 03/11/2026 | Images épinglées : Vaultwarden, Zipline, IT-Tools, Stirling PDF ; plus aucun service en `latest` | [WUD](/services/whatsupdocker) |
 | 03/11/2026 | VM 102 et `lab-elo` ajoutées au pool de sauvegarde | [Politique de sauvegarde](/procedures/politique-sauvegardes) |
