@@ -4,6 +4,14 @@ description: "Journal des chantiers du homelab, du plus récent au plus ancien."
 last_reviewed: "2026-10-25"
 ---
 
+<Update label="04/11/2026" description="HomeFlix : deux ressources, Bazarr, notifications">
+  - [HomeFlix](/services/homeflix) découpé en deux ressources Coolify : `homeflix-acquisition` (VPN, téléchargement, outils) et `homeflix-lecture` (Jellyfin, Seerr). Bascule par copie des configurations, ancienne ressource `w39uebmcnse7yctsft8hzed8` arrêtée et conservée pour le retour arrière.
+  - Jellyfin et Seerr routés par le champ **Domains** de Coolify ; routeurs de `vpn-only.yaml` repointés, ajout de Bazarr (sous-titres FR puis EN).
+  - Redirection de port ProtonVPN reportée automatiquement dans qBittorrent : fin du port figé sur 6881, connexions entrantes rétablies.
+  - Images à jour : Radarr 6, Prowlarr 2, Sonarr 4.0.20, qBittorrent 5.2.3, Seerr 3.5.1, Recyclarr 8 (configuration adaptée : `assign_scores_to`). Autoheal passe par un socket-proxy ; healthcheck de Jellyfin étendu aux montages.
+  - Notifications Radarr, Sonarr et Seerr sur le topic Ntfy `homeflix` ; sondes Uptime Kuma repointées, sonde Bazarr ajoutée.
+</Update>
+
 <Update label="01/11/2026" description="WUD : surveillance sur liste, connexion Authentik">
   - [WUD](/services/whatsupdocker) ne surveille plus que les conteneurs portant `wud.watch=true`, avec les tags suivis restreints par `wud.tag.include` : fin des alertes sur les conteneurs Coolify, les outposts et les tags sans rapport. Notifications groupées en un message par analyse.
   - Connexion OIDC par Authentik, compte natif conservé en secours.

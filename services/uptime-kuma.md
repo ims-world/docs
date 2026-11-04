@@ -41,7 +41,7 @@ cd /data/coolify/services/il53bmpdybmss5q14sfy0umm/ && docker compose logs -f --
 Uptime Kuma tourne dans le réseau Docker de la VM 104, pas dans le tailnet. Trois familles de sondes :
 
 <CardGroup cols={3}>
-  <Card color="#16A34A" title="Services publics" icon="globe">Domaine public en HTTPS (Authentik, Vaultwarden, Headscale, Jellyfin, Jellyseerr, Immich, Ntfy…) : teste le chemin complet, certificat compris.</Card>
+  <Card color="#16A34A" title="Services publics" icon="globe">Domaine public en HTTPS (Authentik, Vaultwarden, Headscale, Jellyfin, Seerr, Immich, Ntfy…) : teste le chemin complet, certificat compris.</Card>
   <Card color="#16A34A" title="Services restreints" icon="lock">Nom du conteneur sur le réseau Docker : par le domaine, la sonde serait refusée par `vpn-only` (fausse panne).</Card>
   <Card color="#16A34A" title="Hôtes et hors Docker" icon="server">Port TCP, ou HTTPS pour Home Assistant : un ping prouve que la machine répond, pas le service.</Card>
 </CardGroup>
@@ -50,10 +50,11 @@ Sondes internes :
 
 | Service | Adresse |
 | --- | --- |
-| qBittorrent | `http://gluetun-w39uebmcnse7yctsft8hzed8:8080` (qBittorrent partage le réseau de Gluetun) |
-| Prowlarr | `http://prowlarr-w39uebmcnse7yctsft8hzed8:9696` |
-| Radarr | `http://radarr-w39uebmcnse7yctsft8hzed8:7878` |
-| Sonarr | `http://sonarr-w39uebmcnse7yctsft8hzed8:8989` |
+| qBittorrent | `http://gluetun-hnvmipjmlpu1cn8zqxmccskr:8080` (qBittorrent partage le réseau de Gluetun) |
+| Prowlarr | `http://prowlarr-hnvmipjmlpu1cn8zqxmccskr:9696` |
+| Radarr | `http://radarr-hnvmipjmlpu1cn8zqxmccskr:7878` |
+| Sonarr | `http://sonarr-hnvmipjmlpu1cn8zqxmccskr:8989` |
+| Bazarr | `http://bazarr-hnvmipjmlpu1cn8zqxmccskr:6767/api/system/ping` |
 | Grafana | `http://grafana-rrw19kmye6gng961igtzqpgw:3000` |
 | Coolify | `http://coolify:8080` |
 

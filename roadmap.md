@@ -46,6 +46,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Date | Chantier | Page |
 | --- | --- | --- |
+| 04/11/2026 | HomeFlix en deux ressources Coolify, Bazarr, notifications Ntfy, redirection de port automatique, images à jour | [HomeFlix](/services/homeflix) |
 | 03/11/2026 | Contrôles de sécurité : routeurs de `vpn-only.yaml`, TXT `_acme-challenge`, observation CrowdSec close | [Traefik](/reseau/traefik-proxy) |
 | 03/11/2026 | Identifiants OVH du proxy sortis de Coolify (fichiers `_FILE`), nouvelle clé limitée à la zone DNS | [Traefik](/reseau/traefik-proxy#certificats) |
 | 03/11/2026 | Images épinglées : Vaultwarden, Zipline, IT-Tools, Stirling PDF ; plus aucun service en `latest` | [WUD](/services/whatsupdocker) |

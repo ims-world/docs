@@ -82,8 +82,19 @@ Expressions selon le format des tags publiés :
 | Préfixe `v` | `v1.8.2` | `^v\d+\.\d+\.\d+$$` |
 | Version calendaire | `2026.8.5` | `^\d{4}\.\d+\.\d+$$` |
 | Version datée avec commit (IT-Tools) | `2024.10.22-7ca5933` | `^\d{4}\.\d+\.\d+-[0-9a-f]+$$` |
+| Image linuxserver (Radarr, Sonarr, Prowlarr) | `6.4.4.10685-ls321` | `^\d+\.\d+\.\d+\.\d+-ls\d+$$`, avec `wud.tag.transform` |
 
 Le `$` final s'écrit `$$` dans un compose, sinon Docker Compose l'interprète comme une variable.
+
+Les tags linuxserver ne sont pas des versions sémantiques valides, et WUD compare mal le suffixe `-lsNNN`. Le label `wud.tag.transform` les ramène à la version de l'application, comparable :
+
+```yaml
+labels:
+  - 'wud.tag.include=^\d+\.\d+\.\d+\.\d+-ls\d+$$'
+  - 'wud.tag.transform=^(\d+\.\d+\.\d+)\.\d+-ls\d+$$ => $$1'   # 6.4.4.10685-ls321 devient 6.4.4
+```
+
+Les reconstructions de linuxserver sur une même version ne sont alors plus signalées.
 
 Autres labels utiles :
 
