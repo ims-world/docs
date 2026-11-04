@@ -43,7 +43,7 @@ flowchart LR
 | [Authentik](/services/authentik) | `auth.ims-world.fr` | Publique | Native, double facteur |
 | [Vaultwarden](/services/vaultwarden) | `vault.ims-world.fr` | Publique | OIDC Authentik ; mot de passe maître pour le déchiffrement ; `/admin` restreint au tailnet |
 | [HomeFlix (Jellyfin)](/services/homeflix) | `homeflix.ims-world.fr` | Publique | Native Jellyfin |
-| [Vidéoclub (Jellyseerr)](/services/homeflix) | `videoclub.ims-world.fr` | Publique | Comptes Jellyfin |
+| [Vidéoclub (Seerr)](/services/homeflix) | `videoclub.ims-world.fr` | Publique | Comptes Jellyfin |
 | [Immich](/services/immich) | `photos.ims-world.fr` | Publique | OIDC Authentik ou native |
 | [PhotoPrism](/services/photoprism) | `studio.ims-world.fr` | Publique | OIDC Authentik |
 | [Zipline](/services/zipline) | `share.ims-world.fr` | Publique | OIDC Authentik |
@@ -66,6 +66,7 @@ flowchart LR
 | [qBittorrent](/services/homeflix) | `qbit.ims-world.fr` | Tailnet | Native |
 | [Radarr, Sonarr](/services/homeflix) | `radarr.ims-world.fr`, `sonarr.ims-world.fr` | Tailnet | Formulaire natif |
 | [Prowlarr](/services/homeflix) | `prowlarr.ims-world.fr` | Tailnet | Native |
+| [Bazarr](/services/homeflix) | `bazarr.ims-world.fr` | Tailnet | Formulaire natif |
 
 ## Accès hors HTTP
 

@@ -53,6 +53,8 @@ Tous les émetteurs publient sur le même topic, `ims-alerts` :
 - Proxmox VE et PBS : échecs de sauvegarde (utilisateur `proxmox`) ;
 - WUD : nouvelles versions d'images.
 
+Seule exception : [HomeFlix](/services/homeflix) (Radarr, Sonarr, Seerr) publie sur son propre topic, `homeflix` : imports, médias disponibles et alertes de santé de la médiathèque.
+
 <Tip>
 Un utilisateur Ntfy par outil, en écriture seule, et un jeton par usage (exemple : utilisateur `proxmox`, jetons `pve` et `pbs`). Un jeton compromis ne permet ni de lire les alertes ni d'administrer le serveur, et se révoque sans toucher aux autres. Les comptes humains sont en lecture seule.
 </Tip>

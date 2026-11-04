@@ -129,7 +129,7 @@ http:
           - url: "http://grafana-rrw19kmye6gng961igtzqpgw:3000"
 ```
 
-Routeurs déclarés : Grafana, qBittorrent, Sonarr, Radarr, Prowlarr, Coolify, Headplane, Dozzle, interface CrowdSec, WUD, Termix, Home Assistant. Le fichier fait foi.
+Routeurs déclarés : Grafana, qBittorrent, Sonarr, Radarr, Prowlarr, Bazarr, Coolify, Headplane, Dozzle, interface CrowdSec, WUD, Termix, Home Assistant. Le fichier fait foi.
 
 Chaque service est désigné par le nom de son conteneur, `<service>-<UUID Coolify>`, seul nom connu de Traefik sur le réseau `coolify`. Ce nom ne change pas au redéploiement ni à la mise à jour, seulement si le service est supprimé puis recréé dans Coolify : le routeur répond alors 502 et la sonde Uptime Kuma le signale. Le fichier unique est conservé volontairement, même au prix de ces noms peu lisibles : il donne la liste complète des accès restreints au même endroit, et permet de vérifier chaque middleware d'un coup d'œil. Alias réseau et labels par conteneur ont été écartés (03/11/2026).
 
