@@ -52,7 +52,7 @@ cd /data/coolify/services/vbz6zfdlioijpbuegfpjsr69/ && sudo docker compose logs 
 | Accès | Jellyfin : comptes natifs ; Seerr : comptes Jellyfin ; outils : tailnet et formulaires natifs |
 | Hôte | VM 104 |
 | Coolify | `homeflix-acquisition` : UUID `hnvmipjmlpu1cn8zqxmccskr` ; `homeflix-lecture` : UUID `vbz6zfdlioijpbuegfpjsr69` ; chemins `/data/coolify/services/<UUID>/` |
-| Image | Jellyfin `10.11.11`, Seerr `v3.5.1`, Radarr `6.4.4.10685-ls321`, Sonarr `4.0.20.3014-ls325`, Prowlarr `2.6.5.5623-ls165`, Bazarr `v1.6.0-ls356`, qBittorrent `5.2.3_v2.0.14-ls475`, Gluetun `v3.41.3`, Recyclarr `8.8.0` |
+| Image | Jellyfin `10.11.11`, Seerr `v3.5.1`, Radarr `6.4.4.10685-ls321`, Sonarr `4.0.20.3014-ls325`, Prowlarr `2.7.0.5723-ls166`, Bazarr `v1.6.2-ls366`, qBittorrent `5.3.0_v2.0.15-ls482`, Gluetun `v3.41.3`, Recyclarr `8.8.1` |
 | Données | Configurations et bases SQLite sur la VM 104 ; médias sur le NAS (`/mnt/nas-storage/homeflix`) |
 | Sauvegarde | Configurations avec la VM 104 ; médias non sauvegardés |
 | Supervision | Sondes Uptime Kuma ; healthchecks Docker et Autoheal ; WUD ; notifications Ntfy sur le topic `homeflix` |
@@ -215,6 +215,11 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
     **Cause** : le port attribué par ProtonVPN n'a pas été reporté dans qBittorrent ; `WebUI\LocalHostAuth` est revenu à `true`, ou la commande de Gluetun a échoué.
 
     **Solution** : vérifier le réglage dans `qBittorrent.conf`, puis redémarrer Gluetun et lire ses journaux `[port forwarding]`.
+  </Accordion>
+  <Accordion title="Déploiement en échec : « dependency gluetun failed to start », qBittorrent en Created">
+    **Cause** : le premier serveur ProtonVPN ne répond pas ; Gluetun en essaie un autre, mais dépasse le délai de démarrage de son healthcheck et Docker abandonne le démarrage de qBittorrent.
+
+    **Solution** : healthcheck de Gluetun redéfini dans le compose avec `start_period: 120s`. Si le cas se présente encore, relancer **Deploy** une fois Gluetun `healthy`.
   </Accordion>
   <Accordion title="Liste des torrents vide après une mise à jour de qBittorrent">
     **Cause** : interface de l'ancienne version gardée en cache par le navigateur ; les compteurs de la colonne de gauche restent justes.
