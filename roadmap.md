@@ -21,7 +21,6 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Chantier | Pourquoi | Où |
 | --- | --- | --- |
 | Passer les applications forward-auth sur l'outpost intégré d'Authentik | Retirer le socket Docker monté en `root` dans le worker. Recréer dans le provider File le routeur `/outpost.goauthentik.io/` de chaque application, en priorité élevée et avec `vpn-only` là où il s'applique | [Authentik](/services/authentik) |
-| Vérifier `wud.tag.include` sur tous les conteneurs surveillés | Une expression qui ne correspond pas au format du tag ne signale jamais rien (cas du moteur CrowdSec et de WUD) | [WUD](/services/whatsupdocker) |
 | Utilisateur PBS dédié pour `pbs-coolify` | Le stockage se connecte avec `root@pam` | PBS |
 | Pare-feu Proxmox | Non activé ; règles par nœud d'abord, console ouverte pendant l'activation | Nœuds |
 | Raccorder Windows (VM 102) en RDP dans Termix | Démarrage à la demande à étudier (plugin Proxmox Power) | [Termix](/services/termix) |
@@ -48,6 +47,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Date | Chantier | Page |
 | --- | --- | --- |
+| 06/11/2026 | Expressions `wud.tag.include` vérifiées sur tous les conteneurs surveillés : 18 corrigées, dont Forgejo épinglé en 11.0.16 | [WUD](/services/whatsupdocker) |
 | 04/11/2026 | HomeFlix en deux ressources Coolify, Bazarr, notifications Ntfy, redirection de port automatique, images à jour | [HomeFlix](/services/homeflix) |
 | 03/11/2026 | Contrôles de sécurité : routeurs de `vpn-only.yaml`, TXT `_acme-challenge`, observation CrowdSec close | [Traefik](/reseau/traefik-proxy) |
 | 03/11/2026 | Identifiants OVH du proxy sortis de Coolify (fichiers `_FILE`), nouvelle clé limitée à la zone DNS | [Traefik](/reseau/traefik-proxy#certificats) |
