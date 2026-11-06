@@ -9,7 +9,7 @@ last_reviewed: "2026-10-25"
   - Compose : version écrite dans l'image (fin de la variable `AUTHENTIK_TAG`), `AUTHENTIK_WEB__BASE_URL` ajouté en vue de la 2026.11, remontée d'erreurs vers l'éditeur désactivée.
   - Essai de retrait du socket Docker du worker : l'outpost géré ne se met plus à jour. Socket remis ; passage sur l'outpost intégré inscrit à la feuille de route.
   - Interface [CrowdSec](/reseau/crowdsec) passée de 2026.8.3 à 2026.11.5 (correctifs d'authentification). Configuration OIDC déplacée de l'interface vers `config.yaml`, devenu prioritaire ; secret OIDC dans Coolify.
-  - WUD : expression `wud.tag.include` du moteur CrowdSec corrigée (`^v…`), le moteur n'avait jamais pu être signalé ; noms affichés distincts pour le moteur et l'interface.
+  - WUD : expressions `wud.tag.include` contrôlées sur les 32 conteneurs surveillés. 18 ne correspondaient pas au format de leur tag et ne pouvaient jamais être signalées (dont le moteur CrowdSec, WUD, Immich, Vaultwarden, Headscale, Grafana, Loki, Prometheus) ; 15 corrigées en une fois par l'API de Coolify (accès à l'API refermé ensuite), les autres à la main. Forgejo épinglé en `11.0.16` au lieu de `11`. Autoheal reste épinglé par empreinte. Noms affichés distincts pour le moteur et l'interface CrowdSec.
 </Update>
 
 <Update label="04/11/2026" description="HomeFlix : deux ressources, Bazarr, notifications">
