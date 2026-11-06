@@ -3,7 +3,7 @@ title: "Feuille de route"
 description: "Chantiers ouverts par priorité, idées à évaluer, et chantiers réalisés récemment."
 icon: "list-check"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
+last_reviewed: "2026-11-06"
 ---
 
 Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un lien vers la page qui le décrit ; le détail va dans la [chronologie](/history/chronologie).

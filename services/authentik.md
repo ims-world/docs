@@ -3,7 +3,7 @@ title: "Authentik"
 description: "Fournisseur d'identité du homelab : connexion unique (OIDC) pour les applications compatibles, forward-auth pour les autres, invitations et groupes."
 icon: "key"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
+last_reviewed: "2026-11-06"
 app_version: "2026.8.5"
 ---
 
