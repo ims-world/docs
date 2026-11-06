@@ -4,7 +4,7 @@ description: "Fournisseur d'identité du homelab : connexion unique (OIDC) pour 
 icon: "key"
 iconType: "duotone"
 last_reviewed: "2026-10-25"
-app_version: "2026.8.0"
+app_version: "2026.8.5"
 ---
 
 import { domains } from "/snippets/variables.mdx";
@@ -32,7 +32,7 @@ docker exec -it authentik-worker-k5mxvc2r6c4zlb6j3d443h7b ak create_recovery_key
 | Accès | Public ; double facteur (TOTP, WebAuthn) |
 | Hôte | VM 104 |
 | Coolify | UUID `k5mxvc2r6c4zlb6j3d443h7b`, chemin `/data/coolify/services/k5mxvc2r6c4zlb6j3d443h7b/` |
-| Image | `ghcr.io/goauthentik/server:2026.8.0` ; outpost `ghcr.io/goauthentik/proxy:2026.8.0` |
+| Image | `ghcr.io/goauthentik/server:2026.8.5` (version écrite dans le compose, sans variable `AUTHENTIK_TAG`) ; outpost `ghcr.io/goauthentik/proxy:2026.8.5` |
 | Données | PostgreSQL (volume Docker sur la VM 104) ; clé `SECRET_KEY` |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |
@@ -52,6 +52,15 @@ Deux modes d'intégration, selon que l'application sait déléguer sa connexion 
 </CardGroup>
 
 L'outpost `ak-outpost-ims-outpost` (port 9000) est créé et géré par Authentik lui-même, par le socket Docker : il n'apparaît pas dans le compose de Coolify. S'il s'arrête, tous les services en forward-auth deviennent inaccessibles.
+
+Pour cette gestion, le worker tourne en `root` et monte `/var/run/docker.sock` : une compromission du worker donne la main sur la VM 104. Risque accepté jusqu'au passage des applications sur l'outpost intégré (voir la [feuille de route](/roadmap)). L'outpost intégré (`authentik Embedded Outpost`) existe mais ne porte aucune application.
+
+Réglages du compose propres au homelab, sur le serveur et le worker :
+
+| Variable | Valeur | Raison |
+| --- | --- | --- |
+| `AUTHENTIK_WEB__BASE_URL` | <code>https://{domains.sso}</code> | Obligatoire à partir de la 2026.11 |
+| `AUTHENTIK_ERROR_REPORTING__ENABLED` | `false` | Aucune remontée d'erreurs vers l'éditeur |
 
 Les droits par groupe (`authentik Admins`, `admins`, `membres`, `invites`, `authentik Read-only`) sont dans la [matrice d'exposition](/reseau/matrice-securite-exposition#droits-par-groupe-authentik).
 
@@ -78,8 +87,21 @@ La base PostgreSQL et la configuration sont sauvegardées avec la VM 104. La cl�
 ### Mettre à jour
 
 <Steps>
-  <Step title="Changer le tag">
-    Modifier le tag de `authentik-server` et `authentik-worker` dans Coolify, puis redéployer.
+  <Step title="Préparer le retour arrière">
+    Prendre un snapshot disque de la VM 104 (sans état mémoire, à cause du passthrough GPU) et un export de la base :
+
+    ```bash
+    # Sur pve
+    qm snapshot 104 pre-authentik-<version> --description "Avant mise à jour Authentik"
+    # Sur la VM 104
+    docker exec <conteneur-postgresql> pg_dump -U <utilisateur> -d authentik -Fc > ~/authentik-<version>-$(date +%F).dump
+    ```
+  </Step>
+  <Step title="Changer la version">
+    Modifier la version écrite dans l'image de `authentik-server` et `authentik-worker` dans le compose Coolify (les deux identiques), puis redéployer.
+  </Step>
+  <Step title="Vérifier">
+    Journaux du serveur sans erreur de migration, <code>https://{domains.sso}/-/health/ready/</code> en 200, connexion à la console, un service en forward-auth et un client OIDC.
   </Step>
   <Step title="Aligner l'outpost">
     Le conteneur outpost n'est pas redéployé avec le reste. Si **Applications → Outposts** signale une version différente :
@@ -101,6 +123,11 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
     **Cause** : il n'est pas géré par le compose de Coolify.
 
     **Solution** : supprimer le conteneur et redémarrer serveur et worker.
+  </Accordion>
+  <Accordion title="Outpost bloqué à l'ancienne version, signalé en rouge">
+    **Cause** : socket Docker retiré du worker. Authentik ne peut plus gérer l'outpost par l'intégration « Local Docker connection ».
+
+    **Solution** : remettre `user: root` et le montage du socket sur le worker, ou passer les applications sur l'outpost intégré.
   </Accordion>
   <Accordion title="Labels forward-auth sans effet sur un service restreint au tailnet">
     **Cause** : le routeur de `vpn-only.yaml` prend la priorité.

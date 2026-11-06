@@ -4,6 +4,12 @@ description: "Journal des chantiers du homelab, du plus récent au plus ancien."
 last_reviewed: "2026-10-25"
 ---
 
+<Update label="06/11/2026" description="Authentik 2026.8.5">
+  - [Authentik](/services/authentik) passé de 2026.8.0 à 2026.8.5 : correctifs de sécurité de la 2026.8.2, dont la CVE-2026-94611 (identifiants stockés lisibles par l'API avec un simple droit de lecture). Outpost `ims-outpost` aligné.
+  - Compose : version écrite dans l'image (fin de la variable `AUTHENTIK_TAG`), `AUTHENTIK_WEB__BASE_URL` ajouté en vue de la 2026.11, remontée d'erreurs vers l'éditeur désactivée.
+  - Essai de retrait du socket Docker du worker : l'outpost géré ne se met plus à jour. Socket remis ; passage sur l'outpost intégré inscrit à la feuille de route.
+</Update>
+
 <Update label="04/11/2026" description="HomeFlix : deux ressources, Bazarr, notifications">
   - [HomeFlix](/services/homeflix) découpé en deux ressources Coolify : `homeflix-acquisition` (VPN, téléchargement, outils) et `homeflix-lecture` (Jellyfin, Seerr). Bascule par copie des configurations, ancienne ressource `w39uebmcnse7yctsft8hzed8` arrêtée et conservée pour le retour arrière.
   - Jellyfin et Seerr routés par le champ **Domains** de Coolify ; routeurs de `vpn-only.yaml` repointés, ajout de Bazarr (sous-titres FR puis EN).
