@@ -165,6 +165,11 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
 
     **Solution** : écrire `$$` dans le compose et vérifier avec `docker inspect`. Dans le champ **Container Labels** d'une application, vérifier aussi : si le conteneur reçoit `$$`, Coolify a déjà échappé, remettre un seul `$`.
   </Accordion>
+  <Accordion title="Conteneur surveillé jamais signalé">
+    **Cause** : expression `wud.tag.include` copiée d'un autre service, qui ne correspond pas au format des tags de l'image (par exemple une version calendaire sur une image en `v1.8.1`). Aucune erreur n'est affichée.
+
+    **Solution** : choisir l'expression dans le tableau des formats et la comparer au tag courant du conteneur.
+  </Accordion>
   <Accordion title="Nom de conteneur préfixé (ff1132b3df68_wud-…) ou suffixé par l'UUID Coolify">
     **Cause** : WUD a enregistré le conteneur pendant que Docker Compose le renommait lors d'une recréation ; le nom technique Coolify porte toujours l'UUID.
 
