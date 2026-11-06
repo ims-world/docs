@@ -4,10 +4,12 @@ description: "Journal des chantiers du homelab, du plus récent au plus ancien."
 last_reviewed: "2026-10-25"
 ---
 
-<Update label="06/11/2026" description="Authentik 2026.8.5">
+<Update label="06/11/2026" description="Authentik 2026.8.5, interface CrowdSec 2026.11.5">
   - [Authentik](/services/authentik) passé de 2026.8.0 à 2026.8.5 : correctifs de sécurité de la 2026.8.2, dont la CVE-2026-94611 (identifiants stockés lisibles par l'API avec un simple droit de lecture). Outpost `ims-outpost` aligné.
   - Compose : version écrite dans l'image (fin de la variable `AUTHENTIK_TAG`), `AUTHENTIK_WEB__BASE_URL` ajouté en vue de la 2026.11, remontée d'erreurs vers l'éditeur désactivée.
   - Essai de retrait du socket Docker du worker : l'outpost géré ne se met plus à jour. Socket remis ; passage sur l'outpost intégré inscrit à la feuille de route.
+  - Interface [CrowdSec](/reseau/crowdsec) passée de 2026.8.3 à 2026.11.5 (correctifs d'authentification). Configuration OIDC déplacée de l'interface vers `config.yaml`, devenu prioritaire ; secret OIDC dans Coolify.
+  - WUD : expression `wud.tag.include` du moteur CrowdSec corrigée (`^v…`), le moteur n'avait jamais pu être signalé ; noms affichés distincts pour le moteur et l'interface.
 </Update>
 
 <Update label="04/11/2026" description="HomeFlix : deux ressources, Bazarr, notifications">
