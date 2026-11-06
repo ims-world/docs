@@ -3,8 +3,8 @@ title: "CrowdSec"
 description: "Détection d'intrusions et pare-feu applicatif devant Traefik, avec une interface locale de gestion des bannissements."
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
-app_version: "v1.8.1 / 2026.8.3"
+last_reviewed: "2026-11-06"
+app_version: "v1.8.1 / 2026.11.5"
 ---
 
 ## Accès
@@ -35,7 +35,7 @@ cscli bouncers list
 | Accès | Tailnet ; OIDC Authentik, rôle administrateur |
 | Hôte | VM 104 |
 | Coolify | UUID `8bqmp4lkzgfoooqx0wrndfkt`, chemin `/data/coolify/services/8bqmp4lkzgfoooqx0wrndfkt/` |
-| Image | `crowdsecurity/crowdsec:v1.8.1`, `ghcr.io/theduffman85/crowdsec-web-ui:2026.8.3` ; plugin Traefik `crowdsec-bouncer-traefik-plugin` v1.6.0 |
+| Image | `crowdsecurity/crowdsec:v1.8.1`, `ghcr.io/theduffman85/crowdsec-web-ui:2026.11.5` ; plugin Traefik `crowdsec-bouncer-traefik-plugin` v1.6.0 |
 | Données | `config/` (`/etc/crowdsec`), `data/` (base SQLite des alertes et décisions), `webui-data/` |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Métriques (port 6060) dans Prometheus, tableau Grafana 19010 |
@@ -86,6 +86,18 @@ Les événements de ces plages restent journalisés ; seul le bannissement est n
 ## Interface locale
 
 L'interface parle à l'API locale avec un compte machine dédié (`cscli machines add crowdsec-web-ui`). Elle remplace la console en ligne de CrowdSec, qui ne permet pas de gérer les décisions sur l'offre gratuite.
+
+Sa configuration est dans `webui-data/config.yaml`, qui fait foi : depuis la version 2026.10.12, il l'emporte sur les réglages enregistrés depuis l'interface. Les secrets n'y figurent pas, seulement des références à des variables du conteneur.
+
+| Réglage | Valeur |
+| --- | --- |
+| Émetteur OIDC | `https://auth.ims-world.fr/application/o/shield/` |
+| Secret OIDC | Variable Coolify `CROWDSEC_WEBUI_OIDC_SECRET`, référencée par `clientSecret.env` |
+| Groupes administrateurs | `authentik Admins`, `admins` ; tout autre utilisateur est refusé (`unmatchedRole: deny`) |
+| Mot de passe de l'API locale | Variable `CROWDSEC_PASSWORD`, référencée par `password.env` |
+| Connexion par mot de passe | Désactivée : aucun accès de secours hors OIDC |
+
+Les autres variables du compose (`CROWDSEC_URL`, `CROWDSEC_USER`, `CROWDSEC_PROMETHEUS_URL`, `AUTH_ENABLED`) sont obsolètes et ignorées ; le journal de démarrage les signale. Après une modification de `config.yaml`, redémarrer le conteneur de l'interface suffit, sauf si une nouvelle variable doit être transmise : redéployer alors la ressource.
 
 ## Données et sauvegarde
 

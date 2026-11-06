@@ -3,7 +3,7 @@ title: "Feuille de route"
 description: "Chantiers ouverts par priorité, idées à évaluer, et chantiers réalisés récemment."
 icon: "list-check"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
+last_reviewed: "2026-11-06"
 ---
 
 Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un lien vers la page qui le décrit ; le détail va dans la [chronologie](/history/chronologie).
@@ -20,6 +20,8 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Chantier | Pourquoi | Où |
 | --- | --- | --- |
+| Passer les applications forward-auth sur l'outpost intégré d'Authentik | Retirer le socket Docker monté en `root` dans le worker. Recréer dans le provider File le routeur `/outpost.goauthentik.io/` de chaque application, en priorité élevée et avec `vpn-only` là où il s'applique | [Authentik](/services/authentik) |
+| Vérifier `wud.tag.include` sur tous les conteneurs surveillés | Une expression qui ne correspond pas au format du tag ne signale jamais rien (cas du moteur CrowdSec et de WUD) | [WUD](/services/whatsupdocker) |
 | Utilisateur PBS dédié pour `pbs-coolify` | Le stockage se connecte avec `root@pam` | PBS |
 | Pare-feu Proxmox | Non activé ; règles par nœud d'abord, console ouverte pendant l'activation | Nœuds |
 | Raccorder Windows (VM 102) en RDP dans Termix | Démarrage à la demande à étudier (plugin Proxmox Power) | [Termix](/services/termix) |
