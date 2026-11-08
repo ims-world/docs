@@ -101,7 +101,7 @@ Mise à jour : sauvegarder l'index, puis `just app-update photoprism <version>` 
 docker exec $(docker ps -qf name=photoprism-yfotv) photoprism backup -i -f   # index, dans storage/backup
 ```
 
-Healthcheck défini dans le compose : `curl` sur `/api/v1/status` (voir les pièges).
+Healthcheck défini dans le compose : `curl` sur `/api/v1/status` (voir les pièges). Point d'accès MCP (accès des assistants IA à la photothèque, actif par défaut depuis la 261029) désactivé : `PHOTOPRISM_DISABLE_MCP: 'true'`.
 
 ## Pièges connus
 

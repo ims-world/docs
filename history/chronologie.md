@@ -8,7 +8,7 @@ last_reviewed: "2026-11-08"
   - Commande `just app-update <service> <version>` dans ims-ops : notes de version GitHub, confirmation, tag remplacé par l'API de Coolify, redéploiement contrôlé ([Administration avec ims-ops](/procedures/administration-ims-ops#mettre-à-jour-un-service-coolify)). Accès à l'API de Coolify rouvert, limité à la VM 104.
   - Correctifs de sécurité : [Vaultwarden](/services/vaultwarden) 1.37.5, [Headscale](/reseau/headscale-headplane) v0.29.7, [PhotoPrism](/services/photoprism) 261029 (libheif, Go). Également : Headplane 0.8.2, [CrowdSec](/reseau/crowdsec) v1.8.2, Uptime Kuma 2.5.9, Zipline 4.8.2, Ntfy v2.37.2, Dozzle v11.4.1, Termix 26.11.0, WUD 9.8.0, Stirling PDF 3.3.0, n8n 2.46.6.
   - [Supervision](/services/monitoring) : Grafana 13.3.0, Prometheus v3.16.0, Loki 3.7.9 ; healthcheck de Loki retiré (image sans shell ni `wget` depuis la 3.5.8).
-  - PhotoPrism : healthcheck remplacé par `curl` sur `/api/v1/status` ; celui d'origine échouait en 261029 et Traefik retirait la route.
+  - PhotoPrism : healthcheck remplacé par `curl` sur `/api/v1/status` ; celui d'origine échouait en 261029 et Traefik retirait la route. Point d'accès MCP, actif par défaut, désactivé.
   - n8n 3.x proposé par WUD, non installé : préversion, sans retour possible.
 </Update>
 
