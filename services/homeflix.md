@@ -90,7 +90,7 @@ flowchart LR
   <Card color="#16A34A" title="Bazarr" icon="closed-captioning">Sous-titres français, puis anglais à défaut ; prévient Jellyfin à chaque ajout.</Card>
   <Card color="#16A34A" title="qBittorrent" icon="download">Client torrent, dans le réseau de Gluetun (`network_mode: service:gluetun`).</Card>
   <Card color="#FF6B00" title="Gluetun" icon="shield-halved">Tunnel WireGuard ProtonVPN, coupe-circuit, redirection de port reportée automatiquement dans qBittorrent.</Card>
-  <Card color="#16A34A" title="Recyclarr" icon="sliders">Profils de qualité TRaSH-Guides, synchronisés chaque jour à 04:00.</Card>
+  <Card color="#16A34A" title="Recyclarr" icon="sliders">Profils de qualité et formats des guides TRaSH en français, synchronisés chaque jour à 04:00.</Card>
   <Card color="#16A34A" title="Autoheal" icon="heart-pulse">Redémarre un conteneur `unhealthy` portant le label `autoheal=true` : qBittorrent, Jellyfin.</Card>
   <Card color="#FF6B00" title="socket-proxy" icon="lock">Seul accès au socket Docker, limité à lister et redémarrer des conteneurs, pour Autoheal.</Card>
 </CardGroup>
@@ -103,6 +103,29 @@ Les deux ressources suivent la [procédure de déploiement](/procedures/deploiem
 - Outils : champ **Domains** vide, routeurs dans `vpn-only.yaml`. Celui de qBittorrent pointe vers le conteneur Gluetun (port 8080), qui porte son réseau.
 
 Entre les deux ressources, les applications se joignent par le nom de service sur le réseau `coolify` : `radarr:7878`, `sonarr:8989`, `jellyfin:8096`. Dans la ressource d'acquisition, Radarr et Sonarr joignent qBittorrent par `gluetun:8080`.
+
+### Filtres de téléchargement
+
+Recyclarr applique chaque nuit les profils et les formats personnalisés de Radarr et Sonarr, à partir des guides TRaSH en français (jeu de scores `french-multi-vf`). Une modification faite à la main dans Radarr ou Sonarr est écrasée au passage suivant : tout changement se fait dans `config/recyclarr/recyclarr.yml`.
+
+| Profil | Application | Qualités | Usage |
+| --- | --- | --- | --- |
+| `HomeFlix` | Radarr | 1080p (Bluray, WEB), puis HDTV 1080p | Profil par défaut |
+| `HomeFlix 4K` | Radarr | 2160p (Bluray, WEB), repli 1080p | Choisi dans Seerr, demande par demande |
+| `HomeFlix-TV` | Sonarr | 1080p (WEB, Bluray), puis HDTV 1080p | Profil par défaut |
+
+Les versions sont classées plutôt qu'exclues, pour qu'une demande aboutisse presque toujours :
+
+- Langue : MULTi, puis VFF, puis VFQ (-100), puis VO anglaise en dernier recours (-3000) ; les sous-titres relèvent de Bazarr.
+- Groupes de sortie français classés par les guides TRaSH (+1500 à +1800).
+- Fichiers compacts favorisés : x265 et AV1 (+100), décodés par l'iGPU.
+- Refusés (-10000) : LQ, upscales, BR-DISK, 3D, FastSUB, extras, Dolby Vision sans HDR10 de secours (téléviseur Samsung sans Dolby Vision).
+- Remplacement d'un fichier seulement pour un gain d'au moins 400 points, en pratique un gain de langue : WEB-DL et Bluray forment un même groupe de qualité.
+- Pas de Remux.
+
+<Warning>
+Les profils Radarr doivent garder **Language : Any** (**Settings → Profiles**). Sinon, Radarr refuse la VO avant de calculer les scores. Recyclarr ne modifie pas ce champ.
+</Warning>
 
 ### Redirection de port
 
