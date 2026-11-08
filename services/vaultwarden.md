@@ -3,8 +3,8 @@ title: "Vaultwarden"
 description: "Gestionnaire de mots de passe compatible Bitwarden, connexion par Authentik."
 icon: "vault"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
-app_version: "1.37.0"
+last_reviewed: "2026-11-08"
+app_version: "1.37.5"
 ---
 
 import { domains } from "/snippets/variables.mdx";
@@ -30,7 +30,7 @@ Coffre public avec connexion Authentik ; le panneau d'administration ne répond 
 | Accès | Public ; OIDC Authentik, mot de passe maître pour le déchiffrement. `/admin` restreint au tailnet |
 | Hôte | VM 104 |
 | Coolify | UUID `i5ae953riutbot9afjcboptb`, chemin `/data/coolify/services/i5ae953riutbot9afjcboptb/` |
-| Image | `vaultwarden/server:1.37.0` (interface web 2026.6.4) |
+| Image | `vaultwarden/server:1.37.5` |
 | Données | Volume `i5ae953riutbot9afjcboptb_vaultwarden-data` : base SQLite, `rsa_key.pem`, pièces jointes |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |

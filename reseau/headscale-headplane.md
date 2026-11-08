@@ -3,8 +3,8 @@ title: "Headscale et Headplane"
 description: "Serveur de coordination du tailnet (Headscale) et son interface d'administration (Headplane), hébergés sur la VM 104."
 icon: "network-wired"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
-app_version: "v0.29.3 / 0.7.1"
+last_reviewed: "2026-11-08"
+app_version: "v0.29.7 / 0.8.2"
 ---
 
 import { ips } from "/snippets/variables.mdx";
@@ -37,7 +37,7 @@ docker exec headscale-i136ix2bmrrbeovnyrh1o72w headscale preauthkeys list --user
 | Accès | Coordination publique ; Headplane restreint au tailnet, OIDC Authentik |
 | Hôte | VM 104 |
 | Coolify | UUID `i136ix2bmrrbeovnyrh1o72w`, chemin `/data/coolify/services/i136ix2bmrrbeovnyrh1o72w/` |
-| Image | `headscale/headscale:v0.29.3`, `ghcr.io/tale/headplane:0.7.1` |
+| Image | `headscale/headscale:v0.29.7`, `ghcr.io/tale/headplane:0.8.2` |
 | Données | `db.sqlite` (machines, utilisateurs, clés), `noise_private.key` (identité du serveur) |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma sur `vpn.ims-world.fr` |

@@ -3,8 +3,8 @@ title: "WUD (veille des images)"
 description: "What's Up Docker : détecte les nouvelles versions des images choisies sur la VM 104 et prévient sur Ntfy, sans rien modifier."
 icon: "docker"
 iconType: "duotone"
-last_reviewed: "2026-11-01"
-app_version: "v9.0.2"
+last_reviewed: "2026-11-08"
+app_version: "v9.8.0"
 ---
 
 ## Accès
@@ -30,7 +30,7 @@ docker logs -f --tail=100 wud-qwe5jrqlqtwqneevgkf6mwr9
 | Accès | Tailnet ; OIDC Authentik, compte natif `cmolotkoff` en secours ; voir la [matrice](/reseau/matrice-securite-exposition) |
 | Hôte | VM 104 |
 | Coolify | UUID `qwe5jrqlqtwqneevgkf6mwr9`, chemin `/data/coolify/services/qwe5jrqlqtwqneevgkf6mwr9/` |
-| Image | `getwud/wud:9.0.2` |
+| Image | `getwud/wud:9.8.0` |
 | Données | `store/` (état SQLite) ; socket Docker en lecture seule |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |
@@ -143,7 +143,7 @@ Surveiller un nouveau service :
 
 4. Lancer **Watch Now** dans WUD et vérifier que le conteneur apparaît.
 
-Après une alerte : lire les notes de version, changer le tag dans Coolify, redéployer, puis mettre à jour `app_version` de la fiche du service.
+Après une alerte : `just app-update <service> <version>` depuis ims-ops ([Administration avec ims-ops](/procedures/administration-ims-ops#mettre-à-jour-un-service-coolify)) affiche les notes de version, change le tag par l'API de Coolify et contrôle le redéploiement. Mettre ensuite à jour `app_version` de la fiche du service. Une version proposée peut être une préversion dont le tag ressemble à une version stable (n8n 3.x en novembre 2026) : vérifier son statut dans les notes de version.
 
 ## Pièges connus
 

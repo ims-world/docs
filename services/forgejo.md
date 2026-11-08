@@ -4,7 +4,7 @@ description: "Forge Git auto-hébergée : dépôts, tickets, demandes de fusion,
 icon: "code-branch"
 iconType: "duotone"
 last_reviewed: "2026-10-25"
-app_version: "11"
+app_version: "11.0.16"
 ---
 
 ## Accès
@@ -33,7 +33,7 @@ cd /data/coolify/services/culcigf0vwg0fbdvegbkzoan/ && docker compose logs -f --
 | Accès | Public ; OIDC Authentik, inscriptions fermées (`DISABLE_REGISTRATION=true`) ; clés SSH pour Git |
 | Hôte | VM 104 |
 | Coolify | UUID `culcigf0vwg0fbdvegbkzoan`, chemin `/data/coolify/services/culcigf0vwg0fbdvegbkzoan/` |
-| Image | `codeberg.org/forgejo/forgejo:11`, `postgres:16-alpine` |
+| Image | `codeberg.org/forgejo/forgejo:11.0.16`, `postgres:16-alpine` |
 | Données | Dépôts, LFS et avatars sur le SSD du NAS (`/mnt/nas-hot/forgejo-data`) ; base PostgreSQL sur la VM 104 |
 | Sauvegarde | Base avec la VM 104 ; **dépôts non sauvegardés** |
 | Supervision | Sonde Uptime Kuma |

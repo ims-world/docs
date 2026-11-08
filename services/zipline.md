@@ -3,8 +3,8 @@ title: "Zipline"
 description: "Partage de fichiers et de captures d'écran (compatible ShareX) et raccourcisseur de liens."
 icon: "share-nodes"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
-app_version: "4.7.0"
+last_reviewed: "2026-11-08"
+app_version: "4.8.2"
 ---
 
 ## Accès
@@ -30,7 +30,7 @@ cd /data/coolify/services/kbcknnnkswmcnlgmupxoyheh/ && docker compose logs -f --
 | Accès | Public ; OIDC Authentik ; jetons d'API pour les envois automatisés |
 | Hôte | VM 104 |
 | Coolify | UUID `kbcknnnkswmcnlgmupxoyheh`, chemin `/data/coolify/services/kbcknnnkswmcnlgmupxoyheh/` |
-| Image | `ghcr.io/diced/zipline:4.7.0`, `postgres:16-alpine` |
+| Image | `ghcr.io/diced/zipline:4.8.2`, `postgres:16-alpine` |
 | Données | `./uploads` (fichiers), `./postgres` (base) dans le dossier du service |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |

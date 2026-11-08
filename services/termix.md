@@ -3,8 +3,8 @@ title: "Termix"
 description: "Point d'entrée web pour administrer les hôtes : terminal SSH, fichiers SFTP, vues Proxmox et Docker. Restreint au tailnet, connexion par Authentik."
 icon: "terminal"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
-app_version: "26.10.2"
+last_reviewed: "2026-11-08"
+app_version: "26.11.0"
 ---
 
 ## Accès
@@ -34,7 +34,7 @@ Termix n'est pas un accès de secours : lui et Authentik tournent sur la VM 104.
 | Accès | Tailnet ; OIDC Authentik (groupe `admins`), compte local de secours avec TOTP |
 | Hôte | VM 104 |
 | Coolify | UUID `ot8tjxw5ruhoqyis3rkb4ll5`, chemin `/data/coolify/services/ot8tjxw5ruhoqyis3rkb4ll5/` |
-| Image | `ghcr.io/termix-ssh/termix:26.10.2`, `guacamole/guacd:1.6.0` |
+| Image | `ghcr.io/termix-ssh/termix:26.11.0`, `guacamole/guacd:1.6.0` |
 | Données | `data/` : base chiffrée, plugins, enregistrements de sessions |
 | Sauvegarde | Avec la VM 104 ; secrets serveur aussi dans Vaultwarden |
 | Supervision | Sonde Uptime Kuma |
@@ -121,7 +121,7 @@ Ressource Docker Compose dans Coolify, champ **Domains** vide (routeur `termix-a
 ```yaml
 services:
   termix:
-    image: ghcr.io/termix-ssh/termix:26.10.2
+    image: ghcr.io/termix-ssh/termix:26.11.0
     environment:
       PORT: "8080"
       TRUSTED_PROXIES: ${TRUSTED_PROXIES:?}

@@ -3,8 +3,8 @@ title: "PhotoPrism"
 description: "Bibliothèque des photos haute résolution et des fichiers RAW, alimentée par WebDAV."
 icon: "camera"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
-app_version: "260728 / MariaDB 11.8.8"
+last_reviewed: "2026-11-08"
+app_version: "261029 / MariaDB 11.8.8"
 ---
 
 ## Accès
@@ -34,7 +34,7 @@ docker exec -it $(docker ps -qf "name=photoprism_photoprism") photoprism index  
 | Accès | Public ; OIDC Authentik (client `photo-prism`, groupe `admins`) |
 | Hôte | VM 104 |
 | Coolify | UUID `yfotvbtkqj8cqw5alox6gfpr`, chemin `/data/coolify/services/yfotvbtkqj8cqw5alox6gfpr/` |
-| Image | `photoprism/photoprism:260728`, `mariadb:11.8.8` |
+| Image | `photoprism/photoprism:261029`, `mariadb:11.8.8` |
 | Données | Originaux et métadonnées sur le HDD du NAS (`/mnt/nas-storage/photoprism-data/`) ; base MariaDB dans un volume local (`photoprism-mariadb-data`) |
 | Sauvegarde | Base avec la VM 104 ; **originaux non sauvegardés** |
 | Supervision | Sonde Uptime Kuma |
@@ -95,7 +95,13 @@ docker exec $(docker ps -qf "name=photoprism_mariadb") mariadb-dump -u root -p p
 
 ## Exploitation
 
-Mise à jour : changer le tag dans Coolify, redéployer, puis lancer `photoprism index` si les notes de version le demandent.
+Mise à jour : sauvegarder l'index, puis `just app-update photoprism <version>` depuis ims-ops ; lancer `photoprism index` si les notes de version le demandent. Les migrations de base passent au démarrage et ne se défont pas : un retour à l'ancienne version demande de restaurer l'index.
+
+```bash
+docker exec $(docker ps -qf name=photoprism-yfotv) photoprism backup -i -f   # index, dans storage/backup
+```
+
+Healthcheck défini dans le compose : `curl` sur `/api/v1/status` (voir les pièges).
 
 ## Pièges connus
 
@@ -111,6 +117,11 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
     **Cause** : fichiers `._` du Finder.
 
     **Solution** : lancer `photoprism import`.
+  </Accordion>
+  <Accordion title="Studio inaccessible après une mise à jour, conteneur unhealthy">
+    **Cause** : depuis la 261029, `photoprism status` (healthcheck d'origine) échoue avec `bad status 404` alors que le serveur répond ; Traefik retire la route d'un conteneur unhealthy.
+
+    **Solution** : healthcheck `curl -fsS http://127.0.0.1:2342/api/v1/status` dans le compose.
   </Accordion>
   <Accordion title="Transcodage logiciel malgré l'iGPU">
     **Cause** : `PHOTOPRISM_INIT` sans `intel`.

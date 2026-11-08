@@ -3,8 +3,8 @@ title: "CrowdSec"
 description: "Détection d'intrusions et pare-feu applicatif devant Traefik, avec une interface locale de gestion des bannissements."
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-11-06"
-app_version: "v1.8.1 / 2026.11.5"
+last_reviewed: "2026-11-08"
+app_version: "v1.8.2 / 2026.11.5"
 ---
 
 ## Accès
@@ -35,7 +35,7 @@ cscli bouncers list
 | Accès | Tailnet ; OIDC Authentik, rôle administrateur |
 | Hôte | VM 104 |
 | Coolify | UUID `8bqmp4lkzgfoooqx0wrndfkt`, chemin `/data/coolify/services/8bqmp4lkzgfoooqx0wrndfkt/` |
-| Image | `crowdsecurity/crowdsec:v1.8.1`, `ghcr.io/theduffman85/crowdsec-web-ui:2026.11.5` ; plugin Traefik `crowdsec-bouncer-traefik-plugin` v1.6.0 |
+| Image | `crowdsecurity/crowdsec:v1.8.2`, `ghcr.io/theduffman85/crowdsec-web-ui:2026.11.5` ; plugin Traefik `crowdsec-bouncer-traefik-plugin` v1.6.0 |
 | Données | `config/` (`/etc/crowdsec`), `data/` (base SQLite des alertes et décisions), `webui-data/` |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Métriques (port 6060) dans Prometheus, tableau Grafana 19010 |

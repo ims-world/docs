@@ -3,7 +3,7 @@ title: "Administration avec ims-ops"
 description: "Ce que fait le dépôt ims-ops, ses garde-fous, et les parcours courants : configurer un hôte, créer une VM, gérer les sauvegardes."
 icon: "terminal"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
+last_reviewed: "2026-11-08"
 ---
 
 Durée : quelques minutes par parcours · Risque : faible avec la simulation préalable · Interruption de service : aucune en général
@@ -14,12 +14,13 @@ ims-ops est la boîte à outils d'administration du parc. Ansible décrit l'éta
 
 | ims-ops gère | ims-ops ne gère pas |
 | --- | --- |
-| Comptes, clés SSH, sudo | Les services Docker (Coolify) |
+| Comptes, clés SSH, sudo | Le contenu des services Docker (composes, configuration dans Coolify) |
 | Socle système : SSH, fail2ban, paquets, mises à jour | Les mises à jour des nœuds Proxmox |
 | Agent Alloy et enrôlement dans le tailnet | Home Assistant OS, Windows, le Raspberry Pi |
 | Template de VM, création et destruction de VM | Les conteneurs LXC existants (créés à la main) |
 | Pool de sauvegarde PBS | La rétention et les vérifications du PBS |
 | Rapports : conformité, doublons de la médiathèque | La suppression de fichiers |
+| Mise à jour de l'image d'un service Coolify | Les healthchecks et autres réglages des composes |
 
 Le contenu exact du socle est décrit dans [Socle commun des hôtes](/infrastructure/socle-commun).
 
@@ -171,6 +172,20 @@ just update proxmox_nodes   # les nœuds, un à la fois
 </Steps>
 
 Les machines de tiers ne sont mises à jour que si elles sont nommées explicitement. Sur un hôte sans snapshot possible (VM 104, NAS), lancer d'abord `just backup-now <nom>`.
+
+### Mettre à jour un service Coolify
+
+```bash
+just app-update <service> <version>       # ex. just app-update vaultwarden 1.37.6
+just app-update <service> <version> yes   # avec sauvegarde PBS préalable de la VM 104 (une vingtaine de minutes)
+```
+
+`<service>` est le début du nom du conteneur (`<service>-<uuid Coolify>`), la version est le tag signalé par [WUD](/services/whatsupdocker). La commande affiche les versions publiées sur GitHub entre l'actuelle et la cible, demande confirmation, remplace le tag dans le compose par l'API de Coolify (compose d'origine conservé sur la VM 104), redéploie et attend que le conteneur soit sain. Les services d'une même image (application et worker) sont mis à jour ensemble ; toute la ressource Coolify redémarre.
+
+- Sauvegarde préalable (`yes`) : pour une version majeure ou une migration de données sans retour ; sinon, le retour arrière repose sur l'ancien tag et la sauvegarde de la nuit.
+- Échec : la commande affiche le dernier état du conteneur et la commande de retour arrière. Un conteneur `unhealthy` alors que le service répond vient souvent d'un healthcheck devenu incompatible avec la nouvelle image (cas de Loki et PhotoPrism).
+- Prérequis dans Coolify : accès à l'API activé et limité à la VM 104 (*Settings*, *Allowed IPs* : `10.0.1.1`), jeton `read:sensitive`, `write`, `deploy`, rangé dans le coffre ims-ops.
+- Une ressource dont plusieurs images partagent un même compose (supervision) se met à jour plus simplement à la main, en un seul redéploiement.
 
 ### Tester une restauration
 

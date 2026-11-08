@@ -3,8 +3,8 @@ title: "Supervision (Grafana, Prometheus, Loki)"
 description: "Métriques, journaux et alertes du homelab : agents Alloy sur chaque hôte, stockage dans Prometheus et Loki, tableaux de bord et alertes dans Grafana."
 icon: "chart-line"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
-app_version: "v13.1.3"
+last_reviewed: "2026-11-08"
+app_version: "v13.3.0"
 ---
 
 ## Accès
@@ -32,7 +32,7 @@ sudo systemctl status alloy
 | Accès | Tailnet ; OIDC Authentik |
 | Hôte | VM 104 |
 | Coolify | UUID `rrw19kmye6gng961igtzqpgw`, chemin `/data/coolify/services/rrw19kmye6gng961igtzqpgw/` |
-| Image | Grafana `13.1.3`, Loki `3.3.2`, Prometheus `v3.1.0` ; agents Alloy `1.18.1` |
+| Image | Grafana `13.3.0`, Loki `3.7.9`, Prometheus `v3.16.0` ; agents Alloy `1.18.1` |
 | Données | Base Prometheus (rétention 1 an), Loki (30 jours), sur le disque local de la VM 104 |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma sur Grafana |
@@ -129,6 +129,13 @@ Prometheus et Loki sont sur le disque local de la VM 104 et sauvegardés avec el
 ## Exploitation
 
 - Ajouter un hôte : le déclarer dans l'inventaire ims-ops, puis `just setup <hôte> alloy`.
+- Mettre à jour : les trois services sont dans le même compose, changer les trois tags puis redéployer une seule fois. Avant une nouvelle version de Loki, valider sa configuration avec la nouvelle image :
+
+  ```bash
+  cd /data/coolify/services/rrw19kmye6gng961igtzqpgw/config
+  docker run --rm -v "$PWD/loki.yml:/etc/loki/local-config.yaml:ro" grafana/loki:<version> -config.file=/etc/loki/local-config.yaml -verify-config
+  ```
+
 - Journaux systemd dans « Logs — Vue d'ensemble » : régler `$container` sur `All`, sinon seules les entrées de conteneurs s'affichent.
 
 ## Pièges connus
@@ -140,6 +147,11 @@ Chaque piège donne le symptôme observé, sa cause et la correction.
     **Cause** : défaut d'Uptime Kuma.
 
     **Solution** : redémarrer le conteneur (voir [Uptime Kuma](/services/uptime-kuma)).
+  </Accordion>
+  <Accordion title="Loki toujours unhealthy après une mise à jour">
+    **Cause** : depuis la 3.5.8, l'image Loki ne contient plus de shell ni de `wget` ; un healthcheck qui les appelle échoue toujours.
+
+    **Solution** : pas de healthcheck sur Loki ; disponibilité suivie par une sonde Uptime Kuma sur `http://192.168.1.52:3100/ready`.
   </Accordion>
   <Accordion title="Noms de services Traefik illisibles">
     **Cause** : Coolify ajoute des empreintes et suffixes (`https-N-<hash>`, `@docker`).
