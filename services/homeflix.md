@@ -118,14 +118,17 @@ Les versions sont classées plutôt qu'exclues, pour qu'une demande aboutisse pr
 
 - Langue : MULTi, puis VFF, puis VFQ (-100), puis VO anglaise en dernier recours (-3000) ; les sous-titres relèvent de Bazarr.
 - Groupes de sortie français classés par les guides TRaSH (+1500 à +1800).
-- Fichiers compacts favorisés : x265 et AV1 (+100), décodés par l'iGPU.
+- Fichiers compacts favorisés : x265 et AV1 (+100), décodés par l'iGPU. Tailles du guide ajustées : minimum du Bluray ramené à celui du WEB (sinon un Bluray x265 compact est refusé), taille préférée d'environ 5 Go pour 2 h en 1080p et 14 Go en 4K.
 - Refusés (-10000) : LQ, upscales, BR-DISK, 3D, FastSUB, extras, Dolby Vision sans HDR10 de secours (téléviseur Samsung sans Dolby Vision).
 - Remplacement d'un fichier seulement pour un gain d'au moins 400 points, en pratique un gain de langue : WEB-DL et Bluray forment un même groupe de qualité.
 - Pas de Remux.
 
-<Warning>
-Les profils Radarr doivent garder **Language : Any** (**Settings → Profiles**). Sinon, Radarr refuse la VO avant de calculer les scores. Recyclarr ne modifie pas ce champ.
-</Warning>
+Deux réglages manuels, hors Recyclarr, conditionnent ce classement :
+
+| Réglage | Où | Valeur | Sans ce réglage |
+| --- | --- | --- | --- |
+| **Language** des profils `HomeFlix` et `HomeFlix 4K` | Radarr, **Settings → Profiles** | `Any` | La VO est refusée avant le calcul des scores |
+| **Multi Languages** de l'indexeur | Radarr et Sonarr, **Settings → Indexers**, options avancées | `Original`, `French` | Un MULTi est lu comme une VF seule et perd son bonus de +500 |
 
 ### Redirection de port
 
