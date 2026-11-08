@@ -3,7 +3,7 @@ title: "ims-coolify (VM 104)"
 description: "VM principale des services : Coolify, Traefik, CrowdSec, Authentik, supervision et la plupart des applications Docker."
 icon: "box"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
+last_reviewed: "2026-11-08"
 app_version: "v4.3.14"
 ---
 
@@ -101,6 +101,8 @@ Ce qui distingue cette VM des autres hôtes du parc.
 
   Le propriétaire n'est pas modifié : Coolify vérifie ses propres permissions (utilisateur `9999`).
 - `cmolotkoff` est dans le groupe `docker`, ce qui équivaut à un accès root.
+- Métriques et analyses intégrées de Coolify (Sentinel) désactivées : la supervision passe par [Grafana](/services/monitoring). Sentinel réécrivait sa base en continu.
+- Dossier de données d'Alloy en mémoire (tmpfs, `alloy_data_tmpfs` dans ims-ops) : son tampon de métriques n'écrit plus sur le disque. Il est vidé au redémarrage de la VM.
 
 ## Sauvegarde et reprise
 
@@ -109,6 +111,24 @@ Pas de snapshot Proxmox possible (périphérique PCI transmis) : sauvegarder les
 </Note>
 
 Coolify ne fait aucune sauvegarde applicative. La VM entière, volumes Docker compris, est sauvegardée chaque nuit par le PBS. Les données sur le NAS (médiathèque, photos) ne sont pas dans cette sauvegarde. Voir la [politique de sauvegarde](/procedures/politique-sauvegardes).
+
+La sauvegarde est incrémentale : seuls les blocs écrits depuis la nuit précédente sont relus et envoyés. Sa durée dépend donc du volume écrit sur le disque dans la journée. Mesure du 08/11/2026 : environ 108 Go écrits par jour, 46 Gio de blocs modifiés, 23 minutes de sauvegarde. Principales sources :
+
+| Source | Écritures par jour | Traitement |
+| --- | --- | --- |
+| Redis de Coolify (`coolify-redis`) | ~28 Go : sauvegarde complète toutes les 20 s (`--save 20 1`) | Conservé : réglage de l'installation de Coolify |
+| Alloy (tampon des métriques) | ~16 Go | Dossier de données en mémoire |
+| Sentinel (métriques de Coolify) | ~14 Go | Désactivé |
+
+Écritures par conteneur depuis son démarrage :
+
+```bash
+for c in $(docker ps -q); do
+  id=$(docker inspect -f '{{.Id}}' $c); name=$(docker inspect -f '{{.Name}}' $c | tr -d /)
+  w=$(awk '{for(i=1;i<=NF;i++) if($i ~ /^wbytes=/){split($i,a,"="); s+=a[2]}} END{print s+0}' /sys/fs/cgroup/system.slice/docker-$id.scope/io.stat 2>/dev/null)
+  echo "$w $name"
+done | sort -n | tail -10 | numfmt --to=iec --field=1
+```
 
 ## Supervision
 
