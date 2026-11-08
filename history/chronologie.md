@@ -7,6 +7,7 @@ last_reviewed: "2026-11-08"
 <Update label="08/11/2026" description="Sauvegarde de la VM 104 : écritures réduites">
   - Sauvegarde nocturne de la [VM 104](/infrastructure/vm-coolify#sauvegarde-et-reprise) de 23 minutes, pour 46 Gio de blocs modifiés par jour. Sources mesurées par conteneur : Redis de Coolify (~28 Go/jour, conservé), Alloy (~16 Go/jour), Sentinel (~14 Go/jour).
   - Métriques et analyses de Coolify (Sentinel) désactivées ; dossier de données d'Alloy en mémoire (option `alloy_data_tmpfs` du rôle `alloy` d'ims-ops).
+  - Tâche de vérification d'intégrité du PBS créée (dimanche 04:00) : annoncée par la politique de sauvegarde, elle n'existait pas, et aucune sauvegarde n'avait jamais été vérifiée.
 </Update>
 
 <Update label="08/11/2026" description="Mises à jour des services, commande just app-update">
