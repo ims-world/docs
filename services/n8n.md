@@ -32,7 +32,7 @@ docker compose logs -f --tail=50 n8n n8n-worker task-runners
 | Accès | Public ; comptes natifs avec double facteur ; `/webhook/*` et `/webhook-test/*` ouverts |
 | Hôte | VM 104 |
 | Coolify | UUID `uifode0ypia57wbkyoertbxh`, chemin `/data/coolify/services/uifode0ypia57wbkyoertbxh/` (modèle Coolify « n8n queue mode ») |
-| Image | `n8nio/n8n:2.46.6` (interface et worker), `n8nio/runners:2.10.4`, `postgres:16-alpine`, `redis:6-alpine` |
+| Image | `n8nio/n8n:2.46.6` (interface et worker), `n8nio/runners:2.46.6` (même version que n8n), `postgres:16-alpine`, `redis:6-alpine` |
 | Données | PostgreSQL (flux, identifiants chiffrés, exécutions) ; clé `N8N_ENCRYPTION_KEY` |
 | Sauvegarde | Avec la VM 104 ; clé de chiffrement aussi dans Vaultwarden |
 | Supervision | Sonde Uptime Kuma |
