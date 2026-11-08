@@ -4,6 +4,12 @@ description: "Journal des chantiers du homelab, du plus récent au plus ancien."
 last_reviewed: "2026-11-08"
 ---
 
+<Update label="08/11/2026" description="Sauvegarde de la VM 104 : écritures réduites">
+  - Sauvegarde nocturne de la [VM 104](/infrastructure/vm-coolify#sauvegarde-et-reprise) de 23 minutes, pour 46 Gio de blocs modifiés par jour. Sources mesurées par conteneur : Redis de Coolify (~28 Go/jour, conservé), Alloy (~16 Go/jour), Sentinel (~14 Go/jour).
+  - Métriques et analyses de Coolify (Sentinel) désactivées ; dossier de données d'Alloy en mémoire (option `alloy_data_tmpfs` du rôle `alloy` d'ims-ops).
+  - Tâche de vérification d'intégrité du PBS créée (dimanche 04:00) : annoncée par la politique de sauvegarde, elle n'existait pas, et aucune sauvegarde n'avait jamais été vérifiée.
+</Update>
+
 <Update label="08/11/2026" description="Mises à jour des services, commande just app-update">
   - Commande `just app-update <service> <version>` dans ims-ops : notes de version GitHub, confirmation, tag remplacé par l'API de Coolify, redéploiement contrôlé ([Administration avec ims-ops](/procedures/administration-ims-ops#mettre-à-jour-un-service-coolify)). Accès à l'API de Coolify rouvert, limité à la VM 104.
   - Correctifs de sécurité : [Vaultwarden](/services/vaultwarden) 1.37.5, [Headscale](/reseau/headscale-headplane) v0.29.7, [PhotoPrism](/services/photoprism) 261029 (libheif, Go). Également : Headplane 0.8.2, [CrowdSec](/reseau/crowdsec) v1.8.2, Uptime Kuma 2.5.9, Zipline 4.8.2, Ntfy v2.37.2, Dozzle v11.4.1, Termix 26.11.0, WUD 9.8.0, Stirling PDF 3.3.0, n8n 2.46.6.

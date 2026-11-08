@@ -3,7 +3,7 @@ title: "Politique de sauvegarde"
 description: "Ce qui est sauvegardé, où, quand et avec quelle rétention ; ce qui ne l'est pas ; comment sauvegarder à la main avant une intervention."
 icon: "shield-check"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
+last_reviewed: "2026-11-08"
 ---
 
 ## Principes
@@ -47,7 +47,7 @@ Le datastore PBS et la médiathèque partagent le même disque. La copie hors si
 | 03:00 chaque jour | Sauvegarde locale de LXC 103, mode snapshot, 4 sauvegardes conservées | Proxmox VE, stockage `local` |
 | Chaque jour | Élagage : 7 quotidiennes, 4 hebdomadaires, 3 mensuelles | PBS |
 | Samedi 03:00 | Nettoyage des blocs inutilisés | PBS |
-| Dimanche 04:00 | Vérification d'intégrité | PBS |
+| Dimanche 04:00 | Vérification d'intégrité : sauvegardes pas encore vérifiées, et revérification après 30 jours | PBS (**Datastore → Verify Jobs**) |
 
 La rétention est portée par le PBS, pas par le job Proxmox.
 
@@ -108,6 +108,7 @@ Notifications, dans l'interface de Proxmox VE puis du PBS : cible webhook `ntfy`
 | --- | --- | --- |
 | `wrong content type` en sauvegardant vers `local-lvm` | Un stockage LVM-Thin n'accepte pas les archives | Utiliser `local` (`/var/lib/vz`) |
 | `namespace not found` | Le datastore ne répond plus (NFS périmé), ou un namespace inexistant est configuré sur `pbs-coolify` | Vérifier le montage sur le PBS, puis le champ **Namespace** du stockage (vide) |
+| Sauvegarde nocturne de la VM 104 longue (plus de 20 minutes) | Volume de blocs modifiés dans la journée (ligne `dirty-bitmap status` du journal vzdump) et débit d'écriture du datastore sur HDD | Identifier les conteneurs qui écrivent le plus (voir [VM Coolify](/infrastructure/vm-coolify#sauvegarde-et-reprise)) ; journal : `grep -E "dirty-bitmap|transferred" /var/log/vzdump/qemu-104.log` sur `pve` |
 | `ESTALE: Stale file handle` | Montage NFS du datastore périmé | `umount -l /mnt/pbs-datastore && mount /mnt/pbs-datastore`, puis `systemctl restart proxmox-backup-proxy proxmox-backup` |
 
 ## Voir aussi
