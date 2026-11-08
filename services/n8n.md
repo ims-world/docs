@@ -3,8 +3,8 @@ title: "n8n"
 description: "Automatisation de flux : webhooks, appels d'API et scripts planifiés, en mode file d'attente avec un worker dédié."
 icon: "diagram-project"
 iconType: "duotone"
-last_reviewed: "2026-10-25"
-app_version: "2.10.4"
+last_reviewed: "2026-11-08"
+app_version: "2.46.6"
 ---
 
 ## Accès
@@ -32,7 +32,7 @@ docker compose logs -f --tail=50 n8n n8n-worker task-runners
 | Accès | Public ; comptes natifs avec double facteur ; `/webhook/*` et `/webhook-test/*` ouverts |
 | Hôte | VM 104 |
 | Coolify | UUID `uifode0ypia57wbkyoertbxh`, chemin `/data/coolify/services/uifode0ypia57wbkyoertbxh/` (modèle Coolify « n8n queue mode ») |
-| Image | `n8nio/n8n:2.10.4`, `n8nio/runners:2.10.4`, `postgres:16-alpine`, `redis:6-alpine` |
+| Image | `n8nio/n8n:2.46.6` (interface et worker), `n8nio/runners:2.10.4`, `postgres:16-alpine`, `redis:6-alpine` |
 | Données | PostgreSQL (flux, identifiants chiffrés, exécutions) ; clé `N8N_ENCRYPTION_KEY` |
 | Sauvegarde | Avec la VM 104 ; clé de chiffrement aussi dans Vaultwarden |
 | Supervision | Sonde Uptime Kuma |
@@ -89,6 +89,8 @@ docker exec -t $(docker ps -qf "name=postgresql-uifode0ypia57wbkyoertbxh") pg_du
 ```
 
 ## Exploitation
+
+La branche 3 n'est pas installée tant qu'elle n'est pas stable (annoncée pour décembre 2026). Le passage de la 2 à la 3 est sans retour possible, et la protection SSRF de la 3 bloque par défaut la plage du tailnet (`100.64.0.0/10`). Avant le passage : rapport **Settings → Migration Report**, sauvegarde de la VM 104.
 
 Si le volume d'exécutions grossit, activer l'élagage dans les variables Coolify :
 

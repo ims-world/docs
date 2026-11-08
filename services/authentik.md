@@ -3,7 +3,7 @@ title: "Authentik"
 description: "Fournisseur d'identité du homelab : connexion unique (OIDC) pour les applications compatibles, forward-auth pour les autres, invitations et groupes."
 icon: "key"
 iconType: "duotone"
-last_reviewed: "2026-11-06"
+last_reviewed: "2026-11-08"
 app_version: "2026.8.5"
 ---
 
@@ -88,12 +88,9 @@ La base PostgreSQL et la configuration sont sauvegardées avec la VM 104. La cl�
 
 <Steps>
   <Step title="Préparer le retour arrière">
-    Prendre un snapshot disque de la VM 104 (sans état mémoire, à cause du passthrough GPU) et un export de la base :
+    Exporter la base (la VM 104 n'accepte pas de snapshot à cause du passthrough GPU ; pour une version majeure, `just backup-now ims-coolify` en plus) :
 
     ```bash
-    # Sur pve
-    qm snapshot 104 pre-authentik-<version> --description "Avant mise à jour Authentik"
-    # Sur la VM 104
     docker exec <conteneur-postgresql> pg_dump -U <utilisateur> -d authentik -Fc > ~/authentik-<version>-$(date +%F).dump
     ```
   </Step>

@@ -1,8 +1,16 @@
 ---
 title: "Chronologie"
 description: "Journal des chantiers du homelab, du plus récent au plus ancien."
-last_reviewed: "2026-10-25"
+last_reviewed: "2026-11-08"
 ---
+
+<Update label="08/11/2026" description="Mises à jour des services, commande just app-update">
+  - Commande `just app-update <service> <version>` dans ims-ops : notes de version GitHub, confirmation, tag remplacé par l'API de Coolify, redéploiement contrôlé ([Administration avec ims-ops](/procedures/administration-ims-ops#mettre-à-jour-un-service-coolify)). Accès à l'API de Coolify rouvert, limité à la VM 104.
+  - Correctifs de sécurité : [Vaultwarden](/services/vaultwarden) 1.37.5, [Headscale](/reseau/headscale-headplane) v0.29.7, [PhotoPrism](/services/photoprism) 261029 (libheif, Go). Également : Headplane 0.8.2, [CrowdSec](/reseau/crowdsec) v1.8.2, Uptime Kuma 2.5.9, Zipline 4.8.2, Ntfy v2.37.2, Dozzle v11.4.1, Termix 26.11.0, WUD 9.8.0, Stirling PDF 3.3.0, n8n 2.46.6.
+  - [Supervision](/services/monitoring) : Grafana 13.3.0, Prometheus v3.16.0, Loki 3.7.9 ; healthcheck de Loki retiré (image sans shell ni `wget` depuis la 3.5.8).
+  - PhotoPrism : healthcheck remplacé par `curl` sur `/api/v1/status` ; celui d'origine échouait en 261029 et Traefik retirait la route.
+  - n8n 3.x proposé par WUD, non installé : préversion, sans retour possible.
+</Update>
 
 <Update label="06/11/2026" description="Authentik 2026.8.5, interface CrowdSec 2026.11.5">
   - [Authentik](/services/authentik) passé de 2026.8.0 à 2026.8.5 : correctifs de sécurité de la 2026.8.2, dont la CVE-2026-94611 (identifiants stockés lisibles par l'API avec un simple droit de lecture). Outpost `ims-outpost` aligné.

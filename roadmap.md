@@ -3,7 +3,7 @@ title: "Feuille de route"
 description: "Chantiers ouverts par priorité, idées à évaluer, et chantiers réalisés récemment."
 icon: "list-check"
 iconType: "duotone"
-last_reviewed: "2026-11-06"
+last_reviewed: "2026-11-08"
 ---
 
 Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un lien vers la page qui le décrit ; le détail va dans la [chronologie](/history/chronologie).
@@ -20,6 +20,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Chantier | Pourquoi | Où |
 | --- | --- | --- |
+| Passer n8n en 3.x | Après la sortie stable (décembre 2026) : rapport de migration, protection SSRF qui bloque le tailnet, sauvegarde préalable ; passage sans retour | [n8n](/services/n8n) |
 | Passer les applications forward-auth sur l'outpost intégré d'Authentik | Retirer le socket Docker monté en `root` dans le worker. Recréer dans le provider File le routeur `/outpost.goauthentik.io/` de chaque application, en priorité élevée et avec `vpn-only` là où il s'applique | [Authentik](/services/authentik) |
 | Utilisateur PBS dédié pour `pbs-coolify` | Le stockage se connecte avec `root@pam` | PBS |
 | Pare-feu Proxmox | Non activé ; règles par nœud d'abord, console ouverte pendant l'activation | Nœuds |
@@ -47,6 +48,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Date | Chantier | Page |
 | --- | --- | --- |
+| 08/11/2026 | Mises à jour de seize services, dont trois de sécurité ; commande `just app-update` | [Administration avec ims-ops](/procedures/administration-ims-ops#mettre-à-jour-un-service-coolify) |
 | 06/11/2026 | Expressions `wud.tag.include` vérifiées sur tous les conteneurs surveillés : 18 corrigées, dont Forgejo épinglé en 11.0.16 | [WUD](/services/whatsupdocker) |
 | 04/11/2026 | HomeFlix en deux ressources Coolify, Bazarr, notifications Ntfy, redirection de port automatique, images à jour | [HomeFlix](/services/homeflix) |
 | 03/11/2026 | Contrôles de sécurité : routeurs de `vpn-only.yaml`, TXT `_acme-challenge`, observation CrowdSec close | [Traefik](/reseau/traefik-proxy) |
