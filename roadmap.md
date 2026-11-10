@@ -24,6 +24,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Passer n8n en 3.x | Après la sortie stable (décembre 2026) : rapport de migration, protection SSRF qui bloque le tailnet, sauvegarde préalable ; passage sans retour | [n8n](/services/n8n) |
 | Passer les applications forward-auth sur l'outpost intégré d'Authentik | Retirer le socket Docker monté en `root` dans le worker. Recréer dans le provider File le routeur `/outpost.goauthentik.io/` de chaque application, en priorité élevée et avec `vpn-only` là où il s'applique | [Authentik](/services/authentik) |
 | Utilisateur PBS dédié pour `pbs-coolify` | Le stockage se connecte avec `root@pam` | PBS |
+| Harmoniser les DNS : Quad9 (`9.9.9.9`) pour les invités | Trois DNS coexistent : Bbox (nœuds, worker), Quad9 (NAS, PBS), Cloudflare (VM de `just vm`). À faire : `pct set 105 -nameserver 9.9.9.9` puis redémarrage du worker ; `vm_nameserver: 9.9.9.9` dans ims-ops ; domaine de recherche de `pve` : `ims-world.fr` au lieu de `ims.local` | Nœuds, ims-ops |
 | Pare-feu Proxmox | Non activé ; règles par nœud d'abord, console ouverte pendant l'activation | Nœuds |
 | Raccorder Windows (VM 102) en RDP dans Termix | Démarrage à la demande à étudier (plugin Proxmox Power) | [Termix](/services/termix) |
 | Renouveler la clé Headscale de `infra` | Expire le 18/10/2027 | [Headscale](/reseau/headscale-headplane) |
