@@ -4,6 +4,12 @@ description: "Journal des chantiers du homelab, du plus récent au plus ancien."
 last_reviewed: "2026-11-08"
 ---
 
+<Update label="10/11/2026" description="Revue du code d'ims-ops, DNS du worker">
+  - Revue complète d'ims-ops : journal persistant sans redémarrage, tâches partagées, jeton Ntfy et URL du battement de cœur hors de la ligne de commande ([ADR-015](/history/adr/adr-015-alerte-externe-battement-de-coeur)).
+  - Worker 105 sans DNS depuis son passage en IP fixe ; `pve-macmini` repassé sur le DNS du LAN ([incident](/history/incidents/2026-11-10-dns-worker-105)).
+  - `just audit` contrôle le DNS du tailnet ; `just health` alerte sur un hôte qui ne résout plus les noms.
+</Update>
+
 <Update label="10/11/2026" description="Paperless-ngx">
   - [Paperless-ngx](/services/paperless) 3.3.4 déployé sur la VM 104, sur `papiers.ims-world.fr`, restreint au tailnet. PostgreSQL dès le départ plutôt que SQLite, pour éviter une migration après l'import en masse.
   - Connexion OIDC native par Authentik seule : comptes créés à la première connexion, groupes `admins` et `membres` synchronisés ; formulaire local désactivé, superutilisateur de secours par `/admin/`.

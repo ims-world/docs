@@ -50,6 +50,7 @@ Ce que le Mac Mini ne peut pas faire, à garder en tête avant d'y placer un inv
 
 Ce qui distingue ce nœud des autres hôtes du parc.
 
+- DNS du LAN (`192.168.1.254`) ; Tailscale sans le DNS du tailnet, conformément à l'inventaire. Le réglage inverse, hérité d'un enrôlement antérieur à ims-ops, a privé le worker de DNS ([incident du 10/11/2026](/history/incidents/2026-11-10-dns-worker-105)).
 - Écarts au [socle commun](/infrastructure/socle-commun) : root par clé (cluster), mises à jour manuelles.
 - Démarrage EFI natif, sans patch de noyau. Carte réseau Broadcom `tg3` reconnue nativement.
 - Dépôts `pve-enterprise.sources` et `ceph.sources` désactivés, `pve-no-subscription` activé.

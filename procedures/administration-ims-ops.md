@@ -141,7 +141,7 @@ just health   # alertes à l'écran, rapport complet dans reports/health/latest.
 La commande ne modifie rien. Elle complète `just audit` : l'audit vérifie la conformité de la configuration, `health` vérifie que le parc fonctionne.
 
 <CardGroup cols={2}>
-  <Card title="Hôtes" icon="server" color="#3B82F6">Joignables, redémarrage en attente, occupation des disques et des partages, unités systemd en échec, mises à jour en attente.</Card>
+  <Card title="Hôtes" icon="server" color="#3B82F6">Joignables, résolution DNS, redémarrage en attente, occupation des disques et des partages, unités systemd en échec, mises à jour en attente.</Card>
   <Card title="Cluster" icon="network-wired" color="#FF6B00">Quorum, état de chaque invité.</Card>
   <Card title="Sauvegardes" icon="box-archive" color="#8B5CF6">Âge de la dernière sauvegarde de chaque invité du pool, archives locales, occupation du datastore.</Card>
   <Card title="Disques" icon="hard-drive" color="#8B5CF6">Santé SMART relevée sur les nœuds, sans réveiller un disque en veille.</Card>
