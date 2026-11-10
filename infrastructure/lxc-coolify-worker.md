@@ -58,6 +58,7 @@ Tout le trafic entrant arrive sur le Traefik de la VM 104, qui le transmet aux a
 
 Ce qui distingue ce conteneur des autres hôtes du parc.
 
+- DNS `192.168.1.254` déclaré dans sa configuration Proxmox (`pct set 105 -nameserver`). Sans lui, le conteneur hérite du DNS du nœud ([incident du 10/11/2026](/history/incidents/2026-11-10-dns-worker-105)).
 - Le nom système (`coolify`) diffère du nom d'inventaire : aucun rôle d'ims-ops ne renomme un hôte.
 - SSH démarré par activation de socket (`ssh.socket`).
 - Écarts au [socle commun](/infrastructure/socle-commun) : root par clé (Coolify), collecteur Alloy Docker.

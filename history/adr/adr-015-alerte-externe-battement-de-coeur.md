@@ -44,3 +44,9 @@ Ce que le dispositif couvre : coupure de courant, coupure d'accès Internet, nœ
 - Le choix du service n'enferme pas : changer de prestataire revient à changer les URL dans le coffre. Healthchecks.io est un logiciel libre, auto-hébergeable si besoin.
 - Un contrôle supplémentaire se déclare dans `host_vars` (voir le README du rôle `heartbeat`).
 - Une maintenance prévue (arrêt d'un nœud) déclenche une alerte : mettre le contrôle en pause sur Healthchecks.io avant l'intervention.
+
+## Amendements
+
+<Update label="10/11/2026" description="URL hors de la ligne de commande">
+  La tâche cron est exécutée par root et lit l'URL dans `/etc/ims-heartbeat.curlrc` (fichier réservé à root) : l'URL n'apparaît plus dans la tâche planifiée ni dans la liste des processus. Le jeton Ntfy de fail2ban suit le même principe (`/etc/fail2ban/ntfy.header`).
+</Update>

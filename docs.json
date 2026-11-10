@@ -203,6 +203,7 @@
             "group": "Incidents",
             "pages": [
               "history/incidents/index",
+              "history/incidents/2026-11-10-dns-worker-105",
               "history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix",
               "history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband",
               "history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr",
