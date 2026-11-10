@@ -130,6 +130,7 @@ smartctl -H /dev/disk/by-id/ata-APPLE_HDD_ST3000DM001_Z1F3N0NZ
 Ce qui distingue ce nœud des autres hôtes du parc.
 
 - Écarts au [socle commun](/infrastructure/socle-commun) : root par clé (cluster), mises à jour manuelles, étiquette Alloy `ms01-pve`.
+- DNS du LAN ; Tailscale sans le DNS du tailnet, conformément à l'inventaire (corrigé le 10/11/2026, [incident](/history/incidents/2026-11-10-dns-worker-105)). Le NAS et le PBS ont leur propre DNS déclaré dans Proxmox (`9.9.9.9`) et ne dépendent pas de celui du nœud.
 - Dépôts APT au format `deb822` : `pve-enterprise.sources` désactivé, `proxmox.sources` sur `pve-no-subscription`.
 - Le nom d'hôte `pve` est conservé : renommer un nœud de cluster casse Corosync ([ADR-010](/history/adr/adr-010-maintien-port-ssh-22-et-hostname-cluster)).
 - Le pare-feu Proxmox n'est pas activé. Le chantier est suivi dans la [feuille de route](/roadmap).

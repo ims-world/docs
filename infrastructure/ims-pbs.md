@@ -80,6 +80,7 @@ Les échecs sont notifiés sur Ntfy, depuis Proxmox VE et depuis le PBS (mode de
 Ce qui distingue ce conteneur des autres hôtes du parc.
 
 - Le PBS ne sauvegarde ni le NAS ni lui-même : il en dépend pour fonctionner.
+- DNS `9.9.9.9` déclaré dans Proxmox ; Tailscale sans le DNS du tailnet (corrigé le 10/11/2026, [incident](/history/incidents/2026-11-10-dns-worker-105)).
 - Le stockage `pbs-coolify` se connecte encore avec `root@pam`. Le remplacement par un utilisateur PBS limité à la sauvegarde est suivi dans la [feuille de route](/roadmap).
 - En cas d'erreur `namespace not found` ou `ESTALE` à la sauvegarde, le datastore ne répond plus : remonter le partage et redémarrer les services PBS (voir [Dépannage](/procedures/depannage-courant)).
 - Écarts au [socle commun](/infrastructure/socle-commun) : envoi Alloy par `10.10.10.2` ; `zfs-mount` et `zfs-share` masqués (le paquet PBS installe ZFS, inutilisable dans un conteneur).
