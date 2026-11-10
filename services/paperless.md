@@ -72,7 +72,7 @@ Les comptes sont créés par Authentik à la première connexion ; un compte loc
 
 <CardGroup cols={2}>
   <Card color="#16A34A" title="Compte SSO" icon="key">Usage quotidien. Créé à la première connexion, rattaché aux groupes Paperless de même nom que ses groupes Authentik.</Card>
-  <Card color="#DC2626" title="Superutilisateur local" icon="life-ring">Seulement si Authentik est indisponible, par `https://papiers.ims-world.fr/admin/`. Identifiants dans les variables `SERVICE_USER_PAPERLESS` et `SERVICE_PASSWORD_PAPERLESS` de Coolify, copie dans Vaultwarden.</Card>
+  <Card color="#DC2626" title="Superutilisateur local" icon="life-ring">Seulement si Authentik est indisponible, par `https://papiers.ims-world.fr/admin/`. Identifiants dans les variables `SERVICE_USER_PAPERLESS` et `SERVICE_PASSWORD_PAPERLESS` de Coolify.</Card>
 </CardGroup>
 
 | Groupe Paperless | Droits |
@@ -168,35 +168,7 @@ Opérations courantes, depuis la VM 104.
 
 ## Pièges connus
 
-Chaque piège donne le symptôme observé, sa cause et la correction.
-
-<AccordionGroup>
-  <Accordion title="Page 404 après le clic sur la connexion Authentik">
-    **Cause** : URL de redirection refusée par Authentik (`redirect_uri_no_match` dans ses journaux, code 400). La page d'erreur du proxy l'affiche en 404.
-
-    **Solution** : dans le fournisseur, mode **Strict** et URL exacte `https://papiers.ims-world.fr/accounts/oidc/authentik/login/callback/`, slash final compris.
-  </Accordion>
-  <Accordion title="Error loading settings, 403 sur /api/ui_settings/">
-    **Cause** : compte SSO sans aucun droit : aucun groupe synchronisé, ou groupe sans le droit **UISettings**.
-
-    **Solution** : créer les groupes `admins` et `membres` avec les droits ci-dessus, se reconnecter.
-  </Accordion>
-  <Accordion title="Compte SSO rattaché à aucun groupe">
-    **Cause** : nom du groupe Paperless différent du groupe Authentik (`membre` au lieu de `membres`).
-
-    **Solution** : renommer le groupe Paperless, se reconnecter.
-  </Accordion>
-  <Accordion title="Refus 403 depuis le tailnet">
-    **Cause** : enregistrement manquant dans les `extra_records` : le nom résout l'IP publique.
-
-    **Solution** : voir [Restreindre un service au tailnet](/procedures/securiser-service-vpn-only).
-  </Accordion>
-  <Accordion title="PAPERLESS_URL vide après remplacement du compose">
-    **Cause** : variable `PAPERLESS_URL=$SERVICE_URL_PAPERLESS` laissée par le modèle Coolify dans l'onglet des variables.
-
-    **Solution** : la supprimer de l'onglet ; la valeur est écrite dans le compose.
-  </Accordion>
-</AccordionGroup>
+Sans objet.
 
 ## Voir aussi
 
