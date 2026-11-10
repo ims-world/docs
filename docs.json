@@ -119,6 +119,7 @@
             "pages": [
               "services/forgejo",
               "services/n8n",
+              "services/paperless",
               "services/patrimo",
               "services/it-tools",
               "services/stirling-pdf",

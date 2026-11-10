@@ -33,7 +33,7 @@ last_reviewed: "2026-11-08"
 | Données | Emplacement | Conséquence d'une perte |
 | --- | --- | --- |
 | Médiathèque HomeFlix | HDD du NAS | Se retélécharge |
-| Photos Immich, dépôts Forgejo | SSD du NAS (`storage-hot`) | Perte définitive : aucune copie connue |
+| Photos Immich, dépôts Forgejo, documents Paperless-ngx | SSD du NAS (`storage-hot`) | Perte définitive : aucune copie connue |
 | Originaux PhotoPrism | HDD du NAS | Perte définitive : aucune copie connue |
 | Sauvegardes PBS elles-mêmes | HDD du NAS | Plus aucune sauvegarde des invités |
 

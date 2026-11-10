@@ -62,6 +62,7 @@ flowchart LR
 | [WUD](/services/whatsupdocker) | `wud.ims-world.fr` | Tailnet | OIDC Authentik ; compte natif de secours |
 | [Interface CrowdSec](/reseau/crowdsec) | `shield.ims-world.fr` | Tailnet | OIDC Authentik (rôle administrateur) |
 | [Termix](/services/termix) | `termix.ims-world.fr` | Tailnet | OIDC Authentik (groupe `admins`) ; compte local de secours avec TOTP |
+| [Paperless-ngx](/services/paperless) | `papiers.ims-world.fr` | Tailnet | OIDC Authentik seul (groupes `admins`, `membres`) ; compte local de secours par `/admin/` |
 | [Home Assistant](/infrastructure/vm-home-assistant) | `home.ims-world.fr` | Tailnet | Native |
 | [qBittorrent](/services/homeflix) | `qbit.ims-world.fr` | Tailnet | Native |
 | [Radarr, Sonarr](/services/homeflix) | `radarr.ims-world.fr`, `sonarr.ims-world.fr` | Tailnet | Formulaire natif |
@@ -103,7 +104,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | Authentik (administration), Proxmox, Coolify, Headplane, Grafana, Dozzle, WUD, Uptime Kuma, Ntfy, Termix | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-xmark" color="#DC2626" /> Non | <Icon icon="circle-xmark" color="#DC2626" /> Non |
 | Enrôlement dans le tailnet (Headscale) | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-xmark" color="#DC2626" /> Non |
-| Vaultwarden, Immich, Zipline, PhotoPrism, Patrimo, Forgejo | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-xmark" color="#DC2626" /> Non |
+| Vaultwarden, Immich, Zipline, PhotoPrism, Patrimo, Forgejo, Paperless-ngx | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-xmark" color="#DC2626" /> Non |
 | HomeFlix, Vidéoclub, IT-Tools, Stirling PDF | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-check" color="#16A34A" /> Oui | <Icon icon="circle-check" color="#16A34A" /> Oui |
 
 ## Vérifier l'exposition
