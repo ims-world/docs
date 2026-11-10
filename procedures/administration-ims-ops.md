@@ -145,6 +145,7 @@ La commande ne modifie rien. Elle complète `just audit` : l'audit vérifie la c
   <Card title="Cluster" icon="network-wired" color="#FF6B00">Quorum, état de chaque invité.</Card>
   <Card title="Sauvegardes" icon="box-archive" color="#8B5CF6">Âge de la dernière sauvegarde de chaque invité du pool, archives locales, occupation du datastore.</Card>
   <Card title="Disques" icon="hard-drive" color="#8B5CF6">Santé SMART relevée sur les nœuds, sans réveiller un disque en veille.</Card>
+  <Card title="Ports à l'écoute" icon="ethernet" color="#FF6B00">Services joignables depuis le réseau sur chaque hôte, pour repérer un service oublié. Les ports publiés par Docker n'y figurent pas.</Card>
 </CardGroup>
 
 Les seuils sont dans `group_vars/all/main.yml` (`health_disk_warn_percent`, `health_backup_max_age_hours`) ; les partages contrôlés, dans `health_paths` de chaque hôte.
