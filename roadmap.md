@@ -29,7 +29,7 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Renouveler la clé Headscale de `infra` | Expire le 18/10/2027 | [Headscale](/reseau/headscale-headplane) |
 | Domotique : Hue, HomeKit, téléviseurs, application mobile, clé Zigbee | Intégrations à configurer | [Home Assistant](/infrastructure/vm-home-assistant) |
 | Paperless-ngx : Tika et Gotenberg, puis import en masse | Documents Office des exports Google Drive ; environ 0,5 Go de RAM au repos | [Paperless-ngx](/services/paperless) |
-| Paperless-ngx : alerte Ntfy sur échec d'ingestion, sonde Uptime Kuma | Paperless ne notifie pas ses échecs ; alerte Grafana sur Loki | [Paperless-ngx](/services/paperless) |
+| Paperless-ngx : alerte Ntfy sur échec d'ingestion | Paperless ne notifie pas ses échecs ; alerte Grafana sur Loki | [Paperless-ngx](/services/paperless) |
 | Montage de l'extension du rack | Impression terminée | [Labrax](/infrastructure/labrax) |
 
 ## À évaluer

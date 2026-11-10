@@ -36,7 +36,7 @@ cd /data/coolify/services/7pv2enn0rt2yi8uovjzuxolg/ && docker compose logs -f --
 | Image | `ghcr.io/paperless-ngx/paperless-ngx:3.3.4`, `postgres:17-alpine`, `redis:7.4-alpine` |
 | Données | Documents sur le SSD du NAS (`/mnt/nas-hot/paperless/media`) ; base, index et file d'attente sur la VM 104 |
 | Sauvegarde | Base et index avec la VM 104 ; **documents non sauvegardés** (voir plus bas) |
-| Supervision | WUD |
+| Supervision | Sonde Uptime Kuma, WUD |
 | Mise en service | 10/11/2026 |
 
 ## Fonctionnement
