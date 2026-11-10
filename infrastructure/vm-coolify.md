@@ -101,6 +101,7 @@ Ce qui distingue cette VM des autres hôtes du parc.
 
   Le propriétaire n'est pas modifié : Coolify vérifie ses propres permissions (utilisateur `9999`).
 - `cmolotkoff` est dans le groupe `docker`, ce qui équivaut à un accès root.
+- Tailscale sans le DNS du tailnet, comme le reste du parc (corrigé le 10/11/2026, [incident](/history/incidents/2026-11-10-dns-worker-105)) : les conteneurs résolvent les domaines publics par le DNS du LAN.
 - Métriques et analyses intégrées de Coolify (Sentinel) désactivées : la supervision passe par [Grafana](/services/monitoring). Sentinel réécrivait sa base en continu.
 - Dossier de données d'Alloy en mémoire (tmpfs, `alloy_data_tmpfs` dans ims-ops) : son tampon de métriques n'écrit plus sur le disque. Il est vidé au redémarrage de la VM.
 

@@ -10,7 +10,7 @@ Chaque incident notable fait l'objet d'une analyse : symptôme, cause, correctio
 
 | Date | Incident | Statut | Actions ouvertes |
 | --- | --- | --- | --- |
-| 10/11/2026 | [Worker 105 sans résolution DNS](/history/incidents/2026-11-10-dns-worker-105) | Résolu | Décider du DNS du tailnet sur `ims-coolify` |
+| 10/11/2026 | [Worker 105 sans résolution DNS](/history/incidents/2026-11-10-dns-worker-105) | Résolu | Aucune |
 | 23/10/2026 | [Échecs ESTALE sur les sauvegardes PBS et HomeFlix](/history/incidents/2026-10-23-estale-nfs-mergerfs-backups-et-homeflix) | Résolu (retrait de MergerFS) | Aucune : alertes de sauvegarde envoyées sur Ntfy depuis le 24/10/2026 |
 | 26/08/2026 | [Faux positifs du WAF CrowdSec AppSec](/history/incidents/2026-08-26-faux-positifs-crowdsec-appsec-outofband) | Clos le 03/11/2026 | Aucune |
 | 24/08/2026 | [Wildcard DNS masqué sur `share.ims-world.fr`](/history/incidents/2026-08-24-dns-wildcard-shadowing-share-ims-world-fr) | Résolu | Aucune : contrôle manuel à chaque nouveau sous-domaine |
