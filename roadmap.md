@@ -12,8 +12,9 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 
 | Chantier | Pourquoi | Où |
 | --- | --- | --- |
-| Protéger les données du NAS : photos Immich, dépôts Forgejo, originaux PhotoPrism | Aucune copie aujourd'hui ; perte définitive si un disque lâche | NAS, [politique de sauvegarde](/procedures/politique-sauvegardes#ce-qui-nest-pas-sauvegardé) |
+| Protéger les données du NAS : photos Immich, dépôts Forgejo, documents Paperless-ngx, originaux PhotoPrism | Aucune copie aujourd'hui ; perte définitive si un disque lâche | NAS, [politique de sauvegarde](/procedures/politique-sauvegardes#ce-qui-nest-pas-sauvegardé) |
 | Copie hors site des sauvegardes PBS | Datastore et médiathèque sur le même HDD. Piste : Raspberry Pi avec disque, en synchronisation PBS | PBS |
+| Export nocturne de Paperless-ngx vers le HDD du NAS | Seule copie des documents en attendant le NAS de sauvegarde ; préalable à la destruction de papiers et à l'import Google Drive | [Paperless-ngx](/services/paperless#données-et-sauvegarde) |
 | QDevice Corosync | Deux votes seulement : la perte d'un nœud fait perdre le quorum | Raspberry Pi |
 
 ## Priorité moyenne
@@ -27,6 +28,8 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Raccorder Windows (VM 102) en RDP dans Termix | Démarrage à la demande à étudier (plugin Proxmox Power) | [Termix](/services/termix) |
 | Renouveler la clé Headscale de `infra` | Expire le 18/10/2027 | [Headscale](/reseau/headscale-headplane) |
 | Domotique : Hue, HomeKit, téléviseurs, application mobile, clé Zigbee | Intégrations à configurer | [Home Assistant](/infrastructure/vm-home-assistant) |
+| Paperless-ngx : Tika et Gotenberg, puis import en masse | Documents Office des exports Google Drive ; environ 0,5 Go de RAM au repos | [Paperless-ngx](/services/paperless) |
+| Paperless-ngx : alerte Ntfy sur échec d'ingestion | Paperless ne notifie pas ses échecs ; alerte Grafana sur Loki | [Paperless-ngx](/services/paperless) |
 | Montage de l'extension du rack | Impression terminée | [Labrax](/infrastructure/labrax) |
 
 ## À évaluer
@@ -42,12 +45,14 @@ Une ligne par chantier. Un chantier terminé passe dans **Réalisés**, avec un 
 | Certificats SSH courts (OPKSSH) | À la place de la clé statique de Termix |
 | Second HDD | Disque ext4 indépendant ([procédure](/procedures/ajout-nouveau-disque#option-a-ajouter-un-disque-de-capacité)) |
 | Sonde de détection d'intrusion réseau, Sentryx | — |
+| Ingestion automatique dans Paperless-ngx | Dossier de dépôt partagé, boîte e-mail dédiée |
 | Applications : Homepage, Imgcompress, Strix, Semgrep, Dawarich, Keep It Shot, Cap, Cyber Strike AI, Page Agent, Meetily | Une à la fois, selon le besoin |
 
 ## Réalisés
 
 | Date | Chantier | Page |
 | --- | --- | --- |
+| 10/11/2026 | Paperless-ngx : gestion documentaire, tailnet, OIDC Authentik avec groupes | [Paperless-ngx](/services/paperless) |
 | 08/11/2026 | Mises à jour de seize services, dont trois de sécurité ; commande `just app-update` | [Administration avec ims-ops](/procedures/administration-ims-ops#mettre-à-jour-un-service-coolify) |
 | 06/11/2026 | Expressions `wud.tag.include` vérifiées sur tous les conteneurs surveillés : 18 corrigées, dont Forgejo épinglé en 11.0.16 | [WUD](/services/whatsupdocker) |
 | 04/11/2026 | HomeFlix en deux ressources Coolify, Bazarr, notifications Ntfy, redirection de port automatique, images à jour | [HomeFlix](/services/homeflix) |

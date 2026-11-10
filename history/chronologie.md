@@ -4,6 +4,12 @@ description: "Journal des chantiers du homelab, du plus récent au plus ancien."
 last_reviewed: "2026-11-08"
 ---
 
+<Update label="10/11/2026" description="Paperless-ngx">
+  - [Paperless-ngx](/services/paperless) 3.3.4 déployé sur la VM 104, sur `papiers.ims-world.fr`, restreint au tailnet. PostgreSQL dès le départ plutôt que SQLite, pour éviter une migration après l'import en masse.
+  - Connexion OIDC native par Authentik seule : comptes créés à la première connexion, groupes `admins` et `membres` synchronisés ; formulaire local désactivé, superutilisateur de secours par `/admin/`.
+  - Documents sur le SSD du NAS, sans copie à ce jour ; base et index sur la VM 104. Export planifié, Tika et Gotenberg, alertes Ntfy inscrits à la [feuille de route](/roadmap).
+</Update>
+
 <Update label="08/11/2026" description="Sauvegarde de la VM 104 : écritures réduites">
   - Sauvegarde nocturne de la [VM 104](/infrastructure/vm-coolify#sauvegarde-et-reprise) de 23 minutes, pour 46 Gio de blocs modifiés par jour. Sources mesurées par conteneur : Redis de Coolify (~28 Go/jour, conservé), Alloy (~16 Go/jour), Sentinel (~14 Go/jour).
   - Métriques et analyses de Coolify (Sentinel) désactivées ; dossier de données d'Alloy en mémoire (option `alloy_data_tmpfs` du rôle `alloy` d'ims-ops).
