@@ -4,7 +4,7 @@ description: "Nœud d'exécution Docker distant, piloté par le Coolify de la VM
 icon: "cube"
 iconType: "duotone"
 last_reviewed: "2026-10-25"
-app_version: "v4.3.14"
+app_version: "v4.7.6"
 ---
 
 import { ips } from "/snippets/variables.mdx";

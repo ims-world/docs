@@ -9,6 +9,7 @@ last_reviewed: "2026-11-08"
   - [Authentik](/services/authentik) 2026.8.6, outpost `ims-outpost` aligné. [Paperless-ngx](/services/paperless) 3.5.1, [Immich](/services/immich) v3.4.2, Seerr v3.5.2.
   - Également : interface [CrowdSec](/reseau/crowdsec) 2026.11.12, [Traefik](/reseau/traefik-proxy) v3.7.16, Zipline 4.8.4, Stirling PDF 3.5.0, Termix 26.11.3, WUD 9.9.0, Uptime Kuma 2.5.12, Ntfy v2.38.1, Dozzle v11.5.0.
   - [Supervision](/services/monitoring) : Grafana 13.3.1, Loki 3.7.10.
+  - [n8n](/services/n8n) : version réellement déployée 2.10.4, et non 2.46.6 comme indiqué le 08/11/2026.
 </Update>
 
 <Update label="10/11/2026" description="Revue du code d'ims-ops, DNS du worker">
