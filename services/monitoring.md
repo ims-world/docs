@@ -4,7 +4,7 @@ description: "Métriques, journaux et alertes du homelab : agents Alloy sur chaq
 icon: "chart-line"
 iconType: "duotone"
 last_reviewed: "2026-11-08"
-app_version: "v13.3.0"
+app_version: "v13.3.1"
 ---
 
 ## Accès
@@ -32,7 +32,7 @@ sudo systemctl status alloy
 | Accès | Tailnet ; OIDC Authentik |
 | Hôte | VM 104 |
 | Coolify | UUID `rrw19kmye6gng961igtzqpgw`, chemin `/data/coolify/services/rrw19kmye6gng961igtzqpgw/` |
-| Image | Grafana `13.3.0`, Loki `3.7.9`, Prometheus `v3.16.0` ; agents Alloy `1.18.1` |
+| Image | Grafana `13.3.1`, Loki `3.7.10`, Prometheus `v3.16.0` ; agents Alloy `1.18.1` |
 | Données | Base Prometheus (rétention 1 an), Loki (30 jours), sur le disque local de la VM 104 |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma sur Grafana |

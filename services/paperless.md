@@ -4,7 +4,7 @@ description: "Gestion des documents administratifs : numérisation, OCR, classem
 icon: "file-lines"
 iconType: "duotone"
 last_reviewed: "2026-11-10"
-app_version: "3.3.4"
+app_version: "3.5.1"
 ---
 
 ## Accès
@@ -33,7 +33,7 @@ cd /data/coolify/services/7pv2enn0rt2yi8uovjzuxolg/ && docker compose logs -f --
 | Accès | Tailnet ; OIDC Authentik seul (groupes `admins`, `membres`), compte local de secours par `/admin/` ; voir la [matrice](/reseau/matrice-securite-exposition) |
 | Hôte | VM 104 |
 | Coolify | UUID `7pv2enn0rt2yi8uovjzuxolg`, chemin `/data/coolify/services/7pv2enn0rt2yi8uovjzuxolg/` |
-| Image | `ghcr.io/paperless-ngx/paperless-ngx:3.3.4`, `postgres:17-alpine`, `redis:7.4-alpine` |
+| Image | `ghcr.io/paperless-ngx/paperless-ngx:3.5.1`, `postgres:17-alpine`, `redis:7.4-alpine` |
 | Données | Documents sur le SSD du NAS (`/mnt/nas-hot/paperless/media`) ; base, index et file d'attente sur la VM 104 |
 | Sauvegarde | Base et index avec la VM 104 ; **documents non sauvegardés** (voir plus bas) |
 | Supervision | Sonde Uptime Kuma, WUD |

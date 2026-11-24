@@ -4,6 +4,13 @@ description: "Journal des chantiers du homelab, du plus récent au plus ancien."
 last_reviewed: "2026-11-08"
 ---
 
+<Update label="23/11/2026" description="Mises à jour des services">
+  - Versions majeures : [Forgejo](/services/forgejo) 17.0.2 (depuis 11.0.16), Radarr 7.0.3 et Prowlarr 3.0.2 dans [Homeflix](/services/homeflix), [Coolify](/infrastructure/vm-coolify) v4.7.6 (depuis v4.3.14).
+  - [Authentik](/services/authentik) 2026.8.6, outpost `ims-outpost` aligné. [Paperless-ngx](/services/paperless) 3.5.1, [Immich](/services/immich) v3.4.2, Seerr v3.5.2.
+  - Également : interface [CrowdSec](/reseau/crowdsec) 2026.11.12, [Traefik](/reseau/traefik-proxy) v3.7.16, Zipline 4.8.4, Stirling PDF 3.5.0, Termix 26.11.3, WUD 9.9.0, Uptime Kuma 2.5.12, Ntfy v2.38.1, Dozzle v11.5.0.
+  - [Supervision](/services/monitoring) : Grafana 13.3.1, Loki 3.7.10.
+</Update>
+
 <Update label="10/11/2026" description="Revue du code d'ims-ops, DNS du worker">
   - Revue complète d'ims-ops : journal persistant sans redémarrage, tâches partagées, jeton Ntfy et URL du battement de cœur hors de la ligne de commande ([ADR-015](/history/adr/adr-015-alerte-externe-battement-de-coeur)).
   - Worker 105 sans DNS depuis son passage en IP fixe ; `pve-macmini` repassé sur le DNS du LAN ([incident](/history/incidents/2026-11-10-dns-worker-105)).

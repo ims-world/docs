@@ -4,7 +4,7 @@ description: "Journaux des conteneurs Docker de la VM 104 en direct, dans le nav
 icon: "list"
 iconType: "duotone"
 last_reviewed: "2026-11-08"
-app_version: "v11.4.1"
+app_version: "v11.5.0"
 ---
 
 ## Accès
@@ -25,7 +25,7 @@ Restreint au tailnet, puis connexion Authentik réservée aux administrateurs.
 | Accès | Tailnet, puis forward-auth Authentik (administrateurs) |
 | Hôte | VM 104 |
 | Coolify | UUID `ejdn7jiuwiyixrmp8nffjkcj`, chemin `/data/coolify/services/ejdn7jiuwiyixrmp8nffjkcj/` |
-| Image | `amir20/dozzle:v11.4.1` |
+| Image | `amir20/dozzle:v11.5.0` |
 | Données | Aucune ; socket Docker monté en lecture seule |
 | Sauvegarde | Sans objet |
 | Supervision | Sonde Uptime Kuma |

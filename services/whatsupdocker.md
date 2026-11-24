@@ -4,7 +4,7 @@ description: "What's Up Docker : détecte les nouvelles versions des images choi
 icon: "docker"
 iconType: "duotone"
 last_reviewed: "2026-11-08"
-app_version: "v9.8.0"
+app_version: "v9.9.0"
 ---
 
 ## Accès
@@ -30,7 +30,7 @@ docker logs -f --tail=100 wud-qwe5jrqlqtwqneevgkf6mwr9
 | Accès | Tailnet ; OIDC Authentik, compte natif `cmolotkoff` en secours ; voir la [matrice](/reseau/matrice-securite-exposition) |
 | Hôte | VM 104 |
 | Coolify | UUID `qwe5jrqlqtwqneevgkf6mwr9`, chemin `/data/coolify/services/qwe5jrqlqtwqneevgkf6mwr9/` |
-| Image | `getwud/wud:9.8.0` |
+| Image | `getwud/wud:9.9.0` |
 | Données | `store/` (état SQLite) ; socket Docker en lecture seule |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |

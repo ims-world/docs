@@ -4,7 +4,7 @@ description: "VM principale des services : Coolify, Traefik, CrowdSec, Authentik
 icon: "box"
 iconType: "duotone"
 last_reviewed: "2026-11-08"
-app_version: "v4.3.14"
+app_version: "v4.7.6"
 ---
 
 import { ips } from "/snippets/variables.mdx";
@@ -31,7 +31,7 @@ La VM 104 porte presque tous les services du homelab, ainsi que Traefik, seul po
 L'orchestrateur, la couche réseau et les services.
 
 <CardGroup cols={2}>
-  <Card color="#3B82F6" title="Coolify v4.3.14" icon="cubes">
+  <Card color="#3B82F6" title="Coolify v4.7.6" icon="cubes">
     Maître : il orchestre cette VM et le [worker 105](/infrastructure/lxc-coolify-worker).
   </Card>
   <Card color="#FF6B00" title="Traefik et CrowdSec" icon="route" href="/reseau/traefik-proxy">

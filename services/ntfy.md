@@ -4,7 +4,7 @@ description: "Serveur de notifications push : toutes les alertes du homelab arri
 icon: "bell"
 iconType: "duotone"
 last_reviewed: "2026-11-08"
-app_version: "v2.37.2"
+app_version: "v2.38.1"
 ---
 
 ## Accès
@@ -35,7 +35,7 @@ curl -H "Authorization: Bearer <jeton>" -d "Test" https://ntfy.ims-world.fr/ims-
 | Accès | Public (réception sur le téléphone hors du tailnet) ; inscription fermée, accès refusé par défaut |
 | Hôte | VM 104 |
 | Coolify | UUID `j5akn2e9pr6g7c2pjvdj78w0`, chemin `/data/coolify/services/j5akn2e9pr6g7c2pjvdj78w0/` |
-| Image | `binwiederhier/ntfy:v2.37.2` |
+| Image | `binwiederhier/ntfy:v2.38.1` |
 | Données | Base des utilisateurs, droits et jetons |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |

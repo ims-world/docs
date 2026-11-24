@@ -8,3 +8,6 @@ drafts/
 
 # Modèles de page (copiés à la main, jamais publiés)
 _modeles/
+
+# Fichiers de travail des assistants IA (non publiés, déjà exclus de git)
+Claude outputs/

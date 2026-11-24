@@ -4,7 +4,7 @@ description: "Sondes de disponibilité des services et des hôtes, avec alertes 
 icon: "heart-pulse"
 iconType: "duotone"
 last_reviewed: "2026-11-08"
-app_version: "v2.5.9"
+app_version: "v2.5.12"
 ---
 
 ## Accès
@@ -30,7 +30,7 @@ cd /data/coolify/services/il53bmpdybmss5q14sfy0umm/ && docker compose logs -f --
 | Accès | Public ; forward-auth Authentik (administrateurs) |
 | Hôte | VM 104 |
 | Coolify | UUID `il53bmpdybmss5q14sfy0umm`, chemin `/data/coolify/services/il53bmpdybmss5q14sfy0umm/` |
-| Image | `louislam/uptime-kuma:2.5.9` |
+| Image | `louislam/uptime-kuma:2.5.12` |
 | Données | Base SQLite |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Exporte ses mesures vers Prometheus |

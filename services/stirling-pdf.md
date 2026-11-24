@@ -4,7 +4,7 @@ description: "Outils PDF sans conservation des documents : fusion, découpe, con
 icon: "file-pdf"
 iconType: "duotone"
 last_reviewed: "2026-11-08"
-app_version: "3.3.0"
+app_version: "3.5.0"
 ---
 
 ## Accès
@@ -30,7 +30,7 @@ cd /data/coolify/services/p6lm9p4zf1caqruekeuocnje/ && docker compose logs -f --
 | Accès | Public ; forward-auth Authentik (fournisseur `IMS-StrilingPDF-Provider`) |
 | Hôte | VM 104 |
 | Coolify | UUID `p6lm9p4zf1caqruekeuocnje`, chemin `/data/coolify/services/p6lm9p4zf1caqruekeuocnje/` |
-| Image | `stirlingtools/stirling-pdf:3.3.0` |
+| Image | `stirlingtools/stirling-pdf:3.5.0` |
 | Données | Aucun document conservé ; volumes de configuration et de modèles OCR |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |

@@ -4,7 +4,7 @@ description: "Reverse proxy unique du homelab, géré par Coolify : certificats 
 icon: "traffic-light"
 iconType: "duotone"
 last_reviewed: "2026-10-25"
-app_version: "v3.7.13"
+app_version: "v3.7.16"
 ---
 
 import { ips } from "/snippets/variables.mdx";
@@ -17,7 +17,7 @@ import { ips } from "/snippets/variables.mdx";
 | Accès | Ports 80 et 443 redirigés par la Bbox ; tailnet |
 | Hôte | VM 104, conteneur `coolify-proxy`, réseau Docker `coolify` |
 | Coolify | Proxy du serveur (configuration dans `/data/coolify/proxy/`) |
-| Image | `traefik:v3.7.13` |
+| Image | `traefik:v3.7.16` |
 | Données | `acme.json` (certificats), fichiers dynamiques `/data/coolify/proxy/dynamic/` |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Métriques Traefik dans Grafana (tableau « Traefik — Reverse Proxy ») |

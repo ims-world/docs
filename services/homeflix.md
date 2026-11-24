@@ -52,7 +52,7 @@ cd /data/coolify/services/vbz6zfdlioijpbuegfpjsr69/ && sudo docker compose logs 
 | Accès | Jellyfin : comptes natifs ; Seerr : comptes Jellyfin ; outils : tailnet et formulaires natifs |
 | Hôte | VM 104 |
 | Coolify | `homeflix-acquisition` : UUID `hnvmipjmlpu1cn8zqxmccskr` ; `homeflix-lecture` : UUID `vbz6zfdlioijpbuegfpjsr69` ; chemins `/data/coolify/services/<UUID>/` |
-| Image | Jellyfin `10.11.11`, Seerr `v3.5.1`, Radarr `6.4.4.10685-ls321`, Sonarr `4.0.20.3014-ls325`, Prowlarr `2.7.0.5723-ls166`, Bazarr `v1.6.2-ls366`, qBittorrent `5.3.0_v2.0.15-ls482`, Gluetun `v3.41.3`, Recyclarr `8.8.1` |
+| Image | Jellyfin `10.11.11`, Seerr `v3.5.2`, Radarr `7.0.3.10918-ls328`, Sonarr `4.0.20.3014-ls325`, Prowlarr `3.0.2.5780-ls169`, Bazarr `v1.6.2-ls366`, qBittorrent `5.3.0_v2.0.15-ls482`, Gluetun `v3.41.3`, Recyclarr `8.8.1` |
 | Données | Configurations et bases SQLite sur la VM 104 ; médias sur le NAS (`/mnt/nas-storage/homeflix`) |
 | Sauvegarde | Configurations avec la VM 104 ; médias non sauvegardés |
 | Supervision | Sondes Uptime Kuma ; healthchecks Docker et Autoheal ; WUD ; notifications Ntfy sur le topic `homeflix` |

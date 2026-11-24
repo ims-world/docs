@@ -4,7 +4,7 @@ description: "Fournisseur d'identité du homelab : connexion unique (OIDC) pour 
 icon: "key"
 iconType: "duotone"
 last_reviewed: "2026-11-08"
-app_version: "2026.8.5"
+app_version: "2026.8.6"
 ---
 
 import { domains } from "/snippets/variables.mdx";
@@ -32,7 +32,7 @@ docker exec -it authentik-worker-k5mxvc2r6c4zlb6j3d443h7b ak create_recovery_key
 | Accès | Public ; double facteur (TOTP, WebAuthn) |
 | Hôte | VM 104 |
 | Coolify | UUID `k5mxvc2r6c4zlb6j3d443h7b`, chemin `/data/coolify/services/k5mxvc2r6c4zlb6j3d443h7b/` |
-| Image | `ghcr.io/goauthentik/server:2026.8.5` (version écrite dans le compose, sans variable `AUTHENTIK_TAG`) ; outpost `ghcr.io/goauthentik/proxy:2026.8.5` |
+| Image | `ghcr.io/goauthentik/server:2026.8.6` (version écrite dans le compose, sans variable `AUTHENTIK_TAG`) ; outpost `ghcr.io/goauthentik/proxy:2026.8.6` |
 | Données | PostgreSQL (volume Docker sur la VM 104) ; clé `SECRET_KEY` |
 | Sauvegarde | Avec la VM 104 |
 | Supervision | Sonde Uptime Kuma |
